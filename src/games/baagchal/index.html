@@ -827,14 +827,13 @@ class BaagchalGame {
         this.checkWinner();
         this.render();
         
-        // After human goat places, check who controls the tigers
-        if (this.gameMode === "AI" && !this.winner) {
-            if (this.playerSide === "G") {
-                // User is Goat, AI is Tiger - AI should move tiger
-                setTimeout(() => this.makeTigerMove(), 600);
-            }
-            // If user is Tiger, turn passes to them - don't auto-move
+        // After human goat places, ONLY auto-move tiger if AI controls tigers
+        // If user selected Tiger, they control tigers - DO NOT auto-move
+        if (this.gameMode === "AI" && !this.winner && this.playerSide === "G") {
+            // User is Goat, AI is Tiger - AI should move tiger
+            setTimeout(() => this.makeTigerMove(), 600);
         }
+        // If playerSide === "T", user controls tiger - wait for their input
     }
     
     // Handle movement (for both Tiger and Goat in movement phase)
@@ -859,17 +858,18 @@ class BaagchalGame {
                 this.checkWinner();
                 this.render();
                 
-                // After human moves, AI's turn
+                // After human moves, AI's turn (only if AI controls the opposite side)
                 if (this.gameMode === "AI" && !this.winner) {
-                    if (this.turn === "G") {
-                        // AI needs to place or move goat
+                    if (this.turn === "G" && this.playerSide === "T") {
+                        // AI is Goat, user is Tiger - AI places/moves goat
                         if (this.phase === "PLACEMENT") {
                             setTimeout(() => this.makeGoatPlacement(), 600);
                         } else {
                             setTimeout(() => this.makeGoatMove(), 600);
                         }
                     }
-                    // If turn is T, AI shouldn't move - user controls tigers
+                    // If turn is T and user is Tiger, DON'T auto-move - let user control
+                    // If turn is G and user is Goat, user just moved, wait for their next input
                 }
             } else if (canSelect && index !== this.selectedCell) {
                 this.selectedCell = index;
@@ -987,15 +987,13 @@ class BaagchalGame {
         this.checkWinner();
         this.render();
         
-        // After AI goat places, check if it's AI's turn to move tiger OR user's turn
-        // If user is playing as Tiger, DON'T auto-move - let user control tigers
-        if (this.gameMode === "AI" && !this.winner) {
-            if (this.playerSide === "G") {
-                // User is Goat, AI is Tiger - AI should move tiger
-                setTimeout(() => this.makeTigerMove(), 600);
-            }
-            // If user is Tiger, the turn is now theirs - don't auto-move
+        // CRITICAL: After AI goat places, ONLY AI should move tiger if AI controls tigers
+        // If user selected Tiger (playerSide === "T"), NEVER auto-move tiger
+        if (this.gameMode === "AI" && !this.winner && this.playerSide === "G") {
+            // User is Goat, AI is Tiger - AI moves tiger
+            setTimeout(() => this.makeTigerMove(), 600);
         }
+        // If playerSide === "T", user controls tiger - DO NOT auto-move
     }
     
     // Check if a goat placed at pos would be capturable by any tiger
@@ -1069,14 +1067,13 @@ class BaagchalGame {
         this.checkWinner();
         this.render();
         
-        // After AI goat moves, check if AI should move tiger or pass to user
-        if (this.gameMode === "AI" && !this.winner && this.turn === "T") {
-            if (this.playerSide === "G") {
-                // User is Goat, AI is Tiger - AI should move tiger
-                setTimeout(() => this.makeTigerMove(), 600);
-            }
-            // If user is Tiger, turn passes to them - don't auto-move
+        // After AI goat moves, ONLY auto-move tiger if AI controls tigers
+        // If user selected Tiger (playerSide === "T"), NEVER auto-move tiger
+        if (this.gameMode === "AI" && !this.winner && this.turn === "T" && this.playerSide === "G") {
+            // User is Goat, AI is Tiger - AI should move tiger
+            setTimeout(() => this.makeTigerMove(), 600);
         }
+        // If playerSide === "T", user controls tiger - DO NOT auto-move
     }
     
     isNearTiger(pos) {
