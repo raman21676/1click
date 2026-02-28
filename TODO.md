@@ -98,14 +98,14 @@
 ### 2.3 Sudoku
 | # | Task | Status | Priority | Assignee | Notes | Commit |
 |---|------|--------|----------|----------|-------|--------|
-| 2.3.1 | Create 9x9 grid UI | ⏳ Pending | High | AI Agent | Sub-grid borders | - |
-| 2.3.2 | Implement puzzle generator | ⏳ Pending | High | AI Agent | Algorithm-based | - |
-| 2.3.3 | Add number input | ⏳ Pending | High | AI Agent | Keyboard + click | - |
-| 2.3.4 | Add validation | ⏳ Pending | High | AI Agent | Real-time check | - |
-| 2.3.5 | Add difficulty levels | ⏳ Pending | Medium | AI Agent | 4 levels | - |
-| 2.3.6 | Add timer | ⏳ Pending | Medium | AI Agent | Track solve time | - |
-| 2.3.7 | Add hint system | ⏳ Pending | Medium | AI Agent | 3 hints max | - |
-| 2.3.8 | Add save/resume | ⏳ Pending | Low | AI Agent | LocalStorage | - |
+| 2.3.1 | Create 9x9 grid UI | 🟢 Done | High | AI Agent | Sub-grid borders | - |
+| 2.3.2 | Implement puzzle generator | 🟢 Done | High | AI Agent | Algorithm-based | - |
+| 2.3.3 | Add number input | 🟢 Done | High | AI Agent | Keyboard + click | - |
+| 2.3.4 | Add validation | 🟢 Done | High | AI Agent | Real-time check | - |
+| 2.3.5 | Add difficulty levels | 🟢 Done | Medium | AI Agent | 4 levels | - |
+| 2.3.6 | Add timer | 🟢 Done | Medium | AI Agent | Track solve time | - |
+| 2.3.7 | Add hint system | 🟢 Done | Medium | AI Agent | 3 hints max | - |
+| 2.3.8 | Add save/resume | 🟢 Done | Low | AI Agent | LocalStorage | - |
 
 ### 2.4 Baagchal (बाघचाल)
 | # | Task | Status | Priority | Assignee | Notes | Commit |

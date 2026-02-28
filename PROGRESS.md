@@ -435,3 +435,71 @@ Fixed critical bugs and added requested features: Snake game difficulty levels, 
 **Total Development Time:** ~105 minutes  
 **Last Updated:** 2026-02-28 20:00 IST  
 **Next Review:** User testing feedback
+
+
+### Session 5: Sudoku Game Development
+
+**Date:** 2026-02-28  
+**Time:** 20:00 - 20:30 IST  
+**Agent:** AI Agent  
+**Duration:** ~30 minutes  
+**Status:** ✅ Complete
+
+#### Summary
+Built the third core game - Sudoku with puzzle generator, 4 difficulty levels, timer, hint system, and save functionality.
+
+#### Tasks Completed
+
+| # | Task | Description | Files Created |
+|---|------|-------------|---------------|
+| 5.1 | Sudoku HTML/CSS | 9x9 grid with sub-grid borders | `/src/games/sudoku/index.html` |
+| 5.2 | Puzzle Generator | Algorithm to create valid puzzles | Embedded in HTML |
+| 5.3 | Number Input | Click cells + number pad + keyboard | JavaScript |
+| 5.4 | Validation | Real-time error checking | JavaScript |
+| 5.5 | Difficulty Levels | Easy (35), Medium (45), Hard (55), Expert (60) cells removed | JavaScript |
+| 5.6 | Timer | Tracks solve time | JavaScript |
+| 5.7 | Hint System | 3 hints per game, reveals correct number | JavaScript |
+| 5.8 | Save/Resume | LocalStorage for game state | JavaScript |
+| 5.9 | Landing Page | Linked Sudoku card | `/index.html` |
+
+#### Files Created/Modified (2 files)
+```
+1click/
+├── index.html                          ← Updated Sudoku card link
+└── src/
+    └── games/
+        └── sudoku/
+            └── index.html              ← Complete Sudoku game
+```
+
+#### Sudoku Features Implemented
+- ✅ 9x9 grid with 3x3 sub-grid borders
+- ✅ Puzzle generator using backtracking algorithm
+- ✅ 4 difficulty levels (Easy, Medium, Hard, Expert)
+- ✅ Number input via click, number pad, or keyboard (1-9)
+- ✅ Clear cell with 0, Delete, or Backspace
+- ✅ Real-time validation (wrong numbers shown in red)
+- ✅ Timer display (MM:SS format)
+- ✅ 3 hints per game (reveals correct number with animation)
+- ✅ Cell highlighting (same row/column/box)
+- ✅ Same number highlighting
+- ✅ Win detection with congratulations modal
+- ✅ Game state saved to LocalStorage
+- ✅ Arrow key navigation
+- ✅ Responsive design for mobile
+
+#### Difficulty Settings
+| Level | Cells Removed | Empty Cells |
+|-------|---------------|-------------|
+| Easy | 35 | 46 filled |
+| Medium | 45 | 36 filled |
+| Hard | 55 | 26 filled |
+| Expert | 60 | 21 filled |
+
+---
+
+**Total Sessions:** 5  
+**Total Development Time:** ~135 minutes  
+**Games Completed:** 3/8 (Tic-Tac-Toe, Snake, Sudoku)  
+**Last Updated:** 2026-02-28 20:30 IST  
+**Next Review:** User testing

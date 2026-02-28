@@ -1,0 +1,775 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Sudoku - 1click Games</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        :root {
+            --primary: #3b82f6;
+            --primary-dark: #2563eb;
+            --bg-dark: #0f172a;
+            --bg-card: #1e293b;
+            --text: #f1f5f9;
+            --text-muted: #94a3b8;
+            --border: #334155;
+            --cell-bg: #1e293b;
+            --cell-selected: #3b82f6;
+            --cell-highlight: rgba(59, 130, 246, 0.2);
+            --cell-same-number: rgba(59, 130, 246, 0.1);
+            --error: #ef4444;
+            --success: #22c55e;
+            --hint: #f59e0b;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, var(--bg-dark) 0%, var(--bg-card) 100%);
+            color: var(--text);
+            min-height: 100vh;
+        }
+        
+        .game-container {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        /* Header */
+        .game-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 1rem 1.5rem;
+            background: rgba(30, 41, 59, 0.8);
+            border-bottom: 1px solid rgba(59, 130, 246, 0.3);
+        }
+        
+        .back-btn {
+            color: #60a5fa;
+            text-decoration: none;
+            font-size: 0.9rem;
+        }
+        
+        .game-header h1 {
+            font-size: 1.5rem;
+            background: linear-gradient(135deg, #3b82f6 0%, #60a5fa 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        /* Main */
+        .game-main {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 1rem;
+            gap: 1rem;
+        }
+        
+        /* Stats Bar */
+        .stats-bar {
+            display: flex;
+            gap: 1.5rem;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+        
+        .stat-box {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 0.5rem 1rem;
+            background: rgba(30, 41, 59, 0.6);
+            border-radius: 0.5rem;
+            min-width: 70px;
+        }
+        
+        .stat-box .label {
+            font-size: 0.7rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+        }
+        
+        .stat-box .value {
+            font-size: 1.3rem;
+            font-weight: bold;
+            color: var(--text);
+        }
+        
+        .timer-value { color: #f59e0b; }
+        .hints-value { color: #f59e0b; }
+        
+        /* Difficulty Selector */
+        .difficulty-bar {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+        
+        .diff-btn {
+            padding: 0.4rem 0.8rem;
+            border: 1px solid var(--border);
+            background: transparent;
+            color: var(--text-muted);
+            border-radius: 0.5rem;
+            cursor: pointer;
+            font-size: 0.8rem;
+            transition: all 0.2s;
+        }
+        
+        .diff-btn:hover { border-color: var(--primary); color: var(--primary); }
+        .diff-btn.active {
+            background: var(--primary);
+            border-color: var(--primary);
+            color: white;
+        }
+        
+        /* Game Board */
+        .board-container {
+            position: relative;
+            padding: 3px;
+            background: var(--border);
+            border-radius: 8px;
+        }
+        
+        .sudoku-grid {
+            display: grid;
+            grid-template-columns: repeat(9, 1fr);
+            gap: 1px;
+            background: var(--border);
+            border: 2px solid var(--border);
+        }
+        
+        .cell {
+            width: 40px;
+            height: 40px;
+            background: var(--cell-bg);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.3rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.15s;
+            user-select: none;
+        }
+        
+        /* 3x3 box borders */
+        .cell:nth-child(3n) { border-right: 2px solid var(--border); }
+        .cell:nth-child(n+19):nth-child(-n+27),
+        .cell:nth-child(n+46):nth-child(-n+54) { border-bottom: 2px solid var(--border); }
+        
+        .cell:hover:not(.fixed) { background: rgba(59, 130, 246, 0.3); }
+        
+        .cell.selected {
+            background: var(--cell-selected) !important;
+            color: white;
+        }
+        
+        .cell.highlight {
+            background: var(--cell-highlight);
+        }
+        
+        .cell.same-number {
+            background: var(--cell-same-number);
+        }
+        
+        .cell.fixed {
+            color: #94a3b8;
+            font-weight: 700;
+        }
+        
+        .cell.user-filled {
+            color: #3b82f6;
+        }
+        
+        .cell.error {
+            color: var(--error);
+            background: rgba(239, 68, 68, 0.2);
+        }
+        
+        .cell.hint {
+            color: var(--hint);
+            animation: hintPulse 0.5s ease;
+        }
+        
+        @keyframes hintPulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.2); }
+        }
+        
+        /* Notes (small numbers) */
+        .cell .notes {
+            position: absolute;
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            font-size: 0.5rem;
+            color: var(--text-muted);
+            width: 100%;
+            height: 100%;
+            padding: 2px;
+        }
+        
+        .cell .notes span {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        /* Number Pad */
+        .number-pad {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 0.5rem;
+        }
+        
+        .num-btn {
+            width: 50px;
+            height: 50px;
+            border: 1px solid var(--border);
+            background: var(--bg-card);
+            color: var(--text);
+            border-radius: 0.5rem;
+            font-size: 1.3rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.15s;
+        }
+        
+        .num-btn:hover { background: var(--primary); border-color: var(--primary); }
+        .num-btn:active { transform: scale(0.95); }
+        .num-btn.clear { background: var(--error); border-color: var(--error); }
+        .num-btn.hint-btn { background: var(--hint); border-color: var(--hint); font-size: 0.9rem; }
+        
+        /* Controls */
+        .controls {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+        
+        .control-btn {
+            padding: 0.6rem 1.2rem;
+            border: 1px solid var(--border);
+            background: var(--bg-card);
+            color: var(--text);
+            border-radius: 0.5rem;
+            cursor: pointer;
+            font-size: 0.85rem;
+            transition: all 0.2s;
+        }
+        
+        .control-btn:hover { background: rgba(255,255,255,0.1); }
+        .control-btn.primary {
+            background: var(--primary);
+            border-color: var(--primary);
+        }
+        
+        /* Modal */
+        .modal {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.85);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 100;
+        }
+        
+        .modal.hidden { display: none !important; }
+        
+        .modal-content {
+            background: var(--bg-card);
+            padding: 2rem;
+            border-radius: 1rem;
+            text-align: center;
+            max-width: 320px;
+            border: 1px solid rgba(59, 130, 246, 0.3);
+        }
+        
+        .modal-content h2 {
+            color: var(--success);
+            margin-bottom: 0.5rem;
+        }
+        
+        .modal-content p {
+            color: var(--text-muted);
+            margin-bottom: 1.5rem;
+        }
+        
+        /* Responsive */
+        @media (max-width: 480px) {
+            .cell { width: 35px; height: 35px; font-size: 1.1rem; }
+            .num-btn { width: 45px; height: 45px; font-size: 1.1rem; }
+            .game-header h1 { font-size: 1.2rem; }
+        }
+        
+        @media (max-width: 380px) {
+            .cell { width: 32px; height: 32px; font-size: 1rem; }
+            .num-btn { width: 40px; height: 40px; font-size: 1rem; }
+        }
+    </style>
+</head>
+<body>
+    <div class="game-container">
+        <header class="game-header">
+            <a href="../../../index.html" class="back-btn">← Back</a>
+            <h1>Sudoku</h1>
+            <div style="width: 50px;"></div>
+        </header>
+
+        <main class="game-main">
+            <!-- Stats -->
+            <div class="stats-bar">
+                <div class="stat-box">
+                    <span class="label">Time</span>
+                    <span id="timer" class="value timer-value">00:00</span>
+                </div>
+                <div class="stat-box">
+                    <span class="label">Hints</span>
+                    <span id="hints" class="value hints-value">3</span>
+                </div>
+                <div class="stat-box">
+                    <span class="label">Difficulty</span>
+                    <span id="current-diff" class="value">Medium</span>
+                </div>
+            </div>
+
+            <!-- Difficulty Selection -->
+            <div class="difficulty-bar">
+                <button class="diff-btn" data-diff="easy">Easy</button>
+                <button class="diff-btn active" data-diff="medium">Medium</button>
+                <button class="diff-btn" data-diff="hard">Hard</button>
+                <button class="diff-btn" data-diff="expert">Expert</button>
+            </div>
+
+            <!-- Game Board -->
+            <div class="board-container">
+                <div class="sudoku-grid" id="grid"></div>
+            </div>
+
+            <!-- Number Pad -->
+            <div class="number-pad">
+                <button class="num-btn" data-num="1">1</button>
+                <button class="num-btn" data-num="2">2</button>
+                <button class="num-btn" data-num="3">3</button>
+                <button class="num-btn" data-num="4">4</button>
+                <button class="num-btn" data-num="5">5</button>
+                <button class="num-btn" data-num="6">6</button>
+                <button class="num-btn" data-num="7">7</button>
+                <button class="num-btn" data-num="8">8</button>
+                <button class="num-btn" data-num="9">9</button>
+                <button class="num-btn clear" data-num="0">✕</button>
+            </div>
+
+            <!-- Controls -->
+            <div class="controls">
+                <button id="hint-btn" class="control-btn">💡 Hint (<span id="hint-count">3</span>)</button>
+                <button id="new-game-btn" class="control-btn primary">New Game</button>
+            </div>
+        </main>
+
+        <!-- Win Modal -->
+        <div id="win-modal" class="modal hidden">
+            <div class="modal-content">
+                <h2>🎉 Congratulations!</h2>
+                <p>You solved the puzzle!<br>Time: <span id="win-time">00:00</span></p>
+                <button id="play-again-btn" class="control-btn primary">Play Again</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+// Storage
+const Storage = {
+    get: (key) => {
+        try { return JSON.parse(localStorage.getItem(key)); } catch(e) { return null; }
+    },
+    set: (key, value) => {
+        try { localStorage.setItem(key, JSON.stringify(value)); } catch(e) {}
+    }
+};
+
+class SudokuGame {
+    constructor() {
+        this.grid = [];
+        this.solution = [];
+        this.fixed = [];
+        this.selectedCell = null;
+        this.hints = 3;
+        this.timer = 0;
+        this.timerInterval = null;
+        this.difficulty = 'medium';
+        this.isPlaying = false;
+        
+        this.difficultySettings = {
+            easy: { cellsToRemove: 35 },
+            medium: { cellsToRemove: 45 },
+            hard: { cellsToRemove: 55 },
+            expert: { cellsToRemove: 60 }
+        };
+        
+        this.init();
+    }
+    
+    init() {
+        this.createGrid();
+        this.attachEvents();
+        this.newGame();
+    }
+    
+    createGrid() {
+        const gridEl = document.getElementById('grid');
+        gridEl.innerHTML = '';
+        
+        for (let i = 0; i < 81; i++) {
+            const cell = document.createElement('div');
+            cell.className = 'cell';
+            cell.dataset.index = i;
+            cell.addEventListener('click', () => this.selectCell(i));
+            gridEl.appendChild(cell);
+        }
+    }
+    
+    attachEvents() {
+        // Difficulty buttons
+        document.querySelectorAll('.diff-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                document.querySelectorAll('.diff-btn').forEach(b => b.classList.remove('active'));
+                e.target.classList.add('active');
+                this.difficulty = e.target.dataset.diff;
+                document.getElementById('current-diff').textContent = 
+                    this.difficulty.charAt(0).toUpperCase() + this.difficulty.slice(1);
+                this.newGame();
+            });
+        });
+        
+        // Number pad
+        document.querySelectorAll('.num-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const num = parseInt(btn.dataset.num);
+                this.fillCell(num);
+            });
+        });
+        
+        // Keyboard
+        document.addEventListener('keydown', (e) => {
+            if (e.key >= '1' && e.key <= '9') {
+                this.fillCell(parseInt(e.key));
+            } else if (e.key === 'Backspace' || e.key === 'Delete' || e.key === '0') {
+                this.fillCell(0);
+            } else if (e.key === 'ArrowUp') this.moveSelection(-9);
+            else if (e.key === 'ArrowDown') this.moveSelection(9);
+            else if (e.key === 'ArrowLeft') this.moveSelection(-1);
+            else if (e.key === 'ArrowRight') this.moveSelection(1);
+        });
+        
+        // Hint button
+        document.getElementById('hint-btn').addEventListener('click', () => this.useHint());
+        
+        // New game
+        document.getElementById('new-game-btn').addEventListener('click', () => this.newGame());
+        document.getElementById('play-again-btn').addEventListener('click', () => {
+            document.getElementById('win-modal').classList.add('hidden');
+            this.newGame();
+        });
+    }
+    
+    generateSolution() {
+        // Create empty grid
+        const grid = Array(9).fill(null).map(() => Array(9).fill(0));
+        
+        // Fill diagonal 3x3 boxes first (independent)
+        for (let box = 0; box < 3; box++) {
+            const nums = [1, 2, 3, 4, 5, 6, 7, 8, 9];
+            this.shuffle(nums);
+            let idx = 0;
+            for (let i = 0; i < 3; i++) {
+                for (let j = 0; j < 3; j++) {
+                    grid[box * 3 + i][box * 3 + j] = nums[idx++];
+                }
+            }
+        }
+        
+        // Solve the rest
+        this.solve(grid);
+        return grid;
+    }
+    
+    shuffle(array) {
+        for (let i = array.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [array[i], array[j]] = [array[j], array[i]];
+        }
+    }
+    
+    solve(grid) {
+        for (let row = 0; row < 9; row++) {
+            for (let col = 0; col < 9; col++) {
+                if (grid[row][col] === 0) {
+                    const nums = [1, 2, 3, 4, 5, 6, 7, 8, 9];
+                    this.shuffle(nums);
+                    for (const num of nums) {
+                        if (this.isValid(grid, row, col, num)) {
+                            grid[row][col] = num;
+                            if (this.solve(grid)) return true;
+                            grid[row][col] = 0;
+                        }
+                    }
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
+    
+    isValid(grid, row, col, num) {
+        // Check row
+        for (let x = 0; x < 9; x++) if (grid[row][x] === num) return false;
+        // Check column
+        for (let x = 0; x < 9; x++) if (grid[x][col] === num) return false;
+        // Check box
+        const startRow = row - row % 3;
+        const startCol = col - col % 3;
+        for (let i = 0; i < 3; i++) {
+            for (let j = 0; j < 3; j++) {
+                if (grid[i + startRow][j + startCol] === num) return false;
+            }
+        }
+        return true;
+    }
+    
+    newGame() {
+        // Reset state
+        this.hints = 3;
+        this.timer = 0;
+        this.isPlaying = true;
+        this.selectedCell = null;
+        
+        // Update UI
+        this.updateHints();
+        this.updateTimer();
+        
+        // Clear timer
+        if (this.timerInterval) clearInterval(this.timerInterval);
+        this.timerInterval = setInterval(() => {
+            if (this.isPlaying) {
+                this.timer++;
+                this.updateTimer();
+            }
+        }, 1000);
+        
+        // Generate puzzle
+        this.solution = this.generateSolution();
+        this.grid = this.solution.map(row => [...row]);
+        
+        // Remove cells based on difficulty
+        const toRemove = this.difficultySettings[this.difficulty].cellsToRemove;
+        let removed = 0;
+        while (removed < toRemove) {
+            const row = Math.floor(Math.random() * 9);
+            const col = Math.floor(Math.random() * 9);
+            if (this.grid[row][col] !== 0) {
+                this.grid[row][col] = 0;
+                removed++;
+            }
+        }
+        
+        // Track fixed cells
+        this.fixed = [];
+        for (let i = 0; i < 81; i++) {
+            const row = Math.floor(i / 9);
+            const col = i % 9;
+            this.fixed[i] = this.grid[row][col] !== 0;
+        }
+        
+        this.renderGrid();
+        
+        // Save game
+        this.saveGame();
+    }
+    
+    renderGrid() {
+        const cells = document.querySelectorAll('.cell');
+        cells.forEach((cell, i) => {
+            const row = Math.floor(i / 9);
+            const col = i % 9;
+            const value = this.grid[row][col];
+            
+            cell.textContent = value || '';
+            cell.className = 'cell';
+            
+            if (this.fixed[i]) {
+                cell.classList.add('fixed');
+            } else if (value !== 0) {
+                cell.classList.add('user-filled');
+                // Check if correct
+                if (value !== this.solution[row][col]) {
+                    cell.classList.add('error');
+                }
+            }
+            
+            if (i === this.selectedCell) {
+                cell.classList.add('selected');
+            }
+        });
+        
+        this.highlightRelated();
+    }
+    
+    selectCell(index) {
+        this.selectedCell = index;
+        this.renderGrid();
+    }
+    
+    moveSelection(delta) {
+        if (this.selectedCell === null) {
+            this.selectedCell = 0;
+        } else {
+            this.selectedCell = Math.max(0, Math.min(80, this.selectedCell + delta));
+        }
+        this.renderGrid();
+    }
+    
+    fillCell(num) {
+        if (this.selectedCell === null || !this.isPlaying) return;
+        if (this.fixed[this.selectedCell]) return;
+        
+        const row = Math.floor(this.selectedCell / 9);
+        const col = this.selectedCell % 9;
+        
+        this.grid[row][col] = num;
+        this.renderGrid();
+        this.saveGame();
+        
+        // Check win
+        if (this.checkWin()) {
+            this.win();
+        }
+    }
+    
+    useHint() {
+        if (this.hints <= 0 || !this.isPlaying) return;
+        if (this.selectedCell === null) return;
+        if (this.fixed[this.selectedCell]) return;
+        
+        const row = Math.floor(this.selectedCell / 9);
+        const col = this.selectedCell % 9;
+        
+        if (this.grid[row][col] === this.solution[row][col]) return;
+        
+        this.hints--;
+        this.updateHints();
+        
+        this.grid[row][col] = this.solution[row][col];
+        
+        // Show hint animation
+        const cells = document.querySelectorAll('.cell');
+        cells[this.selectedCell].classList.add('hint');
+        setTimeout(() => {
+            cells[this.selectedCell].classList.remove('hint');
+        }, 500);
+        
+        this.renderGrid();
+        this.saveGame();
+        
+        if (this.checkWin()) {
+            this.win();
+        }
+    }
+    
+    highlightRelated() {
+        if (this.selectedCell === null) return;
+        
+        const cells = document.querySelectorAll('.cell');
+        const selectedRow = Math.floor(this.selectedCell / 9);
+        const selectedCol = this.selectedCell % 9;
+        const selectedValue = this.grid[selectedRow][selectedCol];
+        
+        cells.forEach((cell, i) => {
+            const row = Math.floor(i / 9);
+            const col = i % 9);
+            
+            // Highlight same row/column/box
+            const sameRow = row === selectedRow;
+            const sameCol = col === selectedCol;
+            const sameBox = Math.floor(row / 3) === Math.floor(selectedRow / 3) && 
+                           Math.floor(col / 3) === Math.floor(selectedCol / 3);
+            
+            if ((sameRow || sameCol || sameBox) && i !== this.selectedCell) {
+                cell.classList.add('highlight');
+            }
+            
+            // Highlight same numbers
+            if (selectedValue !== 0 && this.grid[row][col] === selectedValue && i !== this.selectedCell) {
+                cell.classList.add('same-number');
+            }
+        });
+    }
+    
+    checkWin() {
+        for (let i = 0; i < 81; i++) {
+            const row = Math.floor(i / 9);
+            const col = i % 9;
+            if (this.grid[row][col] !== this.solution[row][col]) {
+                return false;
+            }
+        }
+        return true;
+    }
+    
+    win() {
+        this.isPlaying = false;
+        clearInterval(this.timerInterval);
+        
+        document.getElementById('win-time').textContent = this.formatTime(this.timer);
+        document.getElementById('win-modal').classList.remove('hidden');
+        
+        // Save best time
+        const bestTime = Storage.get(`sudoku_best_${this.difficulty}`);
+        if (!bestTime || this.timer < bestTime) {
+            Storage.set(`sudoku_best_${this.difficulty}`, this.timer);
+        }
+    }
+    
+    updateHints() {
+        document.getElementById('hints').textContent = this.hints;
+        document.getElementById('hint-count').textContent = this.hints;
+        document.getElementById('hint-btn').disabled = this.hints === 0;
+    }
+    
+    updateTimer() {
+        document.getElementById('timer').textContent = this.formatTime(this.timer);
+    }
+    
+    formatTime(seconds) {
+        const mins = Math.floor(seconds / 60);
+        const secs = seconds % 60;
+        return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+    }
+    
+    saveGame() {
+        Storage.set('sudoku_current', {
+            grid: this.grid,
+            solution: this.solution,
+            fixed: this.fixed,
+            hints: this.hints,
+            timer: this.timer,
+            difficulty: this.difficulty
+        });
+    }
+}
+
+// Start game
+document.addEventListener('DOMContentLoaded', () => {
+    new SudokuGame();
+});
+    </script>
+</body>
+</html>
