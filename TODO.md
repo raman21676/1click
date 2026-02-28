@@ -91,7 +91,9 @@
 | 2.2.5 | Add score & high score | 🟢 Done | Medium | AI Agent | Persistent | - |
 | 2.2.6 | Add speed increase | 🟢 Done | Medium | AI Agent | Per food eaten | - |
 | 2.2.7 | Mobile swipe controls | 🟢 Done | High | AI Agent | Touch swipe | - |
-| 2.2.8 | Add sound effects | ⏳ Pending | Low | AI Agent | Eat, die sounds | - |
+| 2.2.8 | Add difficulty levels | 🟢 Done | Medium | AI Agent | Easy/Medium/Hard | - |
+| 2.2.9 | Increase game area | 🟢 Done | Medium | AI Agent | 500x500 canvas | - |
+| 2.2.10 | Add sound effects | ⏳ Pending | Low | AI Agent | Eat, die sounds | - |
 
 ### 2.3 Sudoku
 | # | Task | Status | Priority | Assignee | Notes | Commit |

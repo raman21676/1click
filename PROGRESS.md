@@ -382,3 +382,56 @@ Built the second game - Snake with full HTML5 Canvas implementation, including m
 **Total Development Time:** ~85 minutes  
 **Last Updated:** 2026-02-28 19:30 IST  
 **Next Review:** After pushing to GitHub
+
+
+### Session 4: Bug Fixes & Improvements
+
+**Date:** 2026-02-28  
+**Time:** 19:40 - 20:00 IST  
+**Agent:** AI Agent  
+**Duration:** ~20 minutes  
+**Status:** ✅ Complete
+
+#### Summary
+Fixed critical bugs and added requested features: Snake game difficulty levels, larger game area, and player name inputs for Tic-Tac-Toe.
+
+#### Bug Fixes
+
+| # | Bug | Solution |
+|---|-----|----------|
+| 1 | Snake auto-closing on Start | Fixed event handling and game loop initialization |
+| 2 | Missing player names | Added input fields with LocalStorage persistence |
+
+#### New Features Added
+
+| Game | Feature | Description |
+|------|---------|-------------|
+| Snake | Difficulty Levels | Easy (180ms), Medium (130ms), Hard (90ms) start speeds |
+| Snake | Bigger Canvas | Increased from 400x400 to 500x500 pixels |
+| Snake | Level Display | Shows current level based on score |
+| Tic-Tac-Toe | Player Names | Input fields for X and O players |
+| TicTacToe | Name Persistence | Names saved to LocalStorage |
+| Tic-Tac-Toe | AI Mode | Hides O player input, shows "AI" |
+
+#### Files Modified (2 files)
+```
+1click/
+└── src/
+    └── games/
+        ├── snake/index.html       ← Bigger canvas + difficulty levels
+        └── tictactoe/index.html   ← Player name inputs
+```
+
+#### Difficulty Settings (Snake)
+| Level | Initial Speed | Min Speed | Speed Decrease |
+|-------|---------------|-----------|----------------|
+| Easy | 180ms | 100ms | -8ms per level |
+| Medium | 130ms | 70ms | -10ms per level |
+| Hard | 90ms | 50ms | -12ms per level |
+
+---
+
+**Total Sessions:** 4  
+**Total Development Time:** ~105 minutes  
+**Last Updated:** 2026-02-28 20:00 IST  
+**Next Review:** User testing feedback

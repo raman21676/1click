@@ -63,6 +63,8 @@
         .game-info {
             display: flex;
             gap: 2rem;
+            flex-wrap: wrap;
+            justify-content: center;
         }
         
         .info-box {
@@ -89,7 +91,32 @@
         .score-value { color: #10b981; }
         .speed-value { color: #f59e0b; }
         
-        /* Canvas */
+        /* Difficulty Selector */
+        .difficulty-selector {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem 1rem;
+            background: rgba(30, 41, 59, 0.6);
+            border-radius: 0.75rem;
+        }
+        
+        .difficulty-selector label {
+            font-size: 0.85rem;
+            color: #94a3b8;
+        }
+        
+        .difficulty-selector select {
+            padding: 0.4rem 0.75rem;
+            border-radius: 0.5rem;
+            border: 1px solid #475569;
+            background: #1e293b;
+            color: #f1f5f9;
+            font-size: 0.9rem;
+            cursor: pointer;
+        }
+        
+        /* Canvas - BIGGER */
         .canvas-wrapper {
             position: relative;
             border-radius: 1rem;
@@ -135,6 +162,33 @@
             margin-bottom: 1.5rem;
         }
         
+        /* Difficulty buttons in overlay */
+        .difficulty-buttons {
+            display: flex;
+            gap: 0.5rem;
+            justify-content: center;
+            margin-bottom: 1rem;
+            flex-wrap: wrap;
+        }
+        
+        .diff-btn {
+            padding: 0.5rem 1rem;
+            border: 1px solid #475569;
+            background: transparent;
+            color: #94a3b8;
+            border-radius: 0.5rem;
+            cursor: pointer;
+            font-size: 0.85rem;
+            transition: all 0.2s;
+        }
+        
+        .diff-btn:hover { border-color: #10b981; color: #10b981; }
+        .diff-btn.active {
+            background: #10b981;
+            border-color: #10b981;
+            color: white;
+        }
+        
         /* Buttons */
         .control-btn {
             padding: 0.75rem 1.5rem;
@@ -145,7 +199,7 @@
             cursor: pointer;
             font-size: 0.95rem;
             transition: all 0.2s;
-            margin: 0 0.5rem;
+            margin: 0 0.25rem;
         }
         
         .control-btn:hover { background: rgba(255, 255, 255, 0.1); }
@@ -212,12 +266,13 @@
         .shake { animation: shake 0.5s ease-in-out; }
         
         /* Responsive */
-        @media (max-width: 480px) {
-            .canvas-wrapper { width: 100%; max-width: 350px; }
+        @media (max-width: 600px) {
+            .canvas-wrapper { width: 95%; }
             #game-canvas { width: 100%; height: auto; }
             .desktop-controls { display: none; }
             .mobile-controls { display: flex; justify-content: center; }
             .d-btn { width: 55px; height: 55px; }
+            .difficulty-buttons { flex-direction: column; }
         }
     </style>
 </head>
@@ -236,18 +291,26 @@
                     <span id="score" class="value score-value">0</span>
                 </div>
                 <div class="info-box">
-                    <span class="label">Speed</span>
-                    <span id="speed" class="value speed-value">1x</span>
+                    <span class="label">Level</span>
+                    <span id="level" class="value speed-value">1</span>
                 </div>
             </div>
 
+            <!-- Canvas wrapper - BIGGER SIZE -->
             <div class="canvas-wrapper">
-                <canvas id="game-canvas" width="400" height="400"></canvas>
+                <canvas id="game-canvas" width="500" height="500"></canvas>
                 
                 <div id="start-overlay" class="overlay">
                     <div class="overlay-content">
                         <h2>🐍 Snake</h2>
-                        <p>Use arrow keys or swipe to move</p>
+                        <p>Select difficulty and start playing</p>
+                        
+                        <div class="difficulty-buttons">
+                            <button class="diff-btn" data-diff="easy">Easy</button>
+                            <button class="diff-btn active" data-diff="medium">Medium</button>
+                            <button class="diff-btn" data-diff="hard">Hard</button>
+                        </div>
+                        
                         <button id="start-btn" class="control-btn primary">Start Game</button>
                     </div>
                 </div>
@@ -295,7 +358,6 @@
     </div>
 
     <script>
-// Storage
 const Storage = {
     get: (key) => {
         try { return JSON.parse(localStorage.getItem(key)); } catch(e) { return null; }
@@ -305,13 +367,14 @@ const Storage = {
     }
 };
 
-// Game
 class SnakeGame {
     constructor() {
         this.canvas = document.getElementById('game-canvas');
         this.ctx = this.canvas.getContext('2d');
-        this.gridSize = 20;
-        this.tileCount = 20;
+        
+        // Larger grid for bigger game area
+        this.gridSize = 25; // 25px per cell
+        this.tileCount = 20; // 20x20 grid = 500px
         
         this.setupCanvas();
         this.resetGameState();
@@ -321,11 +384,18 @@ class SnakeGame {
     }
     
     setupCanvas() {
-        if (window.innerWidth <= 480) {
-            const size = Math.min(window.innerWidth - 32, 350);
+        // Responsive sizing - make it fit on mobile
+        if (window.innerWidth <= 600) {
+            const containerWidth = window.innerWidth - 32;
+            const size = Math.min(containerWidth, 500);
             this.canvas.width = size;
             this.canvas.height = size;
             this.gridSize = size / this.tileCount;
+        } else {
+            // Desktop - use larger size
+            this.canvas.width = 500;
+            this.canvas.height = 500;
+            this.gridSize = 25;
         }
     }
     
@@ -337,14 +407,22 @@ class SnakeGame {
         this.nextDx = 0;
         this.nextDy = 0;
         this.score = 0;
-        this.speed = 1;
-        this.gameSpeed = 150;
+        this.level = 1;
         this.isRunning = false;
         this.isPaused = false;
         this.loopId = null;
         
+        // Difficulty settings
+        this.difficulty = 'medium';
+        this.speedSettings = {
+            easy: { initial: 180, min: 100, decrement: 8 },
+            medium: { initial: 130, min: 70, decrement: 10 },
+            hard: { initial: 90, min: 50, decrement: 12 }
+        };
+        this.gameSpeed = this.speedSettings.medium.initial;
+        
         this.updateScore();
-        this.updateSpeed();
+        this.updateLevel();
     }
     
     randomFood() {
@@ -409,6 +487,15 @@ class SnakeGame {
         document.getElementById('pause-btn').addEventListener('click', () => this.togglePause());
         document.getElementById('new-game-btn').addEventListener('click', () => this.stop());
         
+        // Difficulty buttons
+        document.querySelectorAll('.diff-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                document.querySelectorAll('.diff-btn').forEach(b => b.classList.remove('active'));
+                e.target.classList.add('active');
+                this.difficulty = e.target.dataset.diff;
+            });
+        });
+        
         // D-pad
         document.getElementById('btn-up').addEventListener('click', () => this.setDirection(0, -1));
         document.getElementById('btn-down').addEventListener('click', () => this.setDirection(0, 1));
@@ -423,7 +510,6 @@ class SnakeGame {
     }
     
     setDirection(dx, dy) {
-        // Prevent reversing
         if (this.snake.length > 1) {
             if (dx !== 0 && dx === -this.dx) return;
             if (dy !== 0 && dy === -this.dy) return;
@@ -433,7 +519,12 @@ class SnakeGame {
     }
     
     start() {
+        // Get selected difficulty
+        const activeDiff = document.querySelector('.diff-btn.active');
+        this.difficulty = activeDiff ? activeDiff.dataset.diff : 'medium';
+        
         this.resetGameState();
+        this.gameSpeed = this.speedSettings[this.difficulty].initial;
         this.isRunning = true;
         this.isPaused = false;
         this.hideOverlays();
@@ -474,13 +565,11 @@ class SnakeGame {
     }
     
     update() {
-        // Apply next direction
         if (this.nextDx !== 0 || this.nextDy !== 0) {
             this.dx = this.nextDx;
             this.dy = this.nextDy;
         }
         
-        // Don't move if no direction set
         if (this.dx === 0 && this.dy === 0) return;
         
         const head = { 
@@ -506,7 +595,7 @@ class SnakeGame {
         if (head.x === this.food.x && head.y === this.food.y) {
             this.score += 10;
             this.updateScore();
-            this.increaseSpeed();
+            this.increaseLevel();
             this.food = this.randomFood();
             
             if (this.score > this.highScore) {
@@ -521,12 +610,16 @@ class SnakeGame {
         this.draw();
     }
     
-    increaseSpeed() {
-        const newSpeed = Math.floor(this.score / 50) + 1;
-        if (newSpeed > this.speed) {
-            this.speed = newSpeed;
-            this.gameSpeed = Math.max(60, 150 - (this.speed - 1) * 15);
-            this.updateSpeed();
+    increaseLevel() {
+        const newLevel = Math.floor(this.score / 50) + 1;
+        if (newLevel > this.level) {
+            this.level = newLevel;
+            this.updateLevel();
+            
+            // Increase speed based on difficulty
+            const settings = this.speedSettings[this.difficulty];
+            this.gameSpeed = Math.max(settings.min, settings.initial - (this.level - 1) * settings.decrement);
+            
             clearInterval(this.loopId);
             this.loopId = setInterval(() => this.update(), this.gameSpeed);
         }
@@ -539,9 +632,9 @@ class SnakeGame {
         this.canvas.classList.add('shake');
         setTimeout(() => this.canvas.classList.remove('shake'), 500);
         
-        document.getElementById('go-title').textContent = 
-            this.score >= this.highScore && this.score > 0 ? '🎉 New High Score!' : 'Game Over!';
-        document.getElementById('go-score').textContent = `Score: ${this.score}`;
+        const isNewHighScore = this.score > 0 && this.score >= this.highScore;
+        document.getElementById('go-title').textContent = isNewHighScore ? '🎉 New High Score!' : 'Game Over!';
+        document.getElementById('go-score').textContent = `Score: ${this.score} | Level: ${this.level}`;
         document.getElementById('game-over-overlay').classList.remove('hidden');
     }
     
@@ -617,8 +710,8 @@ class SnakeGame {
         document.getElementById('score').textContent = this.score;
     }
     
-    updateSpeed() {
-        document.getElementById('speed').textContent = this.speed + 'x';
+    updateLevel() {
+        document.getElementById('level').textContent = this.level;
     }
     
     loadHighScore() {
@@ -630,7 +723,6 @@ class SnakeGame {
     }
 }
 
-// Start
 document.addEventListener('DOMContentLoaded', () => {
     new SnakeGame();
 });
