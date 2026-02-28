@@ -11,11 +11,12 @@
             --bg: #1a1a2e;
             --bg-card: #16213e;
             --tiger: #e74c3c;
-            --goat: #f39c12;
+            --goat: #f5f5f5;
+            --goat-spot: #333;
             --text: #eaeaea;
             --text-muted: #a0a0a0;
             --primary: #3498db;
-            --border: #2d3748;
+            --border: #4a5568;
         }
         
         body {
@@ -43,7 +44,7 @@
         }
         
         .back-btn {
-            color: var(--goat);
+            color: var(--tiger);
             text-decoration: none;
             font-size: 1rem;
         }
@@ -178,15 +179,15 @@
         }
         
         .option-btn.goat-btn.active {
-            background: var(--goat);
-            border-color: var(--goat);
+            background: #9b59b6;
+            border-color: #9b59b6;
         }
         
         .start-btn {
             padding: 1rem;
             border: none;
             border-radius: 12px;
-            background: linear-gradient(135deg, var(--tiger), var(--goat));
+            background: linear-gradient(135deg, var(--tiger), #9b59b6);
             color: white;
             font-size: 1.1rem;
             font-weight: 600;
@@ -245,7 +246,7 @@
         }
         
         .turn-tiger { color: var(--tiger); }
-        .turn-goat { color: var(--goat); }
+        .turn-goat { color: #9b59b6; }
         
         /* Phase Indicator */
         .phase-bar {
@@ -272,16 +273,8 @@
         
         .board-wrapper {
             position: relative;
-            width: 340px;
-            height: 340px;
-        }
-        
-        #game-board {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
+            width: 400px;
+            height: 400px;
         }
         
         .board-lines {
@@ -294,29 +287,36 @@
         }
         
         .board-lines line {
-            stroke: #4a5568;
-            stroke-width: 2;
+            stroke: var(--border);
+            stroke-width: 3;
+            stroke-linecap: round;
         }
         
-        .cells-grid {
+        .board-lines line.bold {
+            stroke-width: 4;
+        }
+        
+        /* Cell container */
+        .cells-container {
             position: absolute;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            display: grid;
-            grid-template-columns: repeat(5, 1fr);
-            grid-template-rows: repeat(5, 1fr);
         }
         
         .cell {
+            position: absolute;
+            width: 44px;
+            height: 44px;
+            margin-left: -22px;
+            margin-top: -22px;
             display: flex;
             align-items: center;
             justify-content: center;
             cursor: pointer;
             border-radius: 50%;
             transition: all 0.2s;
-            position: relative;
         }
         
         .cell:hover:not(.disabled) {
@@ -325,7 +325,7 @@
         
         .cell.selected {
             background: rgba(52, 152, 219, 0.4);
-            box-shadow: 0 0 15px rgba(52, 152, 219, 0.5);
+            box-shadow: 0 0 20px rgba(52, 152, 219, 0.6);
         }
         
         .cell.valid-move::after {
@@ -333,8 +333,9 @@
             position: absolute;
             width: 16px;
             height: 16px;
-            background: rgba(46, 204, 113, 0.5);
+            background: rgba(46, 204, 113, 0.6);
             border-radius: 50%;
+            border: 2px solid #2ecc71;
         }
         
         .cell.valid-capture::after {
@@ -342,28 +343,74 @@
             position: absolute;
             width: 16px;
             height: 16px;
-            background: rgba(231, 76, 60, 0.5);
+            background: rgba(231, 76, 60, 0.6);
             border-radius: 50%;
+            border: 2px solid #e74c3c;
         }
         
-        .piece {
-            font-size: 2rem;
-            user-select: none;
-            transition: transform 0.3s;
-        }
-        
-        .piece.tiger {
-            filter: drop-shadow(0 0 8px rgba(231, 76, 60, 0.6));
+        /* Tiger piece */
+        .piece-tiger {
+            width: 38px;
+            height: 38px;
+            background: linear-gradient(135deg, #ff6b6b, #e74c3c);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.4rem;
+            box-shadow: 0 4px 15px rgba(231, 76, 60, 0.5);
+            border: 2px solid #c0392b;
             animation: pulse 2s infinite;
         }
         
-        .piece.goat {
-            filter: drop-shadow(0 0 8px rgba(243, 156, 18, 0.6));
+        /* Goat piece - white with black spots */
+        .piece-goat {
+            width: 34px;
+            height: 34px;
+            background: var(--goat);
+            border-radius: 50%;
+            position: relative;
+            box-shadow: 0 3px 10px rgba(255,255,255,0.3);
+            border: 2px solid #ddd;
+        }
+        
+        /* Black spots on goat */
+        .piece-goat::before {
+            content: '';
+            position: absolute;
+            width: 8px;
+            height: 8px;
+            background: var(--goat-spot);
+            border-radius: 50%;
+            top: 6px;
+            left: 8px;
+        }
+        
+        .piece-goat::after {
+            content: '';
+            position: absolute;
+            width: 6px;
+            height: 6px;
+            background: var(--goat-spot);
+            border-radius: 50%;
+            bottom: 8px;
+            right: 8px;
+        }
+        
+        .goat-spot-extra {
+            position: absolute;
+            width: 5px;
+            height: 5px;
+            background: var(--goat-spot);
+            border-radius: 50%;
+            top: 50%;
+            right: 6px;
+            transform: translateY(-50%);
         }
         
         @keyframes pulse {
             0%, 100% { transform: scale(1); }
-            50% { transform: scale(1.08); }
+            50% { transform: scale(1.05); }
         }
         
         /* Controls */
@@ -385,7 +432,7 @@
         }
         
         .btn-new {
-            background: linear-gradient(135deg, var(--tiger), var(--goat));
+            background: linear-gradient(135deg, var(--tiger), #9b59b6);
             color: white;
         }
         
@@ -426,7 +473,7 @@
         }
         
         .winner-tiger { color: var(--tiger); }
-        .winner-goat { color: var(--goat); }
+        .winner-goat { color: #9b59b6; }
     </style>
 </head>
 <body>
@@ -464,8 +511,8 @@
             <div class="setup-section">
                 <h4>Choose Side</h4>
                 <div class="option-row">
-                    <button class="option-btn tiger-btn" data-side="tiger">🐅 Tiger</button>
-                    <button class="option-btn goat-btn active" data-side="goat">🐐 Goat</button>
+                    <button class="option-btn tiger-btn" data-side="T">🐅 Tiger</button>
+                    <button class="option-btn goat-btn active" data-side="G">🐐 Goat</button>
                 </div>
             </div>
             
@@ -473,7 +520,7 @@
                 <h4>AI Difficulty</h4>
                 <div class="option-row">
                     <button class="option-btn active" data-diff="easy">Easy</button>
-                    <button class="option-btn" data-diff="medium">Medium</button>
+                    <button class="option-btn" data-diff="intermediate">Medium</button>
                     <button class="option-btn" data-diff="hard">Hard</button>
                 </div>
             </div>
@@ -507,32 +554,39 @@
             <!-- Board -->
             <div class="board-container">
                 <div class="board-wrapper">
-                    <svg class="board-lines" viewBox="0 0 340 340">
+                    <svg class="board-lines" viewBox="0 0 400 400">
                         <!-- Outer box -->
-                        <line x1="20" y1="20" x2="320" y2="20" />
-                        <line x1="20" y1="320" x2="320" y2="320" />
-                        <line x1="20" y1="20" x2="20" y2="320" />
-                        <line x1="320" y1="20" x2="320" y2="320" />
+                        <line x1="20" y1="20" x2="380" y2="20" class="bold" />
+                        <line x1="20" y1="380" x2="380" y2="380" class="bold" />
+                        <line x1="20" y1="20" x2="20" y2="380" class="bold" />
+                        <line x1="380" y1="20" x2="380" y2="380" class="bold" />
                         
-                        <!-- Inner grid lines -->
-                        <line x1="20" y1="95" x2="320" y2="95" />
-                        <line x1="20" y1="170" x2="320" y2="170" />
-                        <line x1="20" y1="245" x2="320" y2="245" />
+                        <!-- Inner horizontal lines -->
+                        <line x1="20" y1="110" x2="380" y2="110" />
+                        <line x1="20" y1="200" x2="380" y2="200" />
+                        <line x1="20" y1="290" x2="380" y2="290" />
                         
-                        <line x1="95" y1="20" x2="95" y2="320" />
-                        <line x1="170" y1="20" x2="170" y2="320" />
-                        <line x1="245" y1="20" x2="245" y2="320" />
+                        <!-- Inner vertical lines -->
+                        <line x1="110" y1="20" x2="110" y2="380" />
+                        <line x1="200" y1="20" x2="200" y2="380" />
+                        <line x1="290" y1="20" x2="290" y2="380" />
                         
-                        <!-- Diagonals -->
-                        <line x1="20" y1="20" x2="320" y2="320" />
-                        <line x1="320" y1="20" x2="20" y2="320" />
-                        <line x1="20" y1="170" x2="170" y2="20" />
-                        <line x1="170" y1="20" x2="320" y2="170" />
-                        <line x1="320" y1="170" x2="170" y2="320" />
-                        <line x1="170" y1="320" x2="20" y2="170" />
+                        <!-- Main diagonals -->
+                        <line x1="20" y1="20" x2="380" y2="380" />
+                        <line x1="380" y1="20" x2="20" y2="380" />
+                        
+                        <!-- Small diagonals from corners to center lines -->
+                        <line x1="20" y1="200" x2="200" y2="20" />
+                        <line x1="200" y1="20" x2="380" y2="200" />
+                        <line x1="380" y1="200" x2="200" y2="380" />
+                        <line x1="200" y1="380" x2="20" y2="200" />
+                        
+                        <!-- Inner diagonals -->
+                        <line x1="110" y1="110" x2="290" y2="290" />
+                        <line x1="290" y1="110" x2="110" y2="290" />
                     </svg>
                     
-                    <div class="cells-grid" id="cells-grid"></div>
+                    <div class="cells-container" id="cells-container"></div>
                 </div>
             </div>
 
@@ -554,48 +608,88 @@
     </div>
 
     <script>
+// ============================================
+// STRICT BAAGCHAL RULES - From User Research
+// ============================================
+
+// Adjacency map - STRICT BAAGCHAL CONNECTIONS
+const ADJACENT = {
+    0: [1, 5, 6],
+    1: [0, 2, 6],
+    2: [1, 3, 6, 7, 8],
+    3: [2, 4, 8],
+    4: [3, 8, 9],
+    5: [0, 6, 10],
+    6: [0, 1, 2, 5, 7, 10, 11, 12],
+    7: [2, 6, 8, 12],
+    8: [2, 3, 4, 7, 9, 12, 13, 14],
+    9: [4, 8, 14],
+    10: [5, 6, 11, 15, 16],
+    11: [6, 10, 12, 16],
+    12: [6, 7, 8, 11, 13, 16, 17, 18],
+    13: [8, 12, 14, 18],
+    14: [8, 9, 13, 18, 19],
+    15: [10, 16, 20],
+    16: [10, 11, 12, 15, 17, 20, 21, 22],
+    17: [12, 16, 18, 22],
+    18: [12, 13, 14, 17, 19, 22, 23, 24],
+    19: [14, 18, 24],
+    20: [15, 16, 21],
+    21: [16, 20, 22],
+    22: [16, 17, 18, 21, 23],
+    23: [18, 22, 24],
+    24: [18, 19, 23]
+};
+
+// Grid positions for 400x400 board (20px padding, 90px spacing)
+const GRID_POSITIONS = [
+    {x: 20, y: 20},    // 0 - top-left corner
+    {x: 110, y: 20},   // 1
+    {x: 200, y: 20},   // 2
+    {x: 290, y: 20},   // 3
+    {x: 380, y: 20},   // 4 - top-right corner
+    {x: 20, y: 110},   // 5
+    {x: 110, y: 110},  // 6
+    {x: 200, y: 110},  // 7
+    {x: 290, y: 110},  // 8
+    {x: 380, y: 110},  // 9
+    {x: 20, y: 200},   // 10
+    {x: 110, y: 200},  // 11
+    {x: 200, y: 200},  // 12 - center
+    {x: 290, y: 200},  // 13
+    {x: 380, y: 200},  // 14
+    {x: 20, y: 290},   // 15
+    {x: 110, y: 290},  // 16
+    {x: 200, y: 290},  // 17
+    {x: 290, y: 290},  // 18
+    {x: 380, y: 290},  // 19
+    {x: 20, y: 380},   // 20 - bottom-left corner
+    {x: 110, y: 380},  // 21
+    {x: 200, y: 380},  // 22
+    {x: 290, y: 380},  // 23
+    {x: 380, y: 380}   // 24 - bottom-right corner
+];
+
 class BaagchalGame {
     constructor() {
-        this.board = Array(25).fill(null); // null, 'tiger', or 'goat'
-        this.tigerPositions = [0, 4, 20, 24]; // 4 corners
-        this.phase = 'placement'; // 'placement' or 'movement'
+        // Game state
+        this.board = Array(25).fill(null); // null, "T", or "G"
         this.goatsPlaced = 0;
         this.goatsCaptured = 0;
-        this.currentPlayer = 'goat';
+        this.turn = "G"; // "G" = Goat, "T" = Tiger
+        this.phase = "PLACEMENT"; // "PLACEMENT" or "MOVEMENT"
+        this.winner = null;
+        
+        // Selection
         this.selectedCell = null;
         this.validMoves = [];
         
         // Game mode
-        this.gameMode = 'friend'; // 'friend' or 'ai'
-        this.playerSide = 'goat'; // 'tiger' or 'goat' (for AI mode)
-        this.aiDifficulty = 'easy';
-        
-        // Connection map for 5x5 grid with diagonals
-        this.connections = this.buildConnections();
+        this.gameMode = "FRIEND"; // "FRIEND" or "AI"
+        this.playerSide = "G"; // "T" or "G" (for AI mode)
+        this.aiDifficulty = "easy"; // "easy", "intermediate", "hard"
         
         this.init();
-    }
-    
-    buildConnections() {
-        const conn = {};
-        for (let i = 0; i < 25; i++) {
-            const row = Math.floor(i / 5);
-            const col = i % 5;
-            const connections = [];
-            
-            // All 8 directions
-            const dirs = [[-1,-1],[-1,0],[-1,1],[0,-1],[0,1],[1,-1],[1,0],[1,1]];
-            
-            for (const [dr, dc] of dirs) {
-                const nr = row + dr;
-                const nc = col + dc;
-                if (nr >= 0 && nr < 5 && nc >= 0 && nc < 5) {
-                    connections.push(nr * 5 + nc);
-                }
-            }
-            conn[i] = connections;
-        }
-        return conn;
     }
     
     init() {
@@ -603,9 +697,8 @@ class BaagchalGame {
     }
     
     setupMenu() {
-        // Menu buttons
         document.getElementById('btn-friend').addEventListener('click', () => {
-            this.gameMode = 'friend';
+            this.gameMode = "FRIEND";
             this.startGame();
         });
         
@@ -613,7 +706,6 @@ class BaagchalGame {
             this.showAISetup();
         });
         
-        // AI setup
         document.getElementById('btn-back-menu').addEventListener('click', () => {
             this.showMenu();
         });
@@ -635,11 +727,10 @@ class BaagchalGame {
         });
         
         document.getElementById('btn-start-ai').addEventListener('click', () => {
-            this.gameMode = 'ai';
+            this.gameMode = "AI";
             this.startGame();
         });
         
-        // Game controls
         document.getElementById('btn-game-menu').addEventListener('click', () => {
             this.showMenu();
         });
@@ -676,105 +767,112 @@ class BaagchalGame {
     }
     
     createGrid() {
-        const grid = document.getElementById('cells-grid');
-        grid.innerHTML = '';
+        const container = document.getElementById('cells-container');
+        container.innerHTML = '';
         
         for (let i = 0; i < 25; i++) {
             const cell = document.createElement('div');
             cell.className = 'cell';
             cell.dataset.index = i;
+            cell.style.left = GRID_POSITIONS[i].x + 'px';
+            cell.style.top = GRID_POSITIONS[i].y + 'px';
             cell.addEventListener('click', () => this.handleCellClick(i));
-            grid.appendChild(cell);
+            container.appendChild(cell);
         }
     }
     
     resetGame() {
-        // Reset board
         this.board = Array(25).fill(null);
-        
-        // Place 4 tigers at corners
-        this.tigerPositions = [0, 4, 20, 24];
-        this.tigerPositions.forEach(pos => {
-            this.board[pos] = 'tiger';
-        });
-        
-        this.phase = 'placement';
         this.goatsPlaced = 0;
         this.goatsCaptured = 0;
-        this.currentPlayer = 'goat';
+        this.turn = "G";
+        this.phase = "PLACEMENT";
+        this.winner = null;
         this.selectedCell = null;
         this.validMoves = [];
         
-        this.updateDisplay();
+        // Place 4 Tigers at corners
+        [0, 4, 20, 24].forEach(i => this.board[i] = "T");
         
-        // If AI mode and player chose tiger, AI (goat) starts
-        if (this.gameMode === 'ai' && this.playerSide === 'tiger') {
-            setTimeout(() => this.makeAIMove(), 500);
+        this.render();
+        
+        // If AI mode and player is Tiger, AI (Goat) starts placing
+        if (this.gameMode === "AI" && this.playerSide === "T") {
+            setTimeout(() => this.makeAIMove(), 800);
         }
     }
     
     handleCellClick(index) {
-        // Check if it's AI's turn
-        if (this.gameMode === 'ai' && this.currentPlayer !== this.playerSide) {
+        if (this.winner) return;
+        
+        // Check if it's human's turn
+        if (this.gameMode === "AI" && this.turn !== this.playerSide) {
             return;
         }
         
-        const cell = this.board[index];
+        if (this.phase === "PLACEMENT") {
+            this.handlePlacement(index);
+        } else {
+            this.handleMovement(index);
+        }
+    }
+    
+    handlePlacement(index) {
+        // Only goats place in placement phase
+        if (this.turn !== "G") return;
+        if (this.board[index] !== null) return;
         
-        if (this.phase === 'placement') {
-            // Goat placement phase
-            if (this.currentPlayer === 'goat' && cell === null && !this.tigerPositions.includes(index)) {
-                this.board[index] = 'goat';
-                this.goatsPlaced++;
-                
-                if (this.goatsPlaced >= 20) {
-                    this.phase = 'movement';
-                }
-                
-                this.currentPlayer = 'tiger';
-                this.selectedCell = null;
-                this.validMoves = [];
-                this.updateDisplay();
-                this.checkWin();
-                
-                // AI turn
-                if (this.gameMode === 'ai') {
-                    setTimeout(() => this.makeAIMove(), 600);
-                }
+        // Place goat
+        this.board[index] = "G";
+        this.goatsPlaced++;
+        
+        if (this.goatsPlaced === 20) {
+            this.phase = "MOVEMENT";
+        }
+        
+        this.turn = "T";
+        this.checkWinner();
+        this.render();
+        
+        // AI turn
+        if (this.gameMode === "AI" && !this.winner) {
+            setTimeout(() => this.makeAIMove(), 600);
+        }
+    }
+    
+    handleMovement(index) {
+        const piece = this.board[index];
+        
+        if (this.selectedCell === null) {
+            // Select piece
+            if (piece === this.turn) {
+                this.selectedCell = index;
+                this.calculateValidMoves(index);
+                this.render();
             }
         } else {
-            // Movement phase
-            if (this.selectedCell === null) {
-                // Select piece
-                if (cell === this.currentPlayer) {
-                    this.selectedCell = index;
-                    this.calculateValidMoves(index);
-                    this.updateDisplay();
+            // Try to move
+            if (this.validMoves.includes(index)) {
+                this.executeMove(this.selectedCell, index);
+                this.selectedCell = null;
+                this.validMoves = [];
+                this.checkWinner();
+                this.render();
+                
+                // AI turn
+                if (this.gameMode === "AI" && !this.winner) {
+                    setTimeout(() => this.makeAIMove(), 600);
                 }
+            } else if (piece === this.turn && index !== this.selectedCell) {
+                // Select different piece
+                this.selectedCell = index;
+                this.calculateValidMoves(index);
+                this.render();
             } else {
-                // Try to move
-                if (this.validMoves.includes(index)) {
-                    this.movePiece(this.selectedCell, index);
-                    this.selectedCell = null;
-                    this.validMoves = [];
-                    this.updateDisplay();
-                    this.checkWin();
-                    
-                    // AI turn
-                    if (this.gameMode === 'ai' && !this.checkWinCondition()) {
-                        setTimeout(() => this.makeAIMove(), 600);
-                    }
-                } else if (cell === this.currentPlayer && index !== this.selectedCell) {
-                    // Select different piece
-                    this.selectedCell = index;
-                    this.calculateValidMoves(index);
-                    this.updateDisplay();
-                } else {
-                    // Deselect
-                    this.selectedCell = null;
-                    this.validMoves = [];
-                    this.updateDisplay();
-                }
+                // Deselect
+                this.selectedCell = null;
+                this.validMoves = [];
+                this.render();
             }
         }
     }
@@ -783,208 +881,276 @@ class BaagchalGame {
         this.validMoves = [];
         const piece = this.board[fromIndex];
         
-        if (piece === 'goat') {
+        if (!piece) return;
+        
+        if (piece === "G") {
             // Goats move to adjacent empty cells
-            for (const to of this.connections[fromIndex]) {
+            for (const to of ADJACENT[fromIndex]) {
                 if (this.board[to] === null) {
                     this.validMoves.push(to);
                 }
             }
-        } else if (piece === 'tiger') {
-            // Tiger moves to adjacent empty cells
-            for (const to of this.connections[fromIndex]) {
+        } else if (piece === "T") {
+            // Tiger normal moves
+            for (const to of ADJACENT[fromIndex]) {
                 if (this.board[to] === null) {
                     this.validMoves.push(to);
                 }
             }
             
-            // Tiger can capture by jumping
-            const row = Math.floor(fromIndex / 5);
-            const col = fromIndex % 5;
-            
-            const jumpDirs = [[-2,-2],[-2,0],[-2,2],[0,-2],[0,2],[2,-2],[2,0],[2,2]];
-            
-            for (const [dr, dc] of jumpDirs) {
-                const nr = row + dr;
-                const nc = col + dc;
-                const mr = row + dr/2;
-                const mc = col + dc/2;
-                
-                if (nr >= 0 && nr < 5 && nc >= 0 && nc < 5) {
-                    const toIdx = nr * 5 + nc;
-                    const midIdx = mr * 5 + mc;
-                    
-                    if (this.board[toIdx] === null && this.board[midIdx] === 'goat') {
-                        this.validMoves.push(toIdx);
-                    }
-                }
-            }
+            // Tiger capture moves (jump over goat)
+            const captures = this.getCaptureMoves(fromIndex);
+            this.validMoves.push(...captures);
         }
     }
     
-    movePiece(from, to) {
-        const piece = this.board[from];
-        this.board[from] = null;
+    getCaptureMoves(fromIndex) {
+        const captures = [];
+        const fx = fromIndex % 5;
+        const fy = Math.floor(fromIndex / 5);
         
-        // Check capture
-        if (piece === 'tiger') {
-            const fromRow = Math.floor(from / 5);
-            const fromCol = from % 5;
-            const toRow = Math.floor(to / 5);
-            const toCol = to % 5;
+        // Check all directions for jump (distance 2)
+        const directions = [
+            [-2, -2], [-2, 0], [-2, 2],
+            [0, -2], [0, 2],
+            [2, -2], [2, 0], [2, 2]
+        ];
+        
+        for (const [dx, dy] of directions) {
+            const tx = fx + dx;
+            const ty = fy + dy;
+            const mx = fx + dx / 2;
+            const my = fy + dy / 2;
             
-            if (Math.abs(toRow - fromRow) === 2 || Math.abs(toCol - fromCol) === 2) {
-                const mr = (fromRow + toRow) / 2;
-                const mc = (fromCol + toCol) / 2;
-                const midIdx = mr * 5 + mc;
+            if (tx >= 0 && tx < 5 && ty >= 0 && ty < 5) {
+                const toIndex = ty * 5 + tx;
+                const midIndex = my * 5 + mx;
                 
-                if (this.board[midIdx] === 'goat') {
-                    this.board[midIdx] = null;
-                    this.goatsCaptured++;
+                if (this.board[toIndex] === null && this.board[midIndex] === "G") {
+                    captures.push(toIndex);
                 }
             }
+        }
+        
+        return captures;
+    }
+    
+    executeMove(from, to) {
+        const piece = this.board[from];
+        
+        // Check if it's a capture
+        const fx = from % 5;
+        const fy = Math.floor(from / 5);
+        const tx = to % 5;
+        const ty = Math.floor(to / 5);
+        
+        if (Math.abs(tx - fx) === 2 || Math.abs(ty - fy) === 2) {
+            // It's a capture
+            const mx = (fx + tx) / 2;
+            const my = (fy + ty) / 2;
+            const midIndex = my * 5 + mx;
             
-            // Update tiger position
-            const idx = this.tigerPositions.indexOf(from);
-            if (idx > -1) this.tigerPositions[idx] = to;
+            if (this.board[midIndex] === "G") {
+                this.board[midIndex] = null;
+                this.goatsCaptured++;
+            }
         }
         
         this.board[to] = piece;
-        this.currentPlayer = this.currentPlayer === 'goat' ? 'tiger' : 'goat';
+        this.board[from] = null;
+        this.turn = this.turn === "G" ? "T" : "G";
     }
     
     makeAIMove() {
-        if (this.checkWinCondition()) return;
+        if (this.winner) return;
         
-        // Simple AI based on difficulty
-        if (this.phase === 'placement') {
-            // Place goat randomly in safe spot
-            const safeSpots = [];
+        if (this.phase === "PLACEMENT") {
+            // AI places a goat
+            const emptySpots = [];
             for (let i = 0; i < 25; i++) {
-                if (this.board[i] === null && !this.tigerPositions.includes(i)) {
-                    // Check if safe from capture
-                    let safe = true;
-                    for (const tigerPos of this.tigerPositions) {
-                        if (this.canTigerCapture(tigerPos, i)) {
-                            safe = false;
-                            break;
-                        }
-                    }
-                    if (safe) safeSpots.push(i);
+                if (this.board[i] === null) {
+                    emptySpots.push(i);
                 }
             }
             
-            const spots = safeSpots.length > 0 ? safeSpots : 
-                Array.from({length: 25}, (_, i) => i).filter(i => this.board[i] === null);
-            
-            if (spots.length > 0) {
-                const idx = spots[Math.floor(Math.random() * spots.length)];
-                this.board[idx] = 'goat';
+            if (emptySpots.length > 0) {
+                let selectedSpot;
+                
+                if (this.aiDifficulty === "easy") {
+                    // Random placement
+                    selectedSpot = emptySpots[Math.floor(Math.random() * emptySpots.length)];
+                } else {
+                    // Try to place away from tigers
+                    const safeSpots = emptySpots.filter(spot => {
+                        return !this.isNearTiger(spot);
+                    });
+                    
+                    if (safeSpots.length > 0) {
+                        selectedSpot = safeSpots[Math.floor(Math.random() * safeSpots.length)];
+                    } else {
+                        selectedSpot = emptySpots[Math.floor(Math.random() * emptySpots.length)];
+                    }
+                }
+                
+                this.board[selectedSpot] = "G";
                 this.goatsPlaced++;
-                if (this.goatsPlaced >= 20) this.phase = 'movement';
-                this.currentPlayer = 'tiger';
-                this.updateDisplay();
-                this.checkWin();
+                
+                if (this.goatsPlaced === 20) {
+                    this.phase = "MOVEMENT";
+                }
+                
+                this.turn = "T";
+                this.checkWinner();
+                this.render();
             }
         } else {
-            // Movement phase - find best tiger move
-            let bestMove = null;
-            let bestScore = -Infinity;
+            // AI moves a tiger
+            const tigerPositions = this.board.map((v, i) => v === "T" ? i : null).filter(v => v !== null);
             
-            for (const tigerPos of this.tigerPositions) {
-                this.calculateValidMoves(tigerPos);
-                for (const move of this.validMoves) {
-                    let score = 0;
-                    
-                    // Check if capture
-                    const fromRow = Math.floor(tigerPos / 5);
-                    const fromCol = tigerPos % 5;
-                    const toRow = Math.floor(move / 5);
-                    const toCol = move % 5;
-                    
-                    if (Math.abs(toRow - fromRow) === 2 || Math.abs(toCol - fromCol) === 2) {
-                        score += 100; // Capture is best
-                    }
-                    
-                    // Check if move avoids trapping
-                    if (this.countTigerMoves(move) > 1) {
-                        score += 10;
-                    }
-                    
-                    // Difficulty modifier
-                    if (this.aiDifficulty === 'easy') {
-                        score = Math.random() * 50; // Random for easy
-                    } else if (this.aiDifficulty === 'medium') {
-                        score += Math.random() * 20;
-                    }
-                    
-                    if (score > bestScore) {
-                        bestScore = score;
-                        bestMove = { from: tigerPos, to: move };
-                    }
-                }
+            if (tigerPositions.length === 0) return;
+            
+            let bestMove = null;
+            
+            if (this.aiDifficulty === "easy") {
+                // Random valid move
+                bestMove = this.getRandomTigerMove(tigerPositions);
+            } else if (this.aiDifficulty === "intermediate") {
+                // Prioritize captures
+                bestMove = this.getIntermediateTigerMove(tigerPositions);
+            } else {
+                // Hard - best strategic move
+                bestMove = this.getHardTigerMove(tigerPositions);
             }
             
             if (bestMove) {
-                this.selectedCell = bestMove.from;
-                this.movePiece(bestMove.from, bestMove.to);
-                this.selectedCell = null;
-                this.validMoves = [];
-                this.updateDisplay();
-                this.checkWin();
+                this.executeMove(bestMove.from, bestMove.to);
+                this.checkWinner();
+                this.render();
             }
         }
     }
     
-    canTigerCapture(tigerPos, goatPos) {
-        const tr = Math.floor(tigerPos / 5);
-        const tc = tigerPos % 5;
-        const gr = Math.floor(goatPos / 5);
-        const gc = goatPos % 5;
-        
-        return (Math.abs(tr - gr) === 1 && Math.abs(tc - gc) === 1) ||
-               (Math.abs(tr - gr) === 1 && tc === gc) ||
-               (tr === gr && Math.abs(tc - gc) === 1);
-    }
-    
-    countTigerMoves(pos) {
-        this.calculateValidMoves(pos);
-        return this.validMoves.length;
-    }
-    
-    checkWin() {
-        if (this.checkWinCondition()) {
-            const winner = this.goatsCaptured >= 5 ? 'tiger' : 'goat';
-            this.gameOver(winner);
+    isNearTiger(pos) {
+        for (const adj of ADJACENT[pos]) {
+            if (this.board[adj] === "T") return true;
         }
-    }
-    
-    checkWinCondition() {
-        // Tiger wins if captured 5+ goats
-        if (this.goatsCaptured >= 5) return true;
-        
-        // Goats win if all tigers trapped
-        if (this.currentPlayer === 'tiger' && this.phase === 'movement') {
-            let allTrapped = true;
-            for (const tigerPos of this.tigerPositions) {
-                this.calculateValidMoves(tigerPos);
-                if (this.validMoves.length > 0) {
-                    allTrapped = false;
-                    break;
-                }
-            }
-            return allTrapped;
-        }
-        
         return false;
     }
     
-    gameOver(winner) {
+    getRandomTigerMove(tigerPositions) {
+        const allMoves = [];
+        
+        for (const pos of tigerPositions) {
+            this.calculateValidMoves(pos);
+            for (const to of this.validMoves) {
+                allMoves.push({ from: pos, to, capture: this.isCaptureMove(pos, to) });
+            }
+        }
+        
+        if (allMoves.length === 0) return null;
+        return allMoves[Math.floor(Math.random() * allMoves.length)];
+    }
+    
+    getIntermediateTigerMove(tigerPositions) {
+        const allMoves = [];
+        const captureMoves = [];
+        
+        for (const pos of tigerPositions) {
+            this.calculateValidMoves(pos);
+            for (const to of this.validMoves) {
+                const move = { from: pos, to, capture: this.isCaptureMove(pos, to) };
+                allMoves.push(move);
+                if (move.capture) captureMoves.push(move);
+            }
+        }
+        
+        if (captureMoves.length > 0) {
+            return captureMoves[Math.floor(Math.random() * captureMoves.length)];
+        }
+        
+        if (allMoves.length === 0) return null;
+        return allMoves[Math.floor(Math.random() * allMoves.length)];
+    }
+    
+    getHardTigerMove(tigerPositions) {
+        // Try to find capture moves first
+        const captureMoves = [];
+        const safeMoves = [];
+        
+        for (const pos of tigerPositions) {
+            this.calculateValidMoves(pos);
+            for (const to of this.validMoves) {
+                const move = { from: pos, to, capture: this.isCaptureMove(pos, to) };
+                if (move.capture) {
+                    captureMoves.push(move);
+                } else if (this.countTigerMovesAfter(to) > 1) {
+                    safeMoves.push(move);
+                }
+            }
+        }
+        
+        if (captureMoves.length > 0) {
+            return captureMoves[Math.floor(Math.random() * captureMoves.length)];
+        }
+        
+        if (safeMoves.length > 0) {
+            return safeMoves[Math.floor(Math.random() * safeMoves.length)];
+        }
+        
+        // Fallback to any move
+        return this.getRandomTigerMove(tigerPositions);
+    }
+    
+    isCaptureMove(from, to) {
+        const fx = from % 5;
+        const fy = Math.floor(from / 5);
+        const tx = to % 5;
+        const ty = Math.floor(to / 5);
+        return Math.abs(tx - fx) === 2 || Math.abs(ty - fy) === 2;
+    }
+    
+    countTigerMovesAfter(pos) {
+        let count = 0;
+        for (const adj of ADJACENT[pos]) {
+            if (this.board[adj] === null) count++;
+        }
+        return count;
+    }
+    
+    checkWinner() {
+        // Tigers win if captured 5+ goats
+        if (this.goatsCaptured >= 5) {
+            this.winner = "T";
+            this.showGameOver("T");
+            return;
+        }
+        
+        // Goats win if all tigers are trapped
+        if (this.turn === "T" && this.phase === "MOVEMENT") {
+            const tigerPositions = this.board.map((v, i) => v === "T" ? i : null).filter(v => v !== null);
+            
+            let canMove = false;
+            for (const pos of tigerPositions) {
+                this.calculateValidMoves(pos);
+                if (this.validMoves.length > 0) {
+                    canMove = true;
+                    break;
+                }
+            }
+            
+            if (!canMove) {
+                this.winner = "G";
+                this.showGameOver("G");
+            }
+        }
+    }
+    
+    showGameOver(winner) {
         const modal = document.getElementById('game-over-modal');
         const title = document.getElementById('winner-title');
         const msg = document.getElementById('winner-message');
         
-        if (winner === 'tiger') {
+        if (winner === "T") {
             title.innerHTML = '🐅 Tigers Win!';
             title.className = 'winner-tiger';
             msg.textContent = `Captured ${this.goatsCaptured} goats!`;
@@ -997,16 +1163,19 @@ class BaagchalGame {
         modal.classList.remove('hidden');
     }
     
-    updateDisplay() {
+    render() {
         const cells = document.querySelectorAll('.cell');
+        
         cells.forEach((cell, i) => {
             cell.innerHTML = '';
             cell.className = 'cell';
             
-            if (this.board[i] === 'tiger') {
-                cell.innerHTML = '<span class="piece tiger">🐅</span>';
-            } else if (this.board[i] === 'goat') {
-                cell.innerHTML = '<span class="piece goat">🐐</span>';
+            const piece = this.board[i];
+            
+            if (piece === "T") {
+                cell.innerHTML = '<div class="piece-tiger">🐅</div>';
+            } else if (piece === "G") {
+                cell.innerHTML = '<div class="piece-goat"><div class="goat-spot-extra"></div></div>';
             }
             
             if (i === this.selectedCell) {
@@ -1014,20 +1183,8 @@ class BaagchalGame {
             }
             
             if (this.validMoves.includes(i)) {
-                if (this.board[this.selectedCell] === 'tiger') {
-                    const fromRow = Math.floor(this.selectedCell / 5);
-                    const fromCol = this.selectedCell % 5;
-                    const toRow = Math.floor(i / 5);
-                    const toCol = i % 5;
-                    
-                    if (Math.abs(toRow - fromRow) === 2 || Math.abs(toCol - fromCol) === 2) {
-                        cell.classList.add('valid-capture');
-                    } else {
-                        cell.classList.add('valid-move');
-                    }
-                } else {
-                    cell.classList.add('valid-move');
-                }
+                const isCapture = this.selectedCell !== null && this.isCaptureMove(this.selectedCell, i);
+                cell.classList.add(isCapture ? 'valid-capture' : 'valid-move');
             }
         });
         
@@ -1037,7 +1194,7 @@ class BaagchalGame {
         
         // Update turn
         const turnEl = document.getElementById('turn-indicator');
-        if (this.currentPlayer === 'tiger') {
+        if (this.turn === "T") {
             turnEl.innerHTML = '<span class="turn-tiger">Tiger\'s Turn</span>';
         } else {
             turnEl.innerHTML = '<span class="turn-goat">Goat\'s Turn</span>';
@@ -1045,7 +1202,7 @@ class BaagchalGame {
         
         // Update phase
         const phaseEl = document.getElementById('phase-bar');
-        if (this.phase === 'placement') {
+        if (this.phase === "PLACEMENT") {
             phaseEl.innerHTML = `Phase: <span>Place Goats</span> (${this.goatsPlaced}/20 placed)`;
         } else {
             phaseEl.innerHTML = `Phase: <span>Movement</span> (${this.goatsCaptured} goats captured)`;
