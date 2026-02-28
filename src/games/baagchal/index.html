@@ -11,8 +11,7 @@
             --bg: #1a1a2e;
             --bg-card: #16213e;
             --tiger: #e74c3c;
-            --goat: #f5f5f5;
-            --goat-spot: #333;
+            --goat: #f39c12;
             --text: #eaeaea;
             --text-muted: #a0a0a0;
             --primary: #3498db;
@@ -179,15 +178,15 @@
         }
         
         .option-btn.goat-btn.active {
-            background: #9b59b6;
-            border-color: #9b59b6;
+            background: var(--goat);
+            border-color: var(--goat);
         }
         
         .start-btn {
             padding: 1rem;
             border: none;
             border-radius: 12px;
-            background: linear-gradient(135deg, var(--tiger), #9b59b6);
+            background: linear-gradient(135deg, var(--tiger), var(--goat));
             color: white;
             font-size: 1.1rem;
             font-weight: 600;
@@ -246,7 +245,7 @@
         }
         
         .turn-tiger { color: var(--tiger); }
-        .turn-goat { color: #9b59b6; }
+        .turn-goat { color: var(--goat); }
         
         /* Phase Indicator */
         .phase-bar {
@@ -292,10 +291,6 @@
             stroke-linecap: round;
         }
         
-        .board-lines line.bold {
-            stroke-width: 4;
-        }
-        
         /* Cell container */
         .cells-container {
             position: absolute;
@@ -320,97 +315,46 @@
         }
         
         .cell:hover:not(.disabled) {
-            background: rgba(255,255,255,0.1);
+            background: rgba(255,255,255,0.05);
         }
         
         .cell.selected {
-            background: rgba(52, 152, 219, 0.4);
-            box-shadow: 0 0 20px rgba(52, 152, 219, 0.6);
+            background: rgba(52, 152, 219, 0.3);
+            box-shadow: 0 0 15px rgba(52, 152, 219, 0.4);
         }
         
         .cell.valid-move::after {
             content: '';
             position: absolute;
-            width: 16px;
-            height: 16px;
-            background: rgba(46, 204, 113, 0.6);
+            width: 12px;
+            height: 12px;
+            background: rgba(46, 204, 113, 0.5);
             border-radius: 50%;
-            border: 2px solid #2ecc71;
         }
         
         .cell.valid-capture::after {
             content: '';
             position: absolute;
-            width: 16px;
-            height: 16px;
-            background: rgba(231, 76, 60, 0.6);
+            width: 12px;
+            height: 12px;
+            background: rgba(231, 76, 60, 0.5);
             border-radius: 50%;
-            border: 2px solid #e74c3c;
         }
         
-        /* Tiger piece */
-        .piece-tiger {
-            width: 38px;
-            height: 38px;
-            background: linear-gradient(135deg, #ff6b6b, #e74c3c);
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.4rem;
-            box-shadow: 0 4px 15px rgba(231, 76, 60, 0.5);
-            border: 2px solid #c0392b;
-            animation: pulse 2s infinite;
+        /* Pieces - simple emoji without high contrast backgrounds */
+        .piece {
+            font-size: 2rem;
+            user-select: none;
+            filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3));
+            transition: transform 0.2s;
         }
         
-        /* Goat piece - white with black spots */
-        .piece-goat {
-            width: 34px;
-            height: 34px;
-            background: var(--goat);
-            border-radius: 50%;
-            position: relative;
-            box-shadow: 0 3px 10px rgba(255,255,255,0.3);
-            border: 2px solid #ddd;
+        .piece.tiger {
+            filter: drop-shadow(0 0 10px rgba(231, 76, 60, 0.4));
         }
         
-        /* Black spots on goat */
-        .piece-goat::before {
-            content: '';
-            position: absolute;
-            width: 8px;
-            height: 8px;
-            background: var(--goat-spot);
-            border-radius: 50%;
-            top: 6px;
-            left: 8px;
-        }
-        
-        .piece-goat::after {
-            content: '';
-            position: absolute;
-            width: 6px;
-            height: 6px;
-            background: var(--goat-spot);
-            border-radius: 50%;
-            bottom: 8px;
-            right: 8px;
-        }
-        
-        .goat-spot-extra {
-            position: absolute;
-            width: 5px;
-            height: 5px;
-            background: var(--goat-spot);
-            border-radius: 50%;
-            top: 50%;
-            right: 6px;
-            transform: translateY(-50%);
-        }
-        
-        @keyframes pulse {
-            0%, 100% { transform: scale(1); }
-            50% { transform: scale(1.05); }
+        .piece.goat {
+            filter: drop-shadow(0 0 8px rgba(243, 156, 18, 0.3));
         }
         
         /* Controls */
@@ -432,7 +376,7 @@
         }
         
         .btn-new {
-            background: linear-gradient(135deg, var(--tiger), #9b59b6);
+            background: linear-gradient(135deg, var(--tiger), var(--goat));
             color: white;
         }
         
@@ -473,7 +417,7 @@
         }
         
         .winner-tiger { color: var(--tiger); }
-        .winner-goat { color: #9b59b6; }
+        .winner-goat { color: var(--goat); }
     </style>
 </head>
 <body>
@@ -556,10 +500,10 @@
                 <div class="board-wrapper">
                     <svg class="board-lines" viewBox="0 0 400 400">
                         <!-- Outer box -->
-                        <line x1="20" y1="20" x2="380" y2="20" class="bold" />
-                        <line x1="20" y1="380" x2="380" y2="380" class="bold" />
-                        <line x1="20" y1="20" x2="20" y2="380" class="bold" />
-                        <line x1="380" y1="20" x2="380" y2="380" class="bold" />
+                        <line x1="20" y1="20" x2="380" y2="20" />
+                        <line x1="20" y1="380" x2="380" y2="380" />
+                        <line x1="20" y1="20" x2="20" y2="380" />
+                        <line x1="380" y1="20" x2="380" y2="380" />
                         
                         <!-- Inner horizontal lines -->
                         <line x1="20" y1="110" x2="380" y2="110" />
@@ -609,7 +553,12 @@
 
     <script>
 // ============================================
-// STRICT BAAGCHAL RULES - From User Research
+// STRICT BAAGCHAL RULES
+// ============================================
+// During PLACEMENT phase:
+// - Goats place their pieces (20 total)
+// - Tigers are already on the board and don't move
+// - Tigers start moving AFTER all 20 goats are placed
 // ============================================
 
 // Adjacency map - STRICT BAAGCHAL CONNECTIONS
@@ -641,39 +590,19 @@ const ADJACENT = {
     24: [18, 19, 23]
 };
 
-// Grid positions for 400x400 board (20px padding, 90px spacing)
+// Grid positions for 400x400 board
 const GRID_POSITIONS = [
-    {x: 20, y: 20},    // 0 - top-left corner
-    {x: 110, y: 20},   // 1
-    {x: 200, y: 20},   // 2
-    {x: 290, y: 20},   // 3
-    {x: 380, y: 20},   // 4 - top-right corner
-    {x: 20, y: 110},   // 5
-    {x: 110, y: 110},  // 6
-    {x: 200, y: 110},  // 7
-    {x: 290, y: 110},  // 8
-    {x: 380, y: 110},  // 9
-    {x: 20, y: 200},   // 10
-    {x: 110, y: 200},  // 11
-    {x: 200, y: 200},  // 12 - center
-    {x: 290, y: 200},  // 13
-    {x: 380, y: 200},  // 14
-    {x: 20, y: 290},   // 15
-    {x: 110, y: 290},  // 16
-    {x: 200, y: 290},  // 17
-    {x: 290, y: 290},  // 18
-    {x: 380, y: 290},  // 19
-    {x: 20, y: 380},   // 20 - bottom-left corner
-    {x: 110, y: 380},  // 21
-    {x: 200, y: 380},  // 22
-    {x: 290, y: 380},  // 23
-    {x: 380, y: 380}   // 24 - bottom-right corner
+    {x: 20, y: 20}, {x: 110, y: 20}, {x: 200, y: 20}, {x: 290, y: 20}, {x: 380, y: 20},
+    {x: 20, y: 110}, {x: 110, y: 110}, {x: 200, y: 110}, {x: 290, y: 110}, {x: 380, y: 110},
+    {x: 20, y: 200}, {x: 110, y: 200}, {x: 200, y: 200}, {x: 290, y: 200}, {x: 380, y: 200},
+    {x: 20, y: 290}, {x: 110, y: 290}, {x: 200, y: 290}, {x: 290, y: 290}, {x: 380, y: 290},
+    {x: 20, y: 380}, {x: 110, y: 380}, {x: 200, y: 380}, {x: 290, y: 380}, {x: 380, y: 380}
 ];
 
 class BaagchalGame {
     constructor() {
         // Game state
-        this.board = Array(25).fill(null); // null, "T", or "G"
+        this.board = Array(25).fill(null);
         this.goatsPlaced = 0;
         this.goatsCaptured = 0;
         this.turn = "G"; // "G" = Goat, "T" = Tiger
@@ -685,9 +614,9 @@ class BaagchalGame {
         this.validMoves = [];
         
         // Game mode
-        this.gameMode = "FRIEND"; // "FRIEND" or "AI"
-        this.playerSide = "G"; // "T" or "G" (for AI mode)
-        this.aiDifficulty = "easy"; // "easy", "intermediate", "hard"
+        this.gameMode = "FRIEND";
+        this.playerSide = "G";
+        this.aiDifficulty = "easy";
         
         this.init();
     }
@@ -795,11 +724,6 @@ class BaagchalGame {
         [0, 4, 20, 24].forEach(i => this.board[i] = "T");
         
         this.render();
-        
-        // If AI mode and player is Tiger, AI (Goat) starts placing
-        if (this.gameMode === "AI" && this.playerSide === "T") {
-            setTimeout(() => this.makeAIMove(), 800);
-        }
     }
     
     handleCellClick(index) {
@@ -828,15 +752,23 @@ class BaagchalGame {
         
         if (this.goatsPlaced === 20) {
             this.phase = "MOVEMENT";
+            this.turn = "T"; // Tigers start moving first after placement
+        } else {
+            this.turn = "T";
         }
         
-        this.turn = "T";
         this.checkWinner();
         this.render();
         
         // AI turn
         if (this.gameMode === "AI" && !this.winner) {
-            setTimeout(() => this.makeAIMove(), 600);
+            if (this.phase === "PLACEMENT") {
+                // During placement, AI also places goats (both players place goats)
+                setTimeout(() => this.makeAIPlacement(), 600);
+            } else {
+                // Movement phase - AI moves tiger
+                setTimeout(() => this.makeAIMovement(), 600);
+            }
         }
     }
     
@@ -844,14 +776,12 @@ class BaagchalGame {
         const piece = this.board[index];
         
         if (this.selectedCell === null) {
-            // Select piece
             if (piece === this.turn) {
                 this.selectedCell = index;
                 this.calculateValidMoves(index);
                 this.render();
             }
         } else {
-            // Try to move
             if (this.validMoves.includes(index)) {
                 this.executeMove(this.selectedCell, index);
                 this.selectedCell = null;
@@ -859,22 +789,100 @@ class BaagchalGame {
                 this.checkWinner();
                 this.render();
                 
-                // AI turn
                 if (this.gameMode === "AI" && !this.winner) {
-                    setTimeout(() => this.makeAIMove(), 600);
+                    setTimeout(() => this.makeAIMovement(), 600);
                 }
             } else if (piece === this.turn && index !== this.selectedCell) {
-                // Select different piece
                 this.selectedCell = index;
                 this.calculateValidMoves(index);
                 this.render();
             } else {
-                // Deselect
                 this.selectedCell = null;
                 this.validMoves = [];
                 this.render();
             }
         }
+    }
+    
+    // AI places a goat during placement phase
+    makeAIPlacement() {
+        if (this.winner || this.phase !== "PLACEMENT") return;
+        
+        const emptySpots = [];
+        for (let i = 0; i < 25; i++) {
+            if (this.board[i] === null) {
+                emptySpots.push(i);
+            }
+        }
+        
+        if (emptySpots.length === 0) return;
+        
+        let selectedSpot;
+        
+        if (this.aiDifficulty === "easy") {
+            selectedSpot = emptySpots[Math.floor(Math.random() * emptySpots.length)];
+        } else {
+            // Try to place away from tigers
+            const safeSpots = emptySpots.filter(spot => {
+                return !this.isNearTiger(spot);
+            });
+            
+            if (safeSpots.length > 0) {
+                selectedSpot = safeSpots[Math.floor(Math.random() * safeSpots.length)];
+            } else {
+                selectedSpot = emptySpots[Math.floor(Math.random() * emptySpots.length)];
+            }
+        }
+        
+        this.board[selectedSpot] = "G";
+        this.goatsPlaced++;
+        
+        if (this.goatsPlaced === 20) {
+            this.phase = "MOVEMENT";
+            this.turn = "T"; // Tigers move first after placement
+        } else {
+            this.turn = "G"; // Back to user's turn
+        }
+        
+        this.checkWinner();
+        this.render();
+        
+        // If placement just ended and AI is Tiger, make a move
+        if (this.phase === "MOVEMENT" && this.gameMode === "AI" && this.playerSide === "G" && !this.winner) {
+            setTimeout(() => this.makeAIMovement(), 800);
+        }
+    }
+    
+    // AI moves a tiger during movement phase
+    makeAIMovement() {
+        if (this.winner || this.phase !== "MOVEMENT") return;
+        
+        const tigerPositions = this.board.map((v, i) => v === "T" ? i : null).filter(v => v !== null);
+        
+        if (tigerPositions.length === 0) return;
+        
+        let bestMove = null;
+        
+        if (this.aiDifficulty === "easy") {
+            bestMove = this.getRandomTigerMove(tigerPositions);
+        } else if (this.aiDifficulty === "intermediate") {
+            bestMove = this.getIntermediateTigerMove(tigerPositions);
+        } else {
+            bestMove = this.getHardTigerMove(tigerPositions);
+        }
+        
+        if (bestMove) {
+            this.executeMove(bestMove.from, bestMove.to);
+            this.checkWinner();
+            this.render();
+        }
+    }
+    
+    isNearTiger(pos) {
+        for (const adj of ADJACENT[pos]) {
+            if (this.board[adj] === "T") return true;
+        }
+        return false;
     }
     
     calculateValidMoves(fromIndex) {
@@ -884,21 +892,18 @@ class BaagchalGame {
         if (!piece) return;
         
         if (piece === "G") {
-            // Goats move to adjacent empty cells
             for (const to of ADJACENT[fromIndex]) {
                 if (this.board[to] === null) {
                     this.validMoves.push(to);
                 }
             }
         } else if (piece === "T") {
-            // Tiger normal moves
             for (const to of ADJACENT[fromIndex]) {
                 if (this.board[to] === null) {
                     this.validMoves.push(to);
                 }
             }
             
-            // Tiger capture moves (jump over goat)
             const captures = this.getCaptureMoves(fromIndex);
             this.validMoves.push(...captures);
         }
@@ -909,12 +914,7 @@ class BaagchalGame {
         const fx = fromIndex % 5;
         const fy = Math.floor(fromIndex / 5);
         
-        // Check all directions for jump (distance 2)
-        const directions = [
-            [-2, -2], [-2, 0], [-2, 2],
-            [0, -2], [0, 2],
-            [2, -2], [2, 0], [2, 2]
-        ];
+        const directions = [[-2, -2], [-2, 0], [-2, 2], [0, -2], [0, 2], [2, -2], [2, 0], [2, 2]];
         
         for (const [dx, dy] of directions) {
             const tx = fx + dx;
@@ -938,14 +938,12 @@ class BaagchalGame {
     executeMove(from, to) {
         const piece = this.board[from];
         
-        // Check if it's a capture
         const fx = from % 5;
         const fy = Math.floor(from / 5);
         const tx = to % 5;
         const ty = Math.floor(to / 5);
         
         if (Math.abs(tx - fx) === 2 || Math.abs(ty - fy) === 2) {
-            // It's a capture
             const mx = (fx + tx) / 2;
             const my = (fy + ty) / 2;
             const midIndex = my * 5 + mx;
@@ -959,82 +957,6 @@ class BaagchalGame {
         this.board[to] = piece;
         this.board[from] = null;
         this.turn = this.turn === "G" ? "T" : "G";
-    }
-    
-    makeAIMove() {
-        if (this.winner) return;
-        
-        if (this.phase === "PLACEMENT") {
-            // AI places a goat
-            const emptySpots = [];
-            for (let i = 0; i < 25; i++) {
-                if (this.board[i] === null) {
-                    emptySpots.push(i);
-                }
-            }
-            
-            if (emptySpots.length > 0) {
-                let selectedSpot;
-                
-                if (this.aiDifficulty === "easy") {
-                    // Random placement
-                    selectedSpot = emptySpots[Math.floor(Math.random() * emptySpots.length)];
-                } else {
-                    // Try to place away from tigers
-                    const safeSpots = emptySpots.filter(spot => {
-                        return !this.isNearTiger(spot);
-                    });
-                    
-                    if (safeSpots.length > 0) {
-                        selectedSpot = safeSpots[Math.floor(Math.random() * safeSpots.length)];
-                    } else {
-                        selectedSpot = emptySpots[Math.floor(Math.random() * emptySpots.length)];
-                    }
-                }
-                
-                this.board[selectedSpot] = "G";
-                this.goatsPlaced++;
-                
-                if (this.goatsPlaced === 20) {
-                    this.phase = "MOVEMENT";
-                }
-                
-                this.turn = "T";
-                this.checkWinner();
-                this.render();
-            }
-        } else {
-            // AI moves a tiger
-            const tigerPositions = this.board.map((v, i) => v === "T" ? i : null).filter(v => v !== null);
-            
-            if (tigerPositions.length === 0) return;
-            
-            let bestMove = null;
-            
-            if (this.aiDifficulty === "easy") {
-                // Random valid move
-                bestMove = this.getRandomTigerMove(tigerPositions);
-            } else if (this.aiDifficulty === "intermediate") {
-                // Prioritize captures
-                bestMove = this.getIntermediateTigerMove(tigerPositions);
-            } else {
-                // Hard - best strategic move
-                bestMove = this.getHardTigerMove(tigerPositions);
-            }
-            
-            if (bestMove) {
-                this.executeMove(bestMove.from, bestMove.to);
-                this.checkWinner();
-                this.render();
-            }
-        }
-    }
-    
-    isNearTiger(pos) {
-        for (const adj of ADJACENT[pos]) {
-            if (this.board[adj] === "T") return true;
-        }
-        return false;
     }
     
     getRandomTigerMove(tigerPositions) {
@@ -1073,7 +995,6 @@ class BaagchalGame {
     }
     
     getHardTigerMove(tigerPositions) {
-        // Try to find capture moves first
         const captureMoves = [];
         const safeMoves = [];
         
@@ -1097,7 +1018,6 @@ class BaagchalGame {
             return safeMoves[Math.floor(Math.random() * safeMoves.length)];
         }
         
-        // Fallback to any move
         return this.getRandomTigerMove(tigerPositions);
     }
     
@@ -1118,14 +1038,12 @@ class BaagchalGame {
     }
     
     checkWinner() {
-        // Tigers win if captured 5+ goats
         if (this.goatsCaptured >= 5) {
             this.winner = "T";
             this.showGameOver("T");
             return;
         }
         
-        // Goats win if all tigers are trapped
         if (this.turn === "T" && this.phase === "MOVEMENT") {
             const tigerPositions = this.board.map((v, i) => v === "T" ? i : null).filter(v => v !== null);
             
@@ -1173,9 +1091,9 @@ class BaagchalGame {
             const piece = this.board[i];
             
             if (piece === "T") {
-                cell.innerHTML = '<div class="piece-tiger">🐅</div>';
+                cell.innerHTML = '<span class="piece tiger">🐅</span>';
             } else if (piece === "G") {
-                cell.innerHTML = '<div class="piece-goat"><div class="goat-spot-extra"></div></div>';
+                cell.innerHTML = '<span class="piece goat">🐐</span>';
             }
             
             if (i === this.selectedCell) {
@@ -1188,19 +1106,19 @@ class BaagchalGame {
             }
         });
         
-        // Update stats
         document.getElementById('tiger-count').textContent = 4;
         document.getElementById('goat-count').textContent = 20 - this.goatsCaptured;
         
-        // Update turn
         const turnEl = document.getElementById('turn-indicator');
-        if (this.turn === "T") {
+        if (this.phase === "PLACEMENT") {
+            // During placement, both players place goats
+            turnEl.innerHTML = '<span class="turn-goat">Placing Goats...</span>';
+        } else if (this.turn === "T") {
             turnEl.innerHTML = '<span class="turn-tiger">Tiger\'s Turn</span>';
         } else {
             turnEl.innerHTML = '<span class="turn-goat">Goat\'s Turn</span>';
         }
         
-        // Update phase
         const phaseEl = document.getElementById('phase-bar');
         if (this.phase === "PLACEMENT") {
             phaseEl.innerHTML = `Phase: <span>Place Goats</span> (${this.goatsPlaced}/20 placed)`;
