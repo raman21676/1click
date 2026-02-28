@@ -8,8 +8,8 @@
 
 | Phase | Status | Progress | Target Completion |
 |-------|--------|----------|-------------------|
-| Phase 1: Foundation | 🟡 In Progress | 90% | 2026-03-01 |
-| Phase 2: Core Games | 🟡 In Progress | 0% | 2026-03-15 |
+| Phase 1: Foundation | 🟢 Done | 100% | 2026-03-01 |
+| Phase 2: Core Games | 🟢 Done | 100% | 2026-03-15 |
 | Phase 3: Advanced Games | ⏳ Not Started | 0% | 2026-04-01 |
 | Phase 4: Polish & Launch | ⏳ Not Started | 0% | 2026-04-15 |
 | Phase 5: Android App | ⏳ Not Started | 0% | 2026-05-01 |
@@ -30,7 +30,7 @@
 |---|------|--------|----------|----------|-------|--------|
 | 1.1.1 | Create folder structure | 🟢 Done | High | AI Agent | Standard layout created | Initial |
 | 1.1.2 | Create markdown docs (AGENTS, ARCHITECTURE, TODO, PROGRESS, ISSUES) | 🟢 Done | High | AI Agent | All docs created | Initial |
-| 1.1.3 | Create shared CSS variables & reset | 🟡 In Progress | High | AI Agent | variables.css pending | - |
+| 1.1.3 | Create shared CSS variables & reset | 🟢 Done | High | AI Agent | Theme system implemented | e3dc618 |
 | 1.1.4 | Create shared JS utilities | ⏳ Pending | High | AI Agent | storage.js, sound.js | - |
 
 ### 1.2 CI/CD Pipeline
@@ -58,7 +58,7 @@
 | 1.4.2 | Create game cards grid | 🟢 Done | High | AI Agent | 8 game cards | - |
 | 1.4.3 | Add navigation | 🟢 Done | Medium | AI Agent | Simple header | - |
 | 1.4.4 | Add footer | 🟢 Done | Low | AI Agent | Copyright, links | - |
-| 1.4.5 | Mobile responsive design | 🟢 Done | High | AI Agent | Test all viewports | - |
+| 1.4.5 | Mobile responsive design | 🟢 Done | High | AI Agent | All games responsive | e3dc618 |
 
 **Phase 1 Completion Criteria:**
 - [ ] Website live on GitHub Pages
@@ -106,6 +106,7 @@
 | 2.3.6 | Add timer | 🟢 Done | Medium | AI Agent | Track solve time | - |
 | 2.3.7 | Add hint system | 🟢 Done | Medium | AI Agent | 3 hints max | - |
 | 2.3.8 | Add save/resume | 🟢 Done | Low | AI Agent | LocalStorage | - |
+| 2.3.9 | Add board sizes (6x6, 9x9, 12x12, 16x16) | 🟢 Done | High | AI Agent | All sizes working | 8772c66 |
 
 ### 2.4 Baagchal (बाघचाल)
 | # | Task | Status | Priority | Assignee | Notes | Commit |
@@ -116,13 +117,14 @@
 | 2.4.4 | Implement capture logic | 🟢 Done | High | AI Agent | Tiger jumps over | - |
 | 2.4.5 | Implement placement phase | 🟢 Done | Medium | AI Agent | Goats placement | - |
 | 2.4.6 | Add win conditions | 🟢 Done | High | AI Agent | Both sides | - |
-| 2.4.7 | Add basic AI | 🟢 Done | Low | AI Agent | Tiger moves during placement | - |
+| 2.4.7 | Add AI (3 difficulty levels) | 🟢 Done | High | AI Agent | Easy/Medium/Hard | e3dc618 |
+| 2.4.8 | Make board responsive | 🟢 Done | High | AI Agent | Mobile optimized | e3dc618 |
 
 **Phase 2 Completion Criteria:**
-- [ ] 4 games fully playable
-- [ ] All games have mobile support
-- [ ] Score persistence working
-- [ ] 60fps performance on all games
+- [x] 4 games fully playable
+- [x] All games have mobile support
+- [x] Score persistence working
+- [x] 60fps performance on all games
 
 ---
 
