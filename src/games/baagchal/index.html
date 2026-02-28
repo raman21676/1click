@@ -8,25 +8,19 @@
         * { margin: 0; padding: 0; box-sizing: border-box; }
         
         :root {
-            --tiger: #ef4444;
-            --tiger-dark: #dc2626;
-            --goat: #f59e0b;
-            --goat-dark: #d97706;
-            --bg-dark: #0f172a;
-            --bg-card: #1e293b;
-            --border: #334155;
-            --text: #f1f5f9;
-            --text-muted: #94a3b8;
-            --cell: #1e293b;
-            --cell-hover: #334155;
-            --selected: #3b82f6;
-            --valid-move: rgba(34, 197, 94, 0.3);
-            --valid-capture: rgba(239, 68, 68, 0.3);
+            --bg: #1a1a2e;
+            --bg-card: #16213e;
+            --tiger: #e74c3c;
+            --goat: #f39c12;
+            --text: #eaeaea;
+            --text-muted: #a0a0a0;
+            --primary: #3498db;
+            --border: #2d3748;
         }
         
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background: linear-gradient(135deg, var(--bg-dark) 0%, var(--bg-card) 100%);
+            background: var(--bg);
             color: var(--text);
             min-height: 100vh;
         }
@@ -35,92 +29,261 @@
             min-height: 100vh;
             display: flex;
             flex-direction: column;
+            max-width: 500px;
+            margin: 0 auto;
         }
         
         /* Header */
-        .game-header {
+        .header {
             display: flex;
             align-items: center;
             justify-content: space-between;
-            padding: 1rem 1.5rem;
-            background: rgba(30, 41, 59, 0.8);
-            border-bottom: 1px solid rgba(245, 158, 11, 0.3);
+            padding: 1rem;
+            background: var(--bg-card);
         }
         
         .back-btn {
-            color: #fbbf24;
+            color: var(--goat);
             text-decoration: none;
-            font-size: 0.9rem;
+            font-size: 1rem;
         }
         
-        .game-header h1 {
-            font-size: 1.4rem;
-            background: linear-gradient(135deg, #f59e0b 0%, #fbbf24 100%);
+        .title {
+            font-size: 1.3rem;
+            font-weight: 600;
+            background: linear-gradient(135deg, var(--tiger), var(--goat));
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
         }
         
-        /* Main */
-        .game-main {
+        /* Menu Screen */
+        .menu-screen {
             flex: 1;
             display: flex;
             flex-direction: column;
-            align-items: center;
-            padding: 1rem;
-            gap: 1rem;
-        }
-        
-        /* Info Panel */
-        .info-panel {
-            display: flex;
-            gap: 1rem;
-            flex-wrap: wrap;
             justify-content: center;
+            padding: 2rem;
+            gap: 1.5rem;
         }
         
-        .info-box {
+        .menu-title {
+            text-align: center;
+            font-size: 2rem;
+            margin-bottom: 1rem;
+        }
+        
+        .menu-btn {
+            padding: 1rem 2rem;
+            border: none;
+            border-radius: 12px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .menu-btn.friend {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+        }
+        
+        .menu-btn.ai {
+            background: linear-gradient(135deg, #11998e, #38ef7d);
+            color: white;
+        }
+        
+        .menu-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(0,0,0,0.3);
+        }
+        
+        .rules-box {
+            background: var(--bg-card);
+            padding: 1rem;
+            border-radius: 8px;
+            margin-top: 1rem;
+        }
+        
+        .rules-box h3 {
+            color: var(--goat);
+            margin-bottom: 0.5rem;
+        }
+        
+        .rules-box ul {
+            margin-left: 1.2rem;
+            font-size: 0.9rem;
+            color: var(--text-muted);
+        }
+        
+        .rules-box li {
+            margin-bottom: 0.3rem;
+        }
+        
+        /* AI Setup Screen */
+        .ai-setup {
+            flex: 1;
+            display: none;
+            flex-direction: column;
+            justify-content: center;
+            padding: 2rem;
+            gap: 1.5rem;
+        }
+        
+        .setup-title {
+            text-align: center;
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+        }
+        
+        .setup-section {
+            background: var(--bg-card);
+            padding: 1rem;
+            border-radius: 8px;
+        }
+        
+        .setup-section h4 {
+            color: var(--text-muted);
+            margin-bottom: 0.8rem;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+        }
+        
+        .option-row {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+        }
+        
+        .option-btn {
+            flex: 1;
+            min-width: 80px;
+            padding: 0.6rem;
+            border: 1px solid var(--border);
+            background: transparent;
+            color: var(--text);
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: all 0.2s;
+        }
+        
+        .option-btn:hover, .option-btn.active {
+            background: var(--primary);
+            border-color: var(--primary);
+        }
+        
+        .option-btn.tiger-btn.active {
+            background: var(--tiger);
+            border-color: var(--tiger);
+        }
+        
+        .option-btn.goat-btn.active {
+            background: var(--goat);
+            border-color: var(--goat);
+        }
+        
+        .start-btn {
+            padding: 1rem;
+            border: none;
+            border-radius: 12px;
+            background: linear-gradient(135deg, var(--tiger), var(--goat));
+            color: white;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            margin-top: 1rem;
+        }
+        
+        .back-menu-btn {
+            padding: 0.8rem;
+            border: none;
+            border-radius: 8px;
+            background: var(--border);
+            color: var(--text);
+            font-size: 0.9rem;
+            cursor: pointer;
+        }
+        
+        /* Game Screen */
+        .game-screen {
+            display: none;
+            flex-direction: column;
+            flex: 1;
+        }
+        
+        /* Stats */
+        .stats {
+            display: flex;
+            justify-content: space-around;
+            padding: 0.8rem;
+            background: var(--bg-card);
+        }
+        
+        .stat {
             display: flex;
             align-items: center;
             gap: 0.5rem;
-            padding: 0.75rem 1rem;
-            background: rgba(30, 41, 59, 0.6);
-            border-radius: 0.75rem;
         }
         
-        .piece-icon {
+        .stat-icon {
             font-size: 1.5rem;
         }
         
-        .piece-count {
+        .stat-value {
             font-size: 1.2rem;
-            font-weight: bold;
+            font-weight: 700;
         }
+        
+        .tiger-count { color: var(--tiger); }
+        .goat-count { color: var(--goat); }
         
         .turn-indicator {
             padding: 0.5rem 1rem;
-            background: rgba(30, 41, 59, 0.6);
-            border-radius: 0.75rem;
+            background: rgba(255,255,255,0.1);
+            border-radius: 20px;
             font-weight: 600;
         }
         
-        .turn-tiger { color: #ef4444; }
-        .turn-goat { color: #f59e0b; }
+        .turn-tiger { color: var(--tiger); }
+        .turn-goat { color: var(--goat); }
         
-        /* Game Board */
+        /* Phase Indicator */
+        .phase-bar {
+            text-align: center;
+            padding: 0.6rem;
+            background: var(--bg);
+            font-size: 0.85rem;
+            color: var(--text-muted);
+        }
+        
+        .phase-bar span {
+            color: var(--primary);
+            font-weight: 600;
+        }
+        
+        /* Board */
         .board-container {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 1rem;
+        }
+        
+        .board-wrapper {
             position: relative;
-            padding: 10px;
-            background: var(--border);
-            border-radius: 12px;
+            width: 340px;
+            height: 340px;
         }
         
         #game-board {
-            position: relative;
-            width: 350px;
-            height: 350px;
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
         }
         
-        /* SVG Lines */
         .board-lines {
             position: absolute;
             top: 0;
@@ -131,11 +294,10 @@
         }
         
         .board-lines line {
-            stroke: #475569;
+            stroke: #4a5568;
             stroke-width: 2;
         }
         
-        /* Cells */
         .cells-grid {
             position: absolute;
             top: 0;
@@ -158,108 +320,78 @@
         }
         
         .cell:hover:not(.disabled) {
-            background: var(--cell-hover);
+            background: rgba(255,255,255,0.1);
         }
         
         .cell.selected {
-            background: rgba(59, 130, 246, 0.4);
-            box-shadow: 0 0 15px rgba(59, 130, 246, 0.5);
+            background: rgba(52, 152, 219, 0.4);
+            box-shadow: 0 0 15px rgba(52, 152, 219, 0.5);
         }
         
         .cell.valid-move::after {
             content: '';
             position: absolute;
-            width: 20px;
-            height: 20px;
-            background: var(--valid-move);
+            width: 16px;
+            height: 16px;
+            background: rgba(46, 204, 113, 0.5);
             border-radius: 50%;
         }
         
         .cell.valid-capture::after {
             content: '';
             position: absolute;
-            width: 20px;
-            height: 20px;
-            background: var(--valid-capture);
+            width: 16px;
+            height: 16px;
+            background: rgba(231, 76, 60, 0.5);
             border-radius: 50%;
         }
         
-        /* Pieces */
         .piece {
-            font-size: 2.5rem;
-            transition: transform 0.3s ease;
+            font-size: 2rem;
             user-select: none;
+            transition: transform 0.3s;
         }
         
         .piece.tiger {
-            filter: drop-shadow(0 0 8px rgba(239, 68, 68, 0.6));
-            animation: tigerPulse 2s infinite;
+            filter: drop-shadow(0 0 8px rgba(231, 76, 60, 0.6));
+            animation: pulse 2s infinite;
         }
         
         .piece.goat {
-            filter: drop-shadow(0 0 8px rgba(245, 158, 11, 0.6));
+            filter: drop-shadow(0 0 8px rgba(243, 156, 18, 0.6));
         }
         
-        @keyframes tigerPulse {
+        @keyframes pulse {
             0%, 100% { transform: scale(1); }
-            50% { transform: scale(1.05); }
-        }
-        
-        /* Phase indicator */
-        .phase-indicator {
-            padding: 0.5rem 1rem;
-            background: rgba(59, 130, 246, 0.2);
-            border: 1px solid rgba(59, 130, 246, 0.4);
-            border-radius: 0.5rem;
-            color: #60a5fa;
-            font-size: 0.9rem;
-        }
-        
-        /* Rules */
-        .rules-box {
-            max-width: 400px;
-            padding: 1rem;
-            background: rgba(30, 41, 59, 0.6);
-            border-radius: 0.75rem;
-            font-size: 0.85rem;
-            color: var(--text-muted);
-        }
-        
-        .rules-box h3 {
-            color: var(--text);
-            margin-bottom: 0.5rem;
-            font-size: 1rem;
-        }
-        
-        .rules-box ul {
-            margin-left: 1.2rem;
-        }
-        
-        .rules-box li {
-            margin-bottom: 0.3rem;
+            50% { transform: scale(1.08); }
         }
         
         /* Controls */
-        .controls {
+        .game-controls {
             display: flex;
             gap: 0.5rem;
+            padding: 1rem;
         }
         
-        .control-btn {
-            padding: 0.6rem 1.2rem;
-            border: 1px solid var(--border);
-            background: var(--bg-card);
-            color: var(--text);
-            border-radius: 0.5rem;
-            cursor: pointer;
+        .btn {
+            flex: 1;
+            padding: 0.8rem;
+            border: none;
+            border-radius: 8px;
             font-size: 0.9rem;
+            font-weight: 600;
+            cursor: pointer;
             transition: all 0.2s;
         }
         
-        .control-btn:hover { background: rgba(255,255,255,0.1); }
-        .control-btn.primary {
-            background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
-            border-color: #f59e0b;
+        .btn-new {
+            background: linear-gradient(135deg, var(--tiger), var(--goat));
+            color: white;
+        }
+        
+        .btn-menu {
+            background: var(--border);
+            color: var(--text);
         }
         
         /* Modal */
@@ -278,10 +410,9 @@
         .modal-content {
             background: var(--bg-card);
             padding: 2rem;
-            border-radius: 1rem;
+            border-radius: 12px;
             text-align: center;
-            max-width: 350px;
-            border: 1px solid rgba(245, 158, 11, 0.3);
+            max-width: 300px;
         }
         
         .modal-content h2 {
@@ -294,105 +425,130 @@
             margin-bottom: 1.5rem;
         }
         
-        .winner-tiger { color: #ef4444; }
-        .winner-goat { color: #f59e0b; }
-        
-        /* Responsive */
-        @media (max-width: 400px) {
-            #game-board { width: 300px; height: 300px; }
-            .piece { font-size: 2rem; }
-            .game-header h1 { font-size: 1.1rem; }
-        }
+        .winner-tiger { color: var(--tiger); }
+        .winner-goat { color: var(--goat); }
     </style>
 </head>
 <body>
     <div class="game-container">
-        <header class="game-header">
+        <!-- Header -->
+        <header class="header">
             <a href="../../../index.html" class="back-btn">← Back</a>
-            <h1>🐅 Baagchal (बाघचाल)</h1>
+            <h1 class="title">बाघचाल</h1>
             <div style="width: 50px;"></div>
         </header>
 
-        <main class="game-main">
-            <!-- Info Panel -->
-            <div class="info-panel">
-                <div class="info-box">
-                    <span class="piece-icon">🐅</span>
-                    <span class="piece-count" id="tiger-count">1</span>
+        <!-- Menu Screen -->
+        <div class="menu-screen" id="menu-screen">
+            <h2 class="menu-title">🐅 Baagchal 🐐</h2>
+            <button class="menu-btn friend" id="btn-friend">👥 Play with Friend</button>
+            <button class="menu-btn ai" id="btn-ai">🤖 Play with Computer</button>
+            
+            <div class="rules-box">
+                <h3>📜 Rules</h3>
+                <ul>
+                    <li><strong>4 Tigers</strong> vs <strong>20 Goats</strong></li>
+                    <li>Tigers start at 4 corners</li>
+                    <li>Goats place 20 pieces one by one</li>
+                    <li>Tiger captures by jumping over a goat</li>
+                    <li><strong>Goats win:</strong> Trap all 4 tigers</li>
+                    <li><strong>Tigers win:</strong> Capture 5+ goats</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- AI Setup Screen -->
+        <div class="ai-setup" id="ai-setup">
+            <h2 class="setup-title">⚙️ Game Setup</h2>
+            
+            <div class="setup-section">
+                <h4>Choose Side</h4>
+                <div class="option-row">
+                    <button class="option-btn tiger-btn" data-side="tiger">🐅 Tiger</button>
+                    <button class="option-btn goat-btn active" data-side="goat">🐐 Goat</button>
                 </div>
-                <div class="info-box">
-                    <span class="piece-icon">🐐</span>
-                    <span class="piece-count" id="goat-count">4</span>
+            </div>
+            
+            <div class="setup-section">
+                <h4>AI Difficulty</h4>
+                <div class="option-row">
+                    <button class="option-btn active" data-diff="easy">Easy</button>
+                    <button class="option-btn" data-diff="medium">Medium</button>
+                    <button class="option-btn" data-diff="hard">Hard</button>
+                </div>
+            </div>
+            
+            <button class="start-btn" id="btn-start-ai">Start Game</button>
+            <button class="back-menu-btn" id="btn-back-menu">← Back to Menu</button>
+        </div>
+
+        <!-- Game Screen -->
+        <div class="game-screen" id="game-screen">
+            <!-- Stats -->
+            <div class="stats">
+                <div class="stat">
+                    <span class="stat-icon">🐅</span>
+                    <span class="stat-value tiger-count" id="tiger-count">4</span>
                 </div>
                 <div class="turn-indicator" id="turn-indicator">
                     <span class="turn-goat">Goat's Turn</span>
                 </div>
+                <div class="stat">
+                    <span class="stat-icon">🐐</span>
+                    <span class="stat-value goat-count" id="goat-count">20</span>
+                </div>
             </div>
 
-            <!-- Phase Indicator -->
-            <div class="phase-indicator" id="phase-indicator">
-                Phase: Place Goats (0/4 placed)
+            <!-- Phase -->
+            <div class="phase-bar" id="phase-bar">
+                Phase: <span>Place Goats</span> (0/20 placed)
             </div>
 
-            <!-- Game Board -->
+            <!-- Board -->
             <div class="board-container">
-                <div id="game-board">
-                    <!-- SVG Lines -->
-                    <svg class="board-lines" viewBox="0 0 350 350">
-                        <!-- Horizontal lines -->
-                        <line x1="35" y1="35" x2="315" y2="35" />
-                        <line x1="35" y1="105" x2="315" y2="105" />
-                        <line x1="35" y1="175" x2="315" y2="175" />
-                        <line x1="35" y1="245" x2="315" y2="245" />
-                        <line x1="35" y1="315" x2="315" y2="315" />
+                <div class="board-wrapper">
+                    <svg class="board-lines" viewBox="0 0 340 340">
+                        <!-- Outer box -->
+                        <line x1="20" y1="20" x2="320" y2="20" />
+                        <line x1="20" y1="320" x2="320" y2="320" />
+                        <line x1="20" y1="20" x2="20" y2="320" />
+                        <line x1="320" y1="20" x2="320" y2="320" />
                         
-                        <!-- Vertical lines -->
-                        <line x1="35" y1="35" x2="35" y2="315" />
-                        <line x1="105" y1="35" x2="105" y2="315" />
-                        <line x1="175" y1="35" x2="175" y2="315" />
-                        <line x1="245" y1="35" x2="245" y2="315" />
-                        <line x1="315" y1="35" x2="315" y2="315" />
+                        <!-- Inner grid lines -->
+                        <line x1="20" y1="95" x2="320" y2="95" />
+                        <line x1="20" y1="170" x2="320" y2="170" />
+                        <line x1="20" y1="245" x2="320" y2="245" />
+                        
+                        <line x1="95" y1="20" x2="95" y2="320" />
+                        <line x1="170" y1="20" x2="170" y2="320" />
+                        <line x1="245" y1="20" x2="245" y2="320" />
                         
                         <!-- Diagonals -->
-                        <line x1="35" y1="35" x2="315" y2="315" />
-                        <line x1="315" y1="35" x2="35" y2="315" />
-                        <line x1="35" y1="175" x2="175" y2="35" />
-                        <line x1="175" y1="35" x2="315" y2="175" />
-                        <line x1="315" y1="175" x2="175" y2="315" />
-                        <line x1="175" y1="315" x2="35" y2="175" />
+                        <line x1="20" y1="20" x2="320" y2="320" />
+                        <line x1="320" y1="20" x2="20" y2="320" />
+                        <line x1="20" y1="170" x2="170" y2="20" />
+                        <line x1="170" y1="20" x2="320" y2="170" />
+                        <line x1="320" y1="170" x2="170" y2="320" />
+                        <line x1="170" y1="320" x2="20" y2="170" />
                     </svg>
                     
-                    <!-- Cells -->
                     <div class="cells-grid" id="cells-grid"></div>
                 </div>
             </div>
 
-            <!-- Rules -->
-            <div class="rules-box">
-                <h3>📜 Rules</h3>
-                <ul>
-                    <li><strong>1 Tiger</strong> vs <strong>4 Goats</strong></li>
-                    <li><strong>Phase 1:</strong> Goats place their pieces one by one</li>
-                    <li><strong>Phase 2:</strong> Players alternate turns moving to adjacent spots</li>
-                    <li><strong>Tiger captures</strong> by jumping over a goat (like checkers)</li>
-                    <li><strong>Goats win</strong> if tiger can't move</li>
-                    <li><strong>Tiger wins</strong> if it captures all goats</li>
-                </ul>
-            </div>
-
             <!-- Controls -->
-            <div class="controls">
-                <button id="new-game-btn" class="control-btn primary">New Game</button>
-                <button id="how-to-btn" class="control-btn">How to Play</button>
+            <div class="game-controls">
+                <button class="btn btn-menu" id="btn-game-menu">Menu</button>
+                <button class="btn btn-new" id="btn-new-game">New Game</button>
             </div>
-        </main>
+        </div>
 
         <!-- Game Over Modal -->
         <div id="game-over-modal" class="modal hidden">
             <div class="modal-content">
                 <h2 id="winner-title">🎉 Game Over!</h2>
                 <p id="winner-message">Goats win!</p>
-                <button id="play-again-btn" class="control-btn primary">Play Again</button>
+                <button class="btn btn-new" id="btn-play-again">Play Again</button>
             </div>
         </div>
     </div>
@@ -400,20 +556,21 @@
     <script>
 class BaagchalGame {
     constructor() {
-        // 5x5 board represented as array (25 cells)
         this.board = Array(25).fill(null); // null, 'tiger', or 'goat'
-        this.tigerPos = 12; // Center position (2,2)
-        this.board[12] = 'tiger';
-        
+        this.tigerPositions = [0, 4, 20, 24]; // 4 corners
         this.phase = 'placement'; // 'placement' or 'movement'
         this.goatsPlaced = 0;
         this.goatsCaptured = 0;
-        this.currentPlayer = 'goat'; // 'goat' or 'tiger'
-        
+        this.currentPlayer = 'goat';
         this.selectedCell = null;
         this.validMoves = [];
         
-        // All valid connections for each cell (adjacent + diagonal where applicable)
+        // Game mode
+        this.gameMode = 'friend'; // 'friend' or 'ai'
+        this.playerSide = 'goat'; // 'tiger' or 'goat' (for AI mode)
+        this.aiDifficulty = 'easy';
+        
+        // Connection map for 5x5 grid with diagonals
         this.connections = this.buildConnections();
         
         this.init();
@@ -426,12 +583,8 @@ class BaagchalGame {
             const col = i % 5;
             const connections = [];
             
-            // Check all 8 directions
-            const dirs = [
-                [-1, -1], [-1, 0], [-1, 1],
-                [0, -1], [0, 1],
-                [1, -1], [1, 0], [1, 1]
-            ];
+            // All 8 directions
+            const dirs = [[-1,-1],[-1,0],[-1,1],[0,-1],[0,1],[1,-1],[1,0],[1,1]];
             
             for (const [dr, dc] of dirs) {
                 const nr = row + dr;
@@ -440,16 +593,86 @@ class BaagchalGame {
                     connections.push(nr * 5 + nc);
                 }
             }
-            
             conn[i] = connections;
         }
         return conn;
     }
     
     init() {
+        this.setupMenu();
+    }
+    
+    setupMenu() {
+        // Menu buttons
+        document.getElementById('btn-friend').addEventListener('click', () => {
+            this.gameMode = 'friend';
+            this.startGame();
+        });
+        
+        document.getElementById('btn-ai').addEventListener('click', () => {
+            this.showAISetup();
+        });
+        
+        // AI setup
+        document.getElementById('btn-back-menu').addEventListener('click', () => {
+            this.showMenu();
+        });
+        
+        document.querySelectorAll('.ai-setup .option-btn[data-side]').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                document.querySelectorAll('.ai-setup .option-btn[data-side]').forEach(b => b.classList.remove('active'));
+                e.target.classList.add('active');
+                this.playerSide = e.target.dataset.side;
+            });
+        });
+        
+        document.querySelectorAll('.ai-setup .option-btn[data-diff]').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                document.querySelectorAll('.ai-setup .option-btn[data-diff]').forEach(b => b.classList.remove('active'));
+                e.target.classList.add('active');
+                this.aiDifficulty = e.target.dataset.diff;
+            });
+        });
+        
+        document.getElementById('btn-start-ai').addEventListener('click', () => {
+            this.gameMode = 'ai';
+            this.startGame();
+        });
+        
+        // Game controls
+        document.getElementById('btn-game-menu').addEventListener('click', () => {
+            this.showMenu();
+        });
+        
+        document.getElementById('btn-new-game').addEventListener('click', () => {
+            this.resetGame();
+        });
+        
+        document.getElementById('btn-play-again').addEventListener('click', () => {
+            document.getElementById('game-over-modal').classList.add('hidden');
+            this.resetGame();
+        });
+    }
+    
+    showMenu() {
+        document.getElementById('menu-screen').style.display = 'flex';
+        document.getElementById('ai-setup').style.display = 'none';
+        document.getElementById('game-screen').style.display = 'none';
+    }
+    
+    showAISetup() {
+        document.getElementById('menu-screen').style.display = 'none';
+        document.getElementById('ai-setup').style.display = 'flex';
+        document.getElementById('game-screen').style.display = 'none';
+    }
+    
+    startGame() {
+        document.getElementById('menu-screen').style.display = 'none';
+        document.getElementById('ai-setup').style.display = 'none';
+        document.getElementById('game-screen').style.display = 'flex';
+        
         this.createGrid();
-        this.attachEvents();
-        this.updateDisplay();
+        this.resetGame();
     }
     
     createGrid() {
@@ -465,40 +688,59 @@ class BaagchalGame {
         }
     }
     
-    attachEvents() {
-        document.getElementById('new-game-btn').addEventListener('click', () => this.newGame());
-        document.getElementById('play-again-btn').addEventListener('click', () => {
-            document.getElementById('game-over-modal').classList.add('hidden');
-            this.newGame();
+    resetGame() {
+        // Reset board
+        this.board = Array(25).fill(null);
+        
+        // Place 4 tigers at corners
+        this.tigerPositions = [0, 4, 20, 24];
+        this.tigerPositions.forEach(pos => {
+            this.board[pos] = 'tiger';
         });
         
-        document.getElementById('how-to-btn').addEventListener('click', () => {
-            alert('Baagchal Rules:\n\n1. 1 Tiger vs 4 Goats\n2. Goats place pieces first (one by one)\n3. Then alternate turns moving to adjacent spots\n4. Tiger can capture by jumping over a goat\n5. Goats win if Tiger cannot move\n6. Tiger wins if it captures all Goats');
-        });
+        this.phase = 'placement';
+        this.goatsPlaced = 0;
+        this.goatsCaptured = 0;
+        this.currentPlayer = 'goat';
+        this.selectedCell = null;
+        this.validMoves = [];
+        
+        this.updateDisplay();
+        
+        // If AI mode and player chose tiger, AI (goat) starts
+        if (this.gameMode === 'ai' && this.playerSide === 'tiger') {
+            setTimeout(() => this.makeAIMove(), 500);
+        }
     }
     
     handleCellClick(index) {
+        // Check if it's AI's turn
+        if (this.gameMode === 'ai' && this.currentPlayer !== this.playerSide) {
+            return;
+        }
+        
         const cell = this.board[index];
         
         if (this.phase === 'placement') {
             // Goat placement phase
-            if (this.currentPlayer === 'goat' && cell === null && index !== this.tigerPos) {
+            if (this.currentPlayer === 'goat' && cell === null && !this.tigerPositions.includes(index)) {
                 this.board[index] = 'goat';
                 this.goatsPlaced++;
                 
-                if (this.goatsPlaced >= 4) {
+                if (this.goatsPlaced >= 20) {
                     this.phase = 'movement';
-                    this.currentPlayer = 'tiger';
-                } else {
-                    // Tiger gets a turn to move during placement
-                    this.currentPlayer = 'tiger';
-                    this.makeTigerMove();
                 }
                 
+                this.currentPlayer = 'tiger';
                 this.selectedCell = null;
                 this.validMoves = [];
                 this.updateDisplay();
-                this.checkWinCondition();
+                this.checkWin();
+                
+                // AI turn
+                if (this.gameMode === 'ai') {
+                    setTimeout(() => this.makeAIMove(), 600);
+                }
             }
         } else {
             // Movement phase
@@ -516,7 +758,12 @@ class BaagchalGame {
                     this.selectedCell = null;
                     this.validMoves = [];
                     this.updateDisplay();
-                    this.checkWinCondition();
+                    this.checkWin();
+                    
+                    // AI turn
+                    if (this.gameMode === 'ai' && !this.checkWinCondition()) {
+                        setTimeout(() => this.makeAIMove(), 600);
+                    }
                 } else if (cell === this.currentPlayer && index !== this.selectedCell) {
                     // Select different piece
                     this.selectedCell = index;
@@ -537,43 +784,38 @@ class BaagchalGame {
         const piece = this.board[fromIndex];
         
         if (piece === 'goat') {
-            // Goats can move to any empty adjacent cell
+            // Goats move to adjacent empty cells
             for (const to of this.connections[fromIndex]) {
                 if (this.board[to] === null) {
                     this.validMoves.push(to);
                 }
             }
         } else if (piece === 'tiger') {
-            // Tiger can move to empty adjacent cells
+            // Tiger moves to adjacent empty cells
             for (const to of this.connections[fromIndex]) {
                 if (this.board[to] === null) {
                     this.validMoves.push(to);
                 }
             }
             
-            // Tiger can also capture by jumping over a goat
+            // Tiger can capture by jumping
             const row = Math.floor(fromIndex / 5);
             const col = fromIndex % 5;
             
-            const jumpDirs = [
-                [-2, -2], [-2, 0], [-2, 2],
-                [0, -2], [0, 2],
-                [2, -2], [2, 0], [2, 2]
-            ];
+            const jumpDirs = [[-2,-2],[-2,0],[-2,2],[0,-2],[0,2],[2,-2],[2,0],[2,2]];
             
             for (const [dr, dc] of jumpDirs) {
                 const nr = row + dr;
                 const nc = col + dc;
-                const midR = row + dr / 2;
-                const midC = col + dc / 2;
+                const mr = row + dr/2;
+                const mc = col + dc/2;
                 
                 if (nr >= 0 && nr < 5 && nc >= 0 && nc < 5) {
-                    const toIndex = nr * 5 + nc;
-                    const midIndex = midR * 5 + midC;
+                    const toIdx = nr * 5 + nc;
+                    const midIdx = mr * 5 + mc;
                     
-                    // Can jump if: landing spot is empty, middle has a goat
-                    if (this.board[toIndex] === null && this.board[midIndex] === 'goat') {
-                        this.validMoves.push(toIndex);
+                    if (this.board[toIdx] === null && this.board[midIdx] === 'goat') {
+                        this.validMoves.push(toIdx);
                     }
                 }
             }
@@ -584,105 +826,178 @@ class BaagchalGame {
         const piece = this.board[from];
         this.board[from] = null;
         
-        // Check if tiger captured a goat
+        // Check capture
         if (piece === 'tiger') {
             const fromRow = Math.floor(from / 5);
             const fromCol = from % 5;
             const toRow = Math.floor(to / 5);
             const toCol = to % 5;
             
-            // If moved 2 cells, it's a capture
             if (Math.abs(toRow - fromRow) === 2 || Math.abs(toCol - fromCol) === 2) {
-                const midR = (fromRow + toRow) / 2;
-                const midC = (fromCol + toCol) / 2;
-                const midIndex = midR * 5 + midC;
+                const mr = (fromRow + toRow) / 2;
+                const mc = (fromCol + toCol) / 2;
+                const midIdx = mr * 5 + mc;
                 
-                if (this.board[midIndex] === 'goat') {
-                    this.board[midIndex] = null;
+                if (this.board[midIdx] === 'goat') {
+                    this.board[midIdx] = null;
                     this.goatsCaptured++;
                 }
             }
             
-            this.tigerPos = to;
+            // Update tiger position
+            const idx = this.tigerPositions.indexOf(from);
+            if (idx > -1) this.tigerPositions[idx] = to;
         }
         
         this.board[to] = piece;
         this.currentPlayer = this.currentPlayer === 'goat' ? 'tiger' : 'goat';
     }
     
-    makeTigerMove() {
-        // Simple AI for tiger during placement
-        // Just try to move to a position that threatens goats
-        setTimeout(() => {
-            this.calculateValidMoves(this.tigerPos);
-            
-            // Prefer capture moves
-            let captureMove = null;
-            for (const move of this.validMoves) {
-                const fromRow = Math.floor(this.tigerPos / 5);
-                const fromCol = this.tigerPos % 5;
-                const toRow = Math.floor(move / 5);
-                const toCol = move % 5;
-                
-                if (Math.abs(toRow - fromRow) === 2 || Math.abs(toCol - fromCol) === 2) {
-                    captureMove = move;
-                    break;
+    makeAIMove() {
+        if (this.checkWinCondition()) return;
+        
+        // Simple AI based on difficulty
+        if (this.phase === 'placement') {
+            // Place goat randomly in safe spot
+            const safeSpots = [];
+            for (let i = 0; i < 25; i++) {
+                if (this.board[i] === null && !this.tigerPositions.includes(i)) {
+                    // Check if safe from capture
+                    let safe = true;
+                    for (const tigerPos of this.tigerPositions) {
+                        if (this.canTigerCapture(tigerPos, i)) {
+                            safe = false;
+                            break;
+                        }
+                    }
+                    if (safe) safeSpots.push(i);
                 }
             }
             
-            if (captureMove !== null) {
-                this.movePiece(this.tigerPos, captureMove);
-            } else if (this.validMoves.length > 0) {
-                // Random valid move
-                const randomMove = this.validMoves[Math.floor(Math.random() * this.validMoves.length)];
-                this.movePiece(this.tigerPos, randomMove);
+            const spots = safeSpots.length > 0 ? safeSpots : 
+                Array.from({length: 25}, (_, i) => i).filter(i => this.board[i] === null);
+            
+            if (spots.length > 0) {
+                const idx = spots[Math.floor(Math.random() * spots.length)];
+                this.board[idx] = 'goat';
+                this.goatsPlaced++;
+                if (this.goatsPlaced >= 20) this.phase = 'movement';
+                this.currentPlayer = 'tiger';
+                this.updateDisplay();
+                this.checkWin();
+            }
+        } else {
+            // Movement phase - find best tiger move
+            let bestMove = null;
+            let bestScore = -Infinity;
+            
+            for (const tigerPos of this.tigerPositions) {
+                this.calculateValidMoves(tigerPos);
+                for (const move of this.validMoves) {
+                    let score = 0;
+                    
+                    // Check if capture
+                    const fromRow = Math.floor(tigerPos / 5);
+                    const fromCol = tigerPos % 5;
+                    const toRow = Math.floor(move / 5);
+                    const toCol = move % 5;
+                    
+                    if (Math.abs(toRow - fromRow) === 2 || Math.abs(toCol - fromCol) === 2) {
+                        score += 100; // Capture is best
+                    }
+                    
+                    // Check if move avoids trapping
+                    if (this.countTigerMoves(move) > 1) {
+                        score += 10;
+                    }
+                    
+                    // Difficulty modifier
+                    if (this.aiDifficulty === 'easy') {
+                        score = Math.random() * 50; // Random for easy
+                    } else if (this.aiDifficulty === 'medium') {
+                        score += Math.random() * 20;
+                    }
+                    
+                    if (score > bestScore) {
+                        bestScore = score;
+                        bestMove = { from: tigerPos, to: move };
+                    }
+                }
             }
             
-            this.currentPlayer = 'goat';
-            this.selectedCell = null;
-            this.validMoves = [];
-            this.updateDisplay();
-            this.checkWinCondition();
-        }, 500);
+            if (bestMove) {
+                this.selectedCell = bestMove.from;
+                this.movePiece(bestMove.from, bestMove.to);
+                this.selectedCell = null;
+                this.validMoves = [];
+                this.updateDisplay();
+                this.checkWin();
+            }
+        }
+    }
+    
+    canTigerCapture(tigerPos, goatPos) {
+        const tr = Math.floor(tigerPos / 5);
+        const tc = tigerPos % 5;
+        const gr = Math.floor(goatPos / 5);
+        const gc = goatPos % 5;
+        
+        return (Math.abs(tr - gr) === 1 && Math.abs(tc - gc) === 1) ||
+               (Math.abs(tr - gr) === 1 && tc === gc) ||
+               (tr === gr && Math.abs(tc - gc) === 1);
+    }
+    
+    countTigerMoves(pos) {
+        this.calculateValidMoves(pos);
+        return this.validMoves.length;
+    }
+    
+    checkWin() {
+        if (this.checkWinCondition()) {
+            const winner = this.goatsCaptured >= 5 ? 'tiger' : 'goat';
+            this.gameOver(winner);
+        }
     }
     
     checkWinCondition() {
-        // Check if tiger can't move (goats win)
-        if (this.currentPlayer === 'tiger') {
-            this.calculateValidMoves(this.tigerPos);
-            if (this.validMoves.length === 0) {
-                this.gameOver('goat');
-                return;
+        // Tiger wins if captured 5+ goats
+        if (this.goatsCaptured >= 5) return true;
+        
+        // Goats win if all tigers trapped
+        if (this.currentPlayer === 'tiger' && this.phase === 'movement') {
+            let allTrapped = true;
+            for (const tigerPos of this.tigerPositions) {
+                this.calculateValidMoves(tigerPos);
+                if (this.validMoves.length > 0) {
+                    allTrapped = false;
+                    break;
+                }
             }
+            return allTrapped;
         }
         
-        // Check if tiger captured all goats (tiger wins)
-        if (this.goatsCaptured >= 4) {
-            this.gameOver('tiger');
-            return;
-        }
+        return false;
     }
     
     gameOver(winner) {
         const modal = document.getElementById('game-over-modal');
         const title = document.getElementById('winner-title');
-        const message = document.getElementById('winner-message');
+        const msg = document.getElementById('winner-message');
         
         if (winner === 'tiger') {
-            title.innerHTML = '🐅 Tiger Wins!';
+            title.innerHTML = '🐅 Tigers Win!';
             title.className = 'winner-tiger';
-            message.textContent = 'The tiger captured all the goats!';
+            msg.textContent = `Captured ${this.goatsCaptured} goats!`;
         } else {
             title.innerHTML = '🐐 Goats Win!';
             title.className = 'winner-goat';
-            message.textContent = 'The tiger is trapped and cannot move!';
+            msg.textContent = 'All tigers are trapped!';
         }
         
         modal.classList.remove('hidden');
     }
     
     updateDisplay() {
-        // Update board
         const cells = document.querySelectorAll('.cell');
         cells.forEach((cell, i) => {
             cell.innerHTML = '';
@@ -699,7 +1014,6 @@ class BaagchalGame {
             }
             
             if (this.validMoves.includes(i)) {
-                // Check if it's a capture move
                 if (this.board[this.selectedCell] === 'tiger') {
                     const fromRow = Math.floor(this.selectedCell / 5);
                     const fromCol = this.selectedCell % 5;
@@ -718,44 +1032,28 @@ class BaagchalGame {
         });
         
         // Update stats
-        document.getElementById('tiger-count').textContent = 1;
-        document.getElementById('goat-count').textContent = 4 - this.goatsCaptured;
+        document.getElementById('tiger-count').textContent = 4;
+        document.getElementById('goat-count').textContent = 20 - this.goatsCaptured;
         
-        // Update turn indicator
-        const turnIndicator = document.getElementById('turn-indicator');
+        // Update turn
+        const turnEl = document.getElementById('turn-indicator');
         if (this.currentPlayer === 'tiger') {
-            turnIndicator.innerHTML = '<span class="turn-tiger">Tiger\'s Turn 🐅</span>';
+            turnEl.innerHTML = '<span class="turn-tiger">Tiger\'s Turn</span>';
         } else {
-            turnIndicator.innerHTML = '<span class="turn-goat">Goat\'s Turn 🐐</span>';
+            turnEl.innerHTML = '<span class="turn-goat">Goat\'s Turn</span>';
         }
         
-        // Update phase indicator
-        const phaseIndicator = document.getElementById('phase-indicator');
+        // Update phase
+        const phaseEl = document.getElementById('phase-bar');
         if (this.phase === 'placement') {
-            phaseIndicator.textContent = `Phase: Place Goats (${this.goatsPlaced}/4 placed)`;
+            phaseEl.innerHTML = `Phase: <span>Place Goats</span> (${this.goatsPlaced}/20 placed)`;
         } else {
-            phaseIndicator.textContent = 'Phase: Movement (Move to adjacent spots)';
+            phaseEl.innerHTML = `Phase: <span>Movement</span> (${this.goatsCaptured} goats captured)`;
         }
-    }
-    
-    newGame() {
-        this.board = Array(25).fill(null);
-        this.tigerPos = 12;
-        this.board[12] = 'tiger';
-        this.phase = 'placement';
-        this.goatsPlaced = 0;
-        this.goatsCaptured = 0;
-        this.currentPlayer = 'goat';
-        this.selectedCell = null;
-        this.validMoves = [];
-        this.updateDisplay();
     }
 }
 
-// Start game
-document.addEventListener('DOMContentLoaded', () => {
-    new BaagchalGame();
-});
+new BaagchalGame();
     </script>
 </body>
 </html>
