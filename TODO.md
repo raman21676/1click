@@ -38,8 +38,8 @@
 |---|------|--------|----------|----------|-------|--------|
 | 1.2.1 | Create GitHub Actions workflow | 🟢 Done | High | AI Agent | deploy.yml created | - |
 | 1.2.2 | Create Hello World index.html | 🟢 Done | High | AI Agent | Basic page ready | - |
-| 1.2.3 | Push to GitHub repo | 🟡 In Progress | High | AI Agent | Need user help with SSH key | - |
-| 1.2.4 | Enable GitHub Pages | ⏳ Pending | High | AI Agent | After first push | - |
+| 1.2.3 | Push to GitHub repo | 🟢 Done | High | AI Agent | Successfully pushed | `b79d55f` |
+| 1.2.4 | Enable GitHub Pages | 🟡 In Progress | High | AI Agent | Need user to enable in settings | - |
 | 1.2.5 | Test auto-deployment | ⏳ Pending | High | AI Agent | Verify live URL | - |
 
 ### 1.3 Domain Setup
