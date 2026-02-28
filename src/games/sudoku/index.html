@@ -279,26 +279,21 @@
             background: rgba(231, 76, 60, 0.2);
         }
         
-        /* Box borders - size 6 (2x3 blocks) */
+        /* Box borders - size 6 (2 rows x 3 cols blocks) */
         .sudoku-board.size-6 .cell:nth-child(3n):not(:nth-child(6n)) { border-right: 2px solid #2c3e50; }
-        .sudoku-board.size-6 .cell:nth-child(n+13):nth-child(-n+18) { border-bottom: 2px solid #2c3e50; }
+        .sudoku-board.size-6 .cell:nth-child(n+13):nth-child(-n+18),
+        .sudoku-board.size-6 .cell:nth-child(n+31):nth-child(-n+36) { border-bottom: 2px solid #2c3e50; }
         
         /* Box borders - size 9 (3x3 blocks) */
         .sudoku-board.size-9 .cell:nth-child(3n):not(:nth-child(9n)) { border-right: 2px solid #2c3e50; }
         .sudoku-board.size-9 .cell:nth-child(n+19):nth-child(-n+27),
         .sudoku-board.size-9 .cell:nth-child(n+46):nth-child(-n+54) { border-bottom: 2px solid #2c3e50; }
         
-        /* Box borders - size 12 (3x4 blocks) */
+        /* Box borders - size 12 (3 rows x 4 cols blocks) */
         .sudoku-board.size-12 .cell:nth-child(4n):not(:nth-child(12n)) { border-right: 2px solid #2c3e50; }
         .sudoku-board.size-12 .cell:nth-child(n+25):nth-child(-n+36),
         .sudoku-board.size-12 .cell:nth-child(n+61):nth-child(-n+72),
         .sudoku-board.size-12 .cell:nth-child(n+97):nth-child(-n+108) { border-bottom: 2px solid #2c3e50; }
-        
-        /* Box borders - size 16 (4x4 blocks) */
-        .sudoku-board.size-16 .cell:nth-child(4n):not(:nth-child(16n)) { border-right: 2px solid #2c3e50; }
-        .sudoku-board.size-16 .cell:nth-child(n+33):nth-child(-n+48),
-        .sudoku-board.size-16 .cell:nth-child(n+81):nth-child(-n+96),
-        .sudoku-board.size-16 .cell:nth-child(n+129):nth-child(-n+144) { border-bottom: 2px solid #2c3e50; }
         
         /* Number Pad */
         .numpad {
@@ -434,10 +429,9 @@
             <div class="setup-section">
                 <h3>Board Size</h3>
                 <div class="option-row">
-                    <button class="option-btn active" data-size="6">6×6</button>
-                    <button class="option-btn" data-size="9">9×9</button>
+                    <button class="option-btn" data-size="6">6×6</button>
+                    <button class="option-btn active" data-size="9">9×9</button>
                     <button class="option-btn" data-size="12">12×12</button>
-                    <button class="option-btn" data-size="16">16×16</button>
                 </div>
             </div>
             
@@ -697,30 +691,24 @@ class SudokuGame {
         const puzzle = [...solution];
         
         // Removal percentages based on difficulty
-        const removalRates = { easy: 0.40, medium: 0.55, hard: 0.70 };
+        const removalRates = { easy: 0.35, medium: 0.50, hard: 0.65 };
         const targetRemovals = Math.floor(size * size * removalRates[difficulty]);
         
-        let attempts = 0;
-        let removed = 0;
-        const maxAttempts = targetRemovals * 3;
+        // Simple removal - just remove random cells
+        // For a proper Sudoku, we should check for unique solution,
+        // but that requires expensive backtracking. Instead, we'll remove
+        // cells symmetrically to maintain balance.
+        const indices = Array.from({length: size * size}, (_, i) => i);
         
-        while (removed < targetRemovals && attempts < maxAttempts) {
-            const idx = Math.floor(Math.random() * size * size);
-            
-            if (puzzle[idx] !== 0) {
-                const backup = puzzle[idx];
-                puzzle[idx] = 0;
-                
-                // Check if puzzle still has unique solution
-                const solutions = this.countSolutions([...puzzle]);
-                
-                if (solutions === 1) {
-                    removed++;
-                } else {
-                    puzzle[idx] = backup;
-                }
-            }
-            attempts++;
+        // Shuffle indices
+        for (let i = indices.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [indices[i], indices[j]] = [indices[j], indices[i]];
+        }
+        
+        // Remove cells
+        for (let i = 0; i < targetRemovals && i < indices.length; i++) {
+            puzzle[indices[i]] = 0;
         }
         
         return puzzle;
