@@ -211,27 +211,38 @@
             flex: 1;
         }
         
-        /* Stats */
+        /* Stats - Responsive */
         .stats {
             display: flex;
             justify-content: space-around;
-            padding: 0.8rem;
+            padding: 0.6rem;
             background: var(--bg-card);
+            flex-wrap: wrap;
+            gap: 0.5rem;
         }
         
         .stat {
             display: flex;
             align-items: center;
-            gap: 0.5rem;
+            gap: 0.3rem;
         }
         
         .stat-icon {
-            font-size: 1.5rem;
+            font-size: clamp(1.2rem, 4vw, 1.5rem);
         }
         
         .stat-value {
-            font-size: 1.2rem;
+            font-size: clamp(1rem, 3.5vw, 1.2rem);
             font-weight: 700;
+        }
+        
+        @media (min-width: 768px) {
+            .stats {
+                padding: 0.8rem;
+            }
+            .stat {
+                gap: 0.5rem;
+            }
         }
         
         .tiger-count { color: var(--tiger); }
@@ -261,7 +272,7 @@
             font-weight: 600;
         }
         
-        /* Board */
+        /* Board - Responsive for all screen sizes */
         .board-container {
             flex: 1;
             display: flex;
@@ -269,14 +280,38 @@
             justify-content: center;
             padding: 0.5rem;
             overflow: hidden;
+            min-height: 0;
         }
         
         .board-wrapper {
             position: relative;
-            width: min(360px, 90vw);
-            height: min(360px, 90vw);
-            max-width: 360px;
-            max-height: 360px;
+            /* Responsive sizing: scales with viewport but has limits */
+            width: min(85vw, 85vh, 450px);
+            height: min(85vw, 85vh, 450px);
+            max-width: 450px;
+            max-height: 450px;
+            min-width: 280px;
+            min-height: 280px;
+        }
+        
+        /* Larger screens (tablets, desktops) */
+        @media (min-width: 768px) {
+            .board-wrapper {
+                width: min(60vw, 500px);
+                height: min(60vw, 500px);
+                max-width: 500px;
+                max-height: 500px;
+            }
+        }
+        
+        /* Small mobile screens */
+        @media (max-width: 360px) {
+            .board-wrapper {
+                width: 95vw;
+                height: 95vw;
+                min-width: 260px;
+                min-height: 260px;
+            }
         }
         
         .board-lines {
@@ -344,9 +379,9 @@
             border-radius: 50%;
         }
         
-        /* Pieces - simple emoji without high contrast backgrounds */
+        /* Pieces - Responsive sizing */
         .piece {
-            font-size: min(8vw, 2rem);
+            font-size: clamp(1.2rem, 5vw, 2.5rem);
             user-select: none;
             filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3));
             transition: transform 0.2s;
@@ -358,6 +393,18 @@
         
         .piece.goat {
             filter: drop-shadow(0 0 8px rgba(243, 156, 18, 0.3));
+        }
+        
+        @media (min-width: 768px) {
+            .piece {
+                font-size: clamp(1.5rem, 4vw, 3rem);
+            }
+        }
+        
+        @media (max-width: 360px) {
+            .piece {
+                font-size: clamp(1rem, 6vw, 1.5rem);
+            }
         }
         
         /* Controls */
@@ -780,9 +827,13 @@ class BaagchalGame {
         this.checkWinner();
         this.render();
         
-        // AI Tiger's turn - move a tiger!
+        // After human goat places, check who controls the tigers
         if (this.gameMode === "AI" && !this.winner) {
-            setTimeout(() => this.makeTigerMove(), 600);
+            if (this.playerSide === "G") {
+                // User is Goat, AI is Tiger - AI should move tiger
+                setTimeout(() => this.makeTigerMove(), 600);
+            }
+            // If user is Tiger, turn passes to them - don't auto-move
         }
     }
     
@@ -808,9 +859,17 @@ class BaagchalGame {
                 this.checkWinner();
                 this.render();
                 
-                // AI's turn
+                // After human moves, AI's turn
                 if (this.gameMode === "AI" && !this.winner) {
-                    setTimeout(() => this.makeAIMove(), 600);
+                    if (this.turn === "G") {
+                        // AI needs to place or move goat
+                        if (this.phase === "PLACEMENT") {
+                            setTimeout(() => this.makeGoatPlacement(), 600);
+                        } else {
+                            setTimeout(() => this.makeGoatMove(), 600);
+                        }
+                    }
+                    // If turn is T, AI shouldn't move - user controls tigers
                 }
             } else if (canSelect && index !== this.selectedCell) {
                 this.selectedCell = index;
@@ -928,9 +987,14 @@ class BaagchalGame {
         this.checkWinner();
         this.render();
         
-        // Now AI (Tiger) should move
+        // After AI goat places, check if it's AI's turn to move tiger OR user's turn
+        // If user is playing as Tiger, DON'T auto-move - let user control tigers
         if (this.gameMode === "AI" && !this.winner) {
-            setTimeout(() => this.makeTigerMove(), 600);
+            if (this.playerSide === "G") {
+                // User is Goat, AI is Tiger - AI should move tiger
+                setTimeout(() => this.makeTigerMove(), 600);
+            }
+            // If user is Tiger, the turn is now theirs - don't auto-move
         }
     }
     
@@ -1004,6 +1068,15 @@ class BaagchalGame {
         
         this.checkWinner();
         this.render();
+        
+        // After AI goat moves, check if AI should move tiger or pass to user
+        if (this.gameMode === "AI" && !this.winner && this.turn === "T") {
+            if (this.playerSide === "G") {
+                // User is Goat, AI is Tiger - AI should move tiger
+                setTimeout(() => this.makeTigerMove(), 600);
+            }
+            // If user is Tiger, turn passes to them - don't auto-move
+        }
     }
     
     isNearTiger(pos) {
