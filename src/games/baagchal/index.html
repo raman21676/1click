@@ -952,27 +952,53 @@ class BaagchalGame {
         let selectedSpot;
         
         if (this.aiDifficulty === "easy") {
-            selectedSpot = emptySpots[Math.floor(Math.random() * emptySpots.length)];
-        } else {
-            // SMART GOAT AI: Find spots that are safe from capture
+            // EASY: 70% random, 30% try to be safe
+            if (Math.random() < 0.7) {
+                selectedSpot = emptySpots[Math.floor(Math.random() * emptySpots.length)];
+            } else {
+                const safeSpots = emptySpots.filter(spot => !this.canBeCaptured(spot));
+                selectedSpot = safeSpots.length > 0 
+                    ? safeSpots[Math.floor(Math.random() * safeSpots.length)]
+                    : emptySpots[Math.floor(Math.random() * emptySpots.length)];
+            }
+        } else if (this.aiDifficulty === "intermediate") {
+            // MEDIUM: Always avoid capture, prefer far spots
             const safeSpots = emptySpots.filter(spot => !this.canBeCaptured(spot));
             
             if (safeSpots.length > 0) {
-                // Prefer spots away from tigers but not jumpable
+                // Prefer spots far from tigers
                 const farSafeSpots = safeSpots.filter(spot => !this.isNearTiger(spot));
-                if (farSafeSpots.length > 0) {
-                    selectedSpot = farSafeSpots[Math.floor(Math.random() * farSafeSpots.length)];
+                selectedSpot = farSafeSpots.length > 0
+                    ? farSafeSpots[Math.floor(Math.random() * farSafeSpots.length)]
+                    : safeSpots[Math.floor(Math.random() * safeSpots.length)];
+            } else {
+                // No safe spots - pick one that blocks tiger movement
+                const blockingSpots = emptySpots.filter(spot => this.blocksTigerMovement(spot));
+                selectedSpot = blockingSpots.length > 0
+                    ? blockingSpots[Math.floor(Math.random() * blockingSpots.length)]
+                    : emptySpots[Math.floor(Math.random() * emptySpots.length)];
+            }
+        } else {
+            // HARD: Always safe, strategic positioning, try to trap tigers
+            const safeSpots = emptySpots.filter(spot => !this.canBeCaptured(spot));
+            
+            if (safeSpots.length > 0) {
+                // Prioritize spots that restrict tiger mobility
+                const trapSpots = safeSpots.filter(spot => this.restrictsTigerMobility(spot));
+                if (trapSpots.length > 0) {
+                    selectedSpot = trapSpots[Math.floor(Math.random() * trapSpots.length)];
                 } else {
-                    selectedSpot = safeSpots[Math.floor(Math.random() * safeSpots.length)];
+                    const farSafeSpots = safeSpots.filter(spot => !this.isNearTiger(spot));
+                    selectedSpot = farSafeSpots.length > 0
+                        ? farSafeSpots[Math.floor(Math.random() * farSafeSpots.length)]
+                        : safeSpots[Math.floor(Math.random() * safeSpots.length)];
                 }
             } else {
-                // No truly safe spots - just pick one not immediately adjacent
-                const notAdjacentSpots = emptySpots.filter(spot => !this.isNearTiger(spot));
-                if (notAdjacentSpots.length > 0) {
-                    selectedSpot = notAdjacentSpots[Math.floor(Math.random() * notAdjacentSpots.length)];
-                } else {
-                    selectedSpot = emptySpots[Math.floor(Math.random() * emptySpots.length)];
-                }
+                // No safe spots - sacrifice but try to block
+                const blockingSpots = emptySpots.filter(spot => this.blocksTigerMovement(spot));
+                selectedSpot = blockingSpots.length > 0
+                    ? blockingSpots[Math.floor(Math.random() * blockingSpots.length)]
+                    : emptySpots[Math.floor(Math.random() * emptySpots.length)];
             }
         }
         
@@ -996,12 +1022,13 @@ class BaagchalGame {
         // If playerSide === "T", user controls tiger - DO NOT auto-move
     }
     
-    // Check if a goat placed at pos would be capturable by any tiger
-    canBeCaptured(pos) {
+    // Check if placing a goat at pos would block a tiger's movement
+    blocksTigerMovement(pos) {
         for (let i = 0; i < 25; i++) {
             if (this.board[i] === "T") {
-                // Check if tiger at i can capture to pos
-                if (this.canTigerCaptureTo(i, pos)) {
+                // Check if this tiger has limited moves and pos is one of them
+                const tigerMoves = ADJACENT[i].filter(adj => this.board[adj] === null);
+                if (tigerMoves.length <= 2 && tigerMoves.includes(pos)) {
                     return true;
                 }
             }
@@ -1009,36 +1036,67 @@ class BaagchalGame {
         return false;
     }
     
-    // Check if tiger at fromPos can capture to toPos
-    canTigerCaptureTo(fromPos, toPos) {
-        const fx = fromPos % 5;
-        const fy = Math.floor(fromPos / 5);
-        const tx = toPos % 5;
-        const ty = Math.floor(toPos / 5);
-        
-        // Must be distance 2
-        if (Math.abs(tx - fx) !== 2 && Math.abs(ty - fy) !== 2) return false;
-        if (Math.abs(tx - fx) === 2 && Math.abs(ty - fy) === 2) {
-            // Diagonal jump - valid
-        } else if (Math.abs(tx - fx) === 2 && ty === fy) {
-            // Horizontal jump - valid
-        } else if (Math.abs(ty - fy) === 2 && tx === fx) {
-            // Vertical jump - valid
-        } else {
-            return false;
+    // Check if placing a goat at pos would restrict tiger mobility
+    restrictsTigerMobility(pos) {
+        let restrictedCount = 0;
+        for (let i = 0; i < 25; i++) {
+            if (this.board[i] === "T") {
+                const tigerMoves = ADJACENT[i].filter(adj => this.board[adj] === null);
+                // If tiger would have very few moves after this placement
+                if (tigerMoves.includes(pos) && tigerMoves.length <= 3) {
+                    restrictedCount++;
+                }
+            }
         }
+        return restrictedCount >= 2; // Affects multiple tigers
+    }
+    
+    // Check if a goat placed at pos would be capturable by any tiger
+    // A goat is capturable if a tiger can jump over it to an empty spot
+    canBeCaptured(pos) {
+        for (let i = 0; i < 25; i++) {
+            if (this.board[i] === "T") {
+                // Check if tiger at i can capture OVER pos (where goat would be)
+                if (this.canTigerCaptureOver(i, pos)) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+    
+    // Check if tiger at tigerPos can jump OVER goatPos to an empty landing spot
+    canTigerCaptureOver(tigerPos, goatPos) {
+        const tx = tigerPos % 5;
+        const ty = Math.floor(tigerPos / 5);
+        const gx = goatPos % 5;
+        const gy = Math.floor(goatPos / 5);
         
-        const mx = (fx + tx) / 2;
-        const my = (fy + ty) / 2;
-        const midPos = my * 5 + mx;
+        // Goat must be adjacent to tiger (distance 1 in a valid direction)
+        const dx = gx - tx;
+        const dy = gy - ty;
         
-        // Middle must be empty (for the goat to be placed there hypothetically)
-        // Actually for capture check, we care if there's a landing spot
-        // But for placement safety, we check if tiger CAN capture there
-        // So we need: from->mid line exists, mid->to line exists
-        return ADJACENT[fromPos].includes(midPos) && 
-               ADJACENT[midPos].includes(toPos) &&
-               this.board[toPos] === null;
+        // Check if goat is adjacent to tiger in a valid direction
+        if (Math.abs(dx) > 1 || Math.abs(dy) > 1) return false;
+        if (dx === 0 && dy === 0) return false;
+        
+        // Check if there's a line connecting tiger to goat
+        if (!ADJACENT[tigerPos].includes(goatPos)) return false;
+        
+        // Calculate landing position (same direction, one more step)
+        const lx = gx + dx;
+        const ly = gy + dy;
+        
+        // Landing must be on the board
+        if (lx < 0 || lx >= 5 || ly < 0 || ly >= 5) return false;
+        
+        const landPos = ly * 5 + lx;
+        
+        // Landing position must be empty
+        if (this.board[landPos] !== null) return false;
+        
+        // There must be a line connecting goat to landing
+        return ADJACENT[goatPos].includes(landPos);
     }
     
     // AI moves a goat (movement phase)
@@ -1052,9 +1110,27 @@ class BaagchalGame {
         let bestMove = null;
         
         if (this.aiDifficulty === "easy") {
-            bestMove = this.getRandomGoatMove(goatPositions);
-        } else {
+            // EASY: 60% random, 40% safe
+            if (Math.random() < 0.6) {
+                bestMove = this.getRandomGoatMove(goatPositions);
+            } else {
+                bestMove = this.getStrategicGoatMove(goatPositions);
+            }
+        } else if (this.aiDifficulty === "intermediate") {
+            // MEDIUM: Always safe, prefer moves that restrict tigers
             bestMove = this.getStrategicGoatMove(goatPositions);
+            if (!bestMove) {
+                bestMove = this.getRandomGoatMove(goatPositions);
+            }
+        } else {
+            // HARD: Safe + try to surround tigers
+            bestMove = this.getHardGoatMove(goatPositions);
+            if (!bestMove) {
+                bestMove = this.getStrategicGoatMove(goatPositions);
+                if (!bestMove) {
+                    bestMove = this.getRandomGoatMove(goatPositions);
+                }
+            }
         }
         
         if (bestMove) {
@@ -1074,6 +1150,53 @@ class BaagchalGame {
             setTimeout(() => this.makeTigerMove(), 600);
         }
         // If playerSide === "T", user controls tiger - DO NOT auto-move
+    }
+    
+    // HARD mode goat movement - tries to surround tigers
+    getHardGoatMove(goatPositions) {
+        let bestMove = null;
+        let bestScore = -Infinity;
+        
+        for (const pos of goatPositions) {
+            this.calculateValidMoves(pos);
+            for (const to of this.validMoves) {
+                let score = 0;
+                
+                // Avoid danger
+                if (this.wouldBeInDanger(to)) {
+                    score -= 100;
+                } else {
+                    score += 10;
+                }
+                
+                // Prefer moves that block tiger escape routes
+                for (let i = 0; i < 25; i++) {
+                    if (this.board[i] === "T") {
+                        const tigerMoves = ADJACENT[i].filter(adj => this.board[adj] === null);
+                        if (tigerMoves.includes(to)) {
+                            score += 20; // Blocking a tiger move
+                            if (tigerMoves.length <= 2) {
+                                score += 30; // Critical block - tiger has few options
+                            }
+                        }
+                    }
+                }
+                
+                // Prefer center positions
+                const tx = to % 5;
+                const ty = Math.floor(to / 5);
+                if (tx >= 1 && tx <= 3 && ty >= 1 && ty <= 3) {
+                    score += 5;
+                }
+                
+                if (score > bestScore) {
+                    bestScore = score;
+                    bestMove = { from: pos, to };
+                }
+            }
+        }
+        
+        return bestMove;
     }
     
     isNearTiger(pos) {
