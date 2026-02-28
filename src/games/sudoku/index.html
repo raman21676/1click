@@ -644,7 +644,14 @@ class SudokuGame {
         const board = Array(size).fill().map(() => Array(size).fill(0));
         const numbers = Array.from({length: size}, (_, i) => i + 1);
         
-        const blockSize = Math.sqrt(size);
+        // Block dimensions for different sizes
+        const blockDims = {
+            6: [2, 3],   // 2 rows x 3 cols = 6
+            9: [3, 3],   // 3x3 = 9
+            12: [3, 4],  // 3x4 = 12
+            16: [4, 4]   // 4x4 = 16
+        };
+        const [blockRows, blockCols] = blockDims[size] || [Math.sqrt(size), Math.sqrt(size)];
         
         const isValid = (board, row, col, num) => {
             // Check row
@@ -656,11 +663,11 @@ class SudokuGame {
                 if (board[r][col] === num) return false;
             }
             // Check block
-            const startRow = Math.floor(row / blockSize) * blockSize;
-            const startCol = Math.floor(col / blockSize) * blockSize;
-            for (let r = startRow; r < startRow + blockSize; r++) {
-                for (let c = startCol; c < startCol + blockSize; c++) {
-                    if (board[r][c] === num) return false;
+            const startRow = Math.floor(row / blockRows) * blockRows;
+            const startCol = Math.floor(col / blockCols) * blockCols;
+            for (let r = startRow; r < startRow + blockRows; r++) {
+                for (let c = startCol; c < startCol + blockCols; c++) {
+                    if (r < size && c < size && board[r][c] === num) return false;
                 }
             }
             return true;
@@ -721,7 +728,8 @@ class SudokuGame {
     
     countSolutions(board) {
         const size = this.size;
-        const blockSize = Math.sqrt(size);
+        const blockDims = {6: [2, 3], 9: [3, 3], 12: [3, 4], 16: [4, 4]};
+        const [blockRows, blockCols] = blockDims[size] || [Math.sqrt(size), Math.sqrt(size)];
         let count = 0;
         
         const isValid = (board, row, col, num) => {
@@ -731,11 +739,11 @@ class SudokuGame {
             for (let r = 0; r < size; r++) {
                 if (board[r * size + col] === num) return false;
             }
-            const startRow = Math.floor(row / blockSize) * blockSize;
-            const startCol = Math.floor(col / blockSize) * blockSize;
-            for (let r = startRow; r < startRow + blockSize; r++) {
-                for (let c = startCol; c < startCol + blockSize; c++) {
-                    if (board[r * size + c] === num) return false;
+            const startRow = Math.floor(row / blockRows) * blockRows;
+            const startCol = Math.floor(col / blockCols) * blockCols;
+            for (let r = startRow; r < startRow + blockRows; r++) {
+                for (let c = startCol; c < startCol + blockCols; c++) {
+                    if (r < size && c < size && board[r * size + c] === num) return false;
                 }
             }
             return true;
@@ -881,11 +889,12 @@ class SudokuGame {
                 const r = Math.floor(i / this.size);
                 const c = i % this.size;
                 
-                const blockSize = Math.sqrt(this.size);
-                const sBoxR = Math.floor(sr / blockSize);
-                const sBoxC = Math.floor(sc / blockSize);
-                const boxR = Math.floor(r / blockSize);
-                const boxC = Math.floor(c / blockSize);
+                const blockDims = {6: [2, 3], 9: [3, 3], 12: [3, 4], 16: [4, 4]};
+                const [blockRows, blockCols] = blockDims[this.size] || [Math.sqrt(this.size), Math.sqrt(this.size)];
+                const sBoxR = Math.floor(sr / blockRows);
+                const sBoxC = Math.floor(sc / blockCols);
+                const boxR = Math.floor(r / blockRows);
+                const boxC = Math.floor(c / blockCols);
                 
                 if ((sr === r || sc === c || (sBoxR === boxR && sBoxC === boxC)) && i !== this.selected) {
                     cell.classList.add('highlight');
