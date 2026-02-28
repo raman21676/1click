@@ -257,7 +257,7 @@
         </div>
 
         <div class="game-area">
-            <canvas id="game-canvas" width="400" height="400"></canvas>
+            <canvas id="game-canvas" width="500" height="500"></canvas>
             
             <div id="start-overlay" class="overlay">
                 <h2 class="retro-text">SNAKE</h2>
@@ -303,9 +303,9 @@ class SnakeGame {
         this.canvas = document.getElementById('game-canvas');
         this.ctx = this.canvas.getContext('2d');
         
-        // Grid settings - 20x20 grid, each cell is 20px
+        // Grid settings - 25x25 grid, each cell is 20px → 500px canvas
         this.gridSize = 20;
-        this.tileCount = 20;
+        this.tileCount = 25;
         
         // Game state
         this.snake = [{x: 10, y: 10}];
@@ -361,10 +361,10 @@ class SnakeGame {
             });
         });
         
-        // D-pad controls
+        // D-pad controls — use btn (not e.target) to avoid misfire when clicking child text
         document.querySelectorAll('.d-btn').forEach(btn => {
-            btn.addEventListener('click', (e) => {
-                const dir = e.target.dataset.dir;
+            btn.addEventListener('click', () => {
+                const dir = btn.dataset.dir;
                 this.handleDirection(dir);
             });
         });
@@ -395,17 +395,21 @@ class SnakeGame {
         document.getElementById('resume-btn').addEventListener('click', () => this.togglePause());
         document.getElementById('pause-btn').addEventListener('click', () => this.togglePause());
         
-        // Swipe controls
+        // Swipe controls — prevent default to stop page scrolling while swiping
         let touchStartX = 0, touchStartY = 0;
         this.canvas.addEventListener('touchstart', (e) => {
+            e.preventDefault();
             touchStartX = e.touches[0].clientX;
             touchStartY = e.touches[0].clientY;
         }, {passive: false});
         
         this.canvas.addEventListener('touchend', (e) => {
+            e.preventDefault();
             if (!this.gameRunning || this.gamePaused) return;
             const dx = e.changedTouches[0].clientX - touchStartX;
             const dy = e.changedTouches[0].clientY - touchStartY;
+            const minSwipe = 10; // minimum swipe distance
+            if (Math.abs(dx) < minSwipe && Math.abs(dy) < minSwipe) return;
             
             if (Math.abs(dx) > Math.abs(dy)) {
                 this.handleDirection(dx > 0 ? 'right' : 'left');
