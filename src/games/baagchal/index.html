@@ -267,13 +267,16 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            padding: 1rem;
+            padding: 0.5rem;
+            overflow: hidden;
         }
         
         .board-wrapper {
             position: relative;
-            width: 400px;
-            height: 400px;
+            width: min(360px, 90vw);
+            height: min(360px, 90vw);
+            max-width: 360px;
+            max-height: 360px;
         }
         
         .board-lines {
@@ -302,10 +305,10 @@
         
         .cell {
             position: absolute;
-            width: 44px;
-            height: 44px;
-            margin-left: -22px;
-            margin-top: -22px;
+            width: 12%;
+            height: 12%;
+            margin-left: -6%;
+            margin-top: -6%;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -343,7 +346,7 @@
         
         /* Pieces - simple emoji without high contrast backgrounds */
         .piece {
-            font-size: 2rem;
+            font-size: min(8vw, 2rem);
             user-select: none;
             filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3));
             transition: transform 0.2s;
@@ -499,36 +502,36 @@
             <!-- Board -->
             <div class="board-container">
                 <div class="board-wrapper">
-                    <svg class="board-lines" viewBox="0 0 400 400">
+                    <svg class="board-lines" viewBox="0 0 100 100" preserveAspectRatio="xMidYMid meet">
                         <!-- Outer box -->
-                        <line x1="20" y1="20" x2="380" y2="20" />
-                        <line x1="20" y1="380" x2="380" y2="380" />
-                        <line x1="20" y1="20" x2="20" y2="380" />
-                        <line x1="380" y1="20" x2="380" y2="380" />
+                        <line x1="5" y1="5" x2="95" y2="5" />
+                        <line x1="5" y1="95" x2="95" y2="95" />
+                        <line x1="5" y1="5" x2="5" y2="95" />
+                        <line x1="95" y1="5" x2="95" y2="95" />
                         
                         <!-- Inner horizontal lines -->
-                        <line x1="20" y1="110" x2="380" y2="110" />
-                        <line x1="20" y1="200" x2="380" y2="200" />
-                        <line x1="20" y1="290" x2="380" y2="290" />
+                        <line x1="5" y1="27.5" x2="95" y2="27.5" />
+                        <line x1="5" y1="50" x2="95" y2="50" />
+                        <line x1="5" y1="72.5" x2="95" y2="72.5" />
                         
                         <!-- Inner vertical lines -->
-                        <line x1="110" y1="20" x2="110" y2="380" />
-                        <line x1="200" y1="20" x2="200" y2="380" />
-                        <line x1="290" y1="20" x2="290" y2="380" />
+                        <line x1="27.5" y1="5" x2="27.5" y2="95" />
+                        <line x1="50" y1="5" x2="50" y2="95" />
+                        <line x1="72.5" y1="5" x2="72.5" y2="95" />
                         
                         <!-- Main diagonals -->
-                        <line x1="20" y1="20" x2="380" y2="380" />
-                        <line x1="380" y1="20" x2="20" y2="380" />
+                        <line x1="5" y1="5" x2="95" y2="95" />
+                        <line x1="95" y1="5" x2="5" y2="95" />
                         
                         <!-- Small diagonals from corners to center lines -->
-                        <line x1="20" y1="200" x2="200" y2="20" />
-                        <line x1="200" y1="20" x2="380" y2="200" />
-                        <line x1="380" y1="200" x2="200" y2="380" />
-                        <line x1="200" y1="380" x2="20" y2="200" />
+                        <line x1="5" y1="50" x2="50" y2="5" />
+                        <line x1="50" y1="5" x2="95" y2="50" />
+                        <line x1="95" y1="50" x2="50" y2="95" />
+                        <line x1="50" y1="95" x2="5" y2="50" />
                         
                         <!-- Inner diagonals -->
-                        <line x1="110" y1="110" x2="290" y2="290" />
-                        <line x1="290" y1="110" x2="110" y2="290" />
+                        <line x1="27.5" y1="27.5" x2="72.5" y2="72.5" />
+                        <line x1="72.5" y1="27.5" x2="27.5" y2="72.5" />
                     </svg>
                     
                     <div class="cells-container" id="cells-container"></div>
@@ -593,13 +596,14 @@ const ADJACENT = {
     24: [18, 19, 23]
 };
 
-// Grid positions for 400x400 board
+// Grid positions as percentages (for responsive design)
+// Based on 5x5 grid with padding
 const GRID_POSITIONS = [
-    {x: 20, y: 20}, {x: 110, y: 20}, {x: 200, y: 20}, {x: 290, y: 20}, {x: 380, y: 20},
-    {x: 20, y: 110}, {x: 110, y: 110}, {x: 200, y: 110}, {x: 290, y: 110}, {x: 380, y: 110},
-    {x: 20, y: 200}, {x: 110, y: 200}, {x: 200, y: 200}, {x: 290, y: 200}, {x: 380, y: 200},
-    {x: 20, y: 290}, {x: 110, y: 290}, {x: 200, y: 290}, {x: 290, y: 290}, {x: 380, y: 290},
-    {x: 20, y: 380}, {x: 110, y: 380}, {x: 200, y: 380}, {x: 290, y: 380}, {x: 380, y: 380}
+    {x: 5, y: 5}, {x: 27.5, y: 5}, {x: 50, y: 5}, {x: 72.5, y: 5}, {x: 95, y: 5},
+    {x: 5, y: 27.5}, {x: 27.5, y: 27.5}, {x: 50, y: 27.5}, {x: 72.5, y: 27.5}, {x: 95, y: 27.5},
+    {x: 5, y: 50}, {x: 27.5, y: 50}, {x: 50, y: 50}, {x: 72.5, y: 50}, {x: 95, y: 50},
+    {x: 5, y: 72.5}, {x: 27.5, y: 72.5}, {x: 50, y: 72.5}, {x: 72.5, y: 72.5}, {x: 95, y: 72.5},
+    {x: 5, y: 95}, {x: 27.5, y: 95}, {x: 50, y: 95}, {x: 72.5, y: 95}, {x: 95, y: 95}
 ];
 
 class BaagchalGame {
@@ -706,8 +710,8 @@ class BaagchalGame {
             const cell = document.createElement('div');
             cell.className = 'cell';
             cell.dataset.index = i;
-            cell.style.left = GRID_POSITIONS[i].x + 'px';
-            cell.style.top = GRID_POSITIONS[i].y + 'px';
+            cell.style.left = GRID_POSITIONS[i].x + '%';
+            cell.style.top = GRID_POSITIONS[i].y + '%';
             cell.addEventListener('click', () => this.handleCellClick(i));
             container.appendChild(cell);
         }
