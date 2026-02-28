@@ -327,3 +327,58 @@ Configured Cloudflare DNS for custom domain and built the first game - Tic-Tac-T
 **Total Development Time:** ~70 minutes  
 **Last Updated:** 2026-02-28 19:10 IST  
 **Next Review:** After pushing games to GitHub
+
+
+### Session 3: Snake Game Development
+
+**Date:** 2026-02-28  
+**Time:** 19:15 - 19:30 IST  
+**Agent:** AI Agent  
+**Duration:** ~15 minutes  
+**Status:** ✅ Complete
+
+#### Summary
+Built the second game - Snake with full HTML5 Canvas implementation, including mobile controls, swipe gestures, progressive speed increase, and high score persistence.
+
+#### Tasks Completed
+
+| # | Task | Description | Files Created |
+|---|------|-------------|---------------|
+| 3.1 | Snake HTML | Created game page with canvas | `/src/games/snake/index.html` |
+| 3.2 | Snake CSS | Dark theme with mobile D-pad | `/src/games/snake/style.css` |
+| 3.3 | Snake JS | Full game logic with Canvas | `/src/games/snake/game.js` |
+| 3.4 | Landing Page | Linked Snake card to game | `/index.html` |
+
+#### Files Created/Modified (4 files)
+```
+1click/
+├── index.html                          ← Updated Snake card link
+└── src/
+    └── games/
+        └── snake/
+            ├── index.html              ← Game page with canvas
+            ├── style.css               ← Game styles + D-pad
+            └── game.js                 ← Full game logic
+```
+
+#### Snake Features Implemented
+- ✅ HTML5 Canvas rendering with 20x20 grid
+- ✅ Arrow key controls for desktop
+- ✅ Food spawning at random positions
+- ✅ Collision detection (wall & self)
+- ✅ Score tracking with LocalStorage
+- ✅ High score persistence
+- ✅ Progressive speed increase (every 50 points)
+- ✅ Mobile swipe controls
+- ✅ Mobile D-pad buttons
+- ✅ Pause functionality (Space key / button)
+- ✅ Game over overlay with score
+- ✅ Responsive canvas sizing for mobile
+- ✅ Dark theme with snake eyes animation
+
+---
+
+**Total Sessions:** 3  
+**Total Development Time:** ~85 minutes  
+**Last Updated:** 2026-02-28 19:30 IST  
+**Next Review:** After pushing to GitHub

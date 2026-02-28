@@ -84,13 +84,13 @@
 ### 2.2 Snake
 | # | Task | Status | Priority | Assignee | Notes | Commit |
 |---|------|--------|----------|----------|-------|--------|
-| 2.2.1 | Create canvas setup | ⏳ Pending | High | AI Agent | 20x20 grid | - |
-| 2.2.2 | Implement snake movement | ⏳ Pending | High | AI Agent | Arrow controls | - |
-| 2.2.3 | Implement food spawning | ⏳ Pending | High | AI Agent | Random position | - |
-| 2.2.4 | Add collision detection | ⏳ Pending | High | AI Agent | Wall & self | - |
-| 2.2.5 | Add score & high score | ⏳ Pending | Medium | AI Agent | Persistent | - |
-| 2.2.6 | Add speed increase | ⏳ Pending | Medium | AI Agent | Per food eaten | - |
-| 2.2.7 | Mobile swipe controls | ⏳ Pending | High | AI Agent | Touch swipe | - |
+| 2.2.1 | Create canvas setup | 🟢 Done | High | AI Agent | 20x20 grid | - |
+| 2.2.2 | Implement snake movement | 🟢 Done | High | AI Agent | Arrow controls | - |
+| 2.2.3 | Implement food spawning | 🟢 Done | High | AI Agent | Random position | - |
+| 2.2.4 | Add collision detection | 🟢 Done | High | AI Agent | Wall & self | - |
+| 2.2.5 | Add score & high score | 🟢 Done | Medium | AI Agent | Persistent | - |
+| 2.2.6 | Add speed increase | 🟢 Done | Medium | AI Agent | Per food eaten | - |
+| 2.2.7 | Mobile swipe controls | 🟢 Done | High | AI Agent | Touch swipe | - |
 | 2.2.8 | Add sound effects | ⏳ Pending | Low | AI Agent | Eat, die sounds | - |
 
 ### 2.3 Sudoku
