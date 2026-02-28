@@ -31,12 +31,180 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Poppins:wght@500;600;700;800&display=swap" rel="stylesheet">
     
-    <!-- Styles -->
-    <link rel="stylesheet" href="./src/assets/css/variables.css">
-    <link rel="stylesheet" href="./src/assets/css/main.css">
+    <!-- Theme Script (runs before CSS loads) -->
+    <script>
+        // Check for saved theme preference or default to 'dark'
+        const savedTheme = localStorage.getItem('theme') || 'dark';
+        document.documentElement.setAttribute('data-theme', savedTheme);
+    </script>
     
     <style>
-        /* Hero Section */
+        /* ============================================
+           THEME VARIABLES - Greenish + Bluish
+           ============================================ */
+        :root {
+            /* Primary Colors - Teal/Green gradient base */
+            --primary-50: #f0fdfa;
+            --primary-100: #ccfbf1;
+            --primary-200: #99f6e4;
+            --primary-300: #5eead4;
+            --primary-400: #2dd4bf;
+            --primary-500: #14b8a6;
+            --primary-600: #0d9488;
+            --primary-700: #0f766e;
+            --primary-800: #115e59;
+            --primary-900: #134e4a;
+            
+            /* Accent Colors - Blue/Cyan */
+            --accent-50: #ecfeff;
+            --accent-100: #cffafe;
+            --accent-200: #a5f3fc;
+            --accent-300: #67e8f9;
+            --accent-400: #22d3ee;
+            --accent-500: #06b6d4;
+            --accent-600: #0891b2;
+            --accent-700: #0e7490;
+            --accent-800: #155e75;
+            --accent-900: #164e63;
+            
+            /* Gradients */
+            --gradient-primary: linear-gradient(135deg, var(--primary-500) 0%, var(--accent-500) 100%);
+            --gradient-hero: linear-gradient(135deg, var(--primary-700) 0%, var(--accent-800) 50%, var(--primary-900) 100%);
+            --gradient-card: linear-gradient(135deg, var(--primary-400) 0%, var(--accent-400) 100%);
+            --gradient-text: linear-gradient(135deg, var(--primary-300) 0%, var(--accent-300) 100%);
+            
+            /* Typography */
+            --font-body: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            --font-display: 'Poppins', sans-serif;
+            
+            /* Text Sizes */
+            --text-xs: 0.75rem;
+            --text-sm: 0.875rem;
+            --text-base: 1rem;
+            --text-lg: 1.125rem;
+            --text-xl: 1.25rem;
+            --text-2xl: 1.5rem;
+            --text-3xl: 1.875rem;
+            --text-4xl: 2.25rem;
+            
+            /* Spacing */
+            --space-1: 0.25rem;
+            --space-2: 0.5rem;
+            --space-3: 0.75rem;
+            --space-4: 1rem;
+            --space-6: 1.5rem;
+            --space-8: 2rem;
+            --space-12: 3rem;
+            --space-16: 4rem;
+            
+            /* Shadows */
+            --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+            --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+            --shadow-glow: 0 0 40px rgba(20, 184, 166, 0.3);
+            
+            /* Transitions */
+            --transition-fast: 0.15s ease;
+            --transition-base: 0.3s ease;
+            --transition-slow: 0.5s ease;
+        }
+        
+        /* DARK THEME (Default) */
+        [data-theme="dark"] {
+            --bg-primary: #0f172a;
+            --bg-secondary: #1e293b;
+            --bg-tertiary: #334155;
+            --bg-card: #1e293b;
+            --bg-hover: #334155;
+            
+            --text-primary: #f8fafc;
+            --text-secondary: #94a3b8;
+            --text-tertiary: #64748b;
+            --text-muted: #475569;
+            
+            --border-color: #334155;
+            --border-hover: #475569;
+            
+            --shadow-color: rgba(0, 0, 0, 0.5);
+        }
+        
+        /* LIGHT THEME */
+        [data-theme="light"] {
+            --bg-primary: #f8fafc;
+            --bg-secondary: #f1f5f9;
+            --bg-tertiary: #e2e8f0;
+            --bg-card: #ffffff;
+            --bg-hover: #f1f5f9;
+            
+            --text-primary: #0f172a;
+            --text-secondary: #475569;
+            --text-tertiary: #64748b;
+            --text-muted: #94a3b8;
+            
+            --border-color: #e2e8f0;
+            --border-hover: #cbd5e1;
+            
+            --shadow-color: rgba(0, 0, 0, 0.1);
+        }
+        
+        /* ============================================
+           BASE STYLES
+           ============================================ */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        html {
+            scroll-behavior: smooth;
+        }
+        
+        body {
+            font-family: var(--font-body);
+            background-color: var(--bg-primary);
+            color: var(--text-primary);
+            line-height: 1.6;
+            transition: background-color var(--transition-base), color var(--transition-base);
+            min-height: 100vh;
+        }
+        
+        /* ============================================
+           THEME TOGGLE BUTTON
+           ============================================ */
+        .theme-toggle {
+            position: fixed;
+            top: 1.5rem;
+            right: 1.5rem;
+            z-index: 1000;
+            background: var(--bg-secondary);
+            border: 2px solid var(--border-color);
+            border-radius: 50%;
+            width: 48px;
+            height: 48px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 1.5rem;
+            transition: all var(--transition-base);
+            box-shadow: var(--shadow-md);
+        }
+        
+        .theme-toggle:hover {
+            transform: scale(1.1) rotate(15deg);
+            border-color: var(--primary-500);
+            box-shadow: var(--shadow-glow);
+        }
+        
+        .theme-toggle:active {
+            transform: scale(0.95);
+        }
+        
+        /* ============================================
+           HERO SECTION
+           ============================================ */
         .hero {
             min-height: 100vh;
             display: flex;
@@ -78,7 +246,7 @@
             display: inline-flex;
             align-items: center;
             gap: 0.5rem;
-            background: rgba(255,255,255,0.2);
+            background: rgba(255,255,255,0.15);
             backdrop-filter: blur(10px);
             padding: 0.5rem 1rem;
             border-radius: 50px;
@@ -86,6 +254,8 @@
             font-weight: 500;
             margin-bottom: 1.5rem;
             animation: pulse 2s ease-in-out infinite;
+            color: white;
+            border: 1px solid rgba(255,255,255,0.2);
         }
         
         @keyframes pulse {
@@ -104,7 +274,7 @@
         }
         
         .hero h1 span {
-            background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+            background: var(--gradient-text);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
@@ -132,32 +302,36 @@
             font-weight: 600;
             font-size: var(--text-lg);
             text-decoration: none;
-            transition: all 0.3s ease;
+            transition: all var(--transition-base);
             display: inline-flex;
             align-items: center;
             gap: 0.5rem;
+            border: none;
+            cursor: pointer;
         }
         
         .btn-primary {
             background: white;
-            color: var(--color-primary);
+            color: var(--primary-700);
             box-shadow: 0 10px 40px rgba(0,0,0,0.2);
         }
         
         .btn-primary:hover {
             transform: translateY(-3px);
             box-shadow: 0 15px 50px rgba(0,0,0,0.3);
+            background: var(--primary-50);
         }
         
         .btn-secondary {
-            background: rgba(255,255,255,0.2);
+            background: rgba(255,255,255,0.15);
             backdrop-filter: blur(10px);
             color: white;
             border: 1px solid rgba(255,255,255,0.3);
         }
         
         .btn-secondary:hover {
-            background: rgba(255,255,255,0.3);
+            background: rgba(255,255,255,0.25);
+            transform: translateY(-3px);
         }
         
         .hero-stats {
@@ -177,17 +351,24 @@
             font-size: 2.5rem;
             font-weight: 700;
             display: block;
+            background: var(--gradient-text);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
         }
         
         .stat-label {
             font-size: var(--text-sm);
-            opacity: 0.8;
+            opacity: 0.9;
         }
         
-        /* Games Section */
+        /* ============================================
+           GAMES SECTION
+           ============================================ */
         .games-section {
             padding: 5rem 2rem;
-            background: var(--bg-light);
+            background-color: var(--bg-primary);
+            transition: background-color var(--transition-base);
         }
         
         .container {
@@ -203,7 +384,7 @@
         .section-header h2 {
             font-family: var(--font-display);
             font-size: var(--text-3xl);
-            color: var(--text-dark);
+            color: var(--text-primary);
             margin-bottom: 0.5rem;
         }
         
@@ -219,13 +400,13 @@
         }
         
         .game-card {
-            background: white;
+            background: var(--bg-card);
             border-radius: 20px;
             padding: 2rem;
             text-align: center;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
-            transition: all 0.3s ease;
-            border: 1px solid rgba(0,0,0,0.05);
+            box-shadow: 0 4px 20px var(--shadow-color);
+            transition: all var(--transition-base);
+            border: 1px solid var(--border-color);
             position: relative;
             overflow: hidden;
         }
@@ -237,14 +418,15 @@
             left: 0;
             right: 0;
             height: 4px;
-            background: var(--gradient-hero);
+            background: var(--gradient-primary);
             transform: scaleX(0);
-            transition: transform 0.3s ease;
+            transition: transform var(--transition-base);
         }
         
         .game-card:hover {
             transform: translateY(-8px);
-            box-shadow: 0 20px 40px rgba(0,0,0,0.12);
+            box-shadow: 0 20px 40px var(--shadow-color);
+            border-color: var(--primary-500);
         }
         
         .game-card:hover::before {
@@ -255,12 +437,17 @@
             font-size: 4rem;
             margin-bottom: 1rem;
             display: block;
+            transition: transform var(--transition-base);
+        }
+        
+        .game-card:hover .game-icon {
+            transform: scale(1.1);
         }
         
         .game-card h3 {
             font-family: var(--font-display);
             font-size: var(--text-xl);
-            color: var(--text-dark);
+            color: var(--text-primary);
             margin-bottom: 0.5rem;
         }
         
@@ -275,7 +462,7 @@
             justify-content: center;
             gap: 1rem;
             font-size: var(--text-xs);
-            color: var(--text-secondary);
+            color: var(--text-tertiary);
             margin-bottom: 1rem;
         }
         
@@ -294,25 +481,34 @@
         }
         
         .status-coming-soon {
-            background: #fef3c7;
-            color: #92400e;
+            background: var(--bg-tertiary);
+            color: var(--text-secondary);
         }
         
         .status-available {
-            background: #d1fae5;
-            color: #065f46;
+            background: var(--primary-100);
+            color: var(--primary-700);
         }
         
-        /* Footer */
+        [data-theme="dark"] .status-available {
+            background: rgba(20, 184, 166, 0.2);
+            color: var(--primary-300);
+        }
+        
+        /* ============================================
+           FOOTER
+           ============================================ */
         footer {
-            background: var(--bg-dark);
+            background: var(--bg-secondary);
             color: var(--text-primary);
             padding: 3rem 2rem;
             text-align: center;
+            border-top: 1px solid var(--border-color);
+            transition: background-color var(--transition-base), border-color var(--transition-base);
         }
         
         footer p {
-            opacity: 0.7;
+            color: var(--text-secondary);
             margin-bottom: 0.5rem;
         }
         
@@ -324,17 +520,18 @@
         }
         
         .footer-links a {
-            color: var(--text-primary);
+            color: var(--text-secondary);
             text-decoration: none;
-            opacity: 0.7;
-            transition: opacity 0.3s;
+            transition: color var(--transition-fast);
         }
         
         .footer-links a:hover {
-            opacity: 1;
+            color: var(--primary-500);
         }
         
-        /* Responsive */
+        /* ============================================
+           RESPONSIVE
+           ============================================ */
         @media (max-width: 768px) {
             .hero h1 {
                 font-size: 2.5rem;
@@ -351,10 +548,32 @@
             .games-grid {
                 grid-template-columns: 1fr;
             }
+            
+            .theme-toggle {
+                top: 1rem;
+                right: 1rem;
+                width: 40px;
+                height: 40px;
+                font-size: 1.25rem;
+            }
+        }
+        
+        /* Reduced motion */
+        @media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after {
+                animation-duration: 0.01ms !important;
+                animation-iteration-count: 1 !important;
+                transition-duration: 0.01ms !important;
+            }
         }
     </style>
 </head>
 <body>
+    <!-- Theme Toggle -->
+    <button class="theme-toggle" id="themeToggle" aria-label="Toggle theme">
+        <span id="themeIcon">🌙</span>
+    </button>
+
     <!-- Hero Section -->
     <section class="hero">
         <div class="hero-content">
@@ -425,7 +644,7 @@
                 <a href="./src/games/sudoku/" class="game-card" style="text-decoration: none; color: inherit;">
                     <span class="game-icon">🔢</span>
                     <h3>Sudoku</h3>
-                    <p>Number puzzle game. Fill the grid with logic and patience.</p>
+                    <p>Number puzzle game with 4 board sizes. Fill the grid with logic!</p>
                     <div class="game-meta">
                         <span>👤 1 Player</span>
                         <span>⏱️ 5-30 min</span>
@@ -437,7 +656,7 @@
                 <a href="./src/games/baagchal/" class="game-card" style="text-decoration: none; color: inherit;">
                     <span class="game-icon">🐅</span>
                     <h3>Baagchal</h3>
-                    <p>Traditional Nepali game. One tiger vs four goats strategy!</p>
+                    <p>Traditional Nepali game. 4 Tigers vs 20 Goats strategy battle!</p>
                     <div class="game-meta">
                         <span>👥 2 Players</span>
                         <span>⏱️ 10-20 min</span>
@@ -508,9 +727,30 @@
     </footer>
 
     <!-- Scripts -->
-    <script src="./src/assets/js/main.js"></script>
-    
     <script>
+        // Theme Toggle Functionality
+        const themeToggle = document.getElementById('themeToggle');
+        const themeIcon = document.getElementById('themeIcon');
+        const html = document.documentElement;
+        
+        // Update icon based on current theme
+        function updateThemeIcon(theme) {
+            themeIcon.textContent = theme === 'dark' ? '☀️' : '🌙';
+        }
+        
+        // Toggle theme
+        themeToggle.addEventListener('click', () => {
+            const currentTheme = html.getAttribute('data-theme');
+            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+            
+            html.setAttribute('data-theme', newTheme);
+            localStorage.setItem('theme', newTheme);
+            updateThemeIcon(newTheme);
+        });
+        
+        // Initialize icon
+        updateThemeIcon(html.getAttribute('data-theme'));
+        
         // Smooth scroll for anchor links
         document.querySelectorAll('a[href^="#"]').forEach(anchor => {
             anchor.addEventListener('click', function (e) {
