@@ -441,6 +441,7 @@
                     <li><strong>4 Tigers</strong> vs <strong>20 Goats</strong></li>
                     <li>Tigers start at 4 corners</li>
                     <li>Goats place 20 pieces one by one</li>
+                    <li>Tigers CAN move during placement!</li>
                     <li>Tiger captures by jumping over a goat</li>
                     <li><strong>Goats win:</strong> Trap all 4 tigers</li>
                     <li><strong>Tigers win:</strong> Capture 5+ goats</li>
@@ -492,7 +493,7 @@
 
             <!-- Phase -->
             <div class="phase-bar" id="phase-bar">
-                Phase: <span>Place Goats</span> (0/20 placed)
+                Phase: <span>Placement</span> (0/20 placed)
             </div>
 
             <!-- Board -->
@@ -553,12 +554,14 @@
 
     <script>
 // ============================================
-// STRICT BAAGCHAL RULES
+// BAAGCHAL GAME - COMPLETE RULES IMPLEMENTATION
 // ============================================
-// During PLACEMENT phase:
-// - Goats place their pieces (20 total)
-// - Tigers are already on the board and don't move
-// - Tigers start moving AFTER all 20 goats are placed
+// CORRECTED RULES:
+// - Goats place pieces during PLACEMENT phase
+// - Tigers CAN MOVE during placement phase (they're already on board!)
+// - Tigers can also CAPTURE during placement phase
+// - After 20 goats placed, both can move (MOVEMENT phase)
+// - Turn alternates: Goat places -> Tiger moves -> Goat places -> Tiger moves
 // ============================================
 
 // Adjacency map - STRICT BAAGCHAL CONNECTIONS
@@ -602,7 +605,7 @@ const GRID_POSITIONS = [
 class BaagchalGame {
     constructor() {
         // Game state
-        this.board = Array(25).fill(null);
+        this.board = Array(25).fill(null); // null, "T", or "G"
         this.goatsPlaced = 0;
         this.goatsCaptured = 0;
         this.turn = "G"; // "G" = Goat, "T" = Tiger
@@ -734,16 +737,22 @@ class BaagchalGame {
             return;
         }
         
-        if (this.phase === "PLACEMENT") {
-            this.handlePlacement(index);
+        // Human's turn - handle based on what side they're playing
+        if (this.turn === "G") {
+            // Goat's turn - must place a goat (if placement phase) or move
+            if (this.phase === "PLACEMENT") {
+                this.handleGoatPlacement(index);
+            } else {
+                this.handleMovement(index);
+            }
         } else {
+            // Tiger's turn - must move a tiger
             this.handleMovement(index);
         }
     }
     
-    handlePlacement(index) {
-        // Only goats place in placement phase
-        if (this.turn !== "G") return;
+    // Goat places a piece during placement phase
+    handleGoatPlacement(index) {
         if (this.board[index] !== null) return;
         
         // Place goat
@@ -752,31 +761,32 @@ class BaagchalGame {
         
         if (this.goatsPlaced === 20) {
             this.phase = "MOVEMENT";
-            this.turn = "T"; // Tigers start moving first after placement
-        } else {
-            this.turn = "T";
         }
+        
+        // Switch turn to Tiger
+        this.turn = "T";
+        this.selectedCell = null;
+        this.validMoves = [];
         
         this.checkWinner();
         this.render();
         
-        // AI turn
+        // AI Tiger's turn - move a tiger!
         if (this.gameMode === "AI" && !this.winner) {
-            if (this.phase === "PLACEMENT") {
-                // During placement, AI also places goats (both players place goats)
-                setTimeout(() => this.makeAIPlacement(), 600);
-            } else {
-                // Movement phase - AI moves tiger
-                setTimeout(() => this.makeAIMovement(), 600);
-            }
+            setTimeout(() => this.makeTigerMove(), 600);
         }
     }
     
+    // Handle movement (for both Tiger and Goat in movement phase)
     handleMovement(index) {
         const piece = this.board[index];
         
+        // In placement phase, tigers move but goats don't (goats place)
+        // In movement phase, both move
+        const canSelect = this.turn === "T" ? piece === "T" : piece === "G";
+        
         if (this.selectedCell === null) {
-            if (piece === this.turn) {
+            if (canSelect) {
                 this.selectedCell = index;
                 this.calculateValidMoves(index);
                 this.render();
@@ -789,10 +799,11 @@ class BaagchalGame {
                 this.checkWinner();
                 this.render();
                 
+                // AI's turn
                 if (this.gameMode === "AI" && !this.winner) {
-                    setTimeout(() => this.makeAIMovement(), 600);
+                    setTimeout(() => this.makeAIMove(), 600);
                 }
-            } else if (piece === this.turn && index !== this.selectedCell) {
+            } else if (canSelect && index !== this.selectedCell) {
                 this.selectedCell = index;
                 this.calculateValidMoves(index);
                 this.render();
@@ -804,58 +815,26 @@ class BaagchalGame {
         }
     }
     
-    // AI places a goat during placement phase
-    makeAIPlacement() {
-        if (this.winner || this.phase !== "PLACEMENT") return;
+    // AI makes a move based on whose turn it is
+    makeAIMove() {
+        if (this.winner) return;
         
-        const emptySpots = [];
-        for (let i = 0; i < 25; i++) {
-            if (this.board[i] === null) {
-                emptySpots.push(i);
-            }
-        }
-        
-        if (emptySpots.length === 0) return;
-        
-        let selectedSpot;
-        
-        if (this.aiDifficulty === "easy") {
-            selectedSpot = emptySpots[Math.floor(Math.random() * emptySpots.length)];
+        if (this.turn === "T") {
+            // AI moves a tiger
+            this.makeTigerMove();
         } else {
-            // Try to place away from tigers
-            const safeSpots = emptySpots.filter(spot => {
-                return !this.isNearTiger(spot);
-            });
-            
-            if (safeSpots.length > 0) {
-                selectedSpot = safeSpots[Math.floor(Math.random() * safeSpots.length)];
+            // AI places/moves a goat
+            if (this.phase === "PLACEMENT") {
+                this.makeGoatPlacement();
             } else {
-                selectedSpot = emptySpots[Math.floor(Math.random() * emptySpots.length)];
+                this.makeGoatMove();
             }
-        }
-        
-        this.board[selectedSpot] = "G";
-        this.goatsPlaced++;
-        
-        if (this.goatsPlaced === 20) {
-            this.phase = "MOVEMENT";
-            this.turn = "T"; // Tigers move first after placement
-        } else {
-            this.turn = "G"; // Back to user's turn
-        }
-        
-        this.checkWinner();
-        this.render();
-        
-        // If placement just ended and AI is Tiger, make a move
-        if (this.phase === "MOVEMENT" && this.gameMode === "AI" && this.playerSide === "G" && !this.winner) {
-            setTimeout(() => this.makeAIMovement(), 800);
         }
     }
     
-    // AI moves a tiger during movement phase
-    makeAIMovement() {
-        if (this.winner || this.phase !== "MOVEMENT") return;
+    // AI Tiger moves
+    makeTigerMove() {
+        if (this.winner || this.turn !== "T") return;
         
         const tigerPositions = this.board.map((v, i) => v === "T" ? i : null).filter(v => v !== null);
         
@@ -875,7 +854,89 @@ class BaagchalGame {
             this.executeMove(bestMove.from, bestMove.to);
             this.checkWinner();
             this.render();
+            
+            // After tiger moves, it's goat's turn
+            // If in placement phase, goat places
+            if (this.gameMode === "AI" && this.playerSide === "G" && !this.winner) {
+                if (this.phase === "PLACEMENT") {
+                    // Goat needs to place - wait for human input
+                    // Don't auto-place for human
+                } else {
+                    // In movement phase, wait for human to move goat
+                }
+            }
         }
+    }
+    
+    // AI places a goat
+    makeGoatPlacement() {
+        if (this.winner || this.phase !== "PLACEMENT" || this.turn !== "G") return;
+        
+        const emptySpots = [];
+        for (let i = 0; i < 25; i++) {
+            if (this.board[i] === null) {
+                emptySpots.push(i);
+            }
+        }
+        
+        if (emptySpots.length === 0) return;
+        
+        let selectedSpot;
+        
+        if (this.aiDifficulty === "easy") {
+            selectedSpot = emptySpots[Math.floor(Math.random() * emptySpots.length)];
+        } else {
+            // Try to place away from tigers
+            const safeSpots = emptySpots.filter(spot => !this.isNearTiger(spot));
+            if (safeSpots.length > 0) {
+                selectedSpot = safeSpots[Math.floor(Math.random() * safeSpots.length)];
+            } else {
+                selectedSpot = emptySpots[Math.floor(Math.random() * emptySpots.length)];
+            }
+        }
+        
+        this.board[selectedSpot] = "G";
+        this.goatsPlaced++;
+        
+        if (this.goatsPlaced === 20) {
+            this.phase = "MOVEMENT";
+        }
+        
+        this.turn = "T";
+        this.checkWinner();
+        this.render();
+        
+        // Now AI (Tiger) should move
+        if (this.gameMode === "AI" && !this.winner) {
+            setTimeout(() => this.makeTigerMove(), 600);
+        }
+    }
+    
+    // AI moves a goat (movement phase)
+    makeGoatMove() {
+        if (this.winner || this.phase !== "MOVEMENT" || this.turn !== "G") return;
+        
+        const goatPositions = this.board.map((v, i) => v === "G" ? i : null).filter(v => v !== null);
+        
+        if (goatPositions.length === 0) return;
+        
+        let bestMove = null;
+        
+        if (this.aiDifficulty === "easy") {
+            bestMove = this.getRandomGoatMove(goatPositions);
+        } else {
+            bestMove = this.getStrategicGoatMove(goatPositions);
+        }
+        
+        if (bestMove) {
+            this.executeMove(bestMove.from, bestMove.to);
+        } else {
+            // No valid moves - turn passes
+            this.turn = "T";
+        }
+        
+        this.checkWinner();
+        this.render();
     }
     
     isNearTiger(pos) {
@@ -892,18 +953,21 @@ class BaagchalGame {
         if (!piece) return;
         
         if (piece === "G") {
+            // Goats move to adjacent empty cells
             for (const to of ADJACENT[fromIndex]) {
                 if (this.board[to] === null) {
                     this.validMoves.push(to);
                 }
             }
         } else if (piece === "T") {
+            // Tiger normal moves
             for (const to of ADJACENT[fromIndex]) {
                 if (this.board[to] === null) {
                     this.validMoves.push(to);
                 }
             }
             
+            // Tiger capture moves
             const captures = this.getCaptureMoves(fromIndex);
             this.validMoves.push(...captures);
         }
@@ -943,6 +1007,7 @@ class BaagchalGame {
         const tx = to % 5;
         const ty = Math.floor(to / 5);
         
+        // Check if it's a capture (distance 2)
         if (Math.abs(tx - fx) === 2 || Math.abs(ty - fy) === 2) {
             const mx = (fx + tx) / 2;
             const my = (fy + ty) / 2;
@@ -1021,6 +1086,52 @@ class BaagchalGame {
         return this.getRandomTigerMove(tigerPositions);
     }
     
+    getRandomGoatMove(goatPositions) {
+        const allMoves = [];
+        
+        for (const pos of goatPositions) {
+            this.calculateValidMoves(pos);
+            for (const to of this.validMoves) {
+                allMoves.push({ from: pos, to });
+            }
+        }
+        
+        if (allMoves.length === 0) return null;
+        return allMoves[Math.floor(Math.random() * allMoves.length)];
+    }
+    
+    getStrategicGoatMove(goatPositions) {
+        // Try to find a move that doesn't put goat in immediate danger
+        const safeMoves = [];
+        
+        for (const pos of goatPositions) {
+            this.calculateValidMoves(pos);
+            for (const to of this.validMoves) {
+                // Check if this move would put goat in danger
+                if (!this.wouldBeInDanger(to)) {
+                    safeMoves.push({ from: pos, to });
+                }
+            }
+        }
+        
+        if (safeMoves.length > 0) {
+            return safeMoves[Math.floor(Math.random() * safeMoves.length)];
+        }
+        
+        return this.getRandomGoatMove(goatPositions);
+    }
+    
+    wouldBeInDanger(pos) {
+        // Check if a tiger could capture at this position
+        for (let i = 0; i < 25; i++) {
+            if (this.board[i] === "T") {
+                const captures = this.getCaptureMoves(i);
+                if (captures.includes(pos)) return true;
+            }
+        }
+        return false;
+    }
+    
     isCaptureMove(from, to) {
         const fx = from % 5;
         const fy = Math.floor(from / 5);
@@ -1038,13 +1149,15 @@ class BaagchalGame {
     }
     
     checkWinner() {
+        // Tigers win if captured 5+ goats
         if (this.goatsCaptured >= 5) {
             this.winner = "T";
             this.showGameOver("T");
             return;
         }
         
-        if (this.turn === "T" && this.phase === "MOVEMENT") {
+        // Goats win if all tigers are immobilized
+        if (this.turn === "T") {
             const tigerPositions = this.board.map((v, i) => v === "T" ? i : null).filter(v => v !== null);
             
             let canMove = false;
@@ -1110,10 +1223,7 @@ class BaagchalGame {
         document.getElementById('goat-count').textContent = 20 - this.goatsCaptured;
         
         const turnEl = document.getElementById('turn-indicator');
-        if (this.phase === "PLACEMENT") {
-            // During placement, both players place goats
-            turnEl.innerHTML = '<span class="turn-goat">Placing Goats...</span>';
-        } else if (this.turn === "T") {
+        if (this.turn === "T") {
             turnEl.innerHTML = '<span class="turn-tiger">Tiger\'s Turn</span>';
         } else {
             turnEl.innerHTML = '<span class="turn-goat">Goat\'s Turn</span>';
@@ -1121,9 +1231,9 @@ class BaagchalGame {
         
         const phaseEl = document.getElementById('phase-bar');
         if (this.phase === "PLACEMENT") {
-            phaseEl.innerHTML = `Phase: <span>Place Goats</span> (${this.goatsPlaced}/20 placed)`;
+            phaseEl.innerHTML = `Phase: <span>Placement</span> (${this.goatsPlaced}/20 placed)`;
         } else {
-            phaseEl.innerHTML = `Phase: <span>Movement</span> (${this.goatsCaptured} goats captured)`;
+            phaseEl.innerHTML = `Phase: <span>Movement</span> (${this.goatsCaptured} captured)`;
         }
     }
 }
