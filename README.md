@@ -13,6 +13,7 @@
 **1click** is a free gaming platform hosting 8 classic and traditional games that run entirely in your browser. Built with pure HTML5, CSS3, and JavaScript - no servers, no lag, just instant fun!
 
 ### Why 1click?
+
 - ⚡ **Lightning Fast** - Games load instantly, no waiting
 - 📴 **Works Offline** - Play without internet (coming soon)
 - 📱 **Mobile Friendly** - Perfect on phones and tablets
@@ -23,30 +24,34 @@
 
 ## 🎮 Games Available
 
-### Core Games (Phase 2)
-| Game | Status | Description | Players |
-|------|--------|-------------|---------|
-| ❌ Tic-Tac-Toe | Coming Soon | Classic X and O | 1-2 |
-| 🐍 Snake | Coming Soon | Retro arcade snake | 1 |
-| 🔢 Sudoku | Coming Soon | Number puzzle | 1 |
-| 🐅 Baagchal | Coming Soon | Traditional Nepali game | 2 |
+### Core Games (Phase 2) — All Live ✅
+
+| Game           | Status  | Description                        | Players |
+| -------------- | ------- | ---------------------------------- | ------- |
+| ❌ Tic-Tac-Toe | ✅ Live | Classic X and O with AI            | 1-2     |
+| 🐍 Snake       | ✅ Live | Retro arcade snake, 3 difficulties | 1       |
+| 🔢 Sudoku      | ✅ Live | Number puzzle, 4 board sizes       | 1       |
+| 🐅 Baagchal    | ✅ Live | Traditional Nepali board game      | 1-2     |
 
 ### Advanced Games (Phase 3)
-| Game | Status | Description | Players |
-|------|--------|-------------|---------|
-| 🍾 Truth or Dare | Coming Soon | Bottle spinner party game | 2-8 |
-| 🎲 Ludo | Coming Soon | Classic board game | 2-4 |
-| ♟️ Chess | Coming Soon | Strategic board game | 1-2 |
-| 🪜 Snake & Ladder | Coming Soon | Luck-based board game | 2-4 |
+
+| Game              | Status  | Description                | Players |
+| ----------------- | ------- | -------------------------- | ------- |
+| 🎲 Ludo           | ✅ Live | Classic board game with AI | 1-4     |
+| 🍾 Truth or Dare  | 🔜 Soon | Bottle spinner party game  | 2-8     |
+| ♟️ Chess          | 🔜 Soon | Strategic board game       | 1-2     |
+| 🪜 Snake & Ladder | 🔜 Soon | Luck-based board game      | 2-4     |
 
 ---
 
 ## 🚀 Getting Started
 
 ### For Players
+
 Simply visit https://nabrajsubedi.com.np and start playing!
 
 ### For Developers
+
 ```bash
 # Clone the repository
 git clone git@github.com:Raman21676/1click.git
@@ -66,44 +71,49 @@ python3 -m http.server 8000
 
 ## 🏗️ Tech Stack
 
-| Technology | Purpose |
-|------------|---------|
-| HTML5 | Structure & Canvas |
-| CSS3 | Styling & Animations |
-| JavaScript | Game Logic & Interactivity |
-| LocalStorage | Save Progress & Scores |
-| GitHub Pages | Free Hosting |
-| GitHub Actions | Auto Deployment |
+| Technology     | Purpose                    |
+| -------------- | -------------------------- |
+| HTML5          | Structure & Canvas         |
+| CSS3           | Styling & Animations       |
+| JavaScript     | Game Logic & Interactivity |
+| LocalStorage   | Save Progress & Scores     |
+| GitHub Pages   | Free Hosting               |
+| GitHub Actions | Auto Deployment            |
 
 ---
 
 ## 📱 Roadmap
 
 ### Phase 1: Foundation ✅
+
 - [x] Project setup
 - [x] CI/CD pipeline
 - [x] Landing page
 - [x] Custom domain
 
 ### Phase 2: Core Games 🚧
+
 - [ ] Tic-Tac-Toe
 - [ ] Snake
 - [ ] Sudoku
 - [ ] Baagchal
 
 ### Phase 3: Advanced Games 📅
+
 - [ ] Truth or Dare
 - [ ] Ludo
 - [ ] Chess
 - [ ] Snake & Ladder
 
 ### Phase 4: Polish ✨
+
 - [ ] Offline support
 - [ ] Sound effects
 - [ ] Leaderboards
 - [ ] Mobile app
 
 ### Phase 5: Android App 📱
+
 - [ ] WebView wrapper
 - [ ] Native ads
 - [ ] Play Store release
@@ -115,16 +125,19 @@ python3 -m http.server 8000
 We welcome contributions! Here's how you can help:
 
 ### Reporting Bugs
+
 1. Check if the issue already exists
 2. Create a detailed bug report
 3. Include browser and device information
 
 ### Suggesting Features
+
 1. Open an issue with the "feature" label
 2. Describe the feature and its benefits
 3. Wait for maintainer feedback
 
 ### Code Contributions
+
 1. Fork the repository
 2. Create a feature branch (`git checkout -b feature/amazing-feature`)
 3. Commit your changes (`git commit -m 'Add amazing feature'`)
