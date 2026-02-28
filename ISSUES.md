@@ -10,8 +10,8 @@
 |--------|-------|
 | 🔴 Open | 0 |
 | 🟡 In Progress | 0 |
-| 🟢 Resolved | 0 |
-| **Total** | **0** |
+| 🟢 Resolved | 2 |
+| **Total** | **2** |
 
 ---
 
@@ -29,7 +29,61 @@
 
 ## 🟢 Resolved Issues
 
-*No resolved issues yet*
+### Issue #1: Sudoku Grid Not Displaying
+
+**Date Reported:** 2026-02-28 20:30 IST  
+**Date Resolved:** 2026-02-28 20:50 IST  
+**Severity:** High  
+**Status:** ✅ Resolved  
+**Reporter:** User  
+**Assignee:** AI Agent
+
+#### Problem Description
+The Sudoku game was functional but the 9x9 grid was not displaying properly - cells weren't aligned and borders weren't visible.
+
+#### Solution
+Complete UI rewrite with:
+- CSS Grid for proper cell alignment
+- Proper 3x3 box borders (2px for box divisions)
+- Added numpad at bottom for mobile input
+- Keyboard navigation support
+
+#### Files Modified
+- `src/games/sudoku/index.html` - Complete rewrite
+
+#### Commit
+`dc87c52: Fix Sudoku UI and Baagchal rules`
+
+---
+
+### Issue #2: Baagchal Wrong Rules
+
+**Date Reported:** 2026-02-28 20:30 IST  
+**Date Resolved:** 2026-02-28 20:50 IST  
+**Severity:** Critical  
+**Status:** ✅ Resolved  
+**Reporter:** User  
+**Assignee:** AI Agent
+
+#### Problem Description
+Baagchal was implemented incorrectly with 1 Tiger vs 4 Goats instead of the traditional 4 Tigers vs 20 Goats.
+
+#### Solution
+Complete rebuild with correct rules:
+- 4 Tigers vs 20 Goats
+- Tigers start at 4 corners
+- Game mode menu (Friend vs AI)
+- Difficulty selection
+- Side selection (Play as Tiger or Goat)
+- Proper connection logic (grid + diagonals)
+- Two-phase gameplay (placement then movement)
+- Tiger capture by jumping (checkers-style)
+
+#### Files Modified
+- `src/games/baagchal/index.html` - Complete rebuild
+
+#### Commit
+`dc87c52: Fix Sudoku UI and Baagchal rules`
 
 ---
 
@@ -208,5 +262,5 @@ Paste any console errors or error messages here
 
 ---
 
-**Last Updated:** 2026-02-28 12:17 IST  
+**Last Updated:** 2026-02-28 20:55 IST  
 **Next Review:** When first issue is reported

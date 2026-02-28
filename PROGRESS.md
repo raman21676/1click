@@ -581,6 +581,74 @@ Built the fourth and final core game - Baagchal (बाघचाल), a traditio
 **Total Development Time:** ~165 minutes  
 **Games Completed:** 4/8 (50%)
 
-**Next: Phase 3 - Advanced Games (Truth or Dare, Ludo, Chess, Snake & Ladder)**
-
 **Last Updated:** 2026-02-28 21:00 IST
+
+
+### Session 7: Sudoku & Baagchal Fixes
+
+**Date:** 2026-02-28  
+**Time:** 20:45 - 20:55 IST  
+**Agent:** AI Agent  
+**Duration:** ~10 minutes  
+**Status:** ✅ Complete
+
+#### Summary
+Fixed critical UI/UX issues in Sudoku and completely rebuilt Baagchal according to traditional Nepali rules.
+
+#### Bug Fixes
+
+| # | Issue | Solution |
+|---|-------|----------|
+| 1 | Sudoku grid not visible | Complete UI rewrite with proper CSS grid and borders |
+| 2 | Baagchal wrong rules | Rebuilt with correct 4 Tigers vs 20 Goats |
+
+#### Sudoku Improvements
+- ✅ Clean 9x9 grid with proper 3x3 box borders
+- ✅ Number pad at bottom for mobile
+- ✅ Keyboard support (1-9, arrows, delete)
+- ✅ Real-time error highlighting (red text)
+- ✅ Cell selection with visual feedback
+- ✅ Row/column/box highlighting
+- ✅ 4 difficulty levels (Easy/Medium/Hard/Expert)
+- ✅ Timer and hint system (3 hints)
+- ✅ Win modal with time display
+
+#### Baagchal Rebuild (Traditional Rules)
+- ✅ **4 Tigers** vs **20 Goats** (was 1 vs 4)
+- ✅ Tigers start at 4 corners (0, 4, 20, 24)
+- ✅ Game mode menu (Friend vs AI)
+- ✅ Difficulty selection (Easy/Medium/Hard)
+- ✅ Side selection (Play as Tiger or Goat vs AI)
+- ✅ Two-phase gameplay:
+  - **Placement Phase:** Goats place 20 pieces one by one
+  - **Movement Phase:** After all goats placed
+- ✅ Proper line connections (grid + diagonals)
+- ✅ Tiger captures by jumping over goats (checkers-style)
+- ✅ Valid move and capture highlighting
+- ✅ Win conditions:
+  - **Tigers win:** Capture 5+ goats
+  - **Goats win:** Trap all 4 tigers (no valid moves)
+- ✅ Turn indicator and phase display
+- ✅ Goats remaining counter
+
+#### Files Modified
+```
+1click/
+└── src/
+    └── games/
+        ├── sudoku/index.html       ← Complete rewrite with better UI
+        └── baagchal/index.html     ← Complete rebuild with correct rules
+```
+
+#### Git Activity
+- Commit: `dc87c52`
+- Lines Added: 861
+- Lines Removed: 771
+
+---
+
+**Total Sessions:** 7  
+**Total Development Time:** ~175 minutes  
+**Games Completed:** 4/8 (50%)
+
+**Next: Phase 3 - Advanced Games (Truth or Dare, Ludo, Chess, Snake & Ladder)**
