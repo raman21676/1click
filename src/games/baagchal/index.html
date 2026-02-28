@@ -990,7 +990,15 @@ class BaagchalGame {
                 const toIndex = ty * 5 + tx;
                 const midIndex = my * 5 + mx;
                 
-                if (this.board[toIndex] === null && this.board[midIndex] === "G") {
+                // STRICT RULE: Capture is only valid if:
+                // 1. Landing position is empty
+                // 2. Middle position has a goat
+                // 3. There's a line from -> middle (middle is in ADJACENT[from])
+                // 4. There's a line from middle -> to (to is in ADJACENT[middle])
+                if (this.board[toIndex] === null && 
+                    this.board[midIndex] === "G" &&
+                    ADJACENT[fromIndex].includes(midIndex) &&
+                    ADJACENT[midIndex].includes(toIndex)) {
                     captures.push(toIndex);
                 }
             }
