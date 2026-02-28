@@ -1,0 +1,609 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Truth or Dare - 1click Games</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+:root{
+  --bg:#0d0d1a;--bg2:#16162a;--bg3:#1e1e3a;
+  --text:#f0f0ff;--muted:#8888aa;--border:#2a2a4a;
+  --truth:#6366f1;--dare:#f43f5e;
+  --gold:#f59e0b;--glow:rgba(99,102,241,.4);
+}
+html,body{height:100%;overflow:hidden}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;
+  background:var(--bg);color:var(--text);
+  height:100dvh;display:flex;flex-direction:column}
+
+/* HEADER */
+.hdr{display:flex;align-items:center;justify-content:space-between;
+  padding:.5rem 1rem;background:var(--bg2);border-bottom:1px solid var(--border);flex-shrink:0}
+.back{color:#6366f1;text-decoration:none;font-size:.9rem}
+.hdr-title{font-size:1rem;font-weight:700;letter-spacing:.05em;
+  background:linear-gradient(135deg,#f43f5e,#f59e0b,#6366f1);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent}
+
+/* SCREENS */
+.screen{display:none;flex:1;flex-direction:column;align-items:center;
+  padding:1rem;overflow-y:auto;gap:.8rem}
+.screen.on{display:flex}
+
+/* ═══ SETUP SCREEN ═══ */
+.setup-wrap{width:100%;max-width:420px;display:flex;flex-direction:column;gap:.8rem}
+.card{background:var(--bg2);border-radius:14px;padding:1rem;border:1px solid var(--border)}
+.card h3{font-size:.7rem;color:var(--muted);text-transform:uppercase;
+  letter-spacing:.08em;margin-bottom:.7rem}
+.count-row{display:flex;gap:.4rem;flex-wrap:wrap}
+.cntbtn{flex:1;min-width:40px;padding:.5rem;border-radius:8px;
+  border:1px solid var(--border);background:transparent;color:var(--muted);
+  font-weight:700;font-size:.9rem;cursor:pointer;transition:.2s}
+.cntbtn.act{background:linear-gradient(135deg,#f43f5e,#f59e0b);color:#000;border-color:transparent}
+
+.name-inputs{display:flex;flex-direction:column;gap:.5rem}
+.name-row{display:flex;align-items:center;gap:.6rem}
+.name-dot{width:12px;height:12px;border-radius:50%;flex-shrink:0}
+.name-input{flex:1;padding:.5rem .7rem;background:var(--bg3);border:1px solid var(--border);
+  border-radius:8px;color:var(--text);font-size:.9rem;outline:none;transition:.2s}
+.name-input:focus{border-color:#6366f1}
+
+.go-btn{width:100%;padding:1rem;border-radius:12px;border:none;
+  background:linear-gradient(135deg,#f43f5e,#f59e0b);color:#000;
+  font-size:1rem;font-weight:800;cursor:pointer;transition:.2s;letter-spacing:.05em}
+.go-btn:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(244,63,94,.4)}
+
+/* ═══ SPINNER SCREEN ═══ */
+.spinner-wrap{width:100%;max-width:480px;display:flex;flex-direction:column;
+  align-items:center;gap:.8rem}
+.current-badge{display:flex;align-items:center;gap:.5rem;padding:.4rem 1rem;
+  border-radius:20px;background:var(--bg2);border:1px solid var(--border);font-size:.85rem}
+.badge-dot{width:10px;height:10px;border-radius:50%}
+
+/* Spinner canvas area */
+.spinner-area{position:relative;flex-shrink:0}
+#spinner-canvas{border-radius:50%;display:block;
+  filter:drop-shadow(0 0 20px rgba(99,102,241,.3))}
+
+/* Spin button */
+.spin-btn{padding:.8rem 2.5rem;border-radius:50px;border:none;
+  background:linear-gradient(135deg,#f43f5e,#f59e0b);color:#000;
+  font-size:1rem;font-weight:800;cursor:pointer;transition:.2s;letter-spacing:.05em;
+  box-shadow:0 4px 20px rgba(244,63,94,.4)}
+.spin-btn:hover:not(:disabled){transform:translateY(-2px) scale(1.03);
+  box-shadow:0 8px 30px rgba(244,63,94,.5)}
+.spin-btn:disabled{opacity:.5;cursor:default;transform:none}
+
+.score-row{display:flex;gap:.5rem;flex-wrap:wrap;justify-content:center;width:100%}
+.score-chip{display:flex;align-items:center;gap:.35rem;padding:.3rem .7rem;
+  border-radius:20px;background:var(--bg2);border:1px solid var(--border);font-size:.75rem}
+.schip-dot{width:8px;height:8px;border-radius:50%}
+
+/* ═══ RESULT SCREEN ═══ */
+.result-wrap{width:100%;max-width:420px;display:flex;flex-direction:column;gap:.8rem;
+  align-items:center}
+.player-announce{text-align:center;padding:1.2rem;border-radius:16px;width:100%;
+  background:var(--bg2);border:2px solid var(--border)}
+.announce-emoji{font-size:3rem;margin-bottom:.4rem}
+.announce-name{font-size:1.4rem;font-weight:800;margin-bottom:.2rem}
+.announce-sub{font-size:.8rem;color:var(--muted)}
+
+.choice-btns{display:flex;gap:.8rem;width:100%}
+.choice-btn{flex:1;padding:1.1rem;border-radius:14px;border:none;
+  font-size:1rem;font-weight:800;cursor:pointer;transition:.2s;letter-spacing:.05em}
+.truth-btn{background:linear-gradient(135deg,#6366f1,#818cf8);color:white;
+  box-shadow:0 4px 16px rgba(99,102,241,.4)}
+.dare-btn{background:linear-gradient(135deg,#f43f5e,#fb7185);color:white;
+  box-shadow:0 4px 16px rgba(244,63,94,.4)}
+.choice-btn:hover{transform:translateY(-3px);filter:brightness(1.1)}
+
+/* Prompt card */
+.prompt-card{width:100%;padding:1.2rem;border-radius:14px;text-align:center;
+  background:var(--bg2);border:2px solid var(--border);display:none}
+.prompt-type{font-size:.7rem;text-transform:uppercase;letter-spacing:.1em;
+  margin-bottom:.5rem;font-weight:700}
+.prompt-text{font-size:1rem;line-height:1.5;color:var(--text)}
+.prompt-sub{font-size:.75rem;color:var(--muted);margin-top:.5rem}
+
+.result-btns{display:flex;gap:.6rem;width:100%}
+.res-btn{flex:1;padding:.7rem;border-radius:10px;border:1px solid var(--border);
+  background:transparent;color:var(--muted);font-size:.85rem;font-weight:600;cursor:pointer;transition:.2s}
+.res-btn.primary{background:linear-gradient(135deg,#f43f5e,#f59e0b);
+  color:#000;border-color:transparent}
+.res-btn:hover{background:var(--bg3);color:var(--text)}
+.res-btn.primary:hover{filter:brightness(1.05)}
+</style>
+</head>
+<body>
+
+<header class="hdr">
+  <a href="../../../index.html" class="back">← Back</a>
+  <div class="hdr-title">🍾 Truth or Dare</div>
+  <div style="width:50px"></div>
+</header>
+
+<!-- SETUP -->
+<div id="setup" class="screen on">
+  <div style="text-align:center;margin-bottom:.3rem">
+    <div style="font-size:3rem">🍾</div>
+    <h1 style="font-size:1.5rem;font-weight:800;background:linear-gradient(135deg,#f43f5e,#f59e0b,#6366f1);
+      -webkit-background-clip:text;-webkit-text-fill-color:transparent">Truth or Dare</h1>
+    <p style="color:var(--muted);font-size:.85rem">Spin the bottle & face the challenge!</p>
+  </div>
+  <div class="setup-wrap">
+    <div class="card">
+      <h3>Number of Players</h3>
+      <div class="count-row" id="count-row">
+        <button class="cntbtn" data-n="2">2</button>
+        <button class="cntbtn act" data-n="3">3</button>
+        <button class="cntbtn" data-n="4">4</button>
+        <button class="cntbtn" data-n="5">5</button>
+        <button class="cntbtn" data-n="6">6</button>
+        <button class="cntbtn" data-n="7">7</button>
+        <button class="cntbtn" data-n="8">8</button>
+      </div>
+    </div>
+    <div class="card">
+      <h3>Player Names</h3>
+      <div class="name-inputs" id="name-inputs"></div>
+    </div>
+    <button class="go-btn" id="go-btn">🎉 Let's Play!</button>
+  </div>
+</div>
+
+<!-- SPINNER -->
+<div id="spinner" class="screen">
+  <div class="spinner-wrap">
+    <div class="current-badge" id="cur-badge">
+      <div class="badge-dot" id="cur-dot"></div>
+      <span id="cur-label">Tap to spin!</span>
+    </div>
+    <div class="spinner-area">
+      <canvas id="spinner-canvas" width="320" height="320"></canvas>
+    </div>
+    <button class="spin-btn" id="spin-btn">🍾 SPIN!</button>
+    <div class="score-row" id="score-row"></div>
+    <button class="res-btn" onclick="showScreen('setup')" style="max-width:200px;margin-top:.3rem">⬅ Change Players</button>
+  </div>
+</div>
+
+<!-- RESULT -->
+<div id="result" class="screen">
+  <div class="result-wrap">
+    <div class="player-announce" id="p-announce">
+      <div class="announce-emoji" id="p-emoji">🎯</div>
+      <div class="announce-name" id="p-name">Player</div>
+      <div class="announce-sub">Choose your challenge:</div>
+    </div>
+    <div class="choice-btns">
+      <button class="choice-btn truth-btn" id="truth-btn">🧠 TRUTH</button>
+      <button class="choice-btn dare-btn"  id="dare-btn">🔥 DARE</button>
+    </div>
+    <div class="prompt-card" id="prompt-card">
+      <div class="prompt-type" id="p-type">Truth</div>
+      <div class="prompt-text" id="p-text"></div>
+      <div class="prompt-sub">Complete your challenge!</div>
+    </div>
+    <div class="result-btns">
+      <button class="res-btn" id="skip-btn">⏭ Skip</button>
+      <button class="res-btn primary" id="next-btn">🔄 Spin Again</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ─── COLORS ──────────────────────────────────────────────────
+const COLORS = [
+  '#f43f5e','#6366f1','#f59e0b','#22c55e',
+  '#06b6d4','#a855f7','#f97316','#10b981'
+];
+const EMOJIS = ['😎','🤩','😁','🥳','😏','🤪','😈','🙃'];
+
+// ─── TRUTH & DARE PROMPTS ─────────────────────────────────────
+const TRUTHS = [
+  "What's the most embarrassing thing you've ever done?",
+  "Have you ever lied to get out of trouble? What was the lie?",
+  "What is your biggest fear?",
+  "Who was your first crush?",
+  "What's the most childish thing you still do?",
+  "Have you ever cheated on a test or game?",
+  "What's your most embarrassing nickname?",
+  "Have you ever cried at a movie? Which one?",
+  "What's the weirdest dream you've ever had?",
+  "What's something you've done that you'd never admit otherwise?",
+  "Who in this room would you choose as a partner on a deserted island?",
+  "What's the last lie you told?",
+  "Have you ever walked into a wrong bathroom?",
+  "What's your guilty pleasure?",
+  "Have you ever pretended to be sick to avoid something?",
+  "What's the most expensive thing you've ever broken?",
+  "Have you ever had a secret admirer?",
+  "What's one habit you wish you could stop?",
+  "Have you ever sent a text to the wrong person?",
+  "What's your most unusual talent?",
+  "Have you ever been caught doing something embarrassing?",
+  "What's the strangest thing you've ever eaten?",
+  "Have you ever blamed someone else for something you did?",
+  "What's a secret you've never told your parents?",
+  "If you could swap lives with someone in this room, who would it be?",
+];
+
+const DARES = [
+  "Do your best impression of someone in this room.",
+  "Dance for 30 seconds without music.",
+  "Do 10 push-ups right now.",
+  "Talk in an accent for the next 2 rounds.",
+  "Let someone draw a mustache on your face with a marker.",
+  "Call a family member and sing them Happy Birthday.",
+  "Do your best animal impression.",
+  "Speak only in questions for the next round.",
+  "Do the worm on the floor.",
+  "Let the group go through your phone for 30 seconds.",
+  "Say the alphabet backwards as fast as you can.",
+  "Eat a spoonful of something random from the kitchen.",
+  "Do your best runway walk across the room.",
+  "Invent and perform a 30-second commercial for cheese.",
+  "Wear socks on your hands for the next 2 rounds.",
+  "Text someone 'I know what you did last summer' and don't explain.",
+  "Hold an ice cube in your hand until it melts.",
+  "Do 20 jumping jacks while counting out loud.",
+  "Say 'banana' after every sentence for the next 2 rounds.",
+  "Let someone style your hair however they want.",
+  "Call someone and speak only in rhymes for 1 minute.",
+  "Act like a robot for the next 2 rounds.",
+  "Do your best rap in 30 seconds.",
+  "Let someone tickle you for 10 seconds without laughing.",
+  "Balance a book on your head while saying the alphabet.",
+];
+
+// ─── STATE ───────────────────────────────────────────────────
+let state = {
+  count: 3,
+  players: [],
+  spins: {},    // name → count
+  spinning: false,
+  winnerIdx: -1,
+};
+
+// ─── SETUP UI ────────────────────────────────────────────────
+document.querySelectorAll('.cntbtn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    state.count = +btn.dataset.n;
+    document.querySelectorAll('.cntbtn').forEach(b => b.classList.toggle('act', b===btn));
+    renderNameInputs();
+  });
+});
+
+function renderNameInputs() {
+  const container = document.getElementById('name-inputs');
+  const oldVals = [...container.querySelectorAll('.name-input')].map(i => i.value);
+  container.innerHTML = '';
+  for (let i = 0; i < state.count; i++) {
+    const row = document.createElement('div');
+    row.className = 'name-row';
+    row.innerHTML = `
+      <div class="name-dot" style="background:${COLORS[i]}"></div>
+      <input class="name-input" type="text" maxlength="14"
+        placeholder="Player ${i+1}" value="${oldVals[i]||''}"
+        data-idx="${i}" autocomplete="off">`;
+    container.appendChild(row);
+  }
+}
+
+renderNameInputs();
+
+document.getElementById('go-btn').addEventListener('click', () => {
+  const inputs = document.querySelectorAll('.name-input');
+  state.players = [...inputs].map((inp, i) => ({
+    name: inp.value.trim() || `Player ${i+1}`,
+    color: COLORS[i],
+    emoji: EMOJIS[i]
+  }));
+  state.spins = {};
+  state.players.forEach(p => { state.spins[p.name] = 0; });
+  buildSpinnerCanvas();
+  buildScoreRow();
+  updateBadge('Tap to spin!', '#8888aa');
+  showScreen('spinner');
+});
+
+// ─── CANVAS SPINNER ──────────────────────────────────────────
+const canvas = document.getElementById('spinner-canvas');
+const ctx = canvas.getContext('2d');
+
+let currentAngle = 0;  // where the wheel currently rests (radians, 0 = top)
+
+function buildSpinnerCanvas() {
+  const size = Math.min(window.innerWidth - 40, 320);
+  canvas.width = size; canvas.height = size;
+  drawWheel(currentAngle);
+}
+
+function drawWheel(angle) {
+  const n = state.players.length;
+  const cx = canvas.width / 2, cy = canvas.height / 2;
+  const R = cx - 4;
+  const slice = (Math.PI * 2) / n;
+
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+  // ─── outer glow ring ───
+  ctx.save();
+  ctx.shadowColor = 'rgba(99,102,241,.5)';
+  ctx.shadowBlur = 18;
+  ctx.beginPath();
+  ctx.arc(cx, cy, R + 3, 0, Math.PI * 2);
+  ctx.strokeStyle = 'rgba(99,102,241,.3)';
+  ctx.lineWidth = 3;
+  ctx.stroke();
+  ctx.restore();
+
+  // ─── slices ───
+  for (let i = 0; i < n; i++) {
+    const startA = angle + i * slice - Math.PI / 2;
+    const endA   = startA + slice;
+    const mid    = startA + slice / 2;
+    const p = state.players[i];
+
+    // Fill
+    ctx.beginPath();
+    ctx.moveTo(cx, cy);
+    ctx.arc(cx, cy, R, startA, endA);
+    ctx.closePath();
+    ctx.fillStyle = p.color;
+    ctx.fill();
+
+    // Lighter inner stroke
+    ctx.strokeStyle = 'rgba(0,0,0,.2)';
+    ctx.lineWidth = 2;
+    ctx.stroke();
+
+    // Emoji
+    const emojiR = R * 0.72;
+    const ex = cx + Math.cos(mid) * emojiR;
+    const ey = cy + Math.sin(mid) * emojiR;
+    const fontSize = Math.max(10, R * (n <= 4 ? 0.13 : 0.1));
+    ctx.save();
+    ctx.translate(ex, ey);
+    ctx.rotate(mid + Math.PI / 2);
+    ctx.font = `${fontSize * 1.5}px serif`;
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText(p.emoji, 0, -fontSize * 0.6);
+    ctx.restore();
+
+    // Name text
+    const textR = R * 0.47;
+    const tx = cx + Math.cos(mid) * textR;
+    const ty = cy + Math.sin(mid) * textR;
+    ctx.save();
+    ctx.translate(tx, ty);
+    ctx.rotate(mid + Math.PI / 2);
+    const fSize = Math.max(9, Math.min(14, R * 0.1));
+    ctx.font = `bold ${fSize}px sans-serif`;
+    ctx.fillStyle = 'rgba(0,0,0,.85)';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    // Clip long names
+    const label = p.name.length > 8 ? p.name.slice(0, 7) + '…' : p.name;
+    ctx.fillText(label, 0, 0);
+    ctx.restore();
+  }
+
+  // ─── center circle ───
+  ctx.beginPath();
+  ctx.arc(cx, cy, R * 0.12, 0, Math.PI * 2);
+  ctx.fillStyle = '#0d0d1a';
+  ctx.fill();
+  ctx.strokeStyle = 'rgba(255,255,255,.15)';
+  ctx.lineWidth = 2;
+  ctx.stroke();
+
+  // ─── BOTTLE (pointer) — always pointing UP from center ───
+  drawBottle(cx, cy, R);
+
+  // ─── tick mark at top ───
+  ctx.beginPath();
+  ctx.moveTo(cx, cy - R + 2);
+  ctx.lineTo(cx - 8, cy - R - 14);
+  ctx.lineTo(cx + 8, cy - R - 14);
+  ctx.closePath();
+  ctx.fillStyle = '#f59e0b';
+  ctx.fill();
+  ctx.strokeStyle = '#0d0d1a';
+  ctx.lineWidth = 1;
+  ctx.stroke();
+}
+
+function drawBottle(cx, cy, R) {
+  // Bottle pointing upward (toward the ticker)
+  const len = R * 0.56;
+  const w   = R * 0.055;
+
+  ctx.save();
+  ctx.translate(cx, cy);
+  // The bottle always points UP (toward the ticker at top)
+  ctx.rotate(0);
+
+  // Bottle body (glass green tint)
+  const grad = ctx.createLinearGradient(-w, 0, w, 0);
+  grad.addColorStop(0, '#4ade80');
+  grad.addColorStop(0.5, '#86efac');
+  grad.addColorStop(1, '#4ade80');
+
+  ctx.beginPath();
+  ctx.moveTo(-w, 0);
+  ctx.lineTo(-w, -len * 0.55);     // body bottom to shoulder
+  ctx.quadraticCurveTo(-w, -len * 0.7, -w * 0.55, -len * 0.78); // shoulder
+  ctx.lineTo(-w * 0.38, -len);     // neck
+  ctx.lineTo( w * 0.38, -len);
+  ctx.quadraticCurveTo( w * 0.55, -len * 0.78, w, -len * 0.7);  // shoulder
+  ctx.lineTo(w, 0);
+  ctx.closePath();
+  ctx.fillStyle = grad;
+  ctx.fill();
+  ctx.strokeStyle = 'rgba(0,0,0,.3)';
+  ctx.lineWidth = 1;
+  ctx.stroke();
+
+  // Bottle cap
+  ctx.fillStyle = '#dc2626';
+  ctx.beginPath();
+  ctx.rect(-w * 0.38, -len - w * 0.6, w * 0.76, w * 0.8);
+  ctx.fill();
+
+  // Shine
+  ctx.fillStyle = 'rgba(255,255,255,.35)';
+  ctx.beginPath();
+  ctx.rect(-w * 0.2, -len * 0.9, w * 0.18, len * 0.4);
+  ctx.fill();
+
+  ctx.restore();
+}
+
+// ─── SPIN LOGIC ──────────────────────────────────────────────
+document.getElementById('spin-btn').addEventListener('click', doSpin);
+
+function doSpin() {
+  if (state.spinning) return;
+  state.spinning = true;
+  document.getElementById('spin-btn').disabled = true;
+  document.getElementById('prompt-card').style.display = 'none';
+  updateBadge('Spinning…', '#f59e0b');
+
+  const n = state.players.length;
+  const sliceDeg = 360 / n;
+
+  // Pick random winner
+  state.winnerIdx = Math.floor(Math.random() * n);
+
+  // Target angle: winner slice should end up at the TOP (where the ticker is)
+  // At angle=0, slice 0 is at the top center.
+  // Slice i center is at (i * sliceDeg) degrees from the angle origin.
+  // We want winner slice center to face UP (angle = 0 from top).
+  // So final wheel angle such that: angle + winner * sliceDeg = random_offset_within_slice
+  const offsetInSlice = (Math.random() - 0.5) * sliceDeg * 0.7; // wiggle within slice
+  const targetWheelAngleDeg = -(state.winnerIdx * sliceDeg) + offsetInSlice;
+
+  // Spin: add multiple full rotations for drama
+  const extraSpins = 5 + Math.floor(Math.random() * 4);
+  const startAngleDeg = (currentAngle * 180 / Math.PI);
+  const totalSpinDeg = extraSpins * 360 + ((targetWheelAngleDeg - startAngleDeg) % 360);
+
+  const duration = 3500 + Math.random() * 1000;
+  const startTime = performance.now();
+  const startAngle = currentAngle;
+
+  function ease(t) {
+    // ease-out cubic for natural deceleration
+    return 1 - Math.pow(1 - t, 3);
+  }
+
+  function animate(now) {
+    const elapsed = now - startTime;
+    const t = Math.min(elapsed / duration, 1);
+    const spinRad = (totalSpinDeg * ease(t)) * Math.PI / 180;
+    currentAngle = startAngle + spinRad;
+    drawWheel(currentAngle);
+
+    if (t < 1) {
+      requestAnimationFrame(animate);
+    } else {
+      currentAngle = currentAngle % (Math.PI * 2);
+      state.spinning = false;
+      document.getElementById('spin-btn').disabled = false;
+      onSpinDone();
+    }
+  }
+  requestAnimationFrame(animate);
+}
+
+function onSpinDone() {
+  const winner = state.players[state.winnerIdx];
+  state.spins[winner.name]++;
+  buildScoreRow();
+  updateBadge(winner.name + ' — Choose!', winner.color);
+  // Go to result screen
+  document.getElementById('p-name').textContent = winner.name;
+  document.getElementById('p-name').style.color = winner.color;
+  document.getElementById('p-emoji').textContent = winner.emoji;
+  document.getElementById('p-announce').style.borderColor = winner.color;
+  document.getElementById('prompt-card').style.display = 'none';
+  document.getElementById('prompt-card').style.borderColor = 'var(--border)';
+  showScreen('result');
+}
+
+// ─── RESULT SCREEN ───────────────────────────────────────────
+document.getElementById('truth-btn').addEventListener('click', () => showPrompt('truth'));
+document.getElementById('dare-btn').addEventListener('click', () => showPrompt('dare'));
+
+function showPrompt(type) {
+  const card = document.getElementById('prompt-card');
+  const winner = state.players[state.winnerIdx];
+  const pool = type === 'truth' ? TRUTHS : DARES;
+  const text = pool[Math.floor(Math.random() * pool.length)];
+
+  document.getElementById('p-type').textContent = type === 'truth' ? '🧠 TRUTH' : '🔥 DARE';
+  document.getElementById('p-type').style.color = type === 'truth' ? '#818cf8' : '#fb7185';
+  document.getElementById('p-text').textContent = text;
+  card.style.display = 'block';
+  card.style.borderColor = type === 'truth' ? '#6366f1' : '#f43f5e';
+
+  // Disable choice buttons after choosing
+  document.getElementById('truth-btn').disabled = true;
+  document.getElementById('dare-btn').disabled = true;
+}
+
+document.getElementById('skip-btn').addEventListener('click', () => {
+  document.getElementById('truth-btn').disabled = false;
+  document.getElementById('dare-btn').disabled = false;
+  backToSpinner();
+});
+
+document.getElementById('next-btn').addEventListener('click', () => {
+  document.getElementById('truth-btn').disabled = false;
+  document.getElementById('dare-btn').disabled = false;
+  backToSpinner();
+});
+
+function backToSpinner() {
+  showScreen('spinner');
+  updateBadge('Tap to spin!', '#8888aa');
+}
+
+// ─── HELPERS ───────────────────────────────────────────────────
+function showScreen(name) {
+  const map = {setup:'setup',spinner:'spinner',result:'result'};
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('on'));
+  document.getElementById(map[name]).classList.add('on');
+}
+
+function updateBadge(label, color) {
+  document.getElementById('cur-label').textContent = label;
+  document.getElementById('cur-dot').style.background = color;
+}
+
+function buildScoreRow() {
+  const row = document.getElementById('score-row');
+  row.innerHTML = '';
+  state.players.forEach(p => {
+    const chip = document.createElement('div');
+    chip.className = 'score-chip';
+    chip.innerHTML = `
+      <div class="schip-dot" style="background:${p.color}"></div>
+      <span style="color:${p.color};font-weight:700">${p.name.length>8?p.name.slice(0,7)+'…':p.name}</span>
+      <span style="color:var(--muted)">&nbsp;×${state.spins[p.name]||0}</span>`;
+    row.appendChild(chip);
+  });
+}
+
+// Resize canvas on orientation change
+window.addEventListener('resize', () => {
+  if (document.getElementById('spinner').classList.contains('on')) {
+    buildSpinnerCanvas();
+    drawWheel(currentAngle);
+  }
+});
+</script>
+</body>
+</html>
