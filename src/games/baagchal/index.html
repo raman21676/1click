@@ -727,6 +727,11 @@ class BaagchalGame {
         [0, 4, 20, 24].forEach(i => this.board[i] = "T");
         
         this.render();
+        
+        // If AI mode and user chose Tiger, AI (Goat) makes first move
+        if (this.gameMode === "AI" && this.playerSide === "T" && this.turn === "G") {
+            setTimeout(() => this.makeGoatPlacement(), 800);
+        }
     }
     
     handleCellClick(index) {
@@ -886,12 +891,25 @@ class BaagchalGame {
         if (this.aiDifficulty === "easy") {
             selectedSpot = emptySpots[Math.floor(Math.random() * emptySpots.length)];
         } else {
-            // Try to place away from tigers
-            const safeSpots = emptySpots.filter(spot => !this.isNearTiger(spot));
+            // SMART GOAT AI: Find spots that are safe from capture
+            const safeSpots = emptySpots.filter(spot => !this.canBeCaptured(spot));
+            
             if (safeSpots.length > 0) {
-                selectedSpot = safeSpots[Math.floor(Math.random() * safeSpots.length)];
+                // Prefer spots away from tigers but not jumpable
+                const farSafeSpots = safeSpots.filter(spot => !this.isNearTiger(spot));
+                if (farSafeSpots.length > 0) {
+                    selectedSpot = farSafeSpots[Math.floor(Math.random() * farSafeSpots.length)];
+                } else {
+                    selectedSpot = safeSpots[Math.floor(Math.random() * safeSpots.length)];
+                }
             } else {
-                selectedSpot = emptySpots[Math.floor(Math.random() * emptySpots.length)];
+                // No truly safe spots - just pick one not immediately adjacent
+                const notAdjacentSpots = emptySpots.filter(spot => !this.isNearTiger(spot));
+                if (notAdjacentSpots.length > 0) {
+                    selectedSpot = notAdjacentSpots[Math.floor(Math.random() * notAdjacentSpots.length)];
+                } else {
+                    selectedSpot = emptySpots[Math.floor(Math.random() * emptySpots.length)];
+                }
             }
         }
         
@@ -910,6 +928,51 @@ class BaagchalGame {
         if (this.gameMode === "AI" && !this.winner) {
             setTimeout(() => this.makeTigerMove(), 600);
         }
+    }
+    
+    // Check if a goat placed at pos would be capturable by any tiger
+    canBeCaptured(pos) {
+        for (let i = 0; i < 25; i++) {
+            if (this.board[i] === "T") {
+                // Check if tiger at i can capture to pos
+                if (this.canTigerCaptureTo(i, pos)) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+    
+    // Check if tiger at fromPos can capture to toPos
+    canTigerCaptureTo(fromPos, toPos) {
+        const fx = fromPos % 5;
+        const fy = Math.floor(fromPos / 5);
+        const tx = toPos % 5;
+        const ty = Math.floor(toPos / 5);
+        
+        // Must be distance 2
+        if (Math.abs(tx - fx) !== 2 && Math.abs(ty - fy) !== 2) return false;
+        if (Math.abs(tx - fx) === 2 && Math.abs(ty - fy) === 2) {
+            // Diagonal jump - valid
+        } else if (Math.abs(tx - fx) === 2 && ty === fy) {
+            // Horizontal jump - valid
+        } else if (Math.abs(ty - fy) === 2 && tx === fx) {
+            // Vertical jump - valid
+        } else {
+            return false;
+        }
+        
+        const mx = (fx + tx) / 2;
+        const my = (fy + ty) / 2;
+        const midPos = my * 5 + mx;
+        
+        // Middle must be empty (for the goat to be placed there hypothetically)
+        // Actually for capture check, we care if there's a landing spot
+        // But for placement safety, we check if tiger CAN capture there
+        // So we need: from->mid line exists, mid->to line exists
+        return ADJACENT[fromPos].includes(midPos) && 
+               ADJACENT[midPos].includes(toPos) &&
+               this.board[toPos] === null;
     }
     
     // AI moves a goat (movement phase)
