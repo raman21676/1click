@@ -180,3 +180,4 @@ This project is open source and available under the [MIT License](./LICENSE).
   Made with ❤️ in Nepal 🇳🇵<br>
   <strong>Play Free, Play 1click!</strong>
 </p>
+# Auto-trigger deployment
