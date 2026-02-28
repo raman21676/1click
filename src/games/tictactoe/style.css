@@ -1,0 +1,326 @@
+/* Tic-Tac-Toe Game Styles */
+
+.game-container {
+    min-height: 100vh;
+    background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+    color: #f1f5f9;
+    display: flex;
+    flex-direction: column;
+}
+
+/* Header */
+.game-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1rem 1.5rem;
+    background: rgba(30, 41, 59, 0.8);
+    border-bottom: 1px solid rgba(99, 102, 241, 0.3);
+    backdrop-filter: blur(10px);
+}
+
+.back-btn {
+    color: #818cf8;
+    text-decoration: none;
+    font-size: 0.9rem;
+    transition: color 0.2s;
+}
+
+.back-btn:hover {
+    color: #6366f1;
+}
+
+.game-header h1 {
+    font-size: 1.5rem;
+    background: linear-gradient(135deg, #6366f1 0%, #a855f7 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.game-mode {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.mode-btn {
+    padding: 0.5rem 1rem;
+    border: 1px solid #6366f1;
+    background: transparent;
+    color: #818cf8;
+    border-radius: 0.5rem;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-size: 0.85rem;
+}
+
+.mode-btn:hover {
+    background: rgba(99, 102, 241, 0.1);
+}
+
+.mode-btn.active {
+    background: #6366f1;
+    color: white;
+}
+
+/* Main Game Area */
+.game-main {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem 1rem;
+    gap: 1.5rem;
+}
+
+/* Status Panel */
+.status-panel {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.player-turn {
+    font-size: 1.25rem;
+    font-weight: 600;
+}
+
+.turn-x {
+    color: #6366f1;
+}
+
+.turn-o {
+    color: #10b981;
+}
+
+.difficulty-selector {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.9rem;
+    color: #94a3b8;
+}
+
+.difficulty-selector select {
+    padding: 0.35rem 0.75rem;
+    border-radius: 0.35rem;
+    border: 1px solid #475569;
+    background: #1e293b;
+    color: #f1f5f9;
+    cursor: pointer;
+}
+
+/* Game Board */
+.game-board {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 0.75rem;
+    padding: 0.75rem;
+    background: rgba(30, 41, 59, 0.6);
+    border-radius: 1rem;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+}
+
+.cell {
+    width: 100px;
+    height: 100px;
+    background: linear-gradient(145deg, #1e293b 0%, #0f172a 100%);
+    border: 2px solid #334155;
+    border-radius: 0.75rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 3rem;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    user-select: none;
+}
+
+.cell:hover:not(.taken) {
+    background: linear-gradient(145deg, #334155 0%, #1e293b 100%);
+    border-color: #6366f1;
+    transform: scale(1.02);
+}
+
+.cell.taken {
+    cursor: not-allowed;
+}
+
+.cell.x {
+    color: #6366f1;
+    text-shadow: 0 0 20px rgba(99, 102, 241, 0.5);
+}
+
+.cell.o {
+    color: #10b981;
+    text-shadow: 0 0 20px rgba(16, 185, 129, 0.5);
+}
+
+.cell.winning {
+    background: linear-gradient(145deg, rgba(99, 102, 241, 0.3) 0%, rgba(168, 85, 247, 0.3) 100%);
+    border-color: #f59e0b;
+    animation: pulse 1s ease-in-out infinite;
+}
+
+@keyframes pulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+}
+
+/* Score Panel */
+.score-panel {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+}
+
+.score-box {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 0.75rem 1.5rem;
+    background: rgba(30, 41, 59, 0.6);
+    border-radius: 0.75rem;
+    min-width: 80px;
+}
+
+.score-box .player-label {
+    font-size: 0.8rem;
+    color: #94a3b8;
+    margin-bottom: 0.25rem;
+}
+
+.score-box .score {
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: #f1f5f9;
+}
+
+.score-box.draws .score {
+    color: #f59e0b;
+}
+
+/* Controls */
+.game-controls {
+    display: flex;
+    gap: 1rem;
+}
+
+.control-btn {
+    padding: 0.75rem 1.5rem;
+    border: 1px solid #475569;
+    background: transparent;
+    color: #f1f5f9;
+    border-radius: 0.5rem;
+    cursor: pointer;
+    font-size: 0.95rem;
+    transition: all 0.2s;
+}
+
+.control-btn:hover {
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.control-btn.primary {
+    background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+    border: none;
+}
+
+.control-btn.primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(99, 102, 241, 0.4);
+}
+
+/* Modal */
+.modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.8);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 100;
+    backdrop-filter: blur(5px);
+}
+
+.modal.hidden {
+    display: none;
+}
+
+.modal-content {
+    background: linear-gradient(145deg, #1e293b 0%, #0f172a 100%);
+    padding: 2rem;
+    border-radius: 1rem;
+    text-align: center;
+    border: 1px solid rgba(99, 102, 241, 0.3);
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+    min-width: 280px;
+}
+
+.modal-content h2 {
+    margin-bottom: 0.5rem;
+    background: linear-gradient(135deg, #6366f1 0%, #a855f7 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.modal-content p {
+    color: #94a3b8;
+    margin-bottom: 1.5rem;
+    font-size: 1.1rem;
+}
+
+/* Responsive */
+@media (max-width: 480px) {
+    .game-header {
+        flex-wrap: wrap;
+        gap: 0.75rem;
+    }
+
+    .game-header h1 {
+        font-size: 1.25rem;
+        order: -1;
+        width: 100%;
+        text-align: center;
+    }
+
+    .cell {
+        width: 85px;
+        height: 85px;
+        font-size: 2.5rem;
+    }
+
+    .score-panel {
+        gap: 0.5rem;
+    }
+
+    .score-box {
+        padding: 0.5rem 1rem;
+        min-width: 70px;
+    }
+
+    .game-controls {
+        flex-direction: column;
+        width: 100%;
+        padding: 0 1rem;
+    }
+
+    .control-btn {
+        width: 100%;
+    }
+}
+
+@media (max-width: 350px) {
+    .cell {
+        width: 75px;
+        height: 75px;
+        font-size: 2rem;
+    }
+}

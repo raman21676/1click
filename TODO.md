@@ -8,8 +8,8 @@
 
 | Phase | Status | Progress | Target Completion |
 |-------|--------|----------|-------------------|
-| Phase 1: Foundation | 🟡 In Progress | 30% | 2026-03-01 |
-| Phase 2: Core Games | ⏳ Not Started | 0% | 2026-03-15 |
+| Phase 1: Foundation | 🟡 In Progress | 90% | 2026-03-01 |
+| Phase 2: Core Games | 🟡 In Progress | 0% | 2026-03-15 |
 | Phase 3: Advanced Games | ⏳ Not Started | 0% | 2026-04-01 |
 | Phase 4: Polish & Launch | ⏳ Not Started | 0% | 2026-04-15 |
 | Phase 5: Android App | ⏳ Not Started | 0% | 2026-05-01 |
@@ -45,19 +45,20 @@
 ### 1.3 Domain Setup
 | # | Task | Status | Priority | Assignee | Notes | Commit |
 |---|------|--------|----------|----------|-------|--------|
-| 1.3.1 | Create CNAME file | ⏳ Pending | Medium | AI Agent | nabrajsubedi.com.np | - |
-| 1.3.2 | Configure DNS (A & CNAME records) | ⏳ Pending | Medium | User | Need domain access | - |
-| 1.3.3 | Enable HTTPS | ⏳ Pending | Medium | GitHub | Auto after DNS | - |
-| 1.3.4 | Test custom domain | ⏳ Pending | Medium | AI Agent | Verify SSL | - |
+| 1.3.1 | Create CNAME file | 🟢 Done | Medium | AI Agent | nabrajsubedi.com.np | - |
+| 1.3.2 | Configure DNS (A & CNAME records) | 🟢 Done | Medium | User | Cloudflare configured | - |
+| 1.3.3 | Update nameservers at registrar | 🟣 On Hold | Medium | User | Waiting for propagation | - |
+| 1.3.4 | Enable HTTPS | ⏳ Pending | Medium | GitHub | After nameserver update | - |
+| 1.3.5 | Test custom domain | ⏳ Pending | Medium | AI Agent | Verify SSL | - |
 
 ### 1.4 Landing Page
 | # | Task | Status | Priority | Assignee | Notes | Commit |
 |---|------|--------|----------|----------|-------|--------|
-| 1.4.1 | Design hero section | ⏳ Pending | High | AI Agent | Game showcase | - |
-| 1.4.2 | Create game cards grid | ⏳ Pending | High | AI Agent | 8 game cards | - |
-| 1.4.3 | Add navigation | ⏳ Pending | Medium | AI Agent | Simple header | - |
-| 1.4.4 | Add footer | ⏳ Pending | Low | AI Agent | Copyright, links | - |
-| 1.4.5 | Mobile responsive design | ⏳ Pending | High | AI Agent | Test all viewports | - |
+| 1.4.1 | Design hero section | 🟢 Done | High | AI Agent | Game showcase | - |
+| 1.4.2 | Create game cards grid | 🟢 Done | High | AI Agent | 8 game cards | - |
+| 1.4.3 | Add navigation | 🟢 Done | Medium | AI Agent | Simple header | - |
+| 1.4.4 | Add footer | 🟢 Done | Low | AI Agent | Copyright, links | - |
+| 1.4.5 | Mobile responsive design | 🟢 Done | High | AI Agent | Test all viewports | - |
 
 **Phase 1 Completion Criteria:**
 - [ ] Website live on GitHub Pages
@@ -72,13 +73,13 @@
 ### 2.1 Tic-Tac-Toe
 | # | Task | Status | Priority | Assignee | Notes | Commit |
 |---|------|--------|----------|----------|-------|--------|
-| 2.1.1 | Create game board UI | ⏳ Pending | High | AI Agent | 3x3 grid | - |
-| 2.1.2 | Implement 2-player mode | ⏳ Pending | High | AI Agent | Local multiplayer | - |
-| 2.1.3 | Implement AI opponent | ⏳ Pending | High | AI Agent | Minimax algorithm | - |
-| 2.1.4 | Add difficulty levels | ⏳ Pending | Medium | AI Agent | Easy/Medium/Hard | - |
-| 2.1.5 | Add win/lose/draw detection | ⏳ Pending | High | AI Agent | All combinations | - |
-| 2.1.6 | Add score tracking | ⏳ Pending | Medium | AI Agent | LocalStorage | - |
-| 2.1.7 | Mobile touch support | ⏳ Pending | High | AI Agent | Touch events | - |
+| 2.1.1 | Create game board UI | 🟢 Done | High | AI Agent | 3x3 grid | - |
+| 2.1.2 | Implement 2-player mode | 🟢 Done | High | AI Agent | Local multiplayer | - |
+| 2.1.3 | Implement AI opponent | 🟢 Done | High | AI Agent | Minimax algorithm | - |
+| 2.1.4 | Add difficulty levels | 🟢 Done | Medium | AI Agent | Easy/Medium/Hard | - |
+| 2.1.5 | Add win/lose/draw detection | 🟢 Done | High | AI Agent | All combinations | - |
+| 2.1.6 | Add score tracking | 🟢 Done | Medium | AI Agent | LocalStorage | - |
+| 2.1.7 | Mobile touch support | 🟢 Done | High | AI Agent | Touch events | - |
 
 ### 2.2 Snake
 | # | Task | Status | Priority | Assignee | Notes | Commit |

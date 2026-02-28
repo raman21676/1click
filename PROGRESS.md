@@ -261,9 +261,69 @@ Established the complete project foundation including folder structure, document
 - [ ] Lighthouse score checked
 ```
 
+### Session 2: DNS Configuration & First Game (Tic-Tac-Toe)
+
+**Date:** 2026-02-28  
+**Time:** 18:30 - 19:10 IST  
+**Agent:** AI Agent  
+**Duration:** ~40 minutes  
+**Status:** ✅ Complete
+
+#### Summary
+Configured Cloudflare DNS for custom domain and built the first game - Tic-Tac-Toe with AI opponent using Minimax algorithm.
+
+#### Tasks Completed
+
+| # | Task | Description | Files Created |
+|---|------|-------------|---------------|
+| 2.1 | Cloudflare DNS | Configured A and CNAME records in Cloudflare | - |
+| 2.2 | Nameserver Update | Guided user to update nameservers at registrar | - |
+| 2.3 | GitHub Pages Config | Set custom domain in GitHub Pages settings | - |
+| 2.4 | Tic-Tac-Toe HTML | Created game page structure | `/src/games/tictactoe/index.html` |
+| 2.5 | Tic-Tac-Toe CSS | Styled game with dark theme | `/src/games/tictactoe/style.css` |
+| 2.6 | Tic-Tac-Toe JS | Game logic with Minimax AI | `/src/games/tictactoe/game.js` |
+| 2.7 | Landing Page Update | Linked Tic-Tac-Toe card to game | `/index.html` |
+
+#### Files Created/Modified (4 files)
+```
+1click/
+├── index.html                          ← Updated Tic-Tac-Toe card link
+└── src/
+    └── games/
+        └── tictactoe/
+            ├── index.html              ← Game page
+            ├── style.css               ← Game styles
+            └── game.js                 ← Game logic + Minimax AI
+```
+
+#### Challenges Encountered
+1. **DNS Propagation Delay** - GitHub showing "DNS check unsuccessful"
+   - Cause: Nameservers at registrar still point to old Cloudflare nameservers
+   - Solution: User needs to update nameservers at domain registrar
+   - Status: ⏳ Waiting for propagation (can take 1-24 hours)
+
+#### Git Activity
+- Commits: 0 (waiting for DNS to complete before pushing)
+- New files: 3
+- Modified: 1
+
+#### Tic-Tac-Toe Features Implemented
+- ✅ 2-Player mode (local)
+- ✅ AI opponent with Minimax algorithm
+- ✅ 3 difficulty levels (Easy, Medium, Hard)
+- ✅ Win/lose/draw detection with animations
+- ✅ Score tracking with LocalStorage
+- ✅ Mobile responsive design
+- ✅ Dark theme matching site design
+
+#### Verification
+- [x] Game works in browser (file://)
+- [ ] Tested on mobile
+- [ ] Pushed to GitHub
+
 ---
 
-**Total Sessions:** 1  
-**Total Development Time:** ~30 minutes  
-**Last Updated:** 2026-02-28 12:47 IST  
-**Next Review:** After GitHub push
+**Total Sessions:** 2  
+**Total Development Time:** ~70 minutes  
+**Last Updated:** 2026-02-28 19:10 IST  
+**Next Review:** After pushing games to GitHub
