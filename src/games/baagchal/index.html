@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Baagchal (बाघचाल) - 1click Games</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -22,11 +22,12 @@
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
             background: var(--bg);
             color: var(--text);
-            min-height: 100vh;
+            height: 100dvh;
+            overflow-y: auto;
         }
         
         .game-container {
-            min-height: 100vh;
+            min-height: 100dvh;
             display: flex;
             flex-direction: column;
             max-width: 500px;
@@ -38,8 +39,9 @@
             display: flex;
             align-items: center;
             justify-content: space-between;
-            padding: 1rem;
+            padding: 0.6rem 1rem;
             background: var(--bg-card);
+            flex-shrink: 0;
         }
         
         .back-btn {
@@ -411,7 +413,8 @@
         .game-controls {
             display: flex;
             gap: 0.5rem;
-            padding: 1rem;
+            padding: 0.5rem 1rem 0.8rem;
+            flex-shrink: 0;
         }
         
         .btn {
