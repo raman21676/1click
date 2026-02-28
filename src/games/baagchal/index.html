@@ -1317,21 +1317,8 @@ class BaagchalGame {
         this.turn = this.turn === "G" ? "T" : "G";
     }
     
+    // EASY: Always captures when possible, otherwise random
     getRandomTigerMove(tigerPositions) {
-        const allMoves = [];
-        
-        for (const pos of tigerPositions) {
-            this.calculateValidMoves(pos);
-            for (const to of this.validMoves) {
-                allMoves.push({ from: pos, to, capture: this.isCaptureMove(pos, to) });
-            }
-        }
-        
-        if (allMoves.length === 0) return null;
-        return allMoves[Math.floor(Math.random() * allMoves.length)];
-    }
-    
-    getIntermediateTigerMove(tigerPositions) {
         const allMoves = [];
         const captureMoves = [];
         
@@ -1344,6 +1331,7 @@ class BaagchalGame {
             }
         }
         
+        // ALWAYS capture if possible (even in easy mode)
         if (captureMoves.length > 0) {
             return captureMoves[Math.floor(Math.random() * captureMoves.length)];
         }
@@ -1352,8 +1340,45 @@ class BaagchalGame {
         return allMoves[Math.floor(Math.random() * allMoves.length)];
     }
     
+    // MEDIUM: Always captures + avoids getting trapped
+    getIntermediateTigerMove(tigerPositions) {
+        const allMoves = [];
+        const captureMoves = [];
+        const safeMoves = [];
+        
+        for (const pos of tigerPositions) {
+            this.calculateValidMoves(pos);
+            for (const to of this.validMoves) {
+                const move = { from: pos, to, capture: this.isCaptureMove(pos, to) };
+                allMoves.push(move);
+                if (move.capture) {
+                    captureMoves.push(move);
+                } else if (this.countTigerMovesAfter(to) > 1) {
+                    // Move keeps tiger mobile (avoids getting trapped)
+                    safeMoves.push(move);
+                }
+            }
+        }
+        
+        // ALWAYS capture if possible
+        if (captureMoves.length > 0) {
+            return captureMoves[Math.floor(Math.random() * captureMoves.length)];
+        }
+        
+        // Prefer moves that avoid getting trapped
+        if (safeMoves.length > 0) {
+            return safeMoves[Math.floor(Math.random() * safeMoves.length)];
+        }
+        
+        // Fallback: any valid move
+        if (allMoves.length === 0) return null;
+        return allMoves[Math.floor(Math.random() * allMoves.length)];
+    }
+    
+    // HARD: Always captures + avoids getting trapped + strategic positioning
     getHardTigerMove(tigerPositions) {
         const captureMoves = [];
+        const strategicMoves = [];
         const safeMoves = [];
         
         for (const pos of tigerPositions) {
@@ -1362,21 +1387,53 @@ class BaagchalGame {
                 const move = { from: pos, to, capture: this.isCaptureMove(pos, to) };
                 if (move.capture) {
                     captureMoves.push(move);
+                } else if (this.isStrategicTigerMove(pos, to)) {
+                    // Move puts tiger in strategic position
+                    strategicMoves.push(move);
                 } else if (this.countTigerMovesAfter(to) > 1) {
+                    // Move keeps tiger mobile
                     safeMoves.push(move);
                 }
             }
         }
         
+        // ALWAYS capture if possible
         if (captureMoves.length > 0) {
             return captureMoves[Math.floor(Math.random() * captureMoves.length)];
         }
         
+        // Prefer strategic positioning moves
+        if (strategicMoves.length > 0) {
+            return strategicMoves[Math.floor(Math.random() * strategicMoves.length)];
+        }
+        
+        // Prefer moves that keep tiger mobile
         if (safeMoves.length > 0) {
             return safeMoves[Math.floor(Math.random() * safeMoves.length)];
         }
         
+        // Fallback: any valid move
         return this.getRandomTigerMove(tigerPositions);
+    }
+    
+    // Check if a tiger move is strategic (toward center or near goats)
+    isStrategicTigerMove(fromPos, toPos) {
+        const tx = toPos % 5;
+        const ty = Math.floor(toPos / 5);
+        
+        // Center positions are strategic (6, 7, 8, 11, 12, 13, 16, 17, 18)
+        const isCenter = tx >= 1 && tx <= 3 && ty >= 1 && ty <= 3;
+        
+        // Count nearby goats (potential future captures)
+        let nearbyGoats = 0;
+        for (const adj of ADJACENT[toPos]) {
+            if (this.board[adj] === "G") {
+                nearbyGoats++;
+            }
+        }
+        
+        // Strategic if in center OR near goats (for future captures)
+        return isCenter || nearbyGoats >= 2;
     }
     
     getRandomGoatMove(goatPositions) {
