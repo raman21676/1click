@@ -503,3 +503,84 @@ Built the third core game - Sudoku with puzzle generator, 4 difficulty levels, t
 **Games Completed:** 3/8 (Tic-Tac-Toe, Snake, Sudoku)  
 **Last Updated:** 2026-02-28 20:30 IST  
 **Next Review:** User testing
+
+
+### Session 6: Baagchal Game Development
+
+**Date:** 2026-02-28  
+**Time:** 20:30 - 21:00 IST  
+**Agent:** AI Agent  
+**Duration:** ~30 minutes  
+**Status:** ✅ Complete
+
+#### Summary
+Built the fourth and final core game - Baagchal (बाघचाल), a traditional Nepali board game featuring asymmetric gameplay between 1 Tiger and 4 Goats.
+
+#### Tasks Completed
+
+| # | Task | Description | Files Created |
+|---|------|-------------|---------------|
+| 6.1 | Board Design | 5x5 grid with diagonal connections | `/src/games/baagchal/index.html` |
+| 6.2 | Game Logic | 1 Tiger vs 4 Goats asymmetric play | JavaScript |
+| 6.3 | Placement Phase | Goats place pieces one by one | JavaScript |
+| 6.4 | Capture Logic | Tiger jumps over goats to capture | JavaScript |
+| 6.5 | Win Conditions | Tiger trapped OR all goats captured | JavaScript |
+| 6.6 | Basic AI | Tiger moves during placement phase | JavaScript |
+| 6.7 | Landing Page | Linked Baagchal card | `/index.html` |
+
+#### Files Created/Modified (2 files)
+```
+1click/
+├── index.html                          ← Updated Baagchal card link
+└── src/
+    └── games/
+        └── baagchal/
+            └── index.html              ← Complete Baagchal game
+```
+
+#### Baagchal Features Implemented
+- ✅ 5x5 grid with diagonal lines (SVG overlay)
+- ✅ 1 Tiger (🐅) vs 4 Goats (🐐)
+- ✅ Two-phase gameplay:
+  - **Phase 1:** Goats place 4 pieces, Tiger can move
+  - **Phase 2:** Players alternate moving to adjacent spots
+- ✅ Tiger capture mechanic (jump over goat like checkers)
+- ✅ Valid move highlighting (green for move, red for capture)
+- ✅ Win conditions:
+  - **Goats win:** Tiger cannot move (trapped)
+  - **Tiger wins:** All 4 goats captured
+- ✅ Tiger AI (basic - moves randomly, prefers captures)
+- ✅ Game stats (goats remaining, turn indicator)
+- ✅ Rules explanation
+- ✅ Responsive design
+
+#### Game Board Layout
+```
+  0 ─ 1 ─ 2 ─ 3 ─ 4
+  │ ╲ │ ╲ │ ╲ │ ╲ │
+  5 ─ 6 ─ 7 ─ 8 ─ 9
+  │ ╲ │ ╲ │ ╲ │ ╲ │
+ 10 ─11─[12]─13─14   <- Tiger starts at center (12)
+  │ ╲ │ ╲ │ ╲ │ ╲ │
+ 15 ─16─ 17─18─19
+  │ ╲ │ ╲ │ ╲ │ ╲ │
+ 20 ─21─ 22─23─24
+```
+
+---
+
+## 🎉 PHASE 2 COMPLETE!
+
+**All 4 Core Games Finished:**
+1. ✅ Tic-Tac-Toe ❌
+2. ✅ Snake 🐍
+3. ✅ Sudoku 🔢
+4. ✅ Baagchal 🐅
+
+**Total Sessions:** 6  
+**Total Development Time:** ~165 minutes  
+**Games Completed:** 4/8 (50%)
+
+**Next: Phase 3 - Advanced Games (Truth or Dare, Ludo, Chess, Snake & Ladder)**
+
+**Last Updated:** 2026-02-28 21:00 IST

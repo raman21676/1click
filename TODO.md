@@ -110,13 +110,13 @@
 ### 2.4 Baagchal (बाघचाल)
 | # | Task | Status | Priority | Assignee | Notes | Commit |
 |---|------|--------|----------|----------|-------|--------|
-| 2.4.1 | Research rules | ⏳ Pending | High | AI Agent | Nepali traditional | - |
-| 2.4.2 | Create board design | ⏳ Pending | High | AI Agent | 5x5 with diagonals | - |
-| 2.4.3 | Implement 1 Tiger vs 4 Goats | ⏳ Pending | High | AI Agent | Asymmetric play | - |
-| 2.4.4 | Implement capture logic | ⏳ Pending | High | AI Agent | Tiger jumps over | - |
-| 2.4.5 | Implement placement phase | ⏳ Pending | Medium | AI Agent | Goats placement | - |
-| 2.4.6 | Add win conditions | ⏳ Pending | High | AI Agent | Both sides | - |
-| 2.4.7 | Add basic AI | ⏳ Pending | Low | AI Agent | Single player mode | - |
+| 2.4.1 | Research rules | 🟢 Done | High | AI Agent | Nepali traditional | - |
+| 2.4.2 | Create board design | 🟢 Done | High | AI Agent | 5x5 with diagonals | - |
+| 2.4.3 | Implement 1 Tiger vs 4 Goats | 🟢 Done | High | AI Agent | Asymmetric play | - |
+| 2.4.4 | Implement capture logic | 🟢 Done | High | AI Agent | Tiger jumps over | - |
+| 2.4.5 | Implement placement phase | 🟢 Done | Medium | AI Agent | Goats placement | - |
+| 2.4.6 | Add win conditions | 🟢 Done | High | AI Agent | Both sides | - |
+| 2.4.7 | Add basic AI | 🟢 Done | Low | AI Agent | Tiger moves during placement | - |
 
 **Phase 2 Completion Criteria:**
 - [ ] 4 games fully playable
