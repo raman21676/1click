@@ -1626,6 +1626,7 @@ function endGame(winner) {
 // ════════════════════════════════════════════════════
 
 function initSetup() {
+  console.log("[DEBUG] initSetup started");
   renderSetupRows();
 
   // Player count buttons
@@ -1766,6 +1767,7 @@ document.getElementById('menuBtn').addEventListener('click', () => {
 // ════════════════════════════════════════════════════
 // INIT
 // ════════════════════════════════════════════════════
+console.log("[DEBUG] Calling initSetup");
 initSetup();
 
 // DEBUG: Verify board cell positions
