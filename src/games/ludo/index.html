@@ -673,6 +673,10 @@ function showDiceFace(val, colorClass) {
   });
 }
 
+function logDebug(msg) {
+  if (DEBUG) console.log(msg);
+}
+
 function rollDice() {
   if (G.phase !== 'roll') return;
   if (isAI()) return;
