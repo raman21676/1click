@@ -736,25 +736,40 @@ function getCellForPos(player, pos) {
   if (pos === 0) {
     // Home slot
     const slots = document.querySelectorAll(`[data-home-slot="${player}"]`);
-    // Find first empty slot
     for (const slot of slots) {
       if (!slot.querySelector('.tok')) return slot;
     }
     return slots[0] || null;
   }
-  if (pos >= 58) return null; // Finished (show at center)
+  if (pos >= 58) return null;
   if (pos >= 53) {
-    // Home run (1-5 → hr index 0-4)
     const hrIdx = pos - 53;
     return document.querySelector(`[data-hr-player="${player}"][data-hr-idx="${hrIdx}"]`);
   }
   // Main path
-  const local = pos; // 1-52
+  const local = pos;
   const globalIdx = (ENTRY[player] + local - 1) % 52;
   const cell = document.querySelector(`[data-gpos="${globalIdx}"]`);
+  
+  // DEBUG: Log entry placement
   if (pos === 1) {
-    console.log(`[DEBUG] getCellForPos: player=${player}, pos=1, ENTRY=${ENTRY[player]}, globalIdx=${globalIdx}, cell=${cell?cell.id:'null'}`);
+    const [row, col] = PATH[globalIdx];
+    console.log(`[TOKEN DEBUG] ${player} entering at pos=1`);
+    console.log(`  globalIdx=${globalIdx}, PATH[${globalIdx}]=[${row},${col}]`);
+    console.log(`  cell id=${cell?cell.id:'NOT FOUND'}`);
+    console.log(`  Expected: ${player}'s entry at ENTRY=${ENTRY[player]}`);
+    
+    // Flash the cell for visual debugging
+    if (cell) {
+      cell.style.backgroundColor = '#ff0';
+      cell.style.zIndex = '100';
+      setTimeout(() => {
+        cell.style.backgroundColor = '';
+        cell.style.zIndex = '';
+      }, 3000);
+    }
   }
+  
   return cell;
 }
 
