@@ -1354,6 +1354,47 @@ function verifyBoard() {
   console.log('%c=== END VERIFICATION ===', 'color:red;font-size:16px;font-weight:bold');
 }
 
+// DEBUG: Manually check what's at specific coordinates
+window.checkCell = function(r, c) {
+  const cell = document.getElementById(`C${r}-${c}`);
+  if (!cell) {
+    console.log(`Cell C${r}-${c} not found`);
+    return;
+  }
+  console.log(`Cell C${r}-${c}:`, {
+    id: cell.id,
+    gpos: cell.dataset.gpos,
+    className: cell.className,
+    innerHTML: cell.innerHTML.substring(0, 100)
+  });
+};
+
+// DEBUG: Manually test token placement
+window.testTokenPlacement = function(player) {
+  console.log(`%cTesting token placement for ${player}`, 'color:green;font-size:14px');
+  const entryGpos = ENTRY[player];
+  const [r, c] = PATH[entryGpos];
+  console.log(`${player} entry: gpos=${entryGpos}, coords=[${r},${c}]`);
+  
+  // Check what cell has this gpos
+  const byGpos = document.querySelector(`[data-gpos="${entryGpos}"]`);
+  console.log(`Found by gpos=${entryGpos}:`, byGpos ? byGpos.id : 'NOT FOUND');
+  
+  // Check what gpos the expected cell has
+  const expectedCell = document.getElementById(`C${r}-${c}`);
+  console.log(`Expected cell C${r}-${c} has gpos:`, expectedCell ? expectedCell.dataset.gpos : 'NOT FOUND');
+  
+  // Flash the cells
+  if (byGpos) {
+    byGpos.style.outline = '4px solid red';
+    setTimeout(() => byGpos.style.outline = '', 3000);
+  }
+  if (expectedCell && expectedCell !== byGpos) {
+    expectedCell.style.outline = '4px solid green';
+    setTimeout(() => expectedCell.style.outline = '', 3000);
+  }
+};
+
 // Run verification after a short delay
 setTimeout(verifyBoard, 1000);
 </script>
