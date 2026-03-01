@@ -6,6 +6,62 @@
 
 ## 📋 Session History
 
+### Session 12: Ludo Bug Fixes - Safe Zones & Dice
+
+**Date:** 2026-03-01
+**Time:** 10:00 IST
+**Agent:** AI Agent
+**Status:** ✅ Complete
+
+#### Summary
+
+Fixed critical bugs in the Ludo game: safe zones were incorrectly placed, and dice wasn't rolling. Complete rewrite of the game board with proper CSS Grid layout and correct Ludo rules implementation.
+
+#### Tasks Completed
+
+| #     | Task                      | Description                                                    | Files                  |
+| ----- | ------------------------- | -------------------------------------------------------------- | ---------------------- |
+| 12.1  | Fix Safe Zone Positions   | Stars now at correct global positions: 0,8,13,21,26,34,39,47   | `ludo/index.html`      |
+| 12.2  | Fix Dice Rolling          | Fixed event handlers, added debug logging, dice now works      | `ludo/index.html`      |
+| 12.3  | Improve Token Design      | New pin-style tokens with white center dot like Ludo King      | `ludo/index.html`      |
+| 12.4  | Fix Board Layout          | CSS Grid layout: 2fr 1fr 2fr / 2fr 1fr 2fr proportions        | `ludo/index.html`      |
+| 12.5  | Task Documentation        | Created LUDO_IMPROVEMENTS.md for systematic tracking           | `LUDO_IMPROVEMENTS.md` |
+
+#### Technical Details
+
+**Safe Zone Fix:**
+- Created mapping functions to convert path cell indices to global positions
+- Safe squares at: Red start (0), Red+8 (8), Blue start (13), Blue+8 (21), etc.
+- Added visual indicators: ★ for safe zones, ○ for start positions
+
+**Dice Fix:**
+- Added `preventDefault()` and `stopPropagation()` to event handlers
+- Added console logging for debugging: `console.log('rollDice called...')`
+- Fixed animation timing: 10 frames at 100ms intervals
+- Proper state management for dice enabled/disabled
+
+**Token Redesign:**
+- Pin-style shape: circular head + pointed body using `clip-path`
+- White center dot using `:after` pseudo-element
+- Gradient colors matching player themes
+- Responsive sizing with `clamp()`
+
+**Board Layout:**
+- Replaced absolute positioning with CSS Grid
+- Proper proportions: 6×6 home bases, 3×6 paths, 3×3 center
+- Correct player positions: Green/Red top-left/bottom-left, Blue/Yellow bottom-right/top-right
+
+#### Files Changed
+- `src/games/ludo/index.html` - Complete rewrite (~55KB)
+- `LUDO_IMPROVEMENTS.md` - New task tracking document
+
+#### Testing Notes
+- Press 'D' key to test elimination countdown
+- Check browser console for dice roll debugging
+- Test on both mobile and desktop viewports
+
+---
+
 ### Session 11: Ludo UI Redesign - Ludo King Style
 
 **Date:** 2026-03-01

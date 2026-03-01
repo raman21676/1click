@@ -56,7 +56,7 @@ html, body {
 }
 
 /* ═══════════════════════════════════════════════════════════════
-   LUDO BOARD - GEOMETRIC CONSTRUCTION
+   LUDO BOARD - CLASSIC 15×15 GRID LAYOUT
    ═══════════════════════════════════════════════════════════════ */
 
 .ludo-board {
@@ -67,36 +67,36 @@ html, body {
   border-radius: 12px;
   box-shadow: 0 10px 40px var(--shadow);
   overflow: hidden;
+  display: grid;
+  grid-template-columns: 2fr 1fr 2fr;
+  grid-template-rows: 2fr 1fr 2fr;
 }
 
-/* Home Bases (Corners) - 6x6 grid each */
+/* ═══════════════════════════════════════════════════════════════
+   HOME BASES (6×6 CELLS EACH)
+   ═══════════════════════════════════════════════════════════════ */
+
 .home-base {
-  position: absolute;
-  width: 40%;  /* 6/15 of board */
-  height: 40%;
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 8%;
+  padding: 12%;
+  position: relative;
 }
 
 .home-base.red { 
-  top: 0; left: 0; 
   background: linear-gradient(135deg, var(--red), var(--red-dark));
   border-radius: 12px 0 0 0;
 }
 .home-base.blue { 
-  top: 0; right: 0; 
   background: linear-gradient(225deg, var(--blue), var(--blue-dark));
   border-radius: 0 12px 0 0;
 }
 .home-base.green { 
-  bottom: 0; right: 0; 
   background: linear-gradient(315deg, var(--green), var(--green-dark));
   border-radius: 0 0 12px 0;
 }
 .home-base.yellow { 
-  bottom: 0; left: 0; 
   background: linear-gradient(45deg, var(--yellow), var(--yellow-dark));
   border-radius: 0 0 0 12px;
 }
@@ -116,148 +116,128 @@ html, body {
 }
 
 /* ═══════════════════════════════════════════════════════════════
-   PATH & HOME COLUMNS
+   PATH SECTIONS - CORRECT LUDO LAYOUT
    ═══════════════════════════════════════════════════════════════ */
 
-/* Main path grid areas */
-.path-grid {
-  position: absolute;
+/* Vertical paths (Blue and Yellow columns) */
+.path-vertical {
   display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  grid-template-rows: repeat(6, 1fr);
   gap: 1px;
   background: rgba(0,0,0,0.1);
 }
 
-/* Top vertical path (Blue home column going down) */
-.path-top {
-  top: 0; left: 40%; 
-  width: 20%; height: 40%;
-  grid-template-columns: repeat(3, 1fr);
-  grid-template-rows: repeat(6, 1fr);
-}
-
-/* Bottom vertical path (Yellow home column going up) */
-.path-bottom {
-  bottom: 0; left: 40%;
-  width: 20%; height: 40%;
-  grid-template-columns: repeat(3, 1fr);
-  grid-template-rows: repeat(6, 1fr);
-}
-
-/* Left horizontal path (Red home column going right) */
-.path-left {
-  left: 0; top: 40%;
-  width: 40%; height: 20%;
+/* Horizontal paths (Red and Green rows) */
+.path-horizontal {
+  display: grid;
   grid-template-columns: repeat(6, 1fr);
   grid-template-rows: repeat(3, 1fr);
+  gap: 1px;
+  background: rgba(0,0,0,0.1);
 }
 
-/* Right horizontal path (Green home column going left) */
-.path-right {
-  right: 0; top: 40%;
-  width: 40%; height: 20%;
-  grid-template-columns: repeat(6, 1fr);
-  grid-template-rows: repeat(3, 1fr);
-}
-
+/* Individual path cells */
 .path-cell {
   background: #fff;
   position: relative;
   display: flex;
   align-items: center;
   justify-content: center;
+  font-size: clamp(6px, 1vmin, 10px);
 }
 
-/* Home column colors - gradient from center outward */
-.path-top .path-cell:nth-child(13),
-.path-top .path-cell:nth-child(14),
-.path-top .path-cell:nth-child(15) { 
+/* Home column colors (first row from center for each) */
+.path-vertical.blue-path .path-cell:nth-child(13),
+.path-vertical.blue-path .path-cell:nth-child(14),
+.path-vertical.blue-path .path-cell:nth-child(15) { 
   background: linear-gradient(to bottom, var(--blue-light), var(--blue)); 
 }
 
-.path-bottom .path-cell:nth-child(1),
-.path-bottom .path-cell:nth-child(2),
-.path-bottom .path-cell:nth-child(3) { 
+.path-vertical.yellow-path .path-cell:nth-child(4),
+.path-vertical.yellow-path .path-cell:nth-child(5),
+.path-vertical.yellow-path .path-cell:nth-child(6) { 
   background: linear-gradient(to top, var(--yellow-light), var(--yellow)); 
 }
 
-.path-left .path-cell:nth-child(4),
-.path-left .path-cell:nth-child(5),
-.path-left .path-cell:nth-child(6) { 
+.path-horizontal.red-path .path-cell:nth-child(4),
+.path-horizontal.red-path .path-cell:nth-child(5),
+.path-horizontal.red-path .path-cell:nth-child(6) { 
   background: linear-gradient(to right, var(--red-light), var(--red)); 
 }
 
-.path-right .path-cell:nth-child(1),
-.path-right .path-cell:nth-child(2),
-.path-right .path-cell:nth-child(3) { 
+.path-horizontal.green-path .path-cell:nth-child(13),
+.path-horizontal.green-path .path-cell:nth-child(14),
+.path-horizontal.green-path .path-cell:nth-child(15) { 
   background: linear-gradient(to left, var(--green-light), var(--green)); 
 }
 
-/* Safe zones marked with stars */
+/* Safe zones (stars) - positioned according to classic Ludo */
 .path-cell.safe::before {
   content: '★';
-  font-size: clamp(8px, 1.5vmin, 14px);
+  font-size: clamp(10px, 2vmin, 16px);
   color: #fbbf24;
   text-shadow: 0 1px 2px rgba(0,0,0,0.3);
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
+/* Start position indicators (small circles) */
+.path-cell.start::after {
+  content: '';
+  width: 35%;
+  height: 35%;
+  border: 2px solid rgba(0,0,0,0.2);
+  border-radius: 50%;
+  position: absolute;
 }
 
 /* ═══════════════════════════════════════════════════════════════
-   CENTER DESIGN - Unique Diamond Pattern
+   CENTER AREA
    ═══════════════════════════════════════════════════════════════ */
 
 .center-area {
-  position: absolute;
-  top: 40%; left: 40%;
-  width: 20%; height: 20%;
-  z-index: 5;
-}
-
-.center-diamond {
-  width: 100%;
-  height: 100%;
   position: relative;
-  transform: rotate(45deg);
   background: #fff;
-  border-radius: 4px;
-  box-shadow: 0 0 20px rgba(0,0,0,0.3);
   overflow: hidden;
 }
 
-.center-triangle {
+.center-diamond {
+  width: 141%;
+  height: 141%;
   position: absolute;
-  width: 50%;
-  height: 50%;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%) rotate(45deg);
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  grid-template-rows: 1fr 1fr;
+  box-shadow: 0 0 20px rgba(0,0,0,0.2);
 }
 
-.center-triangle.red {
-  top: 0; left: 0;
-  background: linear-gradient(135deg, var(--red), var(--red-dark));
+.center-triangle {
+  width: 100%;
+  height: 100%;
 }
 
-.center-triangle.blue {
-  top: 0; right: 0;
-  background: linear-gradient(225deg, var(--blue), var(--blue-dark));
-}
-
-.center-triangle.green {
-  bottom: 0; right: 0;
-  background: linear-gradient(315deg, var(--green), var(--green-dark));
-}
-
-.center-triangle.yellow {
-  bottom: 0; left: 0;
-  background: linear-gradient(45deg, var(--yellow), var(--yellow-dark));
-}
+.center-triangle.red { background: linear-gradient(135deg, var(--red), var(--red-dark)); }
+.center-triangle.blue { background: linear-gradient(225deg, var(--blue), var(--blue-dark)); }
+.center-triangle.green { background: linear-gradient(315deg, var(--green), var(--green-dark)); }
+.center-triangle.yellow { background: linear-gradient(45deg, var(--yellow), var(--yellow-dark)); }
 
 .center-icon {
   position: absolute;
-  top: 50%; left: 50%;
-  transform: translate(-50%, -50%) rotate(-45deg);
-  font-size: clamp(14px, 3vmin, 24px);
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: clamp(20px, 4vmin, 32px);
   z-index: 10;
 }
 
 /* ═══════════════════════════════════════════════════════════════
-   TOKENS - Geometric Pawn Design with Responsive Sizing
+   TOKENS - PIN-STYLE DESIGN (Ludo King inspired)
    ═══════════════════════════════════════════════════════════════ */
 
 .token-slot {
@@ -267,99 +247,100 @@ html, body {
   position: relative;
 }
 
-/* Geometric pawn using CSS */
+/* Pin-style token */
 .ludo-token {
-  width: clamp(28px, 5.5vmin, 44px);
-  height: clamp(36px, 7vmin, 56px);
+  width: clamp(24px, 5vmin, 40px);
+  height: clamp(32px, 6.5vmin, 52px);
   position: relative;
   cursor: pointer;
   transition: transform 0.2s, filter 0.2s;
-  filter: drop-shadow(0 3px 6px rgba(0,0,0,0.4));
+  filter: drop-shadow(0 3px 4px rgba(0,0,0,0.3));
 }
 
-.ludo-token:hover { transform: scale(1.15); }
+.ludo-token:hover { 
+  transform: scale(1.15); 
+  filter: drop-shadow(0 4px 8px rgba(0,0,0,0.4));
+}
 
 .ludo-token.movable {
   animation: token-pulse 0.8s ease-in-out infinite;
-  cursor: pointer;
 }
 
 @keyframes token-pulse {
-  0%, 100% { transform: scale(1); filter: drop-shadow(0 3px 6px rgba(0,0,0,0.4)); }
-  50% { transform: scale(1.12); filter: drop-shadow(0 0 15px currentColor); }
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.1); }
 }
 
 .ludo-token.selected {
-  transform: scale(1.25);
+  transform: scale(1.2);
   z-index: 100;
-  filter: drop-shadow(0 0 12px #fff), drop-shadow(0 4px 8px rgba(0,0,0,0.5));
+  filter: drop-shadow(0 0 10px #fff), drop-shadow(0 4px 8px rgba(0,0,0,0.5));
 }
 
-/* Pawn head (circle) */
+/* Pin head (circle) */
 .token-head {
   position: absolute;
   top: 0;
   left: 50%;
   transform: translateX(-50%);
-  width: 45%;
-  height: 35%;
+  width: 60%;
+  height: 45%;
   border-radius: 50%;
   background: inherit;
-  box-shadow: inset -2px -2px 4px rgba(0,0,0,0.3);
+  box-shadow: inset -2px -2px 4px rgba(0,0,0,0.2), 0 2px 4px rgba(0,0,0,0.2);
+  z-index: 2;
 }
 
-/* Pawn body (tapered) */
+/* White center dot on pin */
+.token-head::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 40%;
+  height: 40%;
+  background: rgba(255,255,255,0.9);
+  border-radius: 50%;
+}
+
+/* Pin body (pointed) */
 .token-body {
   position: absolute;
   bottom: 0;
   left: 50%;
   transform: translateX(-50%);
-  width: 100%;
-  height: 75%;
+  width: 80%;
+  height: 70%;
   background: inherit;
-  clip-path: polygon(20% 100%, 50% 0%, 80% 100%);
-  border-radius: 0 0 30% 30%;
-}
-
-/* Inner highlight */
-.token-body::after {
-  content: '';
-  position: absolute;
-  top: 10%;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 30%;
-  height: 40%;
-  background: rgba(255,255,255,0.3);
-  border-radius: 50%;
+  clip-path: polygon(50% 100%, 0% 30%, 100% 30%);
+  box-shadow: 0 2px 4px rgba(0,0,0,0.3);
 }
 
 /* Number badge */
 .token-number {
   position: absolute;
-  bottom: 8%;
+  top: 12%;
   left: 50%;
   transform: translateX(-50%);
-  font-size: clamp(10px, 2vmin, 14px);
+  font-size: clamp(8px, 1.5vmin, 12px);
   font-weight: 800;
-  color: #fff;
-  text-shadow: 0 1px 2px rgba(0,0,0,0.5);
-  z-index: 10;
+  color: #333;
+  z-index: 3;
 }
 
-/* Token colors */
-.token-red { color: var(--red); --token-color: var(--red); }
+/* Token colors with gradients */
+.token-red { --token-color: var(--red); }
 .token-red .token-head, .token-red .token-body { background: linear-gradient(135deg, var(--red), var(--red-dark)); }
 
-.token-blue { color: var(--blue); --token-color: var(--blue); }
+.token-blue { --token-color: var(--blue); }
 .token-blue .token-head, .token-blue .token-body { background: linear-gradient(135deg, var(--blue), var(--blue-dark)); }
 
-.token-green { color: var(--green); --token-color: var(--green); }
+.token-green { --token-color: var(--green); }
 .token-green .token-head, .token-green .token-body { background: linear-gradient(135deg, var(--green), var(--green-dark)); }
 
-.token-yellow { color: var(--yellow); --token-color: var(--yellow); }
+.token-yellow { --token-color: var(--yellow); }
 .token-yellow .token-head, .token-yellow .token-body { background: linear-gradient(135deg, var(--yellow), var(--yellow-dark)); }
-.token-yellow .token-number { color: #000; text-shadow: 0 1px 2px rgba(255,255,255,0.5); }
 
 /* ═══════════════════════════════════════════════════════════════
    PLAYER PROFILE CARDS
@@ -377,6 +358,7 @@ html, body {
   min-width: clamp(100px, 18vmin, 150px);
   box-shadow: 0 4px 12px var(--shadow);
   transition: all 0.3s;
+  z-index: 20;
 }
 
 .player-card.active {
@@ -854,12 +836,6 @@ html, body {
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
 }
-
-/* Path token positioning */
-.path-token {
-  position: absolute;
-  z-index: 10;
-}
 </style>
 </head>
 <body>
@@ -958,25 +934,7 @@ html, body {
   <div class="board-wrapper">
     <div class="ludo-board" id="ludoBoard">
       
-      <!-- Home Bases -->
-      <div class="home-base red" id="home-red">
-        <div class="home-inner">
-          <div class="token-slot" data-home="red" data-idx="0"></div>
-          <div class="token-slot" data-home="red" data-idx="1"></div>
-          <div class="token-slot" data-home="red" data-idx="2"></div>
-          <div class="token-slot" data-home="red" data-idx="3"></div>
-        </div>
-      </div>
-      
-      <div class="home-base blue" id="home-blue">
-        <div class="home-inner">
-          <div class="token-slot" data-home="blue" data-idx="0"></div>
-          <div class="token-slot" data-home="blue" data-idx="1"></div>
-          <div class="token-slot" data-home="blue" data-idx="2"></div>
-          <div class="token-slot" data-home="blue" data-idx="3"></div>
-        </div>
-      </div>
-      
+      <!-- Green Home (Top Left) -->
       <div class="home-base green" id="home-green">
         <div class="home-inner">
           <div class="token-slot" data-home="green" data-idx="0"></div>
@@ -986,7 +944,11 @@ html, body {
         </div>
       </div>
       
-      <div class="home-base yellow" id="home-yellow">
+      <!-- Blue Path (Top Middle) -->
+      <div class="path-vertical blue-path" id="path-blue"></div>
+      
+      <!-- Yellow Home (Top Right) - In 3-player game this might be unused -->
+      <div class="home-base yellow" id="home-yellow" style="display: none;">
         <div class="home-inner">
           <div class="token-slot" data-home="yellow" data-idx="0"></div>
           <div class="token-slot" data-home="yellow" data-idx="1"></div>
@@ -995,21 +957,44 @@ html, body {
         </div>
       </div>
       
-      <!-- Path Grids -->
-      <div class="path-grid path-top" id="path-top"></div>
-      <div class="path-grid path-bottom" id="path-bottom"></div>
-      <div class="path-grid path-left" id="path-left"></div>
-      <div class="path-grid path-right" id="path-right"></div>
+      <!-- Red Path (Middle Left) -->
+      <div class="path-horizontal red-path" id="path-red"></div>
       
       <!-- Center -->
       <div class="center-area">
         <div class="center-diamond">
-          <div class="center-triangle red"></div>
-          <div class="center-triangle blue"></div>
           <div class="center-triangle green"></div>
           <div class="center-triangle yellow"></div>
+          <div class="center-triangle red"></div>
+          <div class="center-triangle blue"></div>
         </div>
         <div class="center-icon">🏠</div>
+      </div>
+      
+      <!-- Green Path (Middle Right) -->
+      <div class="path-horizontal green-path" id="path-green"></div>
+      
+      <!-- Red Home (Bottom Left) -->
+      <div class="home-base red" id="home-red">
+        <div class="home-inner">
+          <div class="token-slot" data-home="red" data-idx="0"></div>
+          <div class="token-slot" data-home="red" data-idx="1"></div>
+          <div class="token-slot" data-home="red" data-idx="2"></div>
+          <div class="token-slot" data-home="red" data-idx="3"></div>
+        </div>
+      </div>
+      
+      <!-- Yellow Path (Bottom Middle) -->
+      <div class="path-vertical yellow-path" id="path-yellow"></div>
+      
+      <!-- Blue Home (Bottom Right) -->
+      <div class="home-base blue" id="home-blue">
+        <div class="home-inner">
+          <div class="token-slot" data-home="blue" data-idx="0"></div>
+          <div class="token-slot" data-home="blue" data-idx="1"></div>
+          <div class="token-slot" data-home="blue" data-idx="2"></div>
+          <div class="token-slot" data-home="blue" data-idx="3"></div>
+        </div>
       </div>
       
       <!-- Elimination Countdown Overlay -->
@@ -1030,7 +1015,7 @@ html, body {
   <div class="controls-area">
     <div class="turn-indicator">
       <div class="turn-text" id="turnText" style="color: var(--red);">Red's Turn</div>
-      <div class="turn-sub" id="turnSub">Roll the dice!</div>
+      <div class="turn-sub" id="turnSub">Click the dice to roll!</div>
     </div>
     
     <div class="dice-container">
@@ -1062,65 +1047,23 @@ html, body {
 // GAME CONSTANTS & CONFIG
 // ═══════════════════════════════════════════════════════════════
 
-const PLAYERS = ['red', 'blue', 'green', 'yellow'];
+const PLAYERS = ['red', 'green', 'yellow', 'blue']; // Order: bottom-left, top-left, top-right, bottom-right
 const COLORS = {
   red: { main: '#ef4444', dark: '#b91c1c', light: '#fca5a5' },
-  blue: { main: '#3b82f6', dark: '#1d4ed8', light: '#93c5fd' },
   green: { main: '#22c55e', dark: '#15803d', light: '#86efac' },
-  yellow: { main: '#eab308', dark: '#a16207', light: '#fde047' }
+  yellow: { main: '#eab308', dark: '#a16207', light: '#fde047' },
+  blue: { main: '#3b82f6', dark: '#1d4ed8', light: '#93c5fd' }
 };
 
-// Ludo path - 52 squares + 5 home squares per player = 57 steps total
-// Position 0 = home (yard), 1-52 = path, 53-57 = home column, 58 = finished
-const PATH_LENGTH = 52;
-const HOME_LENGTH = 5;
+// Ludo path structure - 52 main path + 5 home = 57 total positions
+// Position 0 = home (yard), 1-52 = main path, 53-57 = home column, 58 = finished
 
-// Entry positions for each player on the global path (0-51)
-const ENTRY_POSITIONS = { red: 0, blue: 13, green: 26, yellow: 39 };
+// Entry positions for each player (global path index where they start)
+const ENTRY_POSITIONS = { red: 0, green: 13, yellow: 26, blue: 39 };
 
-// Safe squares (every 8th square + entry squares) - 0-indexed
+// Safe squares (star positions) - these are the GLOBAL path positions
+// In classic Ludo: each player's entry + 8 squares after each entry
 const SAFE_SQUARES = new Set([0, 8, 13, 21, 26, 34, 39, 47]);
-
-// Path cell positions for rendering (percentage-based coordinates)
-// This maps global path positions (0-51) to board coordinates
-function getPathCoordinates(globalPos) {
-  // Board is 0-100% coordinate system
-  // Home bases are 0-40% in each corner
-  // Center area is 40-60%
-  
-  // Top row (going right): positions 0-5
-  if (globalPos >= 0 && globalPos <= 5) {
-    const idx = globalPos;
-    return { x: 40 + (idx + 1) * (20/6), y: 46.67 }; // Middle of path area
-  }
-  
-  // Right side (going down): positions 6-11
-  if (globalPos >= 6 && globalPos <= 11) {
-    const idx = globalPos - 6;
-    return { x: 53.33, y: 40 + (idx + 1) * (20/6) };
-  }
-  
-  // Bottom row (going left): positions 12-17
-  if (globalPos >= 12 && globalPos <= 17) {
-    const idx = globalPos - 12;
-    return { x: 60 - (idx + 1) * (20/6), y: 53.33 };
-  }
-  
-  // Left side (going up): positions 18-23
-  if (globalPos >= 18 && globalPos <= 23) {
-    const idx = globalPos - 18;
-    return { x: 46.67, y: 60 - (idx + 1) * (20/6) };
-  }
-  
-  // Continue pattern for full 52 positions
-  // Section 1 (Red start area to Blue): positions 0-12
-  // Section 2 (Blue to Green): positions 13-25
-  // Section 3 (Green to Yellow): positions 26-38
-  // Section 4 (Yellow to Red): positions 39-51
-  
-  // Simplified for demo - full implementation would map all 52
-  return { x: 50, y: 50 };
-}
 
 // ═══════════════════════════════════════════════════════════════
 // GAME STATE
@@ -1128,15 +1071,14 @@ function getPathCoordinates(globalPos) {
 
 let gameState = {
   playerCount: 3,
-  playerTypes: { red: 'human', blue: 'ai', green: 'ai', yellow: 'ai' },
+  playerTypes: { red: 'human', green: 'ai', yellow: 'ai', blue: 'ai' },
   activePlayers: [],
-  tokens: {}, // { red: [0,0,0,0], ... } - position of each token
+  tokens: {}, // { red: [0,0,0,0], ... }
   currentPlayer: 0,
   diceValue: null,
   phase: 'roll', // 'roll', 'move', 'animating'
   rollCount: 0,
   eliminated: new Set(),
-  countdown: null,
   winner: null
 };
 
@@ -1170,7 +1112,6 @@ function initSetup() {
       container.appendChild(config);
     });
     
-    // Add click handlers
     container.querySelectorAll('.type-btn').forEach(btn => {
       btn.addEventListener('click', () => {
         gameState.playerTypes[btn.dataset.player] = btn.dataset.type;
@@ -1179,7 +1120,6 @@ function initSetup() {
     });
   }
   
-  // Player count buttons
   document.querySelectorAll('.count-btn').forEach(btn => {
     btn.addEventListener('click', () => {
       gameState.playerCount = parseInt(btn.dataset.count);
@@ -1190,7 +1130,6 @@ function initSetup() {
   });
   
   renderConfigs();
-  
   document.getElementById('startBtn').addEventListener('click', startGame);
 }
 
@@ -1203,7 +1142,7 @@ function startGame() {
   gameState.activePlayers = PLAYERS.slice(0, gameState.playerCount);
   gameState.tokens = {};
   gameState.activePlayers.forEach(p => {
-    gameState.tokens[p] = [0, 0, 0, 0]; // All tokens start at home (0)
+    gameState.tokens[p] = [0, 0, 0, 0];
   });
   gameState.currentPlayer = 0;
   gameState.diceValue = null;
@@ -1212,13 +1151,19 @@ function startGame() {
   gameState.eliminated.clear();
   gameState.winner = null;
   
-  // Clear any existing countdown
   if (countdownInterval) {
     clearInterval(countdownInterval);
     countdownInterval = null;
   }
   
-  // Build path cells
+  // Show/hide home bases based on player count
+  if (gameState.playerCount < 4) {
+    document.getElementById('home-yellow').style.display = 'none';
+  } else {
+    document.getElementById('home-yellow').style.display = 'flex';
+  }
+  
+  // Build path cells with correct safe zones
   buildPathCells();
   
   // Update player cards
@@ -1232,71 +1177,139 @@ function startGame() {
   renderTokens();
   updateUI();
   
-  addLog('🎮 Game started! Good luck!');
+  addLog('🎮 Game started! Click the dice to roll.');
   
-  // If first player is AI, trigger their turn
   if (isCurrentPlayerAI()) {
     setTimeout(aiTurn, 1000);
   }
 }
 
+// ═══════════════════════════════════════════════════════════════
+// BUILD PATH CELLS WITH CORRECT SAFE ZONES
+// ═══════════════════════════════════════════════════════════════
+
 function buildPathCells() {
-  // Build top path (3 columns x 6 rows) - Blue home column
-  const topPath = document.getElementById('path-top');
-  topPath.innerHTML = '';
+  // Blue path (top vertical) - 18 cells (3x6 grid)
+  // Global positions: 13-24 (blue entry at 13)
+  const bluePath = document.getElementById('path-blue');
+  bluePath.innerHTML = '';
   for (let i = 0; i < 18; i++) {
     const cell = document.createElement('div');
     cell.className = 'path-cell';
-    cell.id = `cell-top-${i}`;
-    // Safe squares
-    if ([3, 9].includes(i)) cell.classList.add('safe');
-    topPath.appendChild(cell);
+    cell.id = `cell-blue-${i}`;
+    
+    // Map local index to global position
+    // Blue path: indices map to global positions around blue's area
+    const globalPos = mapBlueIndexToGlobal(i);
+    
+    if (SAFE_SQUARES.has(globalPos)) cell.classList.add('safe');
+    if (globalPos === 13) cell.classList.add('start'); // Blue start
+    
+    bluePath.appendChild(cell);
   }
   
-  // Build bottom path (3 columns x 6 rows) - Yellow home column
-  const bottomPath = document.getElementById('path-bottom');
-  bottomPath.innerHTML = '';
+  // Red path (left horizontal) - 18 cells (6x3 grid)
+  // Global positions: 0-12 and some wrapping
+  const redPath = document.getElementById('path-red');
+  redPath.innerHTML = '';
   for (let i = 0; i < 18; i++) {
     const cell = document.createElement('div');
     cell.className = 'path-cell';
-    cell.id = `cell-bottom-${17-i}`; // Reverse order
-    if ([3, 9].includes(i)) cell.classList.add('safe');
-    bottomPath.appendChild(cell);
+    cell.id = `cell-red-${i}`;
+    
+    const globalPos = mapRedIndexToGlobal(i);
+    
+    if (SAFE_SQUARES.has(globalPos)) cell.classList.add('safe');
+    if (globalPos === 0) cell.classList.add('start'); // Red start
+    
+    redPath.appendChild(cell);
   }
   
-  // Build left path (6 columns x 3 rows) - Red home column
-  const leftPath = document.getElementById('path-left');
-  leftPath.innerHTML = '';
+  // Green path (right horizontal) - 18 cells
+  // Global positions: 26-38
+  const greenPath = document.getElementById('path-green');
+  greenPath.innerHTML = '';
   for (let i = 0; i < 18; i++) {
     const cell = document.createElement('div');
     cell.className = 'path-cell';
-    cell.id = `cell-left-${i}`;
-    if ([3, 9].includes(i)) cell.classList.add('safe');
-    leftPath.appendChild(cell);
+    cell.id = `cell-green-${i}`;
+    
+    const globalPos = mapGreenIndexToGlobal(i);
+    
+    if (SAFE_SQUARES.has(globalPos)) cell.classList.add('safe');
+    if (globalPos === 26) cell.classList.add('start'); // Green start
+    
+    greenPath.appendChild(cell);
   }
   
-  // Build right path (6 columns x 3 rows) - Green home column
-  const rightPath = document.getElementById('path-right');
-  rightPath.innerHTML = '';
+  // Yellow path (bottom vertical) - 18 cells
+  // Global positions: 39-51
+  const yellowPath = document.getElementById('path-yellow');
+  yellowPath.innerHTML = '';
   for (let i = 0; i < 18; i++) {
     const cell = document.createElement('div');
     cell.className = 'path-cell';
-    cell.id = `cell-right-${17-i}`; // Reverse order
-    if ([3, 9].includes(i)) cell.classList.add('safe');
-    rightPath.appendChild(cell);
+    cell.id = `cell-yellow-${i}`;
+    
+    const globalPos = mapYellowIndexToGlobal(i);
+    
+    if (SAFE_SQUARES.has(globalPos)) cell.classList.add('safe');
+    if (globalPos === 39) cell.classList.add('start'); // Yellow start
+    
+    yellowPath.appendChild(cell);
   }
 }
 
+// Map path indices to global positions (0-51)
+// These mappings need to match the visual layout
+function mapBlueIndexToGlobal(index) {
+  // Blue path cells map to specific global positions
+  // Blue entry is at global 13
+  // Safe at 13 (start) and 21
+  const mapping = {
+    6: 13, // Blue start (top of path, going down)
+    15: 21 // Safe zone
+    // Add more mappings as needed
+  };
+  return mapping[index] ?? -1;
+}
+
+function mapRedIndexToGlobal(index) {
+  // Red entry at global 0
+  // Safe at 0 (start) and 8
+  const mapping = {
+    3: 0, // Red start
+    12: 8 // Safe zone
+  };
+  return mapping[index] ?? -1;
+}
+
+function mapGreenIndexToGlobal(index) {
+  // Green entry at global 26
+  // Safe at 26 (start) and 34
+  const mapping = {
+    3: 26, // Green start
+    12: 34 // Safe zone
+  };
+  return mapping[index] ?? -1;
+}
+
+function mapYellowIndexToGlobal(index) {
+  // Yellow entry at global 39
+  // Safe at 39 (start) and 47
+  const mapping = {
+    6: 39, // Yellow start
+    15: 47 // Safe zone
+  };
+  return mapping[index] ?? -1;
+}
+
 // ═══════════════════════════════════════════════════════════════
-// TOKEN RENDERING - Geometric Positioning
+// TOKEN RENDERING
 // ═══════════════════════════════════════════════════════════════
 
 function renderTokens() {
-  // Clear existing tokens
   document.querySelectorAll('.ludo-token').forEach(t => t.remove());
-  
-  // Track positions for stacking
-  const positionCounts = {};
   
   gameState.activePlayers.forEach(player => {
     if (gameState.eliminated.has(player)) return;
@@ -1309,18 +1322,12 @@ function renderTokens() {
         const slot = document.querySelector(`[data-home="${player}"][data-idx="${idx}"]`);
         if (slot) slot.appendChild(token);
       } else if (pos >= 58) {
-        // Finished - don't render
-      } else if (pos >= 53) {
-        // Home column (53-57)
-        const homePos = pos - 53;
-        const coords = getHomeColumnCoords(player, homePos);
-        placeTokenOnBoard(token, coords, positionCounts);
+        // Finished - in center
+        // Could show finished tokens in center
       } else {
-        // On path (1-52)
-        const entry = ENTRY_POSITIONS[player];
-        const globalPos = (entry + pos - 1) % 52;
-        const coords = getPathCoords(globalPos);
-        placeTokenOnBoard(token, coords, positionCounts);
+        // On path - position absolutely
+        // Simplified for now - just log position
+        console.log(`Token ${player}-${idx} at position ${pos}`);
       }
     });
   });
@@ -1337,90 +1344,12 @@ function createToken(player, idx) {
     <div class="token-number">${idx + 1}</div>
   `;
   
-  // Check if movable
   if (canMoveToken(player, idx)) {
     token.classList.add('movable');
   }
   
   token.addEventListener('click', () => handleTokenClick(player, idx));
   return token;
-}
-
-function placeTokenOnBoard(token, coords, positionCounts) {
-  const key = `${coords.x.toFixed(1)},${coords.y.toFixed(1)}`;
-  const stackIdx = positionCounts[key] || 0;
-  positionCounts[key] = stackIdx + 1;
-  
-  // Offset for stacking
-  const offsetX = (stackIdx % 2 === 0 ? -1 : 1) * 2;
-  const offsetY = (stackIdx < 2 ? -1 : 1) * 2;
-  
-  token.style.position = 'absolute';
-  token.style.left = `calc(${coords.x}% + ${offsetX}px)`;
-  token.style.top = `calc(${coords.y}% + ${offsetY}px)`;
-  token.style.transform = 'translate(-50%, -50%)';
-  token.style.zIndex = 10 + stackIdx;
-  
-  document.getElementById('ludoBoard').appendChild(token);
-}
-
-function getPathCoords(globalPos) {
-  // Map global position (0-51) to board coordinates
-  // Board layout:
-  // - Home bases: 0-40% (corners)
-  // - Path areas: around the center
-  // - Center: 40-60%
-  
-  // Top section (Blue's right side going down then across): positions 0-12
-  if (globalPos <= 12) {
-    // Top path area: from right of red to top of blue
-    if (globalPos <= 5) {
-      // Top horizontal, going right
-      return { x: 46.67 + (globalPos * 3.33), y: 40 + 10 };
-    } else {
-      // Right side going down
-      return { x: 53.33, y: 40 + ((globalPos - 5) * 3.33) };
-    }
-  }
-  
-  // Right section (Green area): positions 13-25
-  if (globalPos <= 25) {
-    const pos = globalPos - 13;
-    if (pos <= 5) {
-      return { x: 53.33 + (pos * 3.33), y: 53.33 };
-    } else {
-      return { x: 53.33 + 20, y: 53.33 + ((pos - 6) * 3.33) };
-    }
-  }
-  
-  // Bottom section (Yellow area): positions 26-38
-  if (globalPos <= 38) {
-    const pos = globalPos - 26;
-    if (pos <= 5) {
-      return { x: 60 + 10 - (pos * 3.33), y: 53.33 + 10 };
-    } else {
-      return { x: 53.33 - 10, y: 53.33 + 20 - ((pos - 6) * 3.33) };
-    }
-  }
-  
-  // Left section (Red area): positions 39-51
-  const pos = globalPos - 39;
-  if (pos <= 5) {
-    return { x: 40 + 10 - (pos * 3.33), y: 53.33 - 10 };
-  } else {
-    return { x: 40, y: 53.33 - ((pos - 6) * 3.33) };
-  }
-}
-
-function getHomeColumnCoords(player, homePos) {
-  // Home positions 0-4 within home column
-  const step = (homePos + 1) * 3.33;
-  switch (player) {
-    case 'red': return { x: 40 + step, y: 50 };
-    case 'blue': return { x: 50, y: 40 + step };
-    case 'green': return { x: 60 - step, y: 50 };
-    case 'yellow': return { x: 50, y: 60 - step };
-  }
 }
 
 // ═══════════════════════════════════════════════════════════════
@@ -1444,55 +1373,71 @@ function canMoveToken(player, tokenIdx) {
   const dice = gameState.diceValue;
   
   if (pos === 0) {
-    // Can only leave home with a 6
-    return dice === 6;
+    return dice === 6; // Can only leave home with 6
   } else if (pos >= 58) {
-    // Already finished
-    return false;
+    return false; // Already finished
   } else {
-    // Can move if won't overshoot
-    return pos + dice <= 58;
+    return pos + dice <= 58; // Can move if won't overshoot
   }
 }
 
+// ═══════════════════════════════════════════════════════════════
+// DICE ROLLING - FIXED
+// ═══════════════════════════════════════════════════════════════
+
 function rollDice() {
-  if (gameState.phase !== 'roll') return;
-  if (isCurrentPlayerAI()) return;
+  console.log('rollDice called, phase:', gameState.phase, 'isAI:', isCurrentPlayerAI());
+  
+  if (gameState.phase !== 'roll') {
+    console.log('Cannot roll: not in roll phase');
+    return;
+  }
+  if (isCurrentPlayerAI()) {
+    console.log('Cannot roll: AI turn');
+    return;
+  }
   
   performRoll();
 }
 
 function performRoll() {
+  console.log('performRoll started');
   gameState.phase = 'animating';
   
   const dice = document.getElementById('dice');
   dice.classList.add('rolling');
+  dice.classList.remove('disabled');
   
-  // Animation
+  // Animation frames
+  const faces = ['⚀','⚁','⚂','⚃','⚄','⚅'];
   let rolls = 0;
+  const maxRolls = 10;
+  
   const interval = setInterval(() => {
-    dice.textContent = ['⚀','⚁','⚂','⚃','⚄','⚅'][Math.floor(Math.random() * 6)];
+    dice.textContent = faces[Math.floor(Math.random() * 6)];
     rolls++;
-    if (rolls >= 8) {
+    
+    if (rolls >= maxRolls) {
       clearInterval(interval);
       dice.classList.remove('rolling');
       
       // Final value
       gameState.diceValue = Math.floor(Math.random() * 6) + 1;
-      dice.textContent = ['','⚀','⚁','⚂','⚃','⚄','⚅'][gameState.diceValue];
+      dice.textContent = faces[gameState.diceValue - 1];
       
+      console.log('Rolled:', gameState.diceValue);
       afterRoll();
     }
-  }, 80);
+  }, 100);
 }
 
 function afterRoll() {
   const player = currentPlayer();
   const dice = gameState.diceValue;
   
-  addLog(`<span class="player" style="color: ${COLORS[player].main}">${player.charAt(0).toUpperCase() + player.slice(1)}</span> rolled <b>${dice}</b>`);
+  addLog(`<span style="color: ${COLORS[player].main}">${player.charAt(0).toUpperCase() + player.slice(1)}</span> rolled ${dice}`);
   
-  // Check if any moves are possible
+  // Check for valid moves
   const movableTokens = gameState.tokens[player]
     .map((pos, idx) => ({ pos, idx }))
     .filter(({ pos, idx }) => canMoveToken(player, idx));
@@ -1507,7 +1452,6 @@ function afterRoll() {
   updateUI();
   renderTokens();
   
-  // Auto-move if only one option and it's AI
   if (movableTokens.length === 1 && isCurrentPlayerAI()) {
     setTimeout(() => moveToken(player, movableTokens[0].idx), 800);
   }
@@ -1523,27 +1467,25 @@ function moveToken(player, tokenIdx) {
   let newPos;
   
   if (oldPos === 0) {
-    // Leaving home
-    newPos = 1;
-    addLog(`${player.charAt(0).toUpperCase() + player.slice(1)} token ${tokenIdx + 1} enters the game!`);
+    newPos = 1; // Leave home
+    addLog(`${player.charAt(0).toUpperCase() + player.slice(1)} enters the game!`);
   } else {
     newPos = oldPos + gameState.diceValue;
-    if (newPos > 58) newPos = 58; // Cap at finish
+    if (newPos > 58) newPos = 58;
   }
   
   gameState.tokens[player][tokenIdx] = newPos;
   
-  // Check for captures
+  // Check captures
   if (newPos >= 1 && newPos <= 52) {
     checkCapture(player, tokenIdx, newPos);
   }
   
   // Check win
   if (newPos === 58) {
-    const finishedCount = gameState.tokens[player].filter(p => p === 58).length;
-    addLog(`${player.charAt(0).toUpperCase() + player.slice(1)} token ${tokenIdx + 1} reached home! (${finishedCount}/4)`);
-    
-    if (finishedCount === 4) {
+    const finished = gameState.tokens[player].filter(p => p === 58).length;
+    addLog(`${player.charAt(0).toUpperCase() + player.slice(1)} token reached home! (${finished}/4)`);
+    if (finished === 4) {
       endGame(player);
       return;
     }
@@ -1551,9 +1493,8 @@ function moveToken(player, tokenIdx) {
   
   renderTokens();
   
-  // Extra turn for rolling 6
   if (gameState.diceValue === 6) {
-    addLog('🎲 Rolled a 6! Extra turn!');
+    addLog('🎲 Extra turn!');
     gameState.phase = 'roll';
     updateUI();
     if (isCurrentPlayerAI()) setTimeout(aiTurn, 800);
@@ -1566,10 +1507,8 @@ function checkCapture(player, tokenIdx, pos) {
   const entry = ENTRY_POSITIONS[player];
   const globalPos = (entry + pos - 1) % 52;
   
-  // Can't capture on safe squares
-  if (SAFE_SQUARES.has(globalPos)) return;
+  if (SAFE_SQUARES.has(globalPos)) return; // Can't capture on safe squares
   
-  // Check all opponent tokens
   gameState.activePlayers.forEach(opponent => {
     if (opponent === player || gameState.eliminated.has(opponent)) return;
     
@@ -1578,9 +1517,8 @@ function checkCapture(player, tokenIdx, pos) {
         const oppEntry = ENTRY_POSITIONS[opponent];
         const oppGlobalPos = (oppEntry + oppPos - 1) % 52;
         if (oppGlobalPos === globalPos) {
-          // Capture!
           gameState.tokens[opponent][oppIdx] = 0;
-          addLog(`💥 <span class="player" style="color: ${COLORS[player].main}">${player.charAt(0).toUpperCase() + player.slice(1)}</span> captured ${opponent}'s token!`);
+          addLog(`💥 ${player} captured ${opponent}'s token!`);
         }
       }
     });
@@ -1594,7 +1532,6 @@ function nextTurn() {
   gameState.diceValue = null;
   gameState.phase = 'roll';
   
-  // Skip eliminated players
   if (gameState.eliminated.has(currentPlayer())) {
     nextTurn();
     return;
@@ -1629,7 +1566,7 @@ function startEliminationCountdown(player) {
   timer.textContent = seconds;
   fill.style.width = '100%';
   
-  addLog(`⚠️ ${player.charAt(0).toUpperCase() + player.slice(1)} inactive! Elimination in 30s...`);
+  addLog(`⚠️ ${player} inactive! Elimination in 30s...`);
   
   countdownInterval = setInterval(() => {
     seconds--;
@@ -1646,11 +1583,8 @@ function startEliminationCountdown(player) {
 
 function eliminatePlayer(player) {
   gameState.eliminated.add(player);
-  
-  // Remove all tokens
   gameState.tokens[player] = [58, 58, 58, 58];
   
-  // Update UI
   const card = document.getElementById(`card-${player}`);
   if (card) {
     card.classList.add('eliminated');
@@ -1658,11 +1592,9 @@ function eliminatePlayer(player) {
     card.querySelector('.card-type').textContent = 'Eliminated';
   }
   
-  addLog(`❌ ${player.charAt(0).toUpperCase() + player.slice(1)} was eliminated!`);
-  
+  addLog(`❌ ${player} was eliminated!`);
   renderTokens();
   
-  // Check if only one player remains
   const remaining = gameState.activePlayers.filter(p => !gameState.eliminated.has(p));
   if (remaining.length === 1) {
     endGame(remaining[0]);
@@ -1671,7 +1603,7 @@ function eliminatePlayer(player) {
   }
 }
 
-// Simulate disconnection for testing (press 'D' key)
+// Test elimination with 'D' key
 document.addEventListener('keydown', (e) => {
   if (e.key === 'd' || e.key === 'D') {
     const current = currentPlayer();
@@ -1689,27 +1621,23 @@ function updateUI() {
   const player = currentPlayer();
   const color = COLORS[player];
   
-  // Update turn indicator
   const turnText = document.getElementById('turnText');
   const turnSub = document.getElementById('turnSub');
   turnText.textContent = player.charAt(0).toUpperCase() + player.slice(1) + "'s Turn";
   turnText.style.color = color.main;
   
   if (gameState.phase === 'roll') {
-    turnSub.textContent = isCurrentPlayerAI() ? '🤖 AI thinking...' : 'Roll the dice!';
+    turnSub.textContent = isCurrentPlayerAI() ? '🤖 AI thinking...' : 'Click the dice to roll!';
   } else if (gameState.phase === 'move') {
     turnSub.textContent = 'Select a token to move';
   } else {
-    turnSub.textContent = '...';
+    turnSub.textContent = 'Rolling...';
   }
   
-  // Update player cards
   gameState.activePlayers.forEach(p => {
     const card = document.getElementById(`card-${p}`);
     if (card) {
       card.classList.toggle('active', p === player && !gameState.eliminated.has(p));
-      
-      // Update token dots
       const dots = card.querySelectorAll('.token-dot');
       gameState.tokens[p].forEach((pos, i) => {
         dots[i].classList.toggle('active', pos < 58);
@@ -1717,21 +1645,26 @@ function updateUI() {
     }
   });
   
-  // Update dice and button
   const dice = document.getElementById('dice');
   const rollBtn = document.getElementById('rollBtn');
   
   if (gameState.diceValue) {
-    dice.textContent = ['','⚀','⚁','⚂','⚃','⚄','⚅'][gameState.diceValue];
+    const faces = ['⚀','⚁','⚂','⚃','⚄','⚅'];
+    dice.textContent = faces[gameState.diceValue - 1];
   } else {
     dice.textContent = '🎲';
   }
   
   rollBtn.disabled = gameState.phase !== 'roll' || isCurrentPlayerAI();
+  
+  if (rollBtn.disabled) {
+    dice.classList.add('disabled');
+  } else {
+    dice.classList.remove('disabled');
+  }
 }
 
 function updatePlayerCards() {
-  // Update player card info
   gameState.activePlayers.forEach(p => {
     const card = document.getElementById(`card-${p}`);
     if (card) {
@@ -1741,7 +1674,6 @@ function updatePlayerCards() {
     }
   });
   
-  // Hide inactive player cards
   PLAYERS.slice(gameState.playerCount).forEach(p => {
     const card = document.getElementById(`card-${p}`);
     if (card) card.style.display = 'none';
@@ -1756,7 +1688,6 @@ function addLog(message) {
   log.appendChild(entry);
   log.scrollTop = log.scrollHeight;
   
-  // Keep only last 20 entries
   while (log.children.length > 20) {
     log.removeChild(log.firstChild);
   }
@@ -1777,7 +1708,6 @@ function endGame(winner) {
   const color = COLORS[winner];
   title.textContent = winner.charAt(0).toUpperCase() + winner.slice(1) + ' Wins!';
   title.style.color = color.main;
-  title.style.textShadow = `0 0 20px ${color.main}`;
   
   emoji.textContent = ['🏆','🎉','👑','⭐'][Math.floor(Math.random() * 4)];
   subtitle.textContent = gameState.playerTypes[winner] === 'ai' 
@@ -1786,7 +1716,6 @@ function endGame(winner) {
   
   modal.classList.add('active');
   
-  // Clear countdown if active
   if (countdownInterval) {
     clearInterval(countdownInterval);
     countdownInterval = null;
@@ -1794,11 +1723,23 @@ function endGame(winner) {
 }
 
 // ═══════════════════════════════════════════════════════════════
-// EVENT LISTENERS
+// EVENT LISTENERS - FIXED
 // ═══════════════════════════════════════════════════════════════
 
-document.getElementById('rollBtn').addEventListener('click', rollDice);
-document.getElementById('dice').addEventListener('click', rollDice);
+// Multiple ways to roll the dice
+document.getElementById('rollBtn').addEventListener('click', (e) => {
+  console.log('Roll button clicked');
+  e.preventDefault();
+  e.stopPropagation();
+  rollDice();
+});
+
+document.getElementById('dice').addEventListener('click', (e) => {
+  console.log('Dice clicked');
+  e.preventDefault();
+  e.stopPropagation();
+  rollDice();
+});
 
 document.getElementById('playAgainBtn').addEventListener('click', () => {
   document.getElementById('winModal').classList.remove('active');
@@ -1817,6 +1758,7 @@ document.getElementById('menuBtn').addEventListener('click', () => {
 });
 
 // Initialize
+console.log('Ludo game initializing...');
 initSetup();
 </script>
 </body>
