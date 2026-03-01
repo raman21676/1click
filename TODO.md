@@ -45,7 +45,7 @@
 ### 1.3 Domain Setup
 | # | Task | Status | Priority | Assignee | Notes | Commit |
 |---|------|--------|----------|----------|-------|--------|
-| 1.3.1 | Create CNAME file | 🟢 Done | Medium | AI Agent | nabrajsubedi.com.np | - |
+| 1.3.1 | Create CNAME file | 🟢 Done | Medium | AI Agent | 1click.live | - |
 | 1.3.2 | Configure DNS (A & CNAME records) | 🟢 Done | Medium | User | Cloudflare configured | - |
 | 1.3.3 | Update nameservers at registrar | 🟣 On Hold | Medium | User | Waiting for propagation | - |
 | 1.3.4 | Enable HTTPS | ⏳ Pending | Medium | GitHub | After nameserver update | - |
@@ -143,13 +143,15 @@
 ### 3.2 Ludo
 | # | Task | Status | Priority | Assignee | Notes | Commit |
 |---|------|--------|----------|----------|-------|--------|
-| 3.2.1 | Create board UI | ⏳ Pending | Medium | AI Agent | Standard Ludo | - |
-| 3.2.2 | Implement 4-player logic | ⏳ Pending | Medium | AI Agent | Turn management | - |
-| 3.2.3 | Implement dice rolling | ⏳ Pending | Medium | AI Agent | Animation | - |
-| 3.2.4 | Implement piece movement | ⏳ Pending | Medium | AI Agent | Path tracking | - |
-| 3.2.5 | Implement capture logic | ⏳ Pending | Medium | AI Agent | Send home | - |
-| 3.2.6 | Implement safe zones | ⏳ Pending | Medium | AI Agent | Star squares | - |
-| 3.2.7 | Add 2-3 player AI | ⏳ Pending | Low | AI Agent | Computer opponents | - |
+| 3.2.1 | Create board UI | 🟢 Done | Medium | AI Agent | Classic Ludo King style | Session 11 |
+| 3.2.2 | Implement 4-player logic | 🟢 Done | Medium | AI Agent | Turn management | Session 11 |
+| 3.2.3 | Implement dice rolling | 🟢 Done | Medium | AI Agent | Animation with dice faces | Session 11 |
+| 3.2.4 | Implement piece movement | 🟢 Done | Medium | AI Agent | Path tracking, home column | Session 11 |
+| 3.2.5 | Implement capture logic | 🟢 Done | Medium | AI Agent | Send home on capture | Session 11 |
+| 3.2.6 | Implement safe zones | 🟢 Done | Medium | AI Agent | Star squares, no capture | Session 11 |
+| 3.2.7 | Add 2-3 player AI | 🟢 Done | Low | AI Agent | Computer opponents | Session 11 |
+| 3.2.8 | Player elimination countdown | 🟢 Done | Low | AI Agent | 30s disconnect timer | Session 11 |
+| 3.2.9 | Pawn-style geometric tokens | 🟢 Done | Low | AI Agent | CSS-based responsive pawns | Session 11 |
 
 ### 3.3 Chess
 | # | Task | Status | Priority | Assignee | Notes | Commit |

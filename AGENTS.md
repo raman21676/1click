@@ -10,10 +10,10 @@
 |-------|-------|
 | **Project Name** | 1click |
 | **Type** | Browser-based Mini Games Platform |
-| **Domain** | nabrajsubedi.com.np |
+| **Domain** | 1click.live |
 | **GitHub Repo** | git@github.com:Raman21676/1click.git |
 | **Live URL** | https://raman21676.github.io/1click/ |
-| **Custom Domain** | https://nabrajsubedi.com.np |
+| **Custom Domain** | https://1click.live |
 | **Hosting** | GitHub Pages (Free) |
 | **Tech Stack** | HTML5, CSS3, Vanilla JavaScript |
 
@@ -223,7 +223,7 @@ How it was fixed
 |----------|-----|
 | GitHub Repo | https://github.com/Raman21676/1click |
 | Live Website | https://raman21676.github.io/1click/ |
-| Custom Domain | https://nabrajsubedi.com.np |
+| Custom Domain | https://1click.live |
 | GitHub Actions | https://github.com/Raman21676/1click/actions |
 | GitHub Pages Settings | https://github.com/Raman21676/1click/settings/pages |
 
@@ -262,7 +262,7 @@ If you need help that you cannot do:
 4. Ask for specific help
 
 Example:
-> "I need help setting up the DNS records for nabrajsubedi.com.np. I've created the CNAME file, but I need you to add A records in your domain provider's dashboard."
+> "I need help setting up the DNS records for 1click.live. I've created the CNAME file, but I need you to add A records in your domain provider's dashboard."
 
 ---
 

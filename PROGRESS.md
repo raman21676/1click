@@ -6,6 +6,71 @@
 
 ## 📋 Session History
 
+### Session 11: Ludo UI Redesign - Ludo King Style
+
+**Date:** 2026-03-01
+**Time:** 09:20 IST
+**Agent:** AI Agent
+**Status:** ✅ Complete
+
+#### Summary
+
+Complete redesign of Ludo game UI inspired by Ludo King (popular in Nepal). Implemented classic Ludo board design with proper home bases, path layout, player profile cards, pawn-style tokens, 30-second elimination countdown, and responsive geometric sizing.
+
+#### Tasks Completed
+
+| #     | Task                      | Description                                                    | Files              |
+| ----- | ------------------------- | -------------------------------------------------------------- | ------------------ |
+| 11.1  | Classic Board Design      | Redesigned with proper 4-corner home bases, path grid, center  | `ludo/index.html`  |
+| 11.2  | Pawn-Style Tokens         | Geometric CSS pawn design with head & body, responsive sizing  | `ludo/index.html`  |
+| 11.3  | Player Profile Cards      | Corner-positioned cards with avatar, name, type, token dots    | `ludo/index.html`  |
+| 11.4  | Elimination Countdown     | 30-second countdown overlay when player disconnects/goes AFK   | `ludo/index.html`  |
+| 11.5  | Diamond Center Design     | Unique 4-triangle diamond center (not copying Ludo King exact) | `ludo/index.html`  |
+| 11.6  | Geometric Responsive      | clamp()/vmin-based sizing for tokens, board, and UI elements   | `ludo/index.html`  |
+
+#### Key Features Implemented
+
+1. **Classic Ludo Board Layout**
+   - 4 colored home bases (6×6 cells each) at corners
+   - 3×6 path sections connecting bases
+   - White path cells with colored home columns
+   - Star-marked safe zones
+
+2. **Pawn-Style Tokens (Geometric CSS)**
+   - Head: Circular top with gradient
+   - Body: Tapered polygon with highlight
+   - Responsive sizing: `clamp(28px, 5.5vmin, 44px)`
+   - Pulse animation for movable tokens
+   - Number badges (1-4) on each token
+
+3. **Player Profile Cards**
+   - Positioned around board corners
+   - Avatar with player color
+   - Name, type (Human/AI), token status dots
+   - Active player glow animation
+   - Eliminated state with 🚫 overlay
+
+4. **30-Second Elimination Countdown**
+   - Overlay appears when player goes inactive
+   - Animated countdown timer
+   - Progress bar
+   - Auto-eliminates player after 30s
+   - Testable with 'D' key
+
+5. **Diamond Center Design** (Unique, not copied)
+   - 4 triangular sections (Red, Blue, Green, Yellow)
+   - Rotated 45° diamond shape
+   - 🏠 icon in center
+
+#### Design Decisions
+
+- Used geometric CSS (`clip-path`, gradients) instead of images to avoid copyright
+- Responsive sizing using `clamp()` and `vmin` units
+- No external assets - pure CSS implementation
+- Dark theme matching 1click design system
+
+---
+
 ### Session 10: Ludo Game + Responsiveness + AI Fixes
 
 **Date:** 2026-03-01

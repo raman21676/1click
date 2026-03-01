@@ -2,7 +2,7 @@
 
 > A collection of fun, fast, and free browser-based mini games. No downloads, no servers, just instant play!
 
-🌐 **Live Website:** https://nabrajsubedi.com.np  
+🌐 **Live Website:** https://1click.live  
 📱 **Android App:** Coming Soon  
 ⭐ **Star us on GitHub!**
 
@@ -48,7 +48,7 @@
 
 ### For Players
 
-Simply visit https://nabrajsubedi.com.np and start playing!
+Simply visit https://1click.live and start playing!
 
 ### For Developers
 
@@ -162,7 +162,7 @@ For detailed technical documentation, see:
 
 ![GitHub last commit](https://img.shields.io/github/last-commit/Raman21676/1click)
 ![GitHub repo size](https://img.shields.io/github/repo-size/Raman21676/1click)
-![Website](https://img.shields.io/website?url=https%3A%2F%2Fnabrajsubedi.com.np)
+![Website](https://img.shields.io/website?url=https%3A%2F%2F1click.live)
 ![GitHub Pages](https://img.shields.io/badge/GitHub%20Pages-Live-brightgreen)
 
 ---
@@ -177,7 +177,7 @@ For detailed technical documentation, see:
 
 ## 📧 Contact
 
-- **Website:** https://nabrajsubedi.com.np
+- **Website:** https://1click.live
 - **GitHub:** https://github.com/Raman21676/1click
 - **Issues:** https://github.com/Raman21676/1click/issues
 
