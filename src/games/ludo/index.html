@@ -685,24 +685,28 @@ function applyCell(cell, r, c, info) {
 }
 
 // Which cells are token slots inside each home
+// 4x4 white panel centered in 6x6 home, slots at corners of white panel
 function homeSlots(p) {
   const map = {
-    // Houses in exact positions as specified
-    red:    {'1-1':0,'1-3':1,'3-1':2,'3-3':3},      // top-left: RED
-    green:  {'1-11':0,'1-13':1,'3-11':2,'3-13':3},  // top-right: GREEN
-    blue:   {'10-1':0,'10-3':1,'12-1':2,'12-3':3},  // bottom-left: BLUE
-    yellow: {'10-11':0,'10-13':1,'12-11':2,'12-13':3} // bottom-right: YELLOW
+    // Red: top-left house (rows 0-5, cols 0-5), white panel at rows 1-4, cols 1-4
+    red:    {'1-1':0,'1-4':1,'4-1':2,'4-4':3},
+    // Green: top-right house (rows 0-5, cols 9-14), white panel at rows 1-4, cols 10-13
+    green:  {'1-10':0,'1-13':1,'4-10':2,'4-13':3},
+    // Blue: bottom-left house (rows 9-14, cols 0-5), white panel at rows 10-13, cols 1-4
+    blue:   {'10-1':0,'10-4':1,'13-1':2,'13-4':3},
+    // Yellow: bottom-right house (rows 9-14, cols 9-14), white panel at rows 10-13, cols 10-13
+    yellow: {'10-10':0,'10-13':1,'13-10':2,'13-13':3}
   };
   return map[p];
 }
 
-// White inner panel cells (non-slot cells in white area)
+// White inner panel cells (4x4 centered white area in 6x6 home)
 function isInnerPanel(r, c, p) {
   const panels = {
-    red:    (r>=1&&r<=4&&c>=1&&c<=4),      // top-left: RED
-    green:  (r>=1&&r<=4&&c>=11&&c<=14),    // top-right: GREEN
-    blue:   (r>=10&&r<=13&&c>=1&&c<=4),    // bottom-left: BLUE
-    yellow: (r>=10&&r<=13&&c>=11&&c<=14)   // bottom-right: YELLOW
+    red:    (r>=1&&r<=4&&c>=1&&c<=4),      // top-left: 4x4 centered
+    green:  (r>=1&&r<=4&&c>=10&&c<=13),    // top-right: 4x4 centered
+    blue:   (r>=10&&r<=13&&c>=1&&c<=4),    // bottom-left: 4x4 centered
+    yellow: (r>=10&&r<=13&&c>=10&&c<=13)   // bottom-right: 4x4 centered
   };
   return panels[p];
 }
