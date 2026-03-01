@@ -230,6 +230,10 @@ html,body{height:100%;font-family:'Segoe UI',Arial,sans-serif;
 .face-3 .dots .dot:nth-child(3){ grid-area: 3 / 3; }
 
 .face-4 .dots{ display: grid; grid-template-columns: 1fr 1fr; grid-template-rows: 1fr 1fr; padding: 15%; gap: 10%; }
+.face-4 .dots .dot:nth-child(1){ grid-row: 1; grid-column: 1; }
+.face-4 .dots .dot:nth-child(2){ grid-row: 1; grid-column: 2; }
+.face-4 .dots .dot:nth-child(3){ grid-row: 2; grid-column: 1; }
+.face-4 .dots .dot:nth-child(4){ grid-row: 2; grid-column: 2; }
 
 .face-5 .dots{ display: grid; grid-template-columns: 1fr 1fr 1fr; grid-template-rows: 1fr 1fr 1fr; padding: 15%; place-items: center; }
 .face-5 .dots .dot:nth-child(1){ grid-area: 1 / 1; }
@@ -239,6 +243,12 @@ html,body{height:100%;font-family:'Segoe UI',Arial,sans-serif;
 .face-5 .dots .dot:nth-child(5){ grid-area: 3 / 3; }
 
 .face-6 .dots{ display: grid; grid-template-columns: 1fr 1fr; grid-template-rows: 1fr 1fr 1fr; padding: 15%; gap: 10%; }
+.face-6 .dots .dot:nth-child(1){ grid-row: 1; grid-column: 1; }
+.face-6 .dots .dot:nth-child(2){ grid-row: 1; grid-column: 2; }
+.face-6 .dots .dot:nth-child(3){ grid-row: 2; grid-column: 1; }
+.face-6 .dots .dot:nth-child(4){ grid-row: 2; grid-column: 2; }
+.face-6 .dots .dot:nth-child(5){ grid-row: 3; grid-column: 1; }
+.face-6 .dots .dot:nth-child(6){ grid-row: 3; grid-column: 2; }
 
 /* Show specific faces */
 .show-1{ transform: rotateX(0deg) rotateY(0deg); }
@@ -658,6 +668,17 @@ function applyCell(cell, r, c, info) {
       }
     });
   }
+  
+  // DEBUG: Show coordinates and gpos on path cells
+  if (gpos >= 0) {
+    cell.style.fontSize = '6px';
+    cell.style.color = '#999';
+    cell.style.display = 'flex';
+    cell.style.alignItems = 'center';
+    cell.style.justifyContent = 'center';
+    cell.textContent = `${gpos}`;
+    cell.title = `gpos=${gpos}, [${r},${c}]`;
+  }
 }
 
 // Which cells are token slots inside each home
@@ -759,9 +780,21 @@ function getCellForPos(player, pos) {
   // DEBUG: Visual flash and console log
   if (pos === 1) {
     const [row, col] = PATH[globalIdx];
-    console.log(`%c[TOKEN] ${player.toUpperCase()} entering at pos=1`, 'color:red;font-weight:bold');
-    console.log(`  globalIdx=${globalIdx}, cell=[${row},${col}], id=${cell?cell.id:'NOT FOUND'}`);
-    console.log(`  ENTRY[${player}]=${ENTRY[player]}, PATH[${ENTRY[player]}]=[${PATH[ENTRY[player]]}]`);
+    console.log(`%c[TOKEN DEBUG] ${player.toUpperCase()} entering at pos=1`, 'color:red;font-size:14px;font-weight:bold');
+    console.log(`  Calculation: ENTRY[${player}]=${ENTRY[player]}, local=${local}`);
+    console.log(`  globalIdx = (${ENTRY[player]} + ${local} - 1) % 52 = ${globalIdx}`);
+    console.log(`  PATH[${globalIdx}] = [${row},${col}] (row ${row}, col ${col})`);
+    console.log(`  Expected cell ID: C${row}-${col}`);
+    console.log(`  Found cell: ${cell?cell.id:'NOT FOUND'}`);
+    console.log(`  Found cell data-gpos: ${cell?cell.dataset.gpos:'N/A'}`);
+    
+    // List all cells with this gpos
+    const allWithGpos = document.querySelectorAll(`[data-gpos="${globalIdx}"]`);
+    console.log(`  All cells with gpos=${globalIdx}:`, Array.from(allWithGpos).map(c => c.id));
+    
+    // Check the expected cell directly
+    const expectedCell = document.getElementById(`C${row}-${col}`);
+    console.log(`  Direct lookup C${row}-${col}:`, expectedCell ? `found (gpos=${expectedCell.dataset.gpos})` : 'NOT FOUND');
     
     // Flash the cell in player color
     if (cell) {
