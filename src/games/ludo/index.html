@@ -593,6 +593,9 @@ function placeTokenIndexed(player, idx, pos) {
   }
   if (pos === 1) {
     console.log(`[DEBUG] Placing ${player}[${idx}] at pos=1, cell id=${cell.id}, gpos=${cell.dataset.gpos}`);
+    // Visual indicator for debugging
+    cell.style.outline = '3px dashed cyan';
+    setTimeout(() => cell.style.outline = '', 3000);
   }
 
   // Count existing tokens on cell for stacking
