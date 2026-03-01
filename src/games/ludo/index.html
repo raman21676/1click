@@ -643,18 +643,19 @@ function placeHouseAnimals() {
   ];
   
   houses.forEach(house => {
-    // White panel spans 4 cells, center is at 2 cells from start
-    const centerRow = house.row + 2; // Rows 2-3 are center (0-indexed: 2.5)
-    const centerCol = house.col + 2; // Cols 2-3 are center (0-indexed: 2.5)
+    // White panel: rows house.row to house.row+3, cols house.col to house.col+3
+    // Center is at house.row+1.5, house.col+1.5 (between cells)
+    // Place at top-left of center (house.row+1, house.col+1) so 260% spans cover center
+    const placeRow = house.row + 1; // Top of center 2x2
+    const placeCol = house.col + 1; // Left of center 2x2
     
-    // Get the center cell
-    const centerCell = document.getElementById(`C${centerRow}-${centerCol}`);
-    if (centerCell) {
+    const cell = document.getElementById(`C${placeRow}-${placeCol}`);
+    if (cell) {
       const img = document.createElement('img');
       img.src = `assets/${house.img}`;
       img.className = 'house-animal';
       img.alt = house.name;
-      centerCell.appendChild(img);
+      cell.appendChild(img);
     }
   });
 }
