@@ -742,6 +742,25 @@ function placeTokenIndexed(player, idx, pos) {
   }
   if (pos === 1) {
     console.log(`[DEBUG] Placing ${player}[${idx}] at pos=1, cell id=${cell.id}, gpos=${cell.dataset.gpos}`);
+    
+    // CRITICAL CHECK: Verify this is the correct cell by coordinates
+    const expectedGpos = ENTRY[player];
+    const expectedCoords = PATH[expectedGpos];
+    const cellIdMatch = cell.id === `C${expectedCoords[0]}-${expectedCoords[1]}`;
+    console.log(`%c[CRITICAL] ${player} entry verification:`, 'color:purple;font-size:16px');
+    console.log(`  Expected: PATH[${expectedGpos}] = [${expectedCoords[0]},${expectedCoords[1]}]`);
+    console.log(`  Expected cell ID: C${expectedCoords[0]}-${expectedCoords[1]}`);
+    console.log(`  Actual cell ID: ${cell.id}`);
+    console.log(`  Match: ${cellIdMatch ? '✅ YES' : '❌ NO - THIS IS THE BUG!'}`);
+    
+    // Check ALL cells to see if expected cell exists with different gpos
+    const expectedCell = document.getElementById(`C${expectedCoords[0]}-${expectedCoords[1]}`);
+    if (expectedCell) {
+      console.log(`  Expected cell exists with gpos=${expectedCell.dataset.gpos}`);
+    } else {
+      console.log(`  Expected cell DOES NOT EXIST!`);
+    }
+    
     // Visual indicator for debugging
     cell.style.outline = '3px dashed cyan';
     setTimeout(() => cell.style.outline = '', 3000);
