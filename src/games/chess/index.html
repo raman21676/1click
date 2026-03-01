@@ -141,37 +141,37 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
 <body>
 
 <header class="hdr">
-  <a href="../../../index.html" class="back">← Back</a>
-  <div class="hdr-title">♟ CHESS</div>
+  <a href="../../../index.html" class="back"> Back</a>
+  <div class="hdr-title"> CHESS</div>
   <div style="width:50px"></div>
 </header>
 
 <!-- SETUP -->
 <div id="setup" class="screen on">
   <div style="text-align:center;margin-bottom:.5rem">
-    <div style="font-size:3.5rem">♟</div>
+    <div style="font-size:3.5rem"></div>
     <h1 style="font-size:1.5rem;font-weight:800;margin-bottom:.3rem">Chess</h1>
-    <p style="color:var(--muted);font-size:.85rem">Play against the AI — 3 difficulty levels</p>
+    <p style="color:var(--muted);font-size:.85rem">Play against the AI  3 difficulty levels</p>
   </div>
   <div class="setup-wrap">
     <div class="card">
       <h3>Play As</h3>
       <div class="opt-row" id="color-row">
-        <button class="opt-btn color-btn act" data-c="white"><span class="piece-emoji">♔</span><span class="piece-text">White</span></button>
-        <button class="opt-btn color-btn" data-c="black"><span class="piece-emoji">♚</span><span class="piece-text">Black</span></button>
+        <button class="opt-btn color-btn act" data-c="white"><span class="piece-emoji"></span><span class="piece-text">White</span></button>
+        <button class="opt-btn color-btn" data-c="black"><span class="piece-emoji"></span><span class="piece-text">Black</span></button>
       </div>
     </div>
     <div class="card">
       <h3>AI Difficulty</h3>
       <div class="opt-row" id="diff-row">
-        <button class="opt-btn" data-d="easy">🟢 Easy</button>
-        <button class="opt-btn act" data-d="medium">🟡 Medium</button>
-        <button class="opt-btn" data-d="hard">🔴 Hard</button>
+        <button class="opt-btn" data-d="easy"> Easy</button>
+        <button class="opt-btn act" data-d="medium"> Medium</button>
+        <button class="opt-btn" data-d="hard"> Hard</button>
       </div>
     </div>
-    <button class="play-btn" id="play-btn">▶ Play Chess</button>
+    <button class="play-btn" id="play-btn"> Play Chess</button>
     <div class="card" style="font-size:.78rem;color:var(--muted);line-height:1.6">
-      <b style="color:var(--text)">♟ Rules reminder:</b> Checkmate to win · Castling & en passant supported · Pawn promotes on last rank
+      <b style="color:var(--text)"> Rules reminder:</b> Checkmate to win  Castling & en passant supported  Pawn promotes on last rank
     </div>
   </div>
 </div>
@@ -205,9 +205,9 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
         <div class="move-list" id="move-list"></div>
       </div>
       <div class="info-card" id="diff-info" style="padding:.5rem .7rem"></div>
-      <button class="ctrl-btn" id="new-game-btn">🔄 New Game</button>
-      <button class="ctrl-btn" id="resign-btn">🏳️ Resign</button>
-      <button class="ctrl-btn" onclick="showScreen('setup')">⬅ Menu</button>
+      <button class="ctrl-btn" id="new-game-btn"> New Game</button>
+      <button class="ctrl-btn" id="resign-btn"> Resign</button>
+      <button class="ctrl-btn" onclick="showScreen('setup')"> Menu</button>
     </div>
   </div>
 </div>
@@ -223,7 +223,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
 <!-- GAME OVER -->
 <div class="overlay" id="over-overlay">
   <div class="over-box">
-    <div class="over-emoji" id="over-emoji">🏆</div>
+    <div class="over-emoji" id="over-emoji"></div>
     <div class="over-title" id="over-title">Checkmate!</div>
     <div class="over-sub" id="over-sub"></div>
     <div class="over-btns">
@@ -234,10 +234,10 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
 </div>
 
 <script>
-// ═══════════════════════════════════════════════════════════════
+// 
 // PIECE UNICODE & VALUES
-// ═══════════════════════════════════════════════════════════════
-const UNI  = {K:'♔',Q:'♕',R:'♖',B:'♗',N:'♘',P:'♙',k:'♚',q:'♛',r:'♜',b:'♝',n:'♞',p:'♟'};
+// 
+const UNI  = {K:'',Q:'',R:'',B:'',N:'',P:'',k:'',q:'',r:'',b:'',n:'',p:''};
 const VALS = {K:20000,Q:900,R:500,B:330,N:320,P:100,k:-20000,q:-900,r:-500,b:-330,n:-320,p:-100};
 
 // Piece-square tables (white perspective, row 0=rank8)
@@ -265,9 +265,9 @@ const PST = {
      [20,20,0,0,0,0,20,20],[20,30,10,0,0,10,30,20]]
 };
 
-// ═══════════════════════════════════════════════════════════════
+// 
 // BOARD UTILITIES
-// ═══════════════════════════════════════════════════════════════
+// 
 const W = p => p && p===p.toUpperCase();
 const B = p => p && p!==p.toUpperCase();
 const onB = (r,c) => r>=0&&r<8&&c>=0&&c<8;
@@ -279,9 +279,9 @@ function initBoard(){
           ['P','P','P','P','P','P','P','P'],['R','N','B','Q','K','B','N','R']];
 }
 
-// ═══════════════════════════════════════════════════════════════
+// 
 // MOVE GENERATION
-// ═══════════════════════════════════════════════════════════════
+// 
 function sliding(bd,r,c,dirs,white){
   const mv=[];
   for(const[dr,dc]of dirs){let nr=r+dr,nc=c+dc;
@@ -355,7 +355,7 @@ function kingM(bd,st,r,c,white){
     const nr=r+dr,nc=c+dc;
     if(onB(nr,nc)&&(!bd[nr][nc]||W(bd[nr][nc])!==white))mv.push({r:nr,c:nc});
   }
-  // Castling — only if king not currently in check
+  // Castling  only if king not currently in check
   if(!attacked(bd,r,c,!white)){
     if(white){
       if(st.cas.wK&&!bd[7][5]&&!bd[7][6]&&!attacked(bd,7,5,false)&&!attacked(bd,7,6,false))mv.push({r:7,c:6,cas:'wK'});
@@ -387,9 +387,9 @@ function findKing(bd,white){
 }
 function inCheck(bd,white){const k=findKing(bd,white);return k?attacked(bd,k[0],k[1],!white):false;}
 
-// ═══════════════════════════════════════════════════════════════
+// 
 // APPLY MOVE
-// ═══════════════════════════════════════════════════════════════
+// 
 function applyMove(st,fr,fc,tr,tc,mv,promoP){
   const ns={board:cpB(st.board),turn:st.turn,cas:{...st.cas},ep:null,
     capW:[...st.capW],capB:[...st.capB],moves:[...st.moves]};
@@ -445,9 +445,9 @@ function getLegal(st){
   return result;
 }
 
-// ═══════════════════════════════════════════════════════════════
+// 
 // EVALUATION & MINIMAX
-// ═══════════════════════════════════════════════════════════════
+// 
 function evaluate(bd){
   let sc=0;
   for(let r=0;r<8;r++)for(let c=0;c<8;c++){
@@ -522,9 +522,9 @@ function aiMove(st){
   return bestM;
 }
 
-// ═══════════════════════════════════════════════════════════════
+// 
 // GAME STATE
-// ═══════════════════════════════════════════════════════════════
+// 
 let G={
   board:initBoard(),turn:'white',cas:{wK:true,wQ:true,bK:true,bQ:true},ep:null,
   playerColor:'white',difficulty:'medium',
@@ -548,9 +548,9 @@ function startGame(){
   if(G.playerColor==='black')setTimeout(()=>doAiMove(),600);
 }
 
-// ═══════════════════════════════════════════════════════════════
+// 
 // UI - BUILD BOARD
-// ═══════════════════════════════════════════════════════════════
+// 
 function buildBoardUI(){
   const el=document.getElementById('board-el');
   el.innerHTML='';
@@ -578,7 +578,7 @@ function buildBoardUI(){
   for(const f of files){const s=document.createElement('span');s.textContent=f;fl.appendChild(s);}
   // Diff info
   const di=document.getElementById('diff-info');
-  const dmap={easy:'🟢 Easy — Makes mistakes',medium:'🟡 Medium — Solid play',hard:'🔴 Hard — Strong AI'};
+  const dmap={easy:' Easy  Makes mistakes',medium:' Medium  Solid play',hard:' Hard  Strong AI'};
   di.innerHTML=`<div style="font-size:.72rem;color:var(--muted)">${dmap[G.difficulty]||''}</div>`;
 }
 
@@ -663,7 +663,7 @@ function executePlayerMove(fr,fc,mv,promoP){
   updateSidebar();
   addMoveToLog(moveStr,G.turn==='black'?'white':'black');
   if(G.status!=='done'&&G.turn!==G.playerColor){
-    updateStatusText('Thinking…');
+    updateStatusText('Thinking');
     setTimeout(doAiMove,400);
   }
 }
@@ -715,10 +715,10 @@ function checkStatus(){
     G.status='done';
     const winner=white?'Black':'White';
     const playerWon=(G.playerColor===winner.toLowerCase());
-    showGameOver('♟ Checkmate!',`${winner} wins!`,playerWon?'🎉':'😔');
+    showGameOver(' Checkmate!',`${winner} wins!`,playerWon?'':'');
   }else if(noMoves){
     G.status='done';
-    showGameOver('Stalemate','It\'s a draw!','🤝');
+    showGameOver('Stalemate','It\'s a draw!','');
   }else if(check){
     G.status='check';
   }else{
@@ -730,7 +730,7 @@ function resignGame(){
   if(G.status==='done')return;
   G.status='done';
   const winner=G.playerColor==='white'?'Black':'White';
-  showGameOver('🏳️ Resigned',`${winner} wins!`,'😔');
+  showGameOver(' Resigned',`${winner} wins!`,'');
 }
 
 function showGameOver(title,sub,emoji){
@@ -740,9 +740,9 @@ function showGameOver(title,sub,emoji){
   document.getElementById('over-overlay').style.display='flex';
 }
 
-// ═══════════════════════════════════════════════════════════════
+// 
 // UI HELPERS
-// ═══════════════════════════════════════════════════════════════
+// 
 const FILE_NAMES='abcdefgh';
 function sqName(r,c){return FILE_NAMES[c]+(8-r);}
 function moveNotation(board,fr,fc,mv,promo){
@@ -783,24 +783,24 @@ function addMoveToLog(str,forColor){
 function updateSidebar(){
   const wt=G.turn==='white';
   const isPlayerTurn=G.turn===G.playerColor;
-  const turnDot=isPlayerTurn?'🟢':'🔴';
+  const turnDot=isPlayerTurn?'':'';
   document.getElementById('turn-text').innerHTML=
     `<span class="turn-dot" style="background:${wt?'#fff':'#333'};border-color:${wt?'#ccc':'#666'}"></span>${wt?'White':'Black'}\'s turn ${turnDot}`;
   
   let statusMsg='Your move';
-  if(G.status==='check')statusMsg='⚠️ Check!';
-  else if(!isPlayerTurn)statusMsg='<span class="thinking">🤖 AI thinking…</span>';
+  if(G.status==='check')statusMsg=' Check!';
+  else if(!isPlayerTurn)statusMsg='<span class="thinking"> AI thinking</span>';
   else if(G.selected)statusMsg='Select destination';
   updateStatusText(statusMsg);
   
-  document.getElementById('cap-white').textContent=G.capW.map(p=>UNI[p]).join(' ')||'—';
-  document.getElementById('cap-black').textContent=G.capB.map(p=>UNI[p]).join(' ')||'—';
+  document.getElementById('cap-white').textContent=G.capW.map(p=>UNI[p]).join(' ')||'';
+  document.getElementById('cap-black').textContent=G.capB.map(p=>UNI[p]).join(' ')||'';
 }
 function updateStatusText(t){document.getElementById('status-text').textContent=t;}
 
-// ═══════════════════════════════════════════════════════════════
+// 
 // SETUP UI
-// ═══════════════════════════════════════════════════════════════
+// 
 document.querySelectorAll('#color-row .opt-btn').forEach(b=>{
   b.addEventListener('click',()=>{
     G.playerColor=b.dataset.c;
