@@ -50,9 +50,10 @@ html,body{height:100%;font-family:'Segoe UI',Arial,sans-serif;
 .hG{background:var(--green)} .hY{background:var(--yellow)}
 .hR{background:var(--red)}   .hB{background:var(--blue)}
 
-/* Home animal mascots */
-.house-animal{position:absolute;width:55%;height:55%;object-fit:contain;
-  z-index:2;pointer-events:none;filter:drop-shadow(0 2px 4px rgba(0,0,0,.3))}
+/* Home animal mascots - positioned in center of 4x4 white panel */
+.house-animal{position:absolute;width:350%;height:350%;object-fit:contain;
+  z-index:10;pointer-events:none;filter:drop-shadow(0 4px 8px rgba(0,0,0,.5));
+  top:50%;left:50%;transform:translate(-50%,-50%)}
 
 /* Home inner white panel */
 .hW{background:rgba(255,255,255,.9)}
@@ -611,6 +612,29 @@ function buildBoard() {
       board.appendChild(cell);
     }
   }
+  
+  // Place animal mascots in center of white panels
+  placeHouseAnimals();
+}
+
+function placeHouseAnimals() {
+  const animals = {
+    red:    {img: 'cat.png',   r: 2, c: 2},
+    green:  {img: 'panda.png', r: 2, c: 11},
+    yellow: {img: 'tiger.png', r: 11, c: 11},
+    blue:   {img: 'eagle.png', r: 11, c: 2}
+  };
+  
+  Object.entries(animals).forEach(([house, data]) => {
+    const centerCell = document.getElementById(`C${data.r}-${data.c}`);
+    if (centerCell) {
+      const img = document.createElement('img');
+      img.src = `assets/${data.img}`;
+      img.className = 'house-animal';
+      img.alt = house;
+      centerCell.appendChild(img);
+    }
+  });
 }
 
 function cellInfo(r, c) {
@@ -649,21 +673,6 @@ function applyCell(cell, r, c, info) {
       cell.dataset.slotIdx  = slots[slotKey]; // used as selector [data-slot-idx]
     } else if (isInnerPanel(r, c, p)) {
       cell.classList.add('hW');
-      // Add animal mascot in the center of the white panel
-      const animalMap = {'red':'cat','green':'panda','yellow':'tiger','blue':'eagle'};
-      const centerCells = {
-        red:    '2-2',
-        green:  '2-11',
-        yellow: '11-11',
-        blue:   '11-2'
-      };
-      if (slotKey === centerCells[p]) {
-        const img = document.createElement('img');
-        img.src = `assets/${animalMap[p]}.png`;
-        img.className = 'house-animal';
-        img.alt = animalMap[p];
-        cell.appendChild(img);
-      }
     } else {
       cell.classList.add(`h${p[0].toUpperCase()}`);
     }
