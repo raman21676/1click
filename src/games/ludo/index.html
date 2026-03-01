@@ -46,9 +46,11 @@ html,body{height:100%;font-family:'Segoe UI',Arial,sans-serif;
 .bc{position:relative;display:flex;align-items:center;
   justify-content:center;overflow:visible}
 
-/* Home corners */
-.hG{background:var(--green)} .hY{background:var(--yellow)}
-.hR{background:var(--red)}   .hB{background:var(--blue)}
+/* Home corners with colored borders */
+.hG{background:var(--green);border:2px solid var(--green-d)}
+.hY{background:var(--yellow);border:2px solid var(--yellow-d)}
+.hR{background:var(--red);border:2px solid var(--red-d)}
+.hB{background:var(--blue);border:2px solid var(--blue-d)}
 
 /* Home animal mascots - mathematically centered */
 .house-animal{position:absolute;width:260%;height:260%;
@@ -74,7 +76,8 @@ html,body{height:100%;font-family:'Segoe UI',Arial,sans-serif;
 .tsB::before{background:rgba(30,136,229,.2);border-color:var(--blue)}
 
 /* Path cells */
-.pc{background:#fff;border:.5px solid #ccc}
+/* Path cells - white background, grey grid lines */
+.pc{background:#fff;border:.5px solid #999}
 
 /* Home run strips */
 .hrR{background:#FFCDD2;border:.5px solid #ccc}
