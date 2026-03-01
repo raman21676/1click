@@ -77,15 +77,21 @@ html,body{height:100%;font-family:'Segoe UI',Arial,sans-serif;
   color:var(--gold);text-shadow:0 0 4px rgba(255,215,0,.5);
   position:absolute;pointer-events:none;z-index:1}
 
-/* Entry arrows with debug labels */
-.eR::before{content:'→R';color:var(--red);font-size:clamp(6px,1.3vmin,10px);
-  position:absolute;font-weight:700;z-index:2;background:rgba(255,255,255,0.8);padding:1px 2px;border-radius:2px}
-.eG::before{content:'↓G';color:var(--green);font-size:clamp(6px,1.3vmin,10px);
-  position:absolute;font-weight:700;z-index:2;background:rgba(255,255,255,0.8);padding:1px 2px;border-radius:2px}
-.eY::before{content:'←Y';color:var(--yellow);font-size:clamp(6px,1.3vmin,10px);
-  position:absolute;font-weight:700;z-index:2;background:rgba(255,255,255,0.8);padding:1px 2px;border-radius:2px}
-.eB::before{content:'↑B';color:var(--blue);font-size:clamp(6px,1.3vmin,10px);
-  position:absolute;font-weight:700;z-index:2;background:rgba(255,255,255,0.8);padding:1px 2px;border-radius:2px}
+/* Entry arrows */
+.eR::before{content:'→';color:var(--red);font-size:clamp(6px,1.3vmin,11px);
+  position:absolute;font-weight:700;z-index:2}
+.eG::before{content:'↓';color:var(--green);font-size:clamp(6px,1.3vmin,11px);
+  position:absolute;font-weight:700;z-index:2}
+.eY::before{content:'←';color:var(--yellow);font-size:clamp(6px,1.3vmin,11px);
+  position:absolute;font-weight:700;z-index:2}
+.eB::before{content:'↑';color:var(--blue);font-size:clamp(6px,1.3vmin,11px);
+  position:absolute;font-weight:700;z-index:2}
+
+/* Debug: Entry cells have colored backgrounds */
+.eR{background:linear-gradient(135deg,var(--red-l),var(--red-l))!important}
+.eG{background:linear-gradient(135deg,var(--green-l),var(--green-l))!important}
+.eY{background:linear-gradient(135deg,var(--yellow-l),var(--yellow-l))!important}
+.eB{background:linear-gradient(135deg,var(--blue-l),var(--blue-l))!important}
 
 /* Center cells */
 .cTL{background:linear-gradient(135deg,var(--green) 50%,transparent 50%)}
@@ -750,22 +756,18 @@ function getCellForPos(player, pos) {
   const globalIdx = (ENTRY[player] + local - 1) % 52;
   const cell = document.querySelector(`[data-gpos="${globalIdx}"]`);
   
-  // DEBUG: Log entry placement
+  // DEBUG: Visual flash and console log
   if (pos === 1) {
     const [row, col] = PATH[globalIdx];
-    console.log(`[TOKEN DEBUG] ${player} entering at pos=1`);
-    console.log(`  globalIdx=${globalIdx}, PATH[${globalIdx}]=[${row},${col}]`);
-    console.log(`  cell id=${cell?cell.id:'NOT FOUND'}`);
-    console.log(`  Expected: ${player}'s entry at ENTRY=${ENTRY[player]}`);
+    console.log(`%c[TOKEN] ${player.toUpperCase()} entering at pos=1`, 'color:red;font-weight:bold');
+    console.log(`  globalIdx=${globalIdx}, cell=[${row},${col}], id=${cell?cell.id:'NOT FOUND'}`);
+    console.log(`  ENTRY[${player}]=${ENTRY[player]}, PATH[${ENTRY[player]}]=[${PATH[ENTRY[player]]}]`);
     
-    // Flash the cell for visual debugging
+    // Flash the cell in player color
     if (cell) {
-      cell.style.backgroundColor = '#ff0';
-      cell.style.zIndex = '100';
-      setTimeout(() => {
-        cell.style.backgroundColor = '';
-        cell.style.zIndex = '';
-      }, 3000);
+      const color = COLORS[player].main;
+      cell.style.boxShadow = `inset 0 0 0 4px ${color}, 0 0 20px ${color}`;
+      setTimeout(() => { cell.style.boxShadow = ''; }, 4000);
     }
   }
   
@@ -810,20 +812,20 @@ const FACE_ROTATIONS = {
   6: {x: 90, y: 0}
 };
 
-let currentDiceRotation = {x: 0, y: 0};
+
 
 function showDiceFace(val, playerColor) {
   const cube = document.getElementById('cube');
   const dice = document.getElementById('dice');
   const rotation = FACE_ROTATIONS[val];
   
-  // Add extra spins for realistic effect (2-4 full rotations)
-  const extraSpins = 720 + Math.floor(Math.random() * 720);
-  const targetX = rotation.x + extraSpins;
-  const targetY = rotation.y + extraSpins;
+  // Use exact rotations - 2 full spins (720deg) for animation
+  // NO randomness - this ensures face ends up perfectly flat
+  const targetX = rotation.x + 720;
+  const targetY = rotation.y + 720;
+  const targetZ = rotation.z;
   
-  cube.style.transform = `rotateX(${targetX}deg) rotateY(${targetY}deg)`;
-  currentDiceRotation = {x: rotation.x, y: rotation.y};
+  cube.style.transform = `rotateX(${targetX}deg) rotateY(${targetY}deg) rotateZ(${targetZ}deg)`;
   
   // Apply player color
   dice.className = `dice ${G.phase === 'roll' && isAI() ? 'disabled' : ''} ${playerColor || ''}`;
