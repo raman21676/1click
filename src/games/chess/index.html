@@ -540,16 +540,21 @@ let G={
 };
 
 function startGame(){
-  G={board:initBoard(),turn:'white',cas:{wK:true,wQ:true,bK:true,bQ:true},ep:null,
+  console.log('[CHESS] startGame called');
+  const initialBoard=initBoard();
+  console.log('[CHESS] Initial board:',initialBoard);
+  G={board:initialBoard,turn:'white',cas:{wK:true,wQ:true,bK:true,bQ:true},ep:null,
     playerColor:G.playerColor,difficulty:G.difficulty,
-    selected:null,legal:getLegal({board:initBoard(),turn:'white',
+    selected:null,legal:getLegal({board:initialBoard,turn:'white',
       cas:{wK:true,wQ:true,bK:true,bQ:true},ep:null}),
     status:'playing',capW:[],capB:[],moves:[],moveNum:1,pendingPromo:null};
   document.getElementById('over-overlay').style.display='none';
   document.getElementById('move-list').innerHTML='';
   buildBoardUI();
+  console.log('[CHESS] Board UI built, rendering...');
   renderBoard();
   updateSidebar();
+  console.log('[CHESS] Game started, turn:',G.turn);
   // If AI goes first (player is black), trigger AI
   if(G.playerColor==='black')setTimeout(()=>doAiMove(),600);
 }
@@ -589,6 +594,7 @@ function buildBoardUI(){
 }
 
 function renderBoard(){
+  console.log('[CHESS] renderBoard called, board:',G.board);
   // Flip board if player is black
   const flip=G.playerColor==='black';
   const selMoves=G.selected?new Set((G.legal[`${G.selected[0]},${G.selected[1]}`]||[]).map(m=>`${m.r},${m.c}`)):new Set();
@@ -597,10 +603,15 @@ function renderBoard(){
     for(let c=0;c<8;c++){
       const dr=flip?7-r:r,dc=flip?7-c:c;
       const sq=document.getElementById(`sq-${r}-${c}`);
+      if(!sq){
+        console.error(`[CHESS] Square not found: sq-${r}-${c}`);
+        continue;
+      }
       sq.className='sq '+((r+c)%2===0?'light':'dark');
       sq.innerHTML='';
 
       const piece=G.board[dr][dc];
+      if(r===0&&c===0)console.log('[CHESS] Piece at [0,0]:',piece);
       // Selected highlight
       if(G.selected&&G.selected[0]===dr&&G.selected[1]===dc)sq.classList.add('hi-sel');
       // Check highlight
@@ -825,8 +836,16 @@ document.getElementById('resign-btn').addEventListener('click',resignGame);
 document.getElementById('over-again').addEventListener('click',startGame);
 
 function showScreen(name){
+  console.log('[CHESS] showScreen:',name);
   document.querySelectorAll('.screen').forEach(s=>s.classList.remove('on'));
   document.getElementById(name).classList.add('on');
+  // If showing game screen, make sure board is rendered
+  if(name==='game'){
+    console.log('[CHESS] Showing game screen');
+    setTimeout(()=>{
+      if(G.board)renderBoard();
+    },50);
+  }
 }
 </script>
 </body>
