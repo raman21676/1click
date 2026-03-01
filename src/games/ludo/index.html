@@ -221,6 +221,16 @@ html,body{height:100%;font-family:'Segoe UI',Arial,sans-serif;
   color:rgba(255,255,255,.6);font-weight:700;cursor:pointer;transition:all .2s}
 .count-btn.active{background:linear-gradient(135deg,#FF6F00,#FFD600);
   color:#000;border-color:transparent}
+
+/* Color selection buttons */
+.color-select{display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap}
+.color-btn{flex:1;min-width:70px;padding:10px 8px;border-radius:9px;
+  border:2px solid transparent;background:rgba(255,255,255,.08);
+  color:#fff;font-weight:700;cursor:pointer;transition:all .2s;
+  display:flex;align-items:center;justify-content:center;gap:5px}
+.color-btn:hover{background:rgba(255,255,255,.15)}
+.color-btn.active{border-color:var(--c);background:rgba(255,255,255,.2);
+  box-shadow:0 0 12px var(--c),inset 0 0 10px rgba(255,255,255,.1)}
 .pc-row{display:flex;align-items:center;gap:10px;padding:9px;
   border-radius:9px;margin-bottom:7px;border:2px solid transparent;transition:all .2s}
 .pc-row.active{border-color:var(--rc)}
@@ -289,6 +299,13 @@ html,body{height:100%;font-family:'Segoe UI',Arial,sans-serif;
       <button class="count-btn" data-n="2">2 Players</button>
       <button class="count-btn active" data-n="3">3 Players</button>
       <button class="count-btn" data-n="4">4 Players</button>
+    </div>
+    <h3>Choose Your Color</h3>
+    <div class="color-select" id="colorSelect">
+      <button class="color-btn active" data-color="red" style="--c:#E53935">🔴 Red</button>
+      <button class="color-btn" data-color="green" style="--c:#43A047">🟢 Green</button>
+      <button class="color-btn" data-color="yellow" style="--c:#FDD835">🟡 Yellow</button>
+      <button class="color-btn" data-color="blue" style="--c:#1E88E5">🔵 Blue</button>
     </div>
     <h3>Player Settings</h3>
     <div id="pcRows"></div>
@@ -436,6 +453,7 @@ const DICE_FACES = {
 let G = {
   playerCount: 3,
   ptypes: {red:'human',green:'ai',yellow:'ai',blue:'ai'},
+  humanColor: 'red', // Which color the human player chooses
   active: [],
   tokens: {}, // {red:[0,0,0,0], ...} 0=home, 1-52=path, 53-57=homerun, 58=finish
   curIdx: 0,
@@ -991,10 +1009,26 @@ function endGame(winner) {
 function initSetup() {
   renderSetupRows();
 
+  // Player count buttons
   document.querySelectorAll('.count-btn').forEach(btn => {
     btn.addEventListener('click', () => {
       G.playerCount = parseInt(btn.dataset.n);
       document.querySelectorAll('.count-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      renderSetupRows();
+    });
+  });
+
+  // Color selection buttons
+  document.querySelectorAll('.color-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const selectedColor = btn.dataset.color;
+      G.humanColor = selectedColor;
+      // Set all to AI first, then set selected to human
+      PLAYERS.forEach(p => { G.ptypes[p] = 'ai'; });
+      G.ptypes[selectedColor] = 'human';
+      // Update UI
+      document.querySelectorAll('.color-btn').forEach(b => b.classList.remove('active'));
       btn.classList.add('active');
       renderSetupRows();
     });
@@ -1008,26 +1042,35 @@ function renderSetupRows() {
   container.innerHTML = '';
   PLAYERS.forEach((p, i) => {
     const active = i < G.playerCount;
+    const isHuman = G.ptypes[p] === 'human';
     const row    = document.createElement('div');
     row.className = `pc-row ${active?'active':'dim'}`;
     row.style.setProperty('--rc', COLORS[p].main);
+    // Show type as a label instead of buttons (color selection controls human/ai)
+    const typeBadge = active 
+      ? (isHuman ? '<span style="color:#4CAF50;font-weight:700">👤 You</span>' 
+                 : '<span style="color:#999">🤖 AI</span>')
+      : '<span style="color:#666">—</span>';
     row.innerHTML = `
       <div class="rc-dot"></div>
       <div class="rc-name">${cap(p)}</div>
-      <div class="rc-types">
-        <button class="type-btn ${active&&G.ptypes[p]==='human'?'active':''}"
-          data-p="${p}" data-t="human" ${!active?'disabled':''}>👤 Human</button>
-        <button class="type-btn ${active&&G.ptypes[p]==='ai'?'active':''}"
-          data-p="${p}" data-t="ai" ${!active?'disabled':''}>🤖 AI</button>
-      </div>
+      <div class="rc-types">${typeBadge}</div>
     `;
-    container.appendChild(row);
-    row.querySelectorAll('.type-btn').forEach(btn => {
-      btn.addEventListener('click', () => {
-        G.ptypes[btn.dataset.p] = btn.dataset.t;
+    // Click row to select this color as human
+    if (active) {
+      row.style.cursor = 'pointer';
+      row.addEventListener('click', () => {
+        G.humanColor = p;
+        PLAYERS.forEach(pl => { G.ptypes[pl] = 'ai'; });
+        G.ptypes[p] = 'human';
+        // Update color button UI
+        document.querySelectorAll('.color-btn').forEach(b => {
+          b.classList.toggle('active', b.dataset.color === p);
+        });
         renderSetupRows();
       });
-    });
+    }
+    container.appendChild(row);
   });
 }
 
