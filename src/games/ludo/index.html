@@ -50,11 +50,11 @@ html,body{height:100%;font-family:'Segoe UI',Arial,sans-serif;
 .hG{background:var(--green)} .hY{background:var(--yellow)}
 .hR{background:var(--red)}   .hB{background:var(--blue)}
 
-/* Home animal mascots - centered in white panel */
-.house-animal{position:absolute;width:220%;height:220%;
+/* Home animal mascots - perfectly centered and sized */
+.house-animal{position:absolute;width:250%;height:250%;
   object-fit:contain;z-index:10;pointer-events:none;
   filter:drop-shadow(0 3px 6px rgba(0,0,0,.4));
-  top:50%;left:50%;transform:translate(-45%,-50%)}
+  top:50%;left:50%;transform:translate(-50%,-50%)}
 
 /* Home inner white panel */
 .hW{background:rgba(255,255,255,.9)}
@@ -720,16 +720,7 @@ function applyCell(cell, r, c, info) {
     });
   }
   
-  // DEBUG: Show coordinates and gpos on path cells
-  if (gpos >= 0) {
-    cell.style.fontSize = '6px';
-    cell.style.color = '#999';
-    cell.style.display = 'flex';
-    cell.style.alignItems = 'center';
-    cell.style.justifyContent = 'center';
-    cell.textContent = `${gpos}`;
-    cell.title = `gpos=${gpos}, [${r},${c}]`;
-  }
+
 }
 
 // Which cells are token slots - placed at 4 corners of house (outside white panel)
