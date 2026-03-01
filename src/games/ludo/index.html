@@ -72,10 +72,16 @@ html,body{height:100%;font-family:'Segoe UI',Arial,sans-serif;
 .hrY{background:#FFF9C4;border:.5px solid #ccc}
 .hrB{background:#BBDEFB;border:.5px solid #ccc}
 
-/* Safe star */
-.safe::after{content:'★';font-size:clamp(7px,1.6vmin,13px);
-  color:var(--gold);text-shadow:0 0 4px rgba(255,215,0,.5);
+/* Safe star - default */
+.safe::after{content:'★';font-size:clamp(10px,2.2vmin,18px);
+  color:var(--gold);text-shadow:0 0 6px rgba(255,215,0,.6);
   position:absolute;pointer-events:none;z-index:1}
+
+/* Safe star colors by position */
+.safe-red::after{color:var(--red);text-shadow:0 0 6px rgba(229,57,53,.6)}
+.safe-green::after{color:var(--green);text-shadow:0 0 6px rgba(67,160,71,.6)}
+.safe-yellow::after{color:var(--yellow);text-shadow:0 0 6px rgba(253,216,53,.6)}
+.safe-blue::after{color:var(--blue);text-shadow:0 0 6px rgba(30,136,229,.6)}
 
 /* Entry arrows */
 .eR::before{content:'→';color:var(--red);font-size:clamp(6px,1.3vmin,11px);
@@ -662,7 +668,14 @@ function applyCell(cell, r, c, info) {
   cell.classList.add('pc');
   if (gpos >= 0) {
     cell.dataset.gpos = gpos;
-    if (SAFE.has(gpos)) cell.classList.add('safe');
+    if (SAFE.has(gpos)) {
+      cell.classList.add('safe');
+      // Color stars based on position (near which house)
+      if (gpos === 0 || gpos === 8) cell.classList.add('safe-red');      // Near Red house
+      else if (gpos === 13 || gpos === 21) cell.classList.add('safe-green');  // Near Green house
+      else if (gpos === 26 || gpos === 34) cell.classList.add('safe-yellow'); // Near Yellow house
+      else if (gpos === 39 || gpos === 47) cell.classList.add('safe-blue');   // Near Blue house
+    }
     // Entry markers - show which player's entry this is
     Object.entries(ENTRY).forEach(([player, epos]) => {
       if (gpos === epos) {
