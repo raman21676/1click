@@ -602,15 +602,12 @@ function buildBoard() {
 }
 
 function cellInfo(r, c) {
-  // Home corners - ROTATED 2 steps to correct previous wrong rotation
-  // Green entry at top → Green house at top-left
-  // Yellow entry at right → Yellow house at top-right
-  // Blue entry at bottom → Blue house at bottom-right
-  // Red entry at left → Red house at bottom-left
-  if (r<6&&c<6) return {type:'home',p:'green'};   // top-left: GREEN
-  if (r<6&&c>8) return {type:'home',p:'yellow'};  // top-right: YELLOW
-  if (r>8&&c<6) return {type:'home',p:'red'};     // bottom-left: RED
-  if (r>8&&c>8) return {type:'home',p:'blue'};    // bottom-right: BLUE
+  // Home corners - EXACT positions as specified by user
+  // Top-Left: Red, Top-Right: Green, Bottom-Left: Blue, Bottom-Right: Yellow
+  if (r<6&&c<6) return {type:'home',p:'red'};     // top-left: RED 🔴
+  if (r<6&&c>8) return {type:'home',p:'green'};   // top-right: GREEN 🟢
+  if (r>8&&c<6) return {type:'home',p:'blue'};    // bottom-left: BLUE 🔵
+  if (r>8&&c>8) return {type:'home',p:'yellow'};  // bottom-right: YELLOW 🟡
 
   // Center 3×3
   if (r>=6&&r<=8&&c>=6&&c<=8) return {type:'center'};
@@ -690,11 +687,11 @@ function applyCell(cell, r, c, info) {
 // Which cells are token slots inside each home
 function homeSlots(p) {
   const map = {
-    // Houses in correct positions matching path entries
-    green:  {'1-1':0,'1-3':1,'3-1':2,'3-3':3},      // top-left
-    yellow: {'1-11':0,'1-13':1,'3-11':2,'3-13':3},  // top-right
-    red:    {'10-1':0,'10-3':1,'12-1':2,'12-3':3},  // bottom-left
-    blue:   {'10-11':0,'10-13':1,'12-11':2,'12-13':3} // bottom-right
+    // Houses in exact positions as specified
+    red:    {'1-1':0,'1-3':1,'3-1':2,'3-3':3},      // top-left: RED
+    green:  {'1-11':0,'1-13':1,'3-11':2,'3-13':3},  // top-right: GREEN
+    blue:   {'10-1':0,'10-3':1,'12-1':2,'12-3':3},  // bottom-left: BLUE
+    yellow: {'10-11':0,'10-13':1,'12-11':2,'12-13':3} // bottom-right: YELLOW
   };
   return map[p];
 }
@@ -702,10 +699,10 @@ function homeSlots(p) {
 // White inner panel cells (non-slot cells in white area)
 function isInnerPanel(r, c, p) {
   const panels = {
-    green:  (r>=1&&r<=4&&c>=1&&c<=4),      // top-left
-    yellow: (r>=1&&r<=4&&c>=11&&c<=14),    // top-right
-    red:    (r>=10&&r<=13&&c>=1&&c<=4),    // bottom-left
-    blue:   (r>=10&&r<=13&&c>=11&&c<=14)   // bottom-right
+    red:    (r>=1&&r<=4&&c>=1&&c<=4),      // top-left: RED
+    green:  (r>=1&&r<=4&&c>=11&&c<=14),    // top-right: GREEN
+    blue:   (r>=10&&r<=13&&c>=1&&c<=4),    // bottom-left: BLUE
+    yellow: (r>=10&&r<=13&&c>=11&&c<=14)   // bottom-right: YELLOW
   };
   return panels[p];
 }
