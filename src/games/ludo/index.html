@@ -602,11 +602,15 @@ function buildBoard() {
 }
 
 function cellInfo(r, c) {
-  // Home corners
-  if (r<6&&c<6) return {type:'home',p:'green'};
-  if (r<6&&c>8) return {type:'home',p:'yellow'};
-  if (r>8&&c<6) return {type:'home',p:'red'};
-  if (r>8&&c>8) return {type:'home',p:'blue'};
+  // Home corners - ROTATED BACKWARD as per user instruction
+  // Green → Red's position (bottom-left)
+  // Yellow → Green's position (top-left)
+  // Blue → Yellow's position (top-right)
+  // Red → Blue's position (bottom-right)
+  if (r<6&&c<6) return {type:'home',p:'yellow'};  // top-left: YELLOW
+  if (r<6&&c>8) return {type:'home',p:'blue'};    // top-right: BLUE
+  if (r>8&&c<6) return {type:'home',p:'green'};   // bottom-left: GREEN
+  if (r>8&&c>8) return {type:'home',p:'red'};     // bottom-right: RED
 
   // Center 3×3
   if (r>=6&&r<=8&&c>=6&&c<=8) return {type:'center'};
@@ -686,10 +690,11 @@ function applyCell(cell, r, c, info) {
 // Which cells are token slots inside each home
 function homeSlots(p) {
   const map = {
-    green:  {'1-1':0,'1-3':1,'3-1':2,'3-3':3},
-    yellow: {'1-11':0,'1-13':1,'3-11':2,'3-13':3},
-    red:    {'10-1':0,'10-3':1,'12-1':2,'12-3':3},
-    blue:   {'10-11':0,'10-13':1,'12-11':2,'12-13':3}
+    // Houses rotated backward
+    yellow: {'1-1':0,'1-3':1,'3-1':2,'3-3':3},      // top-left (was green)
+    blue:   {'1-11':0,'1-13':1,'3-11':2,'3-13':3},  // top-right (was yellow)
+    green:  {'10-1':0,'10-3':1,'12-1':2,'12-3':3},  // bottom-left (was red)
+    red:    {'10-11':0,'10-13':1,'12-11':2,'12-13':3} // bottom-right (was blue)
   };
   return map[p];
 }
@@ -697,10 +702,10 @@ function homeSlots(p) {
 // White inner panel cells (non-slot cells in white area)
 function isInnerPanel(r, c, p) {
   const panels = {
-    green:  (r>=1&&r<=4&&c>=1&&c<=4),
-    yellow: (r>=1&&r<=4&&c>=11&&c<=14),
-    red:    (r>=10&&r<=13&&c>=1&&c<=4),
-    blue:   (r>=10&&r<=13&&c>=11&&c<=14)
+    yellow: (r>=1&&r<=4&&c>=1&&c<=4),      // top-left
+    blue:   (r>=1&&r<=4&&c>=11&&c<=14),    // top-right
+    green:  (r>=10&&r<=13&&c>=1&&c<=4),    // bottom-left
+    red:    (r>=10&&r<=13&&c>=11&&c<=14)   // bottom-right
   };
   return panels[p];
 }
@@ -739,31 +744,6 @@ function placeTokenIndexed(player, idx, pos) {
   if (!cell) {
     console.log(`[DEBUG] No cell found for ${player}[${idx}] pos=${pos}`);
     return;
-  }
-  if (pos === 1) {
-    console.log(`[DEBUG] Placing ${player}[${idx}] at pos=1, cell id=${cell.id}, gpos=${cell.dataset.gpos}`);
-    
-    // CRITICAL CHECK: Verify this is the correct cell by coordinates
-    const expectedGpos = ENTRY[player];
-    const expectedCoords = PATH[expectedGpos];
-    const cellIdMatch = cell.id === `C${expectedCoords[0]}-${expectedCoords[1]}`;
-    console.log(`%c[CRITICAL] ${player} entry verification:`, 'color:purple;font-size:16px');
-    console.log(`  Expected: PATH[${expectedGpos}] = [${expectedCoords[0]},${expectedCoords[1]}]`);
-    console.log(`  Expected cell ID: C${expectedCoords[0]}-${expectedCoords[1]}`);
-    console.log(`  Actual cell ID: ${cell.id}`);
-    console.log(`  Match: ${cellIdMatch ? '✅ YES' : '❌ NO - THIS IS THE BUG!'}`);
-    
-    // Check ALL cells to see if expected cell exists with different gpos
-    const expectedCell = document.getElementById(`C${expectedCoords[0]}-${expectedCoords[1]}`);
-    if (expectedCell) {
-      console.log(`  Expected cell exists with gpos=${expectedCell.dataset.gpos}`);
-    } else {
-      console.log(`  Expected cell DOES NOT EXIST!`);
-    }
-    
-    // Visual indicator for debugging
-    cell.style.outline = '3px dashed cyan';
-    setTimeout(() => cell.style.outline = '', 3000);
   }
 
   // Count existing tokens on cell for stacking
@@ -1397,47 +1377,6 @@ window.testTokenPlacement = function(player) {
 
 // Run verification after a short delay
 setTimeout(verifyBoard, 1000);
-
-// TEMPORARY: Color code all entry points for visual debugging
-setTimeout(() => {
-  console.log('%cCOLOR CODING ENTRY POINTS...', 'color:purple;font-size:20px');
-  
-  // Red entry (gpos=0) - RED outline
-  const redEntry = document.querySelector('[data-gpos="0"]');
-  if (redEntry) {
-    redEntry.style.background = '#ff0000';
-    redEntry.style.border = '4px solid white';
-    redEntry.textContent = 'RED0';
-    console.log('RED entry:', redEntry.id);
-  }
-  
-  // Green entry (gpos=13) - GREEN outline  
-  const greenEntry = document.querySelector('[data-gpos="13"]');
-  if (greenEntry) {
-    greenEntry.style.background = '#00ff00';
-    greenEntry.style.border = '4px solid white';
-    greenEntry.textContent = 'GRN13';
-    console.log('GREEN entry:', greenEntry.id);
-  }
-  
-  // Yellow entry (gpos=26) - YELLOW outline
-  const yellowEntry = document.querySelector('[data-gpos="26"]');
-  if (yellowEntry) {
-    yellowEntry.style.background = '#ffff00';
-    yellowEntry.style.border = '4px solid black';
-    yellowEntry.textContent = 'YLW26';
-    console.log('YELLOW entry:', yellowEntry.id);
-  }
-  
-  // Blue entry (gpos=39) - BLUE outline
-  const blueEntry = document.querySelector('[data-gpos="39"]');
-  if (blueEntry) {
-    blueEntry.style.background = '#0000ff';
-    blueEntry.style.border = '4px solid white';
-    blueEntry.textContent = 'BLU39';
-    console.log('BLUE entry:', blueEntry.id);
-  }
-}, 1500);
 </script>
 </body>
 </html>
