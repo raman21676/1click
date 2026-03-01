@@ -50,13 +50,11 @@ html,body{height:100%;font-family:'Segoe UI',Arial,sans-serif;
 .hG{background:var(--green)} .hY{background:var(--yellow)}
 .hR{background:var(--red)}   .hB{background:var(--blue)}
 
-/* Home animal mascots - perfectly centered */
-.house-animal{position:absolute;width:380%;height:auto;
+/* Home animal mascots - fit perfectly in 4x4 white panel */
+.house-animal{position:absolute;width:320%;max-width:none;height:auto;
   object-fit:contain;z-index:10;pointer-events:none;
-  filter:drop-shadow(0 4px 8px rgba(0,0,0,.5));
-  top:50%;left:50%;
-  transform:translate(-50%,-50%);
-  -webkit-transform:translate(-50%,-50%)}
+  filter:drop-shadow(0 3px 6px rgba(0,0,0,.4));
+  top:50%;left:50%;transform:translate(-50%,-50%)}
 
 /* Home inner white panel */
 .hW{background:rgba(255,255,255,.9)}
