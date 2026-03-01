@@ -451,6 +451,60 @@ html,body{height:100%;font-family:'Segoe UI',Arial,sans-serif;
   box-shadow:0 0 0 3px rgba(255,255,255,.1)}
 .name-input::placeholder{color:rgba(255,255,255,.4)}
 
+/* Game Mode Selection */
+.mode-buttons{display:flex;flex-direction:column;gap:10px;margin-bottom:14px}
+.mode-btn{
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  gap:4px;padding:16px;border-radius:12px;border:2px solid rgba(255,255,255,.15);
+  background:rgba(0,0,0,.15);cursor:pointer;transition:all .2s;
+  text-align:center;position:relative}
+.mode-btn:hover{background:rgba(255,255,255,.05);border-color:rgba(255,255,255,.25)}
+.mode-btn.active{
+  background:linear-gradient(135deg,rgba(255,111,0,.2),rgba(255,214,0,.15));
+  border-color:#FF6F00;box-shadow:0 0 20px rgba(255,111,0,.2)}
+.mode-icon{font-size:28px;margin-bottom:2px}
+.mode-title{font-size:15px;font-weight:700;color:#fff}
+.mode-desc{font-size:11px;color:rgba(255,255,255,.5)}
+.mode-btn.active .mode-desc{color:rgba(255,255,255,.7)}
+
+/* Online Multiplayer */
+.online-options{display:flex;flex-direction:column;gap:10px;margin-bottom:14px}
+.online-btn{
+  display:flex;align-items:center;gap:12px;padding:14px;border-radius:10px;
+  border:1px solid rgba(255,255,255,.15);background:rgba(0,0,0,.15);
+  cursor:pointer;transition:all .2s;text-align:left}
+.online-btn:hover{background:rgba(255,255,255,.08);border-color:rgba(255,255,255,.3)}
+.online-icon{font-size:24px}
+.online-title{flex:1;font-size:14px;font-weight:700;color:#fff;display:block}
+.online-desc{flex:1;font-size:11px;color:rgba(255,255,255,.5);display:block}
+
+/* Room Creation */
+.room-info-box{background:rgba(0,0,0,.25);border-radius:10px;padding:14px;margin-bottom:14px;border:1px solid rgba(255,255,255,.1)}
+.room-field{margin-bottom:12px}
+.room-field:last-child{margin-bottom:0}
+.room-field label{display:block;font-size:11px;color:rgba(255,255,255,.5);margin-bottom:4px;text-transform:uppercase;letter-spacing:0.05em}
+.room-value{font-size:18px;font-weight:700;color:#FFD600;font-family:monospace;letter-spacing:1px}
+.room-actions{display:flex;gap:8px;margin-bottom:14px}
+.generate-btn,.copy-btn{flex:1;padding:10px;border-radius:8px;border:none;cursor:pointer;font-size:13px;font-weight:600;transition:all .2s}
+.generate-btn{background:linear-gradient(135deg,#FF6F00,#FFD600);color:#000}
+.generate-btn:hover{transform:translateY(-1px)}
+.copy-btn{background:rgba(255,255,255,.1);color:#fff;border:1px solid rgba(255,255,255,.2)}
+.copy-btn:hover{background:rgba(255,255,255,.15)}
+.room-note{font-size:12px;color:rgba(255,255,255,.6);text-align:center;margin-bottom:14px;padding:10px;background:rgba(255,255,255,.05);border-radius:8px}
+.room-buttons{display:flex;gap:10px}
+.back-btn-small,.start-btn-small{flex:1;padding:12px;border-radius:8px;border:none;cursor:pointer;font-size:14px;font-weight:700;transition:all .2s}
+.back-btn-small{background:rgba(255,255,255,.1);color:#fff;border:1px solid rgba(255,255,255,.2)}
+.back-btn-small:hover{background:rgba(255,255,255,.15)}
+.start-btn-small{background:linear-gradient(135deg,#00C853,#1B5E20);color:#fff}
+.start-btn-small:hover{transform:translateY(-1px)}
+
+/* Join Room Form */
+.join-inputs{display:flex;flex-direction:column;gap:12px;margin-bottom:16px}
+.input-group label{display:block;font-size:11px;color:rgba(255,255,255,.5);margin-bottom:4px;text-transform:uppercase;letter-spacing:0.05em}
+.room-input{width:100%;padding:12px 14px;border-radius:8px;border:1px solid rgba(255,255,255,.2);background:rgba(0,0,0,.2);color:#fff;font-size:16px;font-weight:600;outline:none;transition:all .2s;box-sizing:border-box;font-family:monospace;letter-spacing:1px}
+.room-input:focus{border-color:#FF6F00;background:rgba(0,0,0,.3);box-shadow:0 0 0 3px rgba(255,111,0,.1)}
+.room-input::placeholder{color:rgba(255,255,255,.3);font-family:inherit}
+
 .pc-row{display:flex;align-items:center;gap:10px;padding:9px;
   border-radius:9px;margin-bottom:7px;border:2px solid transparent;transition:all .2s}
 .pc-row.active{border-color:var(--rc)}
@@ -512,9 +566,27 @@ html,body{height:100%;font-family:'Segoe UI',Arial,sans-serif;
     <div style="font-size:clamp(44px,9vmin,64px);margin-bottom:4px">🎲</div>
     <h1>LUDO</h1>
     <p style="color:rgba(255,255,255,.5);margin-top:6px;font-size:14px">Classic Board Game</p>
-    <p style="color:#ff6b6b;margin-top:4px;font-size:12px;font-weight:bold">v2.0 - NAME FIELD + AI BOT + NEW DICE</p>
   </div>
-  <div class="setup-card">
+  
+  <!-- MODE SELECTION -->
+  <div id="modeSelection" class="setup-card">
+    <h3>Choose Game Mode</h3>
+    <div class="mode-buttons">
+      <button class="mode-btn active" data-mode="local">
+        <span class="mode-icon">👥</span>
+        <span class="mode-title">Pass & Play</span>
+        <span class="mode-desc">Play on this device with friends</span>
+      </button>
+      <button class="mode-btn" data-mode="online">
+        <span class="mode-icon">🌐</span>
+        <span class="mode-title">Online Multiplayer</span>
+        <span class="mode-desc">Create or join a room</span>
+      </button>
+    </div>
+  </div>
+  
+  <!-- LOCAL (PASS & PLAY) SETTINGS -->
+  <div id="localSettings" class="setup-card">
     <h3>Number of Players</h3>
     <div class="player-count">
       <button class="count-btn" data-n="2">2 Players</button>
@@ -535,6 +607,71 @@ html,body{height:100%;font-family:'Segoe UI',Arial,sans-serif;
     <h3>Player Settings</h3>
     <div id="pcRows"></div>
   </div>
+  
+  <!-- ONLINE MULTIPLAYER SETTINGS -->
+  <div id="onlineSettings" class="setup-card" style="display:none">
+    <div id="onlineMenu">
+      <h3>Online Multiplayer</h3>
+      <div class="online-options">
+        <button class="online-btn" id="createRoomBtn">
+          <span class="online-icon">🏠</span>
+          <span class="online-title">Create Room</span>
+          <span class="online-desc">Start a new game room</span>
+        </button>
+        <button class="online-btn" id="joinRoomBtn">
+          <span class="online-icon">🔗</span>
+          <span class="online-title">Join Room</span>
+          <span class="online-desc">Enter room ID & password</span>
+        </button>
+      </div>
+    </div>
+    
+    <!-- CREATE ROOM FORM -->
+    <div id="createRoomForm" style="display:none">
+      <h3>Create Room</h3>
+      <div class="room-info-box">
+        <div class="room-field">
+          <label>Room ID</label>
+          <div class="room-value" id="generatedRoomId">-</div>
+        </div>
+        <div class="room-field">
+          <label>Password</label>
+          <div class="room-value" id="generatedPassword">-</div>
+        </div>
+      </div>
+      <div class="room-actions">
+        <button class="generate-btn" id="generateRoomBtn">🔄 Generate New</button>
+        <button class="copy-btn" id="copyRoomBtn">📋 Copy</button>
+      </div>
+      <div class="room-note">
+        Share these credentials with friends to let them join!
+      </div>
+      <div class="room-buttons">
+        <button class="back-btn-small" id="backFromCreate">Back</button>
+        <button class="start-btn-small" id="startOnlineGame">Create Room</button>
+      </div>
+    </div>
+    
+    <!-- JOIN ROOM FORM -->
+    <div id="joinRoomForm" style="display:none">
+      <h3>Join Room</h3>
+      <div class="join-inputs">
+        <div class="input-group">
+          <label>Room ID</label>
+          <input type="text" class="room-input" id="joinRoomId" placeholder="e.g., whale7313">
+        </div>
+        <div class="input-group">
+          <label>Password</label>
+          <input type="text" class="room-input" id="joinRoomPassword" placeholder="e.g., mercury88">
+        </div>
+      </div>
+      <div class="room-buttons">
+        <button class="back-btn-small" id="backFromJoin">Back</button>
+        <button class="start-btn-small" id="joinOnlineGame">Join Room</button>
+      </div>
+    </div>
+  </div>
+  
   <button class="start-btn" id="startBtn">▶ Start Game</button>
 </div>
 
@@ -1622,7 +1759,15 @@ function endGame(winner) {
 
 function initSetup() {
   console.log("[DEBUG] initSetup started");
+  
+  // Game mode: 'local' (pass & play) or 'online'
+  G.gameMode = 'local';
+  G.roomId = null;
+  G.roomPassword = null;
+  
   renderSetupRows();
+  initModeSelection();
+  initOnlineMultiplayer();
 
   // Player count buttons
   document.querySelectorAll('.count-btn').forEach(btn => {
@@ -1649,7 +1794,132 @@ function initSetup() {
     });
   });
 
-  document.getElementById('startBtn').addEventListener('click', startGame);
+  document.getElementById('startBtn').addEventListener('click', () => {
+    if (G.gameMode === 'local') {
+      startGame();
+    } else {
+      // Online mode - show alert for now
+      alert('Online multiplayer coming soon! Please use Pass & Play mode.');
+    }
+  });
+}
+
+// Mode selection (Pass & Play vs Online)
+function initModeSelection() {
+  const modeBtns = document.querySelectorAll('.mode-btn');
+  const localSettings = document.getElementById('localSettings');
+  const onlineSettings = document.getElementById('onlineSettings');
+  const startBtn = document.getElementById('startBtn');
+  
+  modeBtns.forEach(btn => {
+    btn.addEventListener('click', () => {
+      const mode = btn.dataset.mode;
+      G.gameMode = mode;
+      
+      // Update UI
+      modeBtns.forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      
+      if (mode === 'local') {
+        localSettings.style.display = 'block';
+        onlineSettings.style.display = 'none';
+        startBtn.textContent = '▶ Start Game';
+        startBtn.style.display = 'block';
+      } else {
+        localSettings.style.display = 'none';
+        onlineSettings.style.display = 'block';
+        startBtn.style.display = 'none'; // Hide start button for online mode
+        showOnlineMenu();
+      }
+    });
+  });
+}
+
+// Online multiplayer room logic
+function initOnlineMultiplayer() {
+  // Create Room button
+  document.getElementById('createRoomBtn').addEventListener('click', () => {
+    document.getElementById('onlineMenu').style.display = 'none';
+    document.getElementById('createRoomForm').style.display = 'block';
+    document.getElementById('joinRoomForm').style.display = 'none';
+    generateRoomCredentials(); // Auto-generate on open
+  });
+  
+  // Join Room button
+  document.getElementById('joinRoomBtn').addEventListener('click', () => {
+    document.getElementById('onlineMenu').style.display = 'none';
+    document.getElementById('createRoomForm').style.display = 'none';
+    document.getElementById('joinRoomForm').style.display = 'block';
+  });
+  
+  // Back buttons
+  document.getElementById('backFromCreate').addEventListener('click', showOnlineMenu);
+  document.getElementById('backFromJoin').addEventListener('click', showOnlineMenu);
+  
+  // Generate new room credentials
+  document.getElementById('generateRoomBtn').addEventListener('click', generateRoomCredentials);
+  
+  // Copy room credentials
+  document.getElementById('copyRoomBtn').addEventListener('click', copyRoomCredentials);
+  
+  // Create Room (final)
+  document.getElementById('startOnlineGame').addEventListener('click', () => {
+    alert('Online multiplayer coming soon!\n\nRoom ID: ' + G.roomId + '\nPassword: ' + G.roomPassword);
+  });
+  
+  // Join Room (final)
+  document.getElementById('joinOnlineGame').addEventListener('click', () => {
+    const roomId = document.getElementById('joinRoomId').value.trim();
+    const password = document.getElementById('joinRoomPassword').value.trim();
+    
+    if (!roomId || !password) {
+      alert('Please enter both Room ID and Password');
+      return;
+    }
+    
+    alert('Online multiplayer coming soon!\n\nTrying to join: ' + roomId);
+  });
+}
+
+function showOnlineMenu() {
+  document.getElementById('onlineMenu').style.display = 'block';
+  document.getElementById('createRoomForm').style.display = 'none';
+  document.getElementById('joinRoomForm').style.display = 'none';
+}
+
+// Generate random room credentials
+function generateRoomCredentials() {
+  const nouns = ['whale', 'volcano', 'thomas', 'eagle', 'tiger', 'panda', 'rocket', 'dragon', 'phoenix', 'ocean', 'mountain', 'forest', 'castle', 'knight', 'queen', 'nebula', 'galaxy', 'comet', 'thunder', 'lightning'];
+  const secondWords = ['star', 'moon', 'sun', 'fire', 'ice', 'wind', 'storm', 'shadow', 'blaze', 'frost', 'dream', 'wish', 'power', 'magic', 'hero', 'legend', 'myth', 'epic', 'cosmic', 'solar'];
+  
+  // Generate Room ID: noun + number
+  const noun = nouns[Math.floor(Math.random() * nouns.length)];
+  const roomNum = Math.floor(Math.random() * 9000) + 1000; // 1000-9999
+  G.roomId = noun + roomNum;
+  
+  // Generate Password: word + number
+  const secondWord = secondWords[Math.floor(Math.random() * secondWords.length)];
+  const passNum = Math.floor(Math.random() * 9000) + 1000; // 1000-9999
+  G.roomPassword = secondWord + passNum;
+  
+  // Update UI
+  document.getElementById('generatedRoomId').textContent = G.roomId;
+  document.getElementById('generatedPassword').textContent = G.roomPassword;
+}
+
+// Copy room credentials to clipboard
+function copyRoomCredentials() {
+  const text = `Room ID: ${G.roomId}\nPassword: ${G.roomPassword}`;
+  
+  if (navigator.clipboard) {
+    navigator.clipboard.writeText(text).then(() => {
+      alert('Copied to clipboard!\n\n' + text);
+    }).catch(() => {
+      alert(text);
+    });
+  } else {
+    alert(text);
+  }
 }
 
 function renderSetupRows() {
