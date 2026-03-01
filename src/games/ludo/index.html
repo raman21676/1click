@@ -50,8 +50,8 @@ html,body{height:100%;font-family:'Segoe UI',Arial,sans-serif;
 .hG{background:var(--green)} .hY{background:var(--yellow)}
 .hR{background:var(--red)}   .hB{background:var(--blue)}
 
-/* Home animal mascots - fit perfectly in 4x4 white panel */
-.house-animal{position:absolute;width:320%;max-width:none;height:auto;
+/* Home animal mascots - fit inside white panel without overflowing */
+.house-animal{position:absolute;width:90%;height:90%;
   object-fit:contain;z-index:10;pointer-events:none;
   filter:drop-shadow(0 3px 6px rgba(0,0,0,.4));
   top:50%;left:50%;transform:translate(-50%,-50%)}
@@ -619,16 +619,21 @@ function buildBoard() {
 }
 
 function placeHouseAnimals() {
+  // Place animal in center of 4x4 white panel (at the middle 2x2 intersection)
   const animals = {
-    red:    {img: 'cat.png',   r: 2, c: 2},
-    green:  {img: 'panda.png', r: 2, c: 11},
-    yellow: {img: 'tiger.png', r: 11, c: 11},
-    blue:   {img: 'eagle.png', r: 11, c: 2}
+    red:    {img: 'cat.png',   r: 2, c: 2},    // center of rows 1-4, cols 1-4
+    green:  {img: 'panda.png', r: 2, c: 11},   // center of rows 1-4, cols 10-13
+    yellow: {img: 'tiger.png', r: 11, c: 11},  // center of rows 10-13, cols 10-13
+    blue:   {img: 'eagle.png', r: 11, c: 2}    // center of rows 10-13, cols 1-4
   };
   
   Object.entries(animals).forEach(([house, data]) => {
     const centerCell = document.getElementById(`C${data.r}-${data.c}`);
     if (centerCell) {
+      // Remove any existing animal first
+      const existing = centerCell.querySelector('.house-animal');
+      if (existing) existing.remove();
+      
       const img = document.createElement('img');
       img.src = `assets/${data.img}`;
       img.className = 'house-animal';
@@ -728,29 +733,28 @@ function applyCell(cell, r, c, info) {
   }
 }
 
-// Which cells are token slots inside each home
-// 4x4 white panel centered in 6x6 home, slots at corners of white panel
+// Which cells are token slots - placed at 4 corners of house (outside white panel)
 function homeSlots(p) {
   const map = {
-    // Red: top-left house (rows 0-5, cols 0-5), white panel at rows 1-4, cols 1-4
-    red:    {'1-1':0,'1-4':1,'4-1':2,'4-4':3},
-    // Green: top-right house (rows 0-5, cols 9-14), white panel at rows 1-4, cols 10-13
-    green:  {'1-10':0,'1-13':1,'4-10':2,'4-13':3},
-    // Blue: bottom-left house (rows 9-14, cols 0-5), white panel at rows 10-13, cols 1-4
-    blue:   {'10-1':0,'10-4':1,'13-1':2,'13-4':3},
-    // Yellow: bottom-right house (rows 9-14, cols 9-14), white panel at rows 10-13, cols 10-13
-    yellow: {'10-10':0,'10-13':1,'13-10':2,'13-13':3}
+    // Red: top-left house - corners at (0,0), (0,5), (5,0), (5,5)
+    red:    {'0-0':0,'0-5':1,'5-0':2,'5-5':3},
+    // Green: top-right house - corners at (0,9), (0,14), (5,9), (5,14)
+    green:  {'0-9':0,'0-14':1,'5-9':2,'5-14':3},
+    // Blue: bottom-left house - corners at (9,0), (9,5), (14,0), (14,5)
+    blue:   {'9-0':0,'9-5':1,'14-0':2,'14-5':3},
+    // Yellow: bottom-right house - corners at (9,9), (9,14), (14,9), (14,14)
+    yellow: {'9-9':0,'9-14':1,'14-9':2,'14-14':3}
   };
   return map[p];
 }
 
-// White inner panel cells (4x4 centered white area in 6x6 home)
+// White inner panel cells (4x4 centered in 6x6 house area)
 function isInnerPanel(r, c, p) {
   const panels = {
-    red:    (r>=1&&r<=4&&c>=1&&c<=4),      // top-left: 4x4 centered
-    green:  (r>=1&&r<=4&&c>=10&&c<=13),    // top-right: 4x4 centered
-    blue:   (r>=10&&r<=13&&c>=1&&c<=4),    // bottom-left: 4x4 centered
-    yellow: (r>=10&&r<=13&&c>=10&&c<=13)   // bottom-right: 4x4 centered
+    red:    (r>=1&&r<=4&&c>=1&&c<=4),      // top-left: rows 1-4, cols 1-4
+    green:  (r>=1&&r<=4&&c>=10&&c<=13),    // top-right: rows 1-4, cols 10-13
+    blue:   (r>=10&&r<=13&&c>=1&&c<=4),    // bottom-left: rows 10-13, cols 1-4
+    yellow: (r>=10&&r<=13&&c>=10&&c<=13)   // bottom-right: rows 10-13, cols 10-13
   };
   return panels[p];
 }
