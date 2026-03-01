@@ -81,6 +81,10 @@ html,body{height:100%;font-family:'Segoe UI',Arial,sans-serif;
 #C10-0.hB,#C11-0.hB,#C12-0.hB,#C13-0.hB,#C14-0.hB{border-left:3px solid var(--blue-d)}
 #C9-5.hB,#C10-5.hB,#C11-5.hB,#C12-5.hB,#C13-5.hB,#C14-5.hB{border-right:3px solid var(--blue-d)}
 
+/* Remove ALL internal borders from house cells (white panel, token slots) */
+.bc.hW, .bc.ts{border:none !important}
+.bc.hW::before, .bc.hW::after, .bc.ts::before, .bc.ts::after{border:none !important}
+
 /* Home animal mascots - mathematically centered */
 .house-animal{position:absolute;width:260%;height:260%;
   object-fit:contain;object-position:center center;
