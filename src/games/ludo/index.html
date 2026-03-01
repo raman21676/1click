@@ -46,11 +46,40 @@ html,body{height:100%;font-family:'Segoe UI',Arial,sans-serif;
 .bc{position:relative;display:flex;align-items:center;
   justify-content:center;overflow:visible}
 
-/* Home corners with colored borders */
-.hG{background:var(--green);border:2px solid var(--green-d)}
-.hY{background:var(--yellow);border:2px solid var(--yellow-d)}
-.hR{background:var(--red);border:2px solid var(--red-d)}
-.hB{background:var(--blue);border:2px solid var(--blue-d)}
+/* Home corners */
+.hG{background:var(--green)}
+.hY{background:var(--yellow)}
+.hR{background:var(--red)}
+.hB{background:var(--blue)}
+
+/* House outer borders only - no internal borders */
+/* Red house (rows 0-5, cols 0-5) - outer edges only */
+#C0-0.hR,#C0-1.hR,#C0-2.hR,#C0-3.hR,#C0-4.hR,#C0-5.hR{border-top:3px solid var(--red-d);border-left:3px solid var(--red-d)}
+#C0-5.hR{border-right:3px solid var(--red-d)}
+#C5-0.hR,#C5-1.hR,#C5-2.hR,#C5-3.hR,#C5-4.hR,#C5-5.hR{border-bottom:3px solid var(--red-d)}
+#C1-0.hR,#C2-0.hR,#C3-0.hR,#C4-0.hR,#C5-0.hR{border-left:3px solid var(--red-d)}
+#C0-5.hR,#C1-5.hR,#C2-5.hR,#C3-5.hR,#C4-5.hR,#C5-5.hR{border-right:3px solid var(--red-d)}
+
+/* Green house (rows 0-5, cols 9-14) */
+#C0-9.hG,#C0-10.hG,#C0-11.hG,#C0-12.hG,#C0-13.hG,#C0-14.hG{border-top:3px solid var(--green-d);border-left:3px solid var(--green-d)}
+#C0-14.hG{border-right:3px solid var(--green-d)}
+#C5-9.hG,#C5-10.hG,#C5-11.hG,#C5-12.hG,#C5-13.hG,#C5-14.hG{border-bottom:3px solid var(--green-d)}
+#C1-9.hG,#C2-9.hG,#C3-9.hG,#C4-9.hG,#C5-9.hG{border-left:3px solid var(--green-d)}
+#C0-14.hG,#C1-14.hG,#C2-14.hG,#C3-14.hG,#C4-14.hG,#C5-14.hG{border-right:3px solid var(--green-d)}
+
+/* Yellow house (rows 9-14, cols 9-14) */
+#C9-9.hY,#C9-10.hY,#C9-11.hY,#C9-12.hY,#C9-13.hY,#C9-14.hY{border-top:3px solid var(--yellow-d);border-left:3px solid var(--yellow-d)}
+#C9-14.hY{border-right:3px solid var(--yellow-d)}
+#C14-9.hY,#C14-10.hY,#C14-11.hY,#C14-12.hY,#C14-13.hY,#C14-14.hY{border-bottom:3px solid var(--yellow-d)}
+#C10-9.hY,#C11-9.hY,#C12-9.hY,#C13-9.hY,#C14-9.hY{border-left:3px solid var(--yellow-d)}
+#C9-14.hY,#C10-14.hY,#C11-14.hY,#C12-14.hY,#C13-14.hY,#C14-14.hY{border-right:3px solid var(--yellow-d)}
+
+/* Blue house (rows 9-14, cols 0-5) */
+#C9-0.hB,#C9-1.hB,#C9-2.hB,#C9-3.hB,#C9-4.hB,#C9-5.hB{border-top:3px solid var(--blue-d);border-left:3px solid var(--blue-d)}
+#C9-5.hB{border-right:3px solid var(--blue-d)}
+#C14-0.hB,#C14-1.hB,#C14-2.hB,#C14-3.hB,#C14-4.hB,#C14-5.hB{border-bottom:3px solid var(--blue-d)}
+#C10-0.hB,#C11-0.hB,#C12-0.hB,#C13-0.hB,#C14-0.hB{border-left:3px solid var(--blue-d)}
+#C9-5.hB,#C10-5.hB,#C11-5.hB,#C12-5.hB,#C13-5.hB,#C14-5.hB{border-right:3px solid var(--blue-d)}
 
 /* Home animal mascots - mathematically centered */
 .house-animal{position:absolute;width:260%;height:260%;
