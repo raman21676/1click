@@ -1262,6 +1262,46 @@ document.getElementById('menuBtn').addEventListener('click', () => {
 // INIT
 // ════════════════════════════════════════════════════
 initSetup();
+
+// DEBUG: Verify board cell positions
+function verifyBoard() {
+  console.log('%c=== BOARD VERIFICATION ===', 'color:red;font-size:16px;font-weight:bold');
+  
+  // Check all entry cells
+  Object.entries(ENTRY).forEach(([player, gpos]) => {
+    const cell = document.querySelector(`[data-gpos="${gpos}"]`);
+    if (cell) {
+      const [pr, pc] = PATH[gpos];
+      console.log(`${player.toUpperCase()} entry (gpos=${gpos}):`);
+      console.log(`  PATH[${gpos}] = [${pr},${pc}] (row ${pr}, col ${pc})`);
+      console.log(`  Cell ID: ${cell.id}`);
+      console.log(`  Cell classes: ${cell.className}`);
+      console.log(`  Expected location: ${player === 'red' ? 'bottom-left' : player === 'green' ? 'top-left' : player === 'yellow' ? 'top-right' : 'bottom-right'}`);
+    } else {
+      console.log(`%c${player.toUpperCase()} entry NOT FOUND!`, 'color:red');
+    }
+  });
+  
+  // Check for duplicate gpos assignments
+  const allGpos = document.querySelectorAll('[data-gpos]');
+  const gposMap = {};
+  allGpos.forEach(cell => {
+    const g = cell.dataset.gpos;
+    if (!gposMap[g]) gposMap[g] = [];
+    gposMap[g].push(cell.id);
+  });
+  
+  Object.entries(gposMap).forEach(([g, ids]) => {
+    if (ids.length > 1) {
+      console.log(`%cDUPLICATE gpos=${g}: ${ids.join(', ')}`, 'color:red');
+    }
+  });
+  
+  console.log('%c=== END VERIFICATION ===', 'color:red;font-size:16px;font-weight:bold');
+}
+
+// Run verification after a short delay
+setTimeout(verifyBoard, 1000);
 </script>
 </body>
 </html>
