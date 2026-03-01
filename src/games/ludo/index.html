@@ -164,7 +164,7 @@ html,body{height:100%;font-family:'Segoe UI',Arial,sans-serif;
   25%{transform:rotate(-18deg) scale(1.12)}
   75%{transform:rotate(18deg) scale(1.12)}
   100%{transform:rotate(0) scale(1)}}
-.dd{border-radius:50%;display:none}
+.dd{width:100%;height:100%;border-radius:50%;display:none}
 .dd.v{display:block}
 .ddR{background:var(--red)} .ddG{background:var(--green)}
 .ddY{background:var(--yellow)} .ddB{background:var(--blue)}
@@ -397,16 +397,17 @@ Object.entries(HOME_RUN).forEach(([p,cells]) => {
   cells.forEach(([r,c],i) => { RC_TO_HR[`${r}-${c}`] = {player:p, hrIdx:i}; });
 });
 
-// Dice face dot positions (1=top-left, 2=top-mid, 3=top-right,
-//                          4=mid-left, 5=center, 6=mid-right,
-//                          7=bot-left, 8=bot-mid, 9=bot-right)
+// Dice face dot positions (0=top-left, 1=top-mid, 2=top-right,
+//                          3=mid-left, 4=center, 5=mid-right,
+//                          6=bot-left, 7=bot-mid, 8=bot-right)
+// Using 0-indexed positions for clearer grid alignment
 const DICE_FACES = {
-  1:[5],
-  2:[1,9],
-  3:[1,5,9],
-  4:[1,3,7,9],
-  5:[1,3,5,7,9],
-  6:[1,3,4,6,7,9]
+  1:[4],
+  2:[0,8],
+  3:[0,4,8],
+  4:[0,2,6,8],
+  5:[0,2,4,6,8],
+  6:[0,2,3,5,6,8]
 };
 
 // ════════════════════════════════════════════════════
@@ -567,7 +568,13 @@ function renderTokens() {
 function placeTokenIndexed(player, idx, pos) {
   const token = createTokenEl(player, idx, pos);
   const cell  = getCellForPosImproved(player, pos, idx);
-  if (!cell) return;
+  if (!cell) {
+    console.log(`[DEBUG] No cell found for ${player}[${idx}] pos=${pos}`);
+    return;
+  }
+  if (pos === 1) {
+    console.log(`[DEBUG] Placing ${player}[${idx}] at pos=1, cell id=${cell.id}, gpos=${cell.dataset.gpos}`);
+  }
 
   // Count existing tokens on cell for stacking
   const tokensOnCell = cell.querySelectorAll('.tok').length;
@@ -636,7 +643,7 @@ function showDiceFace(val, colorClass) {
   const dots = document.querySelectorAll('.dd');
   dots.forEach((d,i) => {
     d.className = `dd ${colorClass||'dd-def'}`;
-    if (DICE_FACES[val] && DICE_FACES[val].includes(i+1)) d.classList.add('v');
+    if (DICE_FACES[val] && DICE_FACES[val].includes(i)) d.classList.add('v');
   });
 }
 
@@ -727,7 +734,12 @@ function aiChoose(player, movable) {
 }
 
 function handleTokenClick(player, idx) {
-  if (!canMove(player, idx)) return;
+  console.log(`[DEBUG] Token clicked: player=${player}, idx=${idx}, pos=${G.tokens[player][idx]}`);
+  console.log(`[DEBUG] Current player: ${curPlayer()}, phase: ${G.phase}, dice: ${G.diceVal}`);
+  if (!canMove(player, idx)) {
+    console.log(`[DEBUG] Move not allowed for ${player} ${idx}`);
+    return;
+  }
   moveToken(player, idx);
 }
 
@@ -743,6 +755,7 @@ function moveToken(player, idx) {
     if (newPos > 58) newPos = 58;
   }
 
+  console.log(`[DEBUG] moveToken: ${player}[${idx}] ${oldPos} -> ${newPos} (entry=${ENTRY[player]})`);
   G.tokens[player][idx] = newPos;
 
   // Check captures (only on main path 1-52)
