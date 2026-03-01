@@ -1106,24 +1106,19 @@ const FACE_ROTATIONS = {
 
 
 
-function showDiceFace(val, playerColor) {
+function showDiceFace(val, pColor) {
   // This function is deprecated - dice animation now handled in performRoll
   // Keeping for backwards compatibility
-  const playerColor = playerColor || curPlayer();
+  pColor = pColor || curPlayer();
   
-  // Calculate target rotation with 2 full extra spins (720deg) for visual flair
-  // The extra spins ensure the dice visibly rotates even when showing same face
+  const diceCube = document.getElementById('diceCube');
+  const rotation = FACE_ROTATIONS[val];
   const extraSpins = 720;
   const targetX = rotation.x + extraSpins;
   const targetY = rotation.y + extraSpins;
   const targetZ = rotation.z;
   
-  // Apply transform with smooth transition
-  cube.style.transform = `rotateX(${targetX}deg) rotateY(${targetY}deg) rotateZ(${targetZ}deg)`;
-  
-  // Apply player color and state classes
-  const stateClass = G.phase === 'roll' && isAI() ? 'disabled' : '';
-  dice.className = `dice ${stateClass} ${playerColor || ''}`;
+  diceCube.style.transform = `rotateX(${targetX}deg) rotateY(${targetY}deg) rotateZ(${targetZ}deg)`;
 }
 
 function logDebug(msg) {
