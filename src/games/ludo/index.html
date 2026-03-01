@@ -602,15 +602,15 @@ function buildBoard() {
 }
 
 function cellInfo(r, c) {
-  // Home corners - ROTATED BACKWARD as per user instruction
-  // Green → Red's position (bottom-left)
-  // Yellow → Green's position (top-left)
-  // Blue → Yellow's position (top-right)
-  // Red → Blue's position (bottom-right)
-  if (r<6&&c<6) return {type:'home',p:'yellow'};  // top-left: YELLOW
-  if (r<6&&c>8) return {type:'home',p:'blue'};    // top-right: BLUE
-  if (r>8&&c<6) return {type:'home',p:'green'};   // bottom-left: GREEN
-  if (r>8&&c>8) return {type:'home',p:'red'};     // bottom-right: RED
+  // Home corners - ROTATED 2 steps to correct previous wrong rotation
+  // Green entry at top → Green house at top-left
+  // Yellow entry at right → Yellow house at top-right
+  // Blue entry at bottom → Blue house at bottom-right
+  // Red entry at left → Red house at bottom-left
+  if (r<6&&c<6) return {type:'home',p:'green'};   // top-left: GREEN
+  if (r<6&&c>8) return {type:'home',p:'yellow'};  // top-right: YELLOW
+  if (r>8&&c<6) return {type:'home',p:'red'};     // bottom-left: RED
+  if (r>8&&c>8) return {type:'home',p:'blue'};    // bottom-right: BLUE
 
   // Center 3×3
   if (r>=6&&r<=8&&c>=6&&c<=8) return {type:'center'};
@@ -690,11 +690,11 @@ function applyCell(cell, r, c, info) {
 // Which cells are token slots inside each home
 function homeSlots(p) {
   const map = {
-    // Houses rotated backward
-    yellow: {'1-1':0,'1-3':1,'3-1':2,'3-3':3},      // top-left (was green)
-    blue:   {'1-11':0,'1-13':1,'3-11':2,'3-13':3},  // top-right (was yellow)
-    green:  {'10-1':0,'10-3':1,'12-1':2,'12-3':3},  // bottom-left (was red)
-    red:    {'10-11':0,'10-13':1,'12-11':2,'12-13':3} // bottom-right (was blue)
+    // Houses in correct positions matching path entries
+    green:  {'1-1':0,'1-3':1,'3-1':2,'3-3':3},      // top-left
+    yellow: {'1-11':0,'1-13':1,'3-11':2,'3-13':3},  // top-right
+    red:    {'10-1':0,'10-3':1,'12-1':2,'12-3':3},  // bottom-left
+    blue:   {'10-11':0,'10-13':1,'12-11':2,'12-13':3} // bottom-right
   };
   return map[p];
 }
@@ -702,10 +702,10 @@ function homeSlots(p) {
 // White inner panel cells (non-slot cells in white area)
 function isInnerPanel(r, c, p) {
   const panels = {
-    yellow: (r>=1&&r<=4&&c>=1&&c<=4),      // top-left
-    blue:   (r>=1&&r<=4&&c>=11&&c<=14),    // top-right
-    green:  (r>=10&&r<=13&&c>=1&&c<=4),    // bottom-left
-    red:    (r>=10&&r<=13&&c>=11&&c<=14)   // bottom-right
+    green:  (r>=1&&r<=4&&c>=1&&c<=4),      // top-left
+    yellow: (r>=1&&r<=4&&c>=11&&c<=14),    // top-right
+    red:    (r>=10&&r<=13&&c>=1&&c<=4),    // bottom-left
+    blue:   (r>=10&&r<=13&&c>=11&&c<=14)   // bottom-right
   };
   return panels[p];
 }
