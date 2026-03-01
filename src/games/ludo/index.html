@@ -155,20 +155,39 @@ html,body{height:100%;font-family:'Segoe UI',Arial,sans-serif;
   cursor:pointer;user-select:none;
   display:grid;grid-template-columns:repeat(3,1fr);
   grid-template-rows:repeat(3,1fr);
-  padding:12%;gap:10%;transition:transform .2s}
+  padding:12%;gap:10%;transition:transform .2s,box-shadow .2s}
 .dice:hover:not(.disabled){transform:scale(1.06) rotate(-4deg)}
 .dice.disabled{opacity:.45;cursor:not-allowed}
-.dice.rolling{animation:dSpin .5s ease-in-out 3}
-@keyframes dSpin{
-  0%{transform:rotate(0) scale(1)}
-  25%{transform:rotate(-18deg) scale(1.12)}
-  75%{transform:rotate(18deg) scale(1.12)}
-  100%{transform:rotate(0) scale(1)}}
-.dd{width:100%;height:100%;border-radius:50%;display:none;background:#333}
-.dd.v{display:block}
-.ddR{background:var(--red)!important} .ddG{background:var(--green)!important}
-.ddY{background:var(--yellow)!important} .ddB{background:var(--blue)!important}
-.dd-def{background:#222!important}
+
+/* Realistic rolling animation - shakes and rotates the entire dice */
+.dice.rolling{animation:dShake .12s ease-in-out infinite,dPulse .15s ease-in-out infinite}
+@keyframes dShake{
+  0%,100%{transform:translate(0,0) rotate(0deg)}
+  10%{transform:translate(-3px,-3px) rotate(-12deg)}
+  20%{transform:translate(3px,-2px) rotate(10deg)}
+  30%{transform:translate(-2px,3px) rotate(-8deg)}
+  40%{transform:translate(2px,2px) rotate(6deg)}
+  50%{transform:translate(-3px,1px) rotate(-10deg)}
+  60%{transform:translate(3px,-3px) rotate(8deg)}
+  70%{transform:translate(-2px,-2px) rotate(-6deg)}
+  80%{transform:translate(2px,-1px) rotate(4deg)}
+  90%{transform:translate(-1px,2px) rotate(-4deg)}}
+@keyframes dPulse{
+  0%,100%{box-shadow:0 4px 12px rgba(0,0,0,.4),inset 0 1px 3px rgba(255,255,255,.8)}
+  50%{box-shadow:0 8px 24px rgba(0,0,0,.5),inset 0 2px 5px rgba(255,255,255,.9)}}
+
+/* Landing bounce animation */
+.dice.land{animation:dBounce .4s ease-out}
+@keyframes dBounce{
+  0%{transform:scale(1.3) translateY(-15px)}
+  40%{transform:scale(0.95) translateY(3px)}
+  70%{transform:scale(1.05) translateY(-5px)}
+  100%{transform:scale(1) translateY(0)}}
+.dd{width:100%;height:100%;border-radius:50%;display:none}
+.dd.v{display:block;background:#333;box-shadow:inset 0 1px 2px rgba(0,0,0,.3)}
+.ddR{background:var(--red)} .ddG{background:var(--green)}
+.ddY{background:var(--yellow)} .ddB{background:var(--blue)}
+.dd-def{background:#444}
 .roll-btn{background:linear-gradient(135deg,#FF6F00,#FFD600);
   border:none;border-radius:7px;color:#000;
   font-size:clamp(10px,1.9vmin,13px);font-weight:800;
@@ -661,21 +680,31 @@ function performRoll() {
   G.phase = 'anim';
   const dice = document.getElementById('dice');
   updateDiceUI();
+  dice.classList.remove('land');
   dice.classList.add('rolling');
 
+  // Show random faces during roll for "motion blur" effect
   let rolls = 0;
   const intv = setInterval(() => {
-    showDiceFace(Math.ceil(Math.random()*6));
-    if (++rolls >= 9) {
+    // Show random dots with "motion blur" (semi-transparent)
+    const dots = document.querySelectorAll('.dd');
+    dots.forEach(d => {
+      d.className = 'dd dd-def';
+      if (Math.random() > 0.3) d.classList.add('v'); // Random pattern
+    });
+    if (++rolls >= 12) {
       clearInterval(intv);
       dice.classList.remove('rolling');
+      dice.classList.add('land'); // Trigger bounce animation
       G.diceVal = Math.ceil(Math.random()*6);
       const p = curPlayer();
       const cc = {red:'ddR',green:'ddG',yellow:'ddY',blue:'ddB'};
       showDiceFace(G.diceVal, cc[p]);
+      // Remove land class after animation completes
+      setTimeout(() => dice.classList.remove('land'), 400);
       afterRoll();
     }
-  }, 80);
+  }, 90);
 }
 
 // ════════════════════════════════════════════════════
