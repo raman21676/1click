@@ -50,11 +50,15 @@ html,body{height:100%;font-family:'Segoe UI',Arial,sans-serif;
 .hG{background:var(--green)} .hY{background:var(--yellow)}
 .hR{background:var(--red)}   .hB{background:var(--blue)}
 
-/* Home animal mascots - perfectly centered and sized */
-.house-animal{position:absolute;width:250%;height:250%;
-  object-fit:contain;z-index:10;pointer-events:none;
+/* Home animal mascots - mathematically centered */
+.house-animal{position:absolute;width:260%;height:260%;
+  object-fit:contain;object-position:center center;
+  z-index:10;pointer-events:none;
   filter:drop-shadow(0 3px 6px rgba(0,0,0,.4));
-  top:50%;left:50%;transform:translate(-50%,-50%)}
+  /* Center the image both horizontally and vertically */
+  top:50%;left:50%;
+  transform:translate(-50%, -50%);
+  -webkit-transform:translate(-50%, -50%)}
 
 /* Home inner white panel */
 .hW{background:rgba(255,255,255,.9)}
@@ -619,25 +623,38 @@ function buildBoard() {
 }
 
 function placeHouseAnimals() {
-  // Remove existing animals first
+  // Remove existing animals
   document.querySelectorAll('.house-animal').forEach(el => el.remove());
   
-  // Place animal in top-left of center 2x2 area of white panel
-  const animals = {
-    red:    {img: 'cat.png',   r: 2, c: 2},
-    green:  {img: 'panda.png', r: 2, c: 11},
-    yellow: {img: 'tiger.png', r: 11, c: 11},
-    blue:   {img: 'eagle.png', r: 11, c: 2}
-  };
+  // Calculate exact center positions
+  const board = document.getElementById('ludoBoard');
+  if (!board) return;
   
-  Object.entries(animals).forEach(([house, data]) => {
-    const cell = document.getElementById(`C${data.r}-${data.c}`);
-    if (cell) {
+  const boardRect = board.getBoundingClientRect();
+  const cellSize = boardRect.width / 15; // 15x15 grid
+  
+  // White panel is 4x4 cells, center is at 2 cells offset from top-left of panel
+  // For each house, calculate exact center coordinates
+  const houses = [
+    {name: 'red',    img: 'cat.png',   row: 1, col: 1},   // White panel starts at row 1, col 1
+    {name: 'green',  img: 'panda.png', row: 1, col: 10},  // White panel starts at row 1, col 10
+    {name: 'yellow', img: 'tiger.png', row: 10, col: 10}, // White panel starts at row 10, col 10
+    {name: 'blue',   img: 'eagle.png', row: 10, col: 1}   // White panel starts at row 10, col 1
+  ];
+  
+  houses.forEach(house => {
+    // White panel spans 4 cells, center is at 2 cells from start
+    const centerRow = house.row + 2; // Rows 2-3 are center (0-indexed: 2.5)
+    const centerCol = house.col + 2; // Cols 2-3 are center (0-indexed: 2.5)
+    
+    // Get the center cell
+    const centerCell = document.getElementById(`C${centerRow}-${centerCol}`);
+    if (centerCell) {
       const img = document.createElement('img');
-      img.src = `assets/${data.img}`;
+      img.src = `assets/${house.img}`;
       img.className = 'house-animal';
-      img.alt = house;
-      cell.appendChild(img);
+      img.alt = house.name;
+      centerCell.appendChild(img);
     }
   });
 }
