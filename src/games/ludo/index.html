@@ -50,8 +50,8 @@ html,body{height:100%;font-family:'Segoe UI',Arial,sans-serif;
 .hG{background:var(--green)} .hY{background:var(--yellow)}
 .hR{background:var(--red)}   .hB{background:var(--blue)}
 
-/* Home animal mascots - fit inside white panel without overflowing */
-.house-animal{position:absolute;width:90%;height:90%;
+/* Home animal mascots - span 2x2 cells in center of 4x4 white panel */
+.house-animal{position:absolute;width:200%;height:200%;
   object-fit:contain;z-index:10;pointer-events:none;
   filter:drop-shadow(0 3px 6px rgba(0,0,0,.4));
   top:50%;left:50%;transform:translate(-50%,-50%)}
@@ -619,26 +619,25 @@ function buildBoard() {
 }
 
 function placeHouseAnimals() {
-  // Place animal in center of 4x4 white panel (at the middle 2x2 intersection)
+  // Remove existing animals first
+  document.querySelectorAll('.house-animal').forEach(el => el.remove());
+  
+  // Place animal in top-left of center 2x2 area of white panel
   const animals = {
-    red:    {img: 'cat.png',   r: 2, c: 2},    // center of rows 1-4, cols 1-4
-    green:  {img: 'panda.png', r: 2, c: 11},   // center of rows 1-4, cols 10-13
-    yellow: {img: 'tiger.png', r: 11, c: 11},  // center of rows 10-13, cols 10-13
-    blue:   {img: 'eagle.png', r: 11, c: 2}    // center of rows 10-13, cols 1-4
+    red:    {img: 'cat.png',   r: 2, c: 2},
+    green:  {img: 'panda.png', r: 2, c: 11},
+    yellow: {img: 'tiger.png', r: 11, c: 11},
+    blue:   {img: 'eagle.png', r: 11, c: 2}
   };
   
   Object.entries(animals).forEach(([house, data]) => {
-    const centerCell = document.getElementById(`C${data.r}-${data.c}`);
-    if (centerCell) {
-      // Remove any existing animal first
-      const existing = centerCell.querySelector('.house-animal');
-      if (existing) existing.remove();
-      
+    const cell = document.getElementById(`C${data.r}-${data.c}`);
+    if (cell) {
       const img = document.createElement('img');
       img.src = `assets/${data.img}`;
       img.className = 'house-animal';
       img.alt = house;
-      centerCell.appendChild(img);
+      cell.appendChild(img);
     }
   });
 }
