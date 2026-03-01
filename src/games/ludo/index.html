@@ -1768,6 +1768,7 @@ document.getElementById('menuBtn').addEventListener('click', () => {
 // INIT
 // ════════════════════════════════════════════════════
 console.log("[DEBUG] Calling initSetup");
+window.onerror = function(msg, url, line) { console.error("[JS ERROR] " + msg + " at line " + line); };
 initSetup();
 
 // DEBUG: Verify board cell positions
