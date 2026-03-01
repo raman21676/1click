@@ -638,7 +638,9 @@ let G = {
   diceVal: null,
   phase: 'roll', // 'roll'|'move'|'anim'
   eliminated: new Set(),
-  winner: null
+  winner: null,
+  playerNames: {}, // {red:'James', green:'Hans', ...}
+  playerEmojis: {} // {red:'👦', green:'👧', ...}
 };
 
 let cdInterval = null;
@@ -914,13 +916,81 @@ function homeSlotCell(player, idx) {
   return document.querySelector(`[data-home-slot="${player}"][data-slot-idx="${idx}"]`);
 }
 
+// Name database - 100+ names from different regions
+const NAME_DATABASE = {
+  // US/Common Western (20)
+  US: ['James','Emma','Liam','Olivia','Noah','Ava','Oliver','Sophia','Elijah','Isabella',
+       'William','Mia','Henry','Charlotte','Lucas','Amelia','Benjamin','Harper','Alexander','Evelyn'],
+  // Europe (20)
+  EUROPE: ['Hans','Anna','Marco','Sofia','Pierre','Camille','Lars','Freya','Giuseppe','Chiara',
+          'Lukas','Emma','Mikael','Sara','Klaus','Ingrid','Jan','Eva','Tomas','Zofia'],
+  // India (20)
+  INDIA: ['Arjun','Priya','Rohan','Anjali','Vikram','Sneha','Raj','Pooja','Amit','Divya',
+         'Karthik','Lakshmi','Sanjay','Meera','Vijay','Sunita','Ravi','Kavita','Manoj','Rekha'],
+  // China (20)
+  CHINA: ['Wei','Li','Hao','Xia','Chen','Ying','Jun','Mei','Ming','Lan',
+         'Feng','Hua','Tao','Jing','Yang','Fang','Long','Ping','Peng','Xiu'],
+  // Japan (10)
+  JAPAN: ['Kenji','Yuki','Hiroshi','Sakura','Takeshi','Akemi','Ryo','Aiko','Shinji','Yumi'],
+  // Korea (10)
+  KOREA: ['Minho','Ji-eun','Seojun','Haeun','Joon','Soo-min','Taehyung','Yoona','Hyun','Mina'],
+  // Middle East (10)
+  MIDDLE_EAST: ['Omar','Layla','Amir','Fatima','Karim','Yasmin','Hassan','Zara','Ali','Noor'],
+  // Africa (10)
+  AFRICA: ['Kwame','Amina','Chidi','Zola','Tendai','Nia','Jabari','Sanaa','Omari','Imani'],
+  // Latin America (10)
+  LATAM: ['Mateo','Camila','Santiago','Valentina','Diego','Luciana','Carlos','Isabella','Juan','Mariana']
+};
+
+// Gender indicators for emoji selection (0=female, 1=male, 2=unisex)
+const NAME_GENDER = {
+  // US
+  James:1,Emma:0,Liam:1,Olivia:0,Noah:1,Ava:0,Oliver:1,Sophia:0,Elijah:1,Isabella:0,
+  William:1,Mia:0,Henry:1,Charlotte:0,Lucas:1,Amelia:0,Benjamin:1,Harper:0,Alexander:1,Evelyn:0,
+  // Europe
+  Hans:1,Anna:0,Marco:1,Sofia:0,Pierre:1,Camille:0,Lars:1,Freya:0,Giuseppe:1,Chiara:0,
+  Lukas:1,Emma:0,Mikael:1,Sara:0,Klaus:1,Ingrid:0,Jan:1,Eva:0,Tomas:1,Zofia:0,
+  // India
+  Arjun:1,Priya:0,Rohan:1,Anjali:0,Vikram:1,Sneha:0,Raj:1,Pooja:0,Amit:1,Divya:0,
+  Karthik:1,Lakshmi:0,Sanjay:1,Meera:0,Vijay:1,Sunita:0,Ravi:1,Kavita:0,Manoj:1,Rekha:0,
+  // China
+  Wei:1,Li:0,Hao:1,Xia:0,Chen:1,Ying:0,Jun:1,Mei:0,Ming:1,Lan:0,
+  Feng:1,Hua:0,Tao:1,Jing:0,Yang:1,Fang:0,Long:1,Ping:0,Peng:1,Xiu:0,
+  // Japan
+  Kenji:1,Yuki:0,Hiroshi:1,Sakura:0,Takeshi:1,Akemi:0,Ryo:1,Aiko:0,Shinji:1,Yumi:0,
+  // Korea
+  Minho:1,Ji_eun:0,Seojun:1,Haeun:0,Joon:1,Soo_min:0,Taehyung:1,Yoona:0,Hyun:1,Mina:0,
+  // Middle East
+  Omar:1,Layla:0,Amir:1,Fatima:0,Karim:1,Yasmin:0,Hassan:1,Zara:0,Ali:1,Noor:0,
+  // Africa
+  Kwame:1,Amina:0,Chidi:1,Zola:0,Tendai:1,Nia:0,Jabari:1,Sanaa:0,Omari:1,Imani:0,
+  // Latin America
+  Mateo:1,Camila:0,Santiago:1,Valentina:0,Diego:1,Luciana:0,Carlos:1,Isabella:0,Juan:1,Mariana:0
+};
+
+// Get random name for AI player
+function getRandomAIName() {
+  const regions = Object.keys(NAME_DATABASE);
+  const randomRegion = regions[Math.floor(Math.random() * regions.length)];
+  const names = NAME_DATABASE[randomRegion];
+  return names[Math.floor(Math.random() * names.length)];
+}
+
+// Get emoji based on name gender
+function getPlayerEmoji(name) {
+  const gender = NAME_GENDER[name] || 2;
+  if (gender === 0) return '👧'; // Female
+  if (gender === 1) return '👦'; // Male
+  return ['👧','👦'][Math.floor(Math.random() * 2)]; // Random for unisex
+}
+
 function createTokenEl(player, idx, pos) {
   const token = document.createElement('div');
   const p1    = player[0].toUpperCase();
   token.className = `tok tok${p1} ${pos===0?'tok-home':'tok-path'}`;
   token.dataset.player = player;
   token.dataset.idx    = idx;
-  token.textContent    = idx + 1;
+  // No text content - tokens are just colored circles now
 
   if (canMove(player, idx)) token.classList.add('movable');
   token.addEventListener('click', () => handleTokenClick(player, idx));
@@ -1029,7 +1099,7 @@ function afterRoll() {
       return pos + dice <= 58;
     });
 
-  addLog(`${cap(player)} rolled ${dice}`);
+  addLog(`${getPlayerDisplayName(player)} rolled ${dice}`);
 
   if (movable.length === 0) {
     addLog('No valid moves. Next turn!');
@@ -1074,7 +1144,7 @@ function moveToken(player, idx) {
 
   if (oldPos === 0) {
     newPos = 1;
-    addLog(`${cap(player)} enters the game!`);
+    addLog(`${getPlayerDisplayName(player)} enters the game!`);
   } else {
     newPos = oldPos + G.diceVal;
     if (newPos > 58) newPos = 58;
@@ -1089,7 +1159,7 @@ function moveToken(player, idx) {
   // Win check
   if (newPos === 58) {
     const done = G.tokens[player].filter(p => p === 58).length;
-    addLog(`${cap(player)} token ${idx+1} home! (${done}/4)`);
+    addLog(`${getPlayerDisplayName(player)} token ${idx+1} home! (${done}/4)`);
     if (done === 4) { endGame(player); return; }
   }
 
@@ -1116,7 +1186,7 @@ function checkCapture(player, tokenIdx, localPos) {
       const oppGlobal = (ENTRY[opp] + oppPos - 1) % 52;
       if (oppGlobal === globalP) {
         G.tokens[opp][oppIdx] = 0;
-        addLog(`💥 ${cap(player)} captured ${opp}'s token!`);
+        addLog(`💥 ${getPlayerDisplayName(player)} captured ${getPlayerDisplayName(opp)}'s token!`);
       }
     });
   });
@@ -1146,7 +1216,7 @@ function startEliminationCountdown(player) {
   overlay.classList.add('active');
   num.textContent  = secs;
   fill.style.width = '100%';
-  addLog(`⚠️ ${cap(player)} inactive! Eliminating in 30s...`);
+  addLog(`⚠️ ${getPlayerDisplayName(player)} inactive! Eliminating in 30s...`);
   cdInterval = setInterval(() => {
     secs--;
     num.textContent  = secs;
@@ -1162,7 +1232,7 @@ function startEliminationCountdown(player) {
 function eliminatePlayer(player) {
   G.eliminated.add(player);
   G.tokens[player] = [58,58,58,58];
-  addLog(`❌ ${cap(player)} was eliminated!`);
+  addLog(`❌ ${getPlayerDisplayName(player)} was eliminated!`);
   updatePlayerPanels();
   renderTokens();
   const rem = G.active.filter(p => !G.eliminated.has(p));
@@ -1185,7 +1255,8 @@ function updateUI() {
   const player = curPlayer();
   const color  = COLORS[player].main;
 
-  document.getElementById('turnText').textContent = `${cap(player)}'s Turn`;
+  const displayName = G.playerNames[player] || cap(player);
+  document.getElementById('turnText').textContent = `${displayName}'s Turn`;
   document.getElementById('turnText').style.color = color;
 
   if (G.phase==='roll') {
@@ -1227,11 +1298,12 @@ function updatePlayerPanels() {
     const dotsHTML = G.tokens[p]
       .map(pos => `<div class="ptd${pos<58?' on':''}"></div>`)
       .join('');
-    const typeLabel = G.ptypes[p]==='ai' ? '🤖' : '👤';
+    const displayName = G.playerNames[p] || cap(p);
+    const emoji = G.playerEmojis[p] || '👤';
 
     panel.innerHTML = `
       <div class="panel-name">
-        <div class="panel-dot"></div>${cap(p)}${typeLabel}
+        <div class="panel-dot"></div>${displayName}${emoji}
       </div>
       <div class="panel-tkns">${dotsHTML}</div>
     `;
@@ -1249,6 +1321,11 @@ function addLog(msg) {
 
 function cap(str) { return str.charAt(0).toUpperCase() + str.slice(1); }
 
+// Get player display name for logs
+function getPlayerDisplayName(player) {
+  return G.playerNames[player] || cap(player);
+}
+
 // ════════════════════════════════════════════════════
 // GAME END
 // ════════════════════════════════════════════════════
@@ -1258,7 +1335,8 @@ function endGame(winner) {
   if (cdInterval) { clearInterval(cdInterval); cdInterval=null; }
   const emojis = ['🏆','🎉','👑','⭐'];
   document.getElementById('winEmoji').textContent  = emojis[Math.floor(Math.random()*4)];
-  document.getElementById('winTitle').textContent  = `${cap(winner)} Wins!`;
+  const winnerName = G.playerNames[winner] || cap(winner);
+  document.getElementById('winTitle').textContent  = `${winnerName} Wins!`;
   document.getElementById('winTitle').style.color  = COLORS[winner].main;
   document.getElementById('winSub').textContent    = G.ptypes[winner]==='ai'
     ? 'The AI wins this round!' : 'Congratulations! You won!';
@@ -1359,6 +1437,18 @@ function startGame() {
   G.eliminated  = new Set();
   G.winner      = null;
   if (cdInterval) { clearInterval(cdInterval); cdInterval=null; }
+  
+  // Assign random names to AI players
+  G.playerNames = {};
+  G.playerEmojis = {};
+  G.active.forEach(p => {
+    if (G.ptypes[p] === 'ai') {
+      G.playerNames[p] = getRandomAIName();
+    } else {
+      G.playerNames[p] = 'You';
+    }
+    G.playerEmojis[p] = getPlayerEmoji(G.playerNames[p]);
+  });
 
   // Build / reset board
   buildBoard();
