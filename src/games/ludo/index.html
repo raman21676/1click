@@ -215,139 +215,184 @@ html,body{height:100%;font-family:'Segoe UI',Arial,sans-serif;
   border-radius:50%;background:var(--pc);opacity:.25}
 .ptd.on{opacity:1}
 
-/* ─── 3D DICE CUBE ────────────────────────────────────── */
-.dice-area{display:flex;flex-direction:column;
-  align-items:center;gap:5px;flex-shrink:0}
+/* AI Bot icon styling */
+.ai-bot-icon{width:18px;height:18px;vertical-align:middle;margin-right:4px}
+.ai-bot-icon-small{width:14px;height:14px;vertical-align:middle}
 
-/* Scene with perspective - fixed size for consistent 3D */
-.dice-scene{
-  perspective: 400px;
-  perspective-origin: 50% 50%;
-  width: 60px;
-  height: 60px;
+/* ── DICE SCENE ─────────────────────────────────────────── */
+.dice-scene {
+  width: 72px;
+  height: 72px;
+  perspective: 500px;
+  perspective-origin: 50% 40%;
 }
 
-/* The dice wrapper */
-.dice{
-  width: 100%;
-  height: 100%;
+.dice-cube {
+  width: 72px;
+  height: 72px;
   position: relative;
   transform-style: preserve-3d;
-  cursor: pointer;
-  transition: transform 0.3s ease;
+  transform: rotateX(-25deg) rotateY(25deg);
+  will-change: transform;
+  filter: drop-shadow(0 12px 28px rgba(0,0,0,0.45));
 }
 
-.dice:hover:not(.disabled){transform: rotateX(-10deg) rotateY(10deg);}
-.dice.disabled{opacity:.6;cursor:not-allowed}
-
-/* The cube that rotates */
-.cube{
-  width: 100%;
-  height: 100%;
-  position: relative;
-  transform-style: preserve-3d;
-  transition: transform 1s ease-out;
-}
-
-/* Each face of the cube */
-.face{
+/* ── FACES ──────────────────────────────────────────────── */
+/* 
+   CRITICAL: translateZ value must be HALF the dice width.
+   Dice is 72px wide → half = 36px.
+   If you change dice size, update all translateZ values too.
+*/
+.face {
   position: absolute;
-  width: 100%;
-  height: 100%;
-  background: linear-gradient(145deg, #fff, #f0f0f0);
+  width: 72px;
+  height: 72px;
+  background: #fffef8;
   border-radius: 10px;
-  border: 1px solid #ccc;
-  box-shadow: inset 0 0 8px rgba(0,0,0,0.1), 0 0 5px rgba(0,0,0,0.1);
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  box-shadow:
+    inset 0 2px 5px rgba(255,255,255,0.8),
+    inset 0 -2px 4px rgba(0,0,0,0.08);
+  border: 1px solid rgba(0,0,0,0.07);
+  overflow: hidden;
   backface-visibility: hidden;
 }
 
-/* Dot styling - centered */
-.dot{
-  width: 14px;
-  height: 14px;
-  background: #333;
+.face-1 { transform: translateZ(36px); }
+.face-2 { transform: rotateY(180deg)  translateZ(36px); }
+.face-3 { transform: rotateY(90deg)   translateZ(36px); }
+.face-4 { transform: rotateY(-90deg)  translateZ(36px); }
+.face-5 { transform: rotateX(90deg)   translateZ(36px); }
+.face-6 { transform: rotateX(-90deg)  translateZ(36px); }
+
+/* ── DOT GRID ───────────────────────────────────────────── */
+.dots {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  grid-template-rows:    1fr 1fr 1fr;
+  width: 100%;
+  height: 100%;
+  padding: 13px;
+  gap: 6px;
+}
+
+.dot {
+  width: 11px;
+  height: 11px;
+  background: radial-gradient(circle at 35% 30%, #555, #111);
   border-radius: 50%;
-  box-shadow: inset 0 2px 4px rgba(0,0,0,0.5), 0 1px 0 rgba(255,255,255,0.5);
+  box-shadow: 0 1px 3px rgba(0,0,0,0.4), inset 0 -1px 1px rgba(0,0,0,0.2);
+  justify-self: center;
+  align-self: center;
 }
 
-/* Face positioning - translateZ is half of dice size (60px/2 = 30px) */
-.face-1{ transform: translateZ(30px); }
-.face-2{ transform: rotateY(180deg) translateZ(30px); }
-.face-3{ transform: rotateY(90deg) translateZ(30px); }
-.face-4{ transform: rotateY(-90deg) translateZ(30px); }
-.face-5{ transform: rotateX(90deg) translateZ(30px); }
-.face-6{ transform: rotateX(-90deg) translateZ(30px); }
+/* Face 1 — center only */
+.face-1 .dot:nth-child(1) { grid-area: 2 / 2; }
 
-/* Dot layouts for each face using CSS Grid */
-.face-1 .dots{ display: grid; place-items: center; width: 100%; height: 100%; }
-.face-2 .dots{ display: grid; grid-template-columns: 1fr 1fr; padding: 15%; gap: 10%; }
-.face-2 .dots .dot:nth-child(1){ align-self: start; justify-self: start; }
-.face-2 .dots .dot:nth-child(2){ align-self: end; justify-self: end; }
+/* Face 2 — top-left, bottom-right diagonal */
+.face-2 .dot:nth-child(1) { grid-area: 1 / 1; }
+.face-2 .dot:nth-child(2) { grid-area: 3 / 3; }
 
-.face-3 .dots{ display: grid; grid-template-columns: 1fr 1fr 1fr; grid-template-rows: 1fr 1fr 1fr; padding: 15%; }
-.face-3 .dots .dot:nth-child(1){ grid-area: 1 / 1; }
-.face-3 .dots .dot:nth-child(2){ grid-area: 2 / 2; }
-.face-3 .dots .dot:nth-child(3){ grid-area: 3 / 3; }
+/* Face 3 — main diagonal */
+.face-3 .dot:nth-child(1) { grid-area: 1 / 1; }
+.face-3 .dot:nth-child(2) { grid-area: 2 / 2; }
+.face-3 .dot:nth-child(3) { grid-area: 3 / 3; }
 
-.face-4 .dots{ display: grid; grid-template-columns: 1fr 1fr; grid-template-rows: 1fr 1fr; padding: 15%; gap: 10%; }
-.face-4 .dots .dot:nth-child(1){ grid-row: 1; grid-column: 1; }
-.face-4 .dots .dot:nth-child(2){ grid-row: 1; grid-column: 2; }
-.face-4 .dots .dot:nth-child(3){ grid-row: 2; grid-column: 1; }
-.face-4 .dots .dot:nth-child(4){ grid-row: 2; grid-column: 2; }
+/* Face 4 — four corners */
+.face-4 .dot:nth-child(1) { grid-area: 1 / 1; }
+.face-4 .dot:nth-child(2) { grid-area: 1 / 3; }
+.face-4 .dot:nth-child(3) { grid-area: 3 / 1; }
+.face-4 .dot:nth-child(4) { grid-area: 3 / 3; }
 
-.face-5 .dots{ display: grid; grid-template-columns: 1fr 1fr 1fr; grid-template-rows: 1fr 1fr 1fr; padding: 15%; place-items: center; }
-.face-5 .dots .dot:nth-child(1){ grid-area: 1 / 1; }
-.face-5 .dots .dot:nth-child(2){ grid-area: 1 / 3; }
-.face-5 .dots .dot:nth-child(3){ grid-area: 2 / 2; }
-.face-5 .dots .dot:nth-child(4){ grid-area: 3 / 1; }
-.face-5 .dots .dot:nth-child(5){ grid-area: 3 / 3; }
+/* Face 5 — four corners + center */
+.face-5 .dot:nth-child(1) { grid-area: 1 / 1; }
+.face-5 .dot:nth-child(2) { grid-area: 1 / 3; }
+.face-5 .dot:nth-child(3) { grid-area: 2 / 2; }
+.face-5 .dot:nth-child(4) { grid-area: 3 / 1; }
+.face-5 .dot:nth-child(5) { grid-area: 3 / 3; }
 
-.face-6 .dots{ display: grid; grid-template-columns: 1fr 1fr; grid-template-rows: 1fr 1fr 1fr; padding: 15%; gap: 10%; }
-.face-6 .dots .dot:nth-child(1){ grid-row: 1; grid-column: 1; }
-.face-6 .dots .dot:nth-child(2){ grid-row: 1; grid-column: 2; }
-.face-6 .dots .dot:nth-child(3){ grid-row: 2; grid-column: 1; }
-.face-6 .dots .dot:nth-child(4){ grid-row: 2; grid-column: 2; }
-.face-6 .dots .dot:nth-child(5){ grid-row: 3; grid-column: 1; }
-.face-6 .dots .dot:nth-child(6){ grid-row: 3; grid-column: 2; }
-
-/* Show specific faces */
-.show-1{ transform: rotateX(0deg) rotateY(0deg); }
-.show-2{ transform: rotateX(0deg) rotateY(180deg); }
-.show-3{ transform: rotateX(0deg) rotateY(-90deg); }
-.show-4{ transform: rotateX(0deg) rotateY(90deg); }
-.show-5{ transform: rotateX(-90deg) rotateY(0deg); }
-.show-6{ transform: rotateX(90deg) rotateY(0deg); }
-
-/* Rolling animation */
-.dice.rolling .cube{
-  animation: cubeRoll 1.2s ease-out forwards;
-}
-@keyframes cubeRoll{
-  0%{ transform: rotateX(0) rotateY(0) rotateZ(0); }
-  25%{ transform: rotateX(360deg) rotateY(180deg) rotateZ(90deg); }
-  50%{ transform: rotateX(720deg) rotateY(360deg) rotateZ(180deg); }
-  75%{ transform: rotateX(1080deg) rotateY(540deg) rotateZ(270deg); }
-  100%{ transform: rotateX(1440deg) rotateY(720deg) rotateZ(360deg); }
-}
-
-/* Landing bounce */
-.dice.land{
-  animation: diceBounce 0.4s ease-out;
-}
-@keyframes diceBounce{
-  0%{ transform: translateY(-20px) scale(0.9); }
-  50%{ transform: translateY(5px) scale(1.05); }
-  100%{ transform: translateY(0) scale(1); }
-}
+/* Face 6 — two columns of three */
+.face-6 .dot:nth-child(1) { grid-area: 1 / 1; }
+.face-6 .dot:nth-child(2) { grid-area: 1 / 3; }
+.face-6 .dot:nth-child(3) { grid-area: 2 / 1; }
+.face-6 .dot:nth-child(4) { grid-area: 2 / 3; }
+.face-6 .dot:nth-child(5) { grid-area: 3 / 1; }
+.face-6 .dot:nth-child(6) { grid-area: 3 / 3; }
 
 /* Colored dots for player turns */
-.dice.red .dot{ background: var(--red); }
-.dice.green .dot{ background: var(--green); }
-.dice.yellow .dot{ background: var(--yellow); }
-.dice.blue .dot{ background: var(--blue); }
+.dice.red .dot{ background: radial-gradient(circle at 35% 30%, #ff7a7a, var(--red)); }
+.dice.green .dot{ background: radial-gradient(circle at 35% 30%, #5a5, var(--green)); }
+.dice.yellow .dot{ background: radial-gradient(circle at 35% 30%, #ffdd44, var(--yellow)); }
+.dice.blue .dot{ background: radial-gradient(circle at 35% 30%, #66aaff, var(--blue)); }
+
+/* ── ROLL ANIMATIONS ────────────────────────────────────── */
+@keyframes roll1 {
+  0%   { transform: rotateX(-25deg) rotateY(25deg); }
+  20%  { transform: rotateX(-200deg) rotateY(150deg) rotateZ(30deg); }
+  50%  { transform: rotateX(-520deg) rotateY(380deg) rotateZ(15deg); }
+  75%  { transform: rotateX(-710deg) rotateY(720deg) rotateZ(3deg); }
+  90%  { transform: rotateX(-718deg) rotateY(719deg) rotateZ(0.5deg); }
+  100% { transform: rotateX(-720deg) rotateY(720deg) rotateZ(0deg); }
+}
+@keyframes roll2 {
+  0%   { transform: rotateX(-25deg) rotateY(25deg); }
+  20%  { transform: rotateX(-180deg) rotateY(200deg) rotateZ(-25deg); }
+  50%  { transform: rotateX(-480deg) rotateY(500deg) rotateZ(-10deg); }
+  75%  { transform: rotateX(-715deg) rotateY(898deg) rotateZ(-2deg); }
+  90%  { transform: rotateX(-719deg) rotateY(899deg) rotateZ(-0.4deg); }
+  100% { transform: rotateX(-720deg) rotateY(900deg) rotateZ(0deg); }
+}
+@keyframes roll3 {
+  0%   { transform: rotateX(-25deg) rotateY(25deg); }
+  20%  { transform: rotateX(-160deg) rotateY(130deg) rotateZ(20deg); }
+  50%  { transform: rotateX(-490deg) rotateY(430deg) rotateZ(8deg); }
+  75%  { transform: rotateX(-718deg) rotateY(628deg) rotateZ(1deg); }
+  90%  { transform: rotateX(-719deg) rotateY(629deg) rotateZ(0.3deg); }
+  100% { transform: rotateX(-720deg) rotateY(630deg) rotateZ(0deg); }
+}
+@keyframes roll4 {
+  0%   { transform: rotateX(-25deg) rotateY(25deg); }
+  20%  { transform: rotateX(-200deg) rotateY(250deg) rotateZ(-20deg); }
+  50%  { transform: rotateX(-500deg) rotateY(540deg) rotateZ(-8deg); }
+  75%  { transform: rotateX(-718deg) rotateY(808deg) rotateZ(-1deg); }
+  90%  { transform: rotateX(-719deg) rotateY(809deg) rotateZ(-0.3deg); }
+  100% { transform: rotateX(-720deg) rotateY(810deg) rotateZ(0deg); }
+}
+@keyframes roll5 {
+  0%   { transform: rotateX(-25deg) rotateY(25deg); }
+  20%  { transform: rotateX(-250deg) rotateY(120deg) rotateZ(25deg); }
+  50%  { transform: rotateX(-610deg) rotateY(360deg) rotateZ(10deg); }
+  75%  { transform: rotateX(-806deg) rotateY(720deg) rotateZ(2deg); }
+  90%  { transform: rotateX(-809deg) rotateY(719deg) rotateZ(0.4deg); }
+  100% { transform: rotateX(-810deg) rotateY(720deg) rotateZ(0deg); }
+}
+@keyframes roll6 {
+  0%   { transform: rotateX(-25deg) rotateY(25deg); }
+  20%  { transform: rotateX(-170deg) rotateY(180deg) rotateZ(-30deg); }
+  50%  { transform: rotateX(-530deg) rotateY(480deg) rotateZ(-12deg); }
+  75%  { transform: rotateX(-628deg) rotateY(720deg) rotateZ(-2deg); }
+  90%  { transform: rotateX(-629deg) rotateY(719deg) rotateZ(-0.4deg); }
+  100% { transform: rotateX(-630deg) rotateY(720deg) rotateZ(0deg); }
+}
+
+.dice-cube.rolling-1 { animation: roll1 0.85s cubic-bezier(0.22, 0.61, 0.36, 1) forwards; }
+.dice-cube.rolling-2 { animation: roll2 0.85s cubic-bezier(0.22, 0.61, 0.36, 1) forwards; }
+.dice-cube.rolling-3 { animation: roll3 0.85s cubic-bezier(0.22, 0.61, 0.36, 1) forwards; }
+.dice-cube.rolling-4 { animation: roll4 0.85s cubic-bezier(0.22, 0.61, 0.36, 1) forwards; }
+.dice-cube.rolling-5 { animation: roll5 0.85s cubic-bezier(0.22, 0.61, 0.36, 1) forwards; }
+.dice-cube.rolling-6 { animation: roll6 0.85s cubic-bezier(0.22, 0.61, 0.36, 1) forwards; }
+
+/* Wrapper bounce — simulates physical throw */
+.dice-scene.rolling {
+  animation: diceThrow 0.85s cubic-bezier(0.22, 0.61, 0.36, 1) forwards;
+}
+@keyframes diceThrow {
+  0%   { transform: translateY(0)     scale(1.00); }
+  25%  { transform: translateY(-18px) scale(1.06); }
+  55%  { transform: translateY(-28px) scale(1.09); }
+  75%  { transform: translateY(-8px)  scale(1.03); }
+  88%  { transform: translateY(-2px)  scale(1.01); }
+  100% { transform: translateY(0)     scale(1.00); }
+}
 .dd{width:100%;height:100%;border-radius:50%;display:none}
 .dd.v{display:block;background:#333;box-shadow:inset 0 1px 2px rgba(0,0,0,.3)}
 .ddR{background:var(--red)} .ddG{background:var(--green)}
@@ -396,6 +441,17 @@ html,body{height:100%;font-family:'Segoe UI',Arial,sans-serif;
 .color-btn:hover{background:rgba(255,255,255,.15)}
 .color-btn.active{border-color:var(--c);background:rgba(255,255,255,.2);
   box-shadow:0 0 12px var(--c),inset 0 0 10px rgba(255,255,255,.1)}
+
+/* Name input styling */
+.name-input-wrap{margin-bottom:14px}
+.name-input{width:100%;padding:12px 16px;border-radius:9px;
+  border:1px solid rgba(255,255,255,.2);background:rgba(0,0,0,.2);
+  color:#fff;font-size:15px;font-weight:600;outline:none;
+  transition:all .2s;box-sizing:border-box}
+.name-input:focus{border-color:rgba(255,255,255,.5);background:rgba(0,0,0,.3);
+  box-shadow:0 0 0 3px rgba(255,255,255,.1)}
+.name-input::placeholder{color:rgba(255,255,255,.4)}
+
 .pc-row{display:flex;align-items:center;gap:10px;padding:9px;
   border-radius:9px;margin-bottom:7px;border:2px solid transparent;transition:all .2s}
 .pc-row.active{border-color:var(--rc)}
@@ -465,6 +521,10 @@ html,body{height:100%;font-family:'Segoe UI',Arial,sans-serif;
       <button class="count-btn active" data-n="3">3 Players</button>
       <button class="count-btn" data-n="4">4 Players</button>
     </div>
+    <h3>Your Name</h3>
+    <div class="name-input-wrap">
+      <input type="text" class="name-input" id="playerNameInput" placeholder="Enter your name" value="You" maxlength="15">
+    </div>
     <h3>Choose Your Color</h3>
     <div class="color-select" id="colorSelect">
       <button class="color-btn active" data-color="red" style="--c:#E53935">🔴 Red</button>
@@ -509,32 +569,57 @@ html,body{height:100%;font-family:'Segoe UI',Arial,sans-serif;
 
     <!-- 3D Dice Cube -->
     <div class="dice-area">
-      <div class="dice-scene">
-        <div class="dice disabled" id="dice">
-          <div class="cube" id="cube">
-            <!-- Face 1: Front -->
-            <div class="face face-1">
-              <div class="dots"><div class="dot"></div></div>
+      <div class="dice-scene" id="diceScene">
+        <div class="dice-cube" id="diceCube">
+          <!-- Face 1: center dot (front face, visible at rest) -->
+          <div class="face face-1">
+            <div class="dots">
+              <div class="dot"></div>
             </div>
-            <!-- Face 2: Back -->
-            <div class="face face-2">
-              <div class="dots"><div class="dot"></div><div class="dot"></div></div>
+          </div>
+          <!-- Face 2: top-left + bottom-right -->
+          <div class="face face-2">
+            <div class="dots">
+              <div class="dot"></div>
+              <div class="dot"></div>
             </div>
-            <!-- Face 3: Right -->
-            <div class="face face-3">
-              <div class="dots"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>
+          </div>
+          <!-- Face 3: diagonal top-left to bottom-right -->
+          <div class="face face-3">
+            <div class="dots">
+              <div class="dot"></div>
+              <div class="dot"></div>
+              <div class="dot"></div>
             </div>
-            <!-- Face 4: Left -->
-            <div class="face face-4">
-              <div class="dots"><div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>
+          </div>
+          <!-- Face 4: four corners -->
+          <div class="face face-4">
+            <div class="dots">
+              <div class="dot"></div>
+              <div class="dot"></div>
+              <div class="dot"></div>
+              <div class="dot"></div>
             </div>
-            <!-- Face 5: Top -->
-            <div class="face face-5">
-              <div class="dots"><div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>
+          </div>
+          <!-- Face 5: four corners + center -->
+          <div class="face face-5">
+            <div class="dots">
+              <div class="dot"></div>
+              <div class="dot"></div>
+              <div class="dot"></div>
+              <div class="dot"></div>
+              <div class="dot"></div>
             </div>
-            <!-- Face 6: Bottom -->
-            <div class="face face-6">
-              <div class="dots"><div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>
+          </div>
+          <!-- Face 6: two columns of three -->
+          <div class="face face-6">
+            <div class="dots">
+              <div class="dot"></div>
+              <div class="dot"></div>
+              <div class="dot"></div>
+              <div class="dot"></div>
+              <div class="dot"></div>
+              <div class="dot"></div>
             </div>
           </div>
         </div>
@@ -1025,16 +1110,19 @@ function showDiceFace(val, playerColor) {
   const dice = document.getElementById('dice');
   const rotation = FACE_ROTATIONS[val];
   
-  // Use exact rotations - 2 full spins (720deg) for animation
-  // NO randomness - this ensures face ends up perfectly flat
-  const targetX = rotation.x + 720;
-  const targetY = rotation.y + 720;
+  // Calculate target rotation with 2 full extra spins (720deg) for visual flair
+  // The extra spins ensure the dice visibly rotates even when showing same face
+  const extraSpins = 720;
+  const targetX = rotation.x + extraSpins;
+  const targetY = rotation.y + extraSpins;
   const targetZ = rotation.z;
   
+  // Apply transform with smooth transition
   cube.style.transform = `rotateX(${targetX}deg) rotateY(${targetY}deg) rotateZ(${targetZ}deg)`;
   
-  // Apply player color
-  dice.className = `dice ${G.phase === 'roll' && isAI() ? 'disabled' : ''} ${playerColor || ''}`;
+  // Apply player color and state classes
+  const stateClass = G.phase === 'roll' && isAI() ? 'disabled' : '';
+  dice.className = `dice ${stateClass} ${playerColor || ''}`;
 }
 
 function logDebug(msg) {
@@ -1047,26 +1135,51 @@ function rollDice() {
   performRoll();
 }
 
+// Final resting transforms — cube sits here after each roll lands.
+const DICE_FINAL = {
+  1: 'rotateX(-720deg) rotateY(720deg)  rotateZ(0deg)',
+  2: 'rotateX(-720deg) rotateY(900deg)  rotateZ(0deg)',
+  3: 'rotateX(-720deg) rotateY(630deg)  rotateZ(0deg)',
+  4: 'rotateX(-720deg) rotateY(810deg)  rotateZ(0deg)',
+  5: 'rotateX(-810deg) rotateY(720deg)  rotateZ(0deg)',
+  6: 'rotateX(-630deg) rotateY(720deg)  rotateZ(0deg)',
+};
+
+let diceRolling = false;
+
 function performRoll() {
-  G.phase = 'anim';
-  const dice = document.getElementById('dice');
-  const cube = document.getElementById('cube');
+  if (diceRolling || G.phase !== 'roll') return;
+  if (!isAI()) G.phase = 'anim';
+  diceRolling = true;
   
-  dice.classList.remove('land');
-  dice.classList.add('rolling');
+  const diceCube  = document.getElementById('diceCube');
+  const diceScene = document.getElementById('diceScene');
   
-  // Rolling animation runs for 1.2s
+  // Generate result
+  G.diceVal = Math.floor(Math.random() * 6) + 1;
+  const p = curPlayer();
+  
+  // 1. Strip all animation classes and inline transform
+  diceCube.className  = 'dice-cube';
+  diceCube.style.transform = '';
+  diceScene.classList.remove('rolling');
+  
+  // 2. Force a reflow
+  void diceCube.offsetWidth;
+  
+  // 3. Add the rolling class — animation fires
+  diceCube.classList.add('rolling-' + G.diceVal);
+  diceScene.classList.add('rolling');
+  
+  // 4. After animation ends, lock to final transform and continue
   setTimeout(() => {
-    dice.classList.remove('rolling');
-    dice.classList.add('land');
+    diceCube.style.transform = DICE_FINAL[G.diceVal];
+    diceCube.classList.remove('rolling-' + G.diceVal);
+    diceScene.classList.remove('rolling');
+    diceRolling = false;
     
-    G.diceVal = Math.ceil(Math.random() * 6);
-    const p = curPlayer();
-    showDiceFace(G.diceVal, p);
-    
-    setTimeout(() => dice.classList.remove('land'), 400);
     afterRoll();
-  }, 1200);
+  }, 850);
 }
 
 // ════════════════════════════════════════════════════
@@ -1111,8 +1224,13 @@ function afterRoll() {
   updateUI();
   renderTokens();
 
+  // Auto-move for human player when only one token is movable (except when dice is 6)
+  // When dice is 6, player has choice: move existing token OR bring out new one
+  if (!isAI() && movable.length === 1 && dice !== 6) {
+    setTimeout(() => moveToken(player, movable[0].idx), 600);
+  }
   // AI auto-move
-  if (isAI()) {
+  else if (isAI()) {
     // Use smart AI to pick the best move
     const best = aiChoose(player, dice);
     if (best) {
@@ -1275,20 +1393,22 @@ function handleTokenClick(player, idx) {
   moveToken(player, idx);
 }
 
-function moveToken(player, idx) {
+async function moveToken(player, idx) {
   const oldPos = G.tokens[player][idx];
   let newPos;
 
   if (oldPos === 0) {
     newPos = 1;
     addLog(`${getPlayerDisplayName(player)} enters the game!`);
+    G.tokens[player][idx] = newPos;
+    renderTokens();
   } else {
     newPos = oldPos + G.diceVal;
     if (newPos > 58) newPos = 58;
+    
+    // Animate step by step
+    await animateTokenSteps(player, idx, oldPos, newPos);
   }
-
-  console.log(`[DEBUG] moveToken: ${player}[${idx}] ${oldPos} -> ${newPos} (entry=${ENTRY[player]})`);
-  G.tokens[player][idx] = newPos;
 
   // Check captures (only on main path 1-52)
   if (newPos >= 1 && newPos <= 52) checkCapture(player, idx, newPos);
@@ -1300,8 +1420,6 @@ function moveToken(player, idx) {
     if (done === 4) { endGame(player); return; }
   }
 
-  renderTokens();
-
   if (G.diceVal === 6) {
     addLog('🎲 Extra turn!');
     G.phase = 'roll';
@@ -1310,6 +1428,29 @@ function moveToken(player, idx) {
   } else {
     setTimeout(nextTurn, 500);
   }
+}
+
+// Animate token moving step by step
+function animateTokenSteps(player, idx, fromPos, toPos) {
+  return new Promise(resolve => {
+    let currentPos = fromPos;
+    const stepDuration = 150; // ms per step
+    
+    function step() {
+      currentPos++;
+      G.tokens[player][idx] = currentPos;
+      renderTokens();
+      
+      if (currentPos < toPos) {
+        setTimeout(step, stepDuration);
+      } else {
+        resolve();
+      }
+    }
+    
+    // Start stepping
+    step();
+  });
 }
 
 function checkCapture(player, tokenIdx, localPos) {
@@ -1397,7 +1538,7 @@ function updateUI() {
   document.getElementById('turnText').style.color = color;
 
   if (G.phase==='roll') {
-    document.getElementById('turnSub').textContent = isAI() ? '🤖 AI is thinking...' : '🎲 Click Roll!';
+    document.getElementById('turnSub').innerHTML = isAI() ? '<img src="assets/ai-bot.png" class="ai-bot-icon" alt="AI"> AI is thinking...' : '🎲 Click Roll!';
   } else if (G.phase==='move') {
     document.getElementById('turnSub').textContent = 'Select a token';
   } else {
@@ -1536,7 +1677,7 @@ function renderSetupRows() {
     // Show type as a label
     const typeBadge = isActive 
       ? (isHuman ? '<span style="color:#4CAF50;font-weight:700">👤 You</span>' 
-                 : '<span style="color:#999">🤖 AI</span>')
+                 : '<span style="color:#999;display:flex;align-items:center;gap:4px"><img src="assets/ai-bot.png" class="ai-bot-icon-small" alt="AI"> AI</span>')
       : '<span style="color:#666">—</span>';
     row.innerHTML = `
       <div class="rc-dot"></div>
@@ -1575,14 +1716,15 @@ function startGame() {
   G.winner      = null;
   if (cdInterval) { clearInterval(cdInterval); cdInterval=null; }
   
-  // Assign random names to AI players
+  // Assign names to players
   G.playerNames = {};
   G.playerEmojis = {};
+  const humanName = document.getElementById('playerNameInput').value.trim() || 'You';
   G.active.forEach(p => {
     if (G.ptypes[p] === 'ai') {
       G.playerNames[p] = getRandomAIName();
     } else {
-      G.playerNames[p] = 'You';
+      G.playerNames[p] = humanName;
     }
     G.playerEmojis[p] = getPlayerEmoji(G.playerNames[p]);
   });
