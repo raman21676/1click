@@ -94,16 +94,17 @@ html,body{height:100%;font-family:'Segoe UI',Arial,sans-serif;
 .eB{background:linear-gradient(135deg,var(--blue-l),var(--blue-l))!important}
 
 /* Center cells */
-.cTL{background:linear-gradient(135deg,var(--green) 50%,transparent 50%)}
-.cTR{background:linear-gradient(225deg,var(--yellow) 50%,transparent 50%)}
-.cBL{background:linear-gradient(45deg,var(--red) 50%,transparent 50%)}
-.cBR{background:linear-gradient(315deg,var(--blue) 50%,transparent 50%)}
+/* Center corners point to respective houses */
+.cTL{background:linear-gradient(135deg,var(--red) 50%,transparent 50%)}    /* top-left → Red house */
+.cTR{background:linear-gradient(225deg,var(--green) 50%,transparent 50%)}  /* top-right → Green house */
+.cBL{background:linear-gradient(45deg,var(--blue) 50%,transparent 50%)}    /* bottom-left → Blue house */
+.cBR{background:linear-gradient(315deg,var(--yellow) 50%,transparent 50%)}
 .cC{background:#fff;display:flex;align-items:center;
   justify-content:center;font-size:clamp(8px,2vmin,16px)}
-.cT{background:linear-gradient(180deg,var(--green),transparent)}
-.cBo{background:linear-gradient(0deg,var(--red),transparent)}
-.cL{background:linear-gradient(90deg,var(--red),transparent)}
-.cRi{background:linear-gradient(270deg,var(--yellow),transparent)}
+.cT{background:linear-gradient(180deg,var(--red),transparent)}    /* top → Red house */
+.cBo{background:linear-gradient(0deg,var(--yellow),transparent)}  /* bottom → Yellow house */
+.cL{background:linear-gradient(90deg,var(--blue),transparent)}    /* left → Blue house */
+.cRi{background:linear-gradient(270deg,var(--green),transparent)} /* right → Green house */
 
 /* Movable highlight */
 .movable-cell{animation:cellPulse .7s ease-in-out infinite}
