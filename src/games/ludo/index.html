@@ -5,1576 +5,816 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>Ludo - 1click Games</title>
 <style>
-* { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-
 :root {
-  --red: #ef4444; --red-dark: #b91c1c; --red-light: #fca5a5;
-  --blue: #3b82f6; --blue-dark: #1d4ed8; --blue-light: #93c5fd;
-  --green: #22c55e; --green-dark: #15803d; --green-light: #86efac;
-  --yellow: #eab308; --yellow-dark: #a16207; --yellow-light: #fde047;
-  --bg: #0f172a; --bg-card: #1e293b; --bg-light: #334155;
-  --text: #f1f5f9; --text-muted: #94a3b8; --border: #475569;
-  --shadow: rgba(0,0,0,0.5);
-}
-
-html, body { 
-  height: 100%; 
-  overflow: hidden; 
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-  background: var(--bg);
-  color: var(--text);
-}
-
-/* ═══════════════════════════════════════════════════════════════
-   LAYOUT & RESPONSIVE SIZING
-   ═══════════════════════════════════════════════════════════════ */
-
-.game-container {
-  height: 100dvh;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  padding: 0.5rem;
-  position: relative;
-}
-
-/* Geometric sizing: board fits within viewport with padding */
-.board-wrapper {
-  position: relative;
-  width: min(85vmin, 600px);
-  height: min(85vmin, 600px);
-  flex-shrink: 0;
-}
-
-@media (max-height: 700px) {
-  .board-wrapper { width: min(75vmin, 520px); height: min(75vmin, 520px); }
-}
-
-@media (max-width: 400px) {
-  .board-wrapper { width: min(90vmin, 360px); height: min(90vmin, 360px); }
-}
-
-/* ═══════════════════════════════════════════════════════════════
-   LUDO BOARD - CLASSIC 15×15 GRID LAYOUT
-   ═══════════════════════════════════════════════════════════════ */
-
-.ludo-board {
-  width: 100%;
-  height: 100%;
-  position: relative;
-  background: #fff;
-  border-radius: 12px;
-  box-shadow: 0 10px 40px var(--shadow);
-  overflow: hidden;
-  display: grid;
-  grid-template-columns: 2fr 1fr 2fr;
-  grid-template-rows: 2fr 1fr 2fr;
-}
-
-/* ═══════════════════════════════════════════════════════════════
-   HOME BASES (6×6 CELLS EACH)
-   ═══════════════════════════════════════════════════════════════ */
-
-.home-base {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 12%;
-  position: relative;
-}
-
-.home-base.red { 
-  background: linear-gradient(135deg, var(--red), var(--red-dark));
-  border-radius: 12px 0 0 0;
-}
-.home-base.blue { 
-  background: linear-gradient(225deg, var(--blue), var(--blue-dark));
-  border-radius: 0 12px 0 0;
-}
-.home-base.green { 
-  background: linear-gradient(315deg, var(--green), var(--green-dark));
-  border-radius: 0 0 12px 0;
-}
-.home-base.yellow { 
-  background: linear-gradient(45deg, var(--yellow), var(--yellow-dark));
-  border-radius: 0 0 0 12px;
-}
-
-/* White inner area for tokens */
-.home-inner {
-  width: 100%;
-  height: 100%;
-  background: rgba(255,255,255,0.95);
-  border-radius: 8px;
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  grid-template-rows: 1fr 1fr;
-  gap: 12%;
-  padding: 12%;
-  box-shadow: inset 0 2px 8px rgba(0,0,0,0.15);
-}
-
-/* ═══════════════════════════════════════════════════════════════
-   PATH SECTIONS - CORRECT LUDO LAYOUT
-   ═══════════════════════════════════════════════════════════════ */
-
-/* Vertical paths (Blue and Yellow columns) */
-.path-vertical {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  grid-template-rows: repeat(6, 1fr);
-  gap: 1px;
-  background: rgba(0,0,0,0.1);
-}
-
-/* Horizontal paths (Red and Green rows) */
-.path-horizontal {
-  display: grid;
-  grid-template-columns: repeat(6, 1fr);
-  grid-template-rows: repeat(3, 1fr);
-  gap: 1px;
-  background: rgba(0,0,0,0.1);
-}
-
-/* Individual path cells */
-.path-cell {
-  background: #fff;
-  position: relative;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: clamp(6px, 1vmin, 10px);
-}
-
-/* Home column colors (first row from center for each) */
-.path-vertical.blue-path .path-cell:nth-child(13),
-.path-vertical.blue-path .path-cell:nth-child(14),
-.path-vertical.blue-path .path-cell:nth-child(15) { 
-  background: linear-gradient(to bottom, var(--blue-light), var(--blue)); 
-}
-
-.path-vertical.yellow-path .path-cell:nth-child(4),
-.path-vertical.yellow-path .path-cell:nth-child(5),
-.path-vertical.yellow-path .path-cell:nth-child(6) { 
-  background: linear-gradient(to top, var(--yellow-light), var(--yellow)); 
-}
-
-.path-horizontal.red-path .path-cell:nth-child(4),
-.path-horizontal.red-path .path-cell:nth-child(5),
-.path-horizontal.red-path .path-cell:nth-child(6) { 
-  background: linear-gradient(to right, var(--red-light), var(--red)); 
-}
-
-.path-horizontal.green-path .path-cell:nth-child(13),
-.path-horizontal.green-path .path-cell:nth-child(14),
-.path-horizontal.green-path .path-cell:nth-child(15) { 
-  background: linear-gradient(to left, var(--green-light), var(--green)); 
-}
-
-/* Safe zones (stars) - positioned according to classic Ludo */
-.path-cell.safe::before {
-  content: '★';
-  font-size: clamp(10px, 2vmin, 16px);
-  color: #fbbf24;
-  text-shadow: 0 1px 2px rgba(0,0,0,0.3);
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-}
-
-/* Start position indicators (small circles) */
-.path-cell.start::after {
-  content: '';
-  width: 35%;
-  height: 35%;
-  border: 2px solid rgba(0,0,0,0.2);
-  border-radius: 50%;
-  position: absolute;
-}
-
-/* ═══════════════════════════════════════════════════════════════
-   CENTER AREA
-   ═══════════════════════════════════════════════════════════════ */
-
-.center-area {
-  position: relative;
-  background: #fff;
-  overflow: hidden;
-}
-
-.center-diamond {
-  width: 141%;
-  height: 141%;
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%) rotate(45deg);
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  grid-template-rows: 1fr 1fr;
-  box-shadow: 0 0 20px rgba(0,0,0,0.2);
-}
-
-.center-triangle {
-  width: 100%;
-  height: 100%;
-}
-
-.center-triangle.red { background: linear-gradient(135deg, var(--red), var(--red-dark)); }
-.center-triangle.blue { background: linear-gradient(225deg, var(--blue), var(--blue-dark)); }
-.center-triangle.green { background: linear-gradient(315deg, var(--green), var(--green-dark)); }
-.center-triangle.yellow { background: linear-gradient(45deg, var(--yellow), var(--yellow-dark)); }
-
-.center-icon {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  font-size: clamp(20px, 4vmin, 32px);
-  z-index: 10;
-}
-
-/* ═══════════════════════════════════════════════════════════════
-   TOKENS - PIN-STYLE DESIGN (Ludo King inspired)
-   ═══════════════════════════════════════════════════════════════ */
-
-.token-slot {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  position: relative;
-}
-
-/* Pin-style token */
-.ludo-token {
-  width: clamp(24px, 5vmin, 40px);
-  height: clamp(32px, 6.5vmin, 52px);
-  position: relative;
-  cursor: pointer;
-  transition: transform 0.2s, filter 0.2s;
-  filter: drop-shadow(0 3px 4px rgba(0,0,0,0.3));
-}
-
-.ludo-token:hover { 
-  transform: scale(1.15); 
-  filter: drop-shadow(0 4px 8px rgba(0,0,0,0.4));
-}
-
-.ludo-token.movable {
-  animation: token-pulse 0.8s ease-in-out infinite;
-}
-
-@keyframes token-pulse {
-  0%, 100% { transform: scale(1); }
-  50% { transform: scale(1.1); }
-}
-
-.ludo-token.selected {
-  transform: scale(1.2);
-  z-index: 100;
-  filter: drop-shadow(0 0 10px #fff), drop-shadow(0 4px 8px rgba(0,0,0,0.5));
-}
-
-/* Pin head (circle) */
-.token-head {
-  position: absolute;
-  top: 0;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 60%;
-  height: 45%;
-  border-radius: 50%;
-  background: inherit;
-  box-shadow: inset -2px -2px 4px rgba(0,0,0,0.2), 0 2px 4px rgba(0,0,0,0.2);
-  z-index: 2;
-}
-
-/* White center dot on pin */
-.token-head::after {
-  content: '';
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  width: 40%;
-  height: 40%;
-  background: rgba(255,255,255,0.9);
-  border-radius: 50%;
-}
-
-/* Pin body (pointed) */
-.token-body {
-  position: absolute;
-  bottom: 0;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 80%;
-  height: 70%;
-  background: inherit;
-  clip-path: polygon(50% 100%, 0% 30%, 100% 30%);
-  box-shadow: 0 2px 4px rgba(0,0,0,0.3);
-}
-
-/* Number badge */
-.token-number {
-  position: absolute;
-  top: 12%;
-  left: 50%;
-  transform: translateX(-50%);
-  font-size: clamp(8px, 1.5vmin, 12px);
-  font-weight: 800;
-  color: #333;
-  z-index: 3;
-}
-
-/* Token colors with gradients */
-.token-red { --token-color: var(--red); }
-.token-red .token-head, .token-red .token-body { background: linear-gradient(135deg, var(--red), var(--red-dark)); }
-
-.token-blue { --token-color: var(--blue); }
-.token-blue .token-head, .token-blue .token-body { background: linear-gradient(135deg, var(--blue), var(--blue-dark)); }
-
-.token-green { --token-color: var(--green); }
-.token-green .token-head, .token-green .token-body { background: linear-gradient(135deg, var(--green), var(--green-dark)); }
-
-.token-yellow { --token-color: var(--yellow); }
-.token-yellow .token-head, .token-yellow .token-body { background: linear-gradient(135deg, var(--yellow), var(--yellow-dark)); }
-
-/* ═══════════════════════════════════════════════════════════════
-   PLAYER PROFILE CARDS
-   ═══════════════════════════════════════════════════════════════ */
-
-.player-card {
-  position: absolute;
-  background: var(--bg-card);
-  border-radius: 12px;
-  padding: clamp(6px, 1.2vmin, 12px);
-  border: 2px solid var(--border);
-  display: flex;
-  align-items: center;
-  gap: clamp(6px, 1vmin, 10px);
-  min-width: clamp(100px, 18vmin, 150px);
-  box-shadow: 0 4px 12px var(--shadow);
-  transition: all 0.3s;
-  z-index: 20;
-}
-
-.player-card.active {
-  border-color: var(--token-color);
-  box-shadow: 0 0 20px var(--token-color), 0 4px 12px var(--shadow);
-  animation: card-glow 2s ease-in-out infinite;
-}
-
-@keyframes card-glow {
-  0%, 100% { box-shadow: 0 0 15px var(--token-color), 0 4px 12px var(--shadow); }
-  50% { box-shadow: 0 0 25px var(--token-color), 0 4px 12px var(--shadow); }
-}
-
-.player-card.eliminated {
-  opacity: 0.5;
-  filter: grayscale(0.8);
-}
-
-.player-card.eliminated .card-avatar::after {
-  content: '🚫';
-  position: absolute;
-  top: 50%; left: 50%;
-  transform: translate(-50%, -50%);
-  font-size: clamp(16px, 3vmin, 24px);
-}
-
-/* Card positions around board */
-.card-red { top: -60px; left: 0; --token-color: var(--red); }
-.card-blue { top: -60px; right: 0; --token-color: var(--blue); }
-.card-green { bottom: -60px; right: 0; --token-color: var(--green); }
-.card-yellow { bottom: -60px; left: 0; --token-color: var(--yellow); }
-
-@media (max-width: 500px) {
-  .card-red, .card-blue { top: -50px; }
-  .card-green, .card-yellow { bottom: -50px; }
-}
-
-.card-avatar {
-  width: clamp(32px, 6vmin, 48px);
-  height: clamp(32px, 6vmin, 48px);
-  border-radius: 50%;
-  background: linear-gradient(135deg, var(--token-color), var(--token-color));
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: clamp(16px, 3vmin, 24px);
-  position: relative;
-  flex-shrink: 0;
-}
-
-.card-info { flex: 1; min-width: 0; }
-
-.card-name {
-  font-size: clamp(11px, 2vmin, 14px);
-  font-weight: 700;
-  color: var(--text);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.card-type {
-  font-size: clamp(9px, 1.5vmin, 11px);
-  color: var(--text-muted);
-}
-
-.card-tokens {
-  display: flex;
-  gap: 2px;
-  margin-top: 4px;
-}
-
-.token-dot {
-  width: clamp(6px, 1.2vmin, 10px);
-  height: clamp(6px, 1.2vmin, 10px);
-  border-radius: 50%;
-  background: var(--token-color);
-  opacity: 0.3;
-  transition: opacity 0.2s;
-}
-
-.token-dot.active { opacity: 1; box-shadow: 0 0 4px var(--token-color); }
-
-/* ═══════════════════════════════════════════════════════════════
-   ELIMINATION COUNTDOWN
-   ═══════════════════════════════════════════════════════════════ */
-
-.countdown-overlay {
-  position: absolute;
-  inset: 0;
-  background: rgba(0,0,0,0.85);
-  border-radius: 12px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  z-index: 50;
-  opacity: 0;
-  pointer-events: none;
-  transition: opacity 0.3s;
-}
-
-.countdown-overlay.active {
-  opacity: 1;
-  pointer-events: auto;
-}
-
-.countdown-icon {
-  font-size: clamp(40px, 8vmin, 64px);
-  margin-bottom: 8px;
-  animation: shake 1s ease-in-out infinite;
-}
-
-@keyframes shake {
-  0%, 100% { transform: rotate(-10deg); }
-  50% { transform: rotate(10deg); }
-}
-
-.countdown-text {
-  font-size: clamp(12px, 2.5vmin, 16px);
-  color: var(--text-muted);
-  margin-bottom: 12px;
-}
-
-.countdown-timer {
-  font-size: clamp(36px, 7vmin, 56px);
-  font-weight: 800;
-  color: #ef4444;
-  font-variant-numeric: tabular-nums;
-}
-
-.countdown-bar {
-  width: 60%;
-  height: 6px;
-  background: var(--bg-light);
-  border-radius: 3px;
-  margin-top: 16px;
-  overflow: hidden;
-}
-
-.countdown-fill {
-  height: 100%;
-  background: linear-gradient(90deg, #ef4444, #f97316);
-  border-radius: 3px;
-  transition: width 1s linear;
-}
-
-/* ═══════════════════════════════════════════════════════════════
-   DICE & CONTROLS
-   ═══════════════════════════════════════════════════════════════ */
-
-.controls-area {
-  margin-top: 70px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 12px;
-  width: 100%;
-  max-width: 400px;
-}
-
-.dice-container {
-  display: flex;
-  align-items: center;
-  gap: 16px;
-}
-
-.dice {
-  width: clamp(60px, 12vmin, 80px);
-  height: clamp(60px, 12vmin, 80px);
-  background: linear-gradient(135deg, #fff, #e2e8f0);
-  border-radius: 16px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: clamp(32px, 6vmin, 48px);
-  box-shadow: 0 6px 20px rgba(0,0,0,0.3), inset 0 2px 4px rgba(255,255,255,0.8);
-  cursor: pointer;
-  transition: transform 0.2s;
-  user-select: none;
-}
-
-.dice:hover:not(.rolling):not(.disabled) { transform: scale(1.1) rotate(-5deg); }
-
-.dice.rolling { animation: dice-roll 0.5s ease-in-out; }
-
-@keyframes dice-roll {
-  0% { transform: rotate(0deg) scale(1); }
-  25% { transform: rotate(-20deg) scale(1.15); }
-  75% { transform: rotate(20deg) scale(1.15); }
-  100% { transform: rotate(0deg) scale(1); }
-}
-
-.dice.disabled { opacity: 0.5; cursor: not-allowed; }
-
-.roll-btn {
-  padding: clamp(12px, 2.5vmin, 16px) clamp(24px, 5vmin, 32px);
-  background: linear-gradient(135deg, #f97316, #eab308);
-  border: none;
-  border-radius: 12px;
-  color: #000;
-  font-size: clamp(14px, 2.5vmin, 18px);
-  font-weight: 700;
-  cursor: pointer;
-  transition: all 0.2s;
-  box-shadow: 0 4px 16px rgba(249,115,22,0.4);
-}
-
-.roll-btn:hover:not(:disabled) { transform: translateY(-3px); box-shadow: 0 6px 24px rgba(249,115,22,0.5); }
-
-.roll-btn:disabled { opacity: 0.4; cursor: not-allowed; }
-
-.turn-indicator {
-  text-align: center;
-}
-
-.turn-text {
-  font-size: clamp(14px, 2.5vmin, 18px);
-  font-weight: 600;
-  color: var(--text);
-}
-
-.turn-sub {
-  font-size: clamp(11px, 2vmin, 14px);
-  color: var(--text-muted);
-}
-
-/* ═══════════════════════════════════════════════════════════════
-   GAME LOG
-   ═══════════════════════════════════════════════════════════════ */
-
-.game-log {
-  width: 100%;
-  max-height: 100px;
-  background: var(--bg-card);
-  border-radius: 10px;
-  padding: 10px;
-  border: 1px solid var(--border);
-  overflow-y: auto;
-}
-
-.log-entry {
-  font-size: clamp(11px, 2vmin, 13px);
-  padding: 4px 0;
-  border-bottom: 1px solid var(--border);
-  color: var(--text-muted);
-}
-
-.log-entry:last-child { border-bottom: none; }
-
-.log-entry span.player { font-weight: 600; }
-
-/* ═══════════════════════════════════════════════════════════════
-   SETUP SCREEN
-   ═══════════════════════════════════════════════════════════════ */
-
-.setup-screen {
-  position: fixed;
-  inset: 0;
-  background: var(--bg);
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  padding: 20px;
-  z-index: 100;
-  overflow-y: auto;
-}
-
-.setup-screen.hidden { display: none; }
-
-.setup-title {
-  text-align: center;
-  margin-bottom: 24px;
-}
-
-.setup-title h1 {
-  font-size: clamp(28px, 6vmin, 40px);
-  background: linear-gradient(135deg, #f97316, #eab308);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-}
-
-.setup-card {
-  background: var(--bg-card);
-  border-radius: 16px;
-  padding: 20px;
-  width: 100%;
-  max-width: 400px;
-  border: 1px solid var(--border);
-  margin-bottom: 16px;
-}
-
-.setup-card h3 {
-  color: var(--text-muted);
-  font-size: 12px;
-  text-transform: uppercase;
-  letter-spacing: 0.1em;
-  margin-bottom: 12px;
-}
-
-.player-config {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  padding: 10px;
-  border-radius: 10px;
-  margin-bottom: 8px;
-  border: 2px solid var(--border);
-  transition: all 0.2s;
-}
-
-.player-config.active { border-color: var(--token-color); }
-.player-config.inactive { opacity: 0.4; }
-
-.config-dot {
-  width: 16px; height: 16px;
-  border-radius: 50%;
-  flex-shrink: 0;
-}
-
-.config-name {
-  flex: 1;
-  font-weight: 600;
-  font-size: 14px;
-}
-
-.config-type {
-  display: flex;
-  gap: 4px;
-}
-
-.type-btn {
-  padding: 6px 12px;
-  border-radius: 6px;
-  border: 1px solid var(--border);
-  background: transparent;
-  color: var(--text-muted);
-  font-size: 12px;
-  cursor: pointer;
-  transition: all 0.2s;
-}
-
-.type-btn.active {
-  background: var(--bg-light);
-  color: var(--text);
-  border-color: var(--text);
-}
-
-.player-count {
-  display: flex;
-  gap: 8px;
-  margin-bottom: 16px;
-}
-
-.count-btn {
-  flex: 1;
-  padding: 12px;
-  border-radius: 10px;
-  border: 1px solid var(--border);
-  background: transparent;
-  color: var(--text-muted);
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.2s;
-}
-
-.count-btn.active {
-  background: linear-gradient(135deg, #f97316, #eab308);
-  color: #000;
-  border-color: transparent;
-}
-
-.start-btn {
-  width: 100%;
-  max-width: 400px;
-  padding: 16px;
-  background: linear-gradient(135deg, #22c55e, #16a34a);
-  border: none;
-  border-radius: 12px;
-  color: #fff;
-  font-size: 18px;
-  font-weight: 700;
-  cursor: pointer;
-  transition: all 0.2s;
-}
-
-.start-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(34,197,94,0.4); }
-
-/* ═══════════════════════════════════════════════════════════════
-   WIN MODAL
-   ═══════════════════════════════════════════════════════════════ */
-
-.win-modal {
-  position: fixed;
-  inset: 0;
-  background: rgba(0,0,0,0.9);
-  display: none;
-  align-items: center;
-  justify-content: center;
-  z-index: 200;
-}
-
-.win-modal.active { display: flex; }
-
-.win-content {
-  background: var(--bg-card);
-  border-radius: 24px;
-  padding: 40px;
-  text-align: center;
-  border: 2px solid var(--border);
-  max-width: 320px;
-}
-
-.win-emoji {
-  font-size: clamp(60px, 12vmin, 80px);
-  margin-bottom: 16px;
-}
-
-.win-title {
-  font-size: clamp(24px, 5vmin, 32px);
-  font-weight: 800;
-  margin-bottom: 8px;
-}
-
-.win-subtitle {
-  color: var(--text-muted);
-  margin-bottom: 24px;
-}
-
-.win-buttons {
-  display: flex;
-  gap: 12px;
-}
-
-.win-btn {
-  flex: 1;
-  padding: 14px;
-  border-radius: 10px;
-  border: none;
-  font-weight: 700;
-  cursor: pointer;
-  transition: all 0.2s;
-}
-
-.win-btn.primary { background: linear-gradient(135deg, #f97316, #eab308); color: #000; }
-.win-btn.secondary { background: var(--bg-light); color: var(--text); }
-
-/* ═══════════════════════════════════════════════════════════════
-   HEADER
-   ═══════════════════════════════════════════════════════════════ */
-
-.game-header {
-  position: fixed;
-  top: 0; left: 0; right: 0;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 12px 16px;
-  background: linear-gradient(to bottom, rgba(15,23,42,0.95), transparent);
-  z-index: 50;
-}
-
-.back-btn {
-  color: #4fbdba;
-  text-decoration: none;
-  font-size: 14px;
-  padding: 8px;
-}
-
-.header-title {
-  font-size: 18px;
-  font-weight: 700;
-  background: linear-gradient(135deg, #f97316, #eab308);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-}
+  --red:#E53935; --red-l:#EF9A9A; --red-d:#B71C1C;
+  --green:#43A047; --green-l:#A5D6A7; --green-d:#1B5E20;
+  --yellow:#FDD835; --yellow-l:#FFF9C4; --yellow-d:#F57F17;
+  --blue:#1E88E5; --blue-l:#90CAF9; --blue-d:#0D47A1;
+  --gold:#FFD700; --gold2:#B8860B;
+}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{height:100%;font-family:'Segoe UI',Arial,sans-serif;
+  background:radial-gradient(ellipse at center,#283593 0%,#1a237e 50%,#0d1b6e 100%);
+  color:#fff;overflow:hidden}
+
+/* ─── LAYOUT ─────────────────────────────────── */
+.game-wrapper{height:100dvh;display:flex;flex-direction:column;
+  align-items:center;padding:6px;gap:6px}
+.game-header{width:100%;display:flex;align-items:center;
+  justify-content:space-between;flex-shrink:0;padding:0 4px}
+.back-btn{color:#90CAF9;text-decoration:none;font-size:14px;padding:8px}
+.header-title{font-size:20px;font-weight:800;
+  background:linear-gradient(135deg,#FFD700,#FF8F00);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent}
+
+/* ─── BOARD AREA ──────────────────────────────── */
+.board-area{flex:1;display:flex;align-items:center;
+  justify-content:center;width:100%;min-height:0}
+.board-wrapper{position:relative;
+  width:min(84vmin,480px);height:min(84vmin,480px)}
+
+/* 15×15 grid */
+.ludo-board{width:100%;height:100%;
+  display:grid;grid-template-columns:repeat(15,1fr);
+  grid-template-rows:repeat(15,1fr);
+  border:3px solid var(--gold);border-radius:6px;
+  box-shadow:0 0 0 2px var(--gold2),0 8px 40px rgba(0,0,0,.6),
+             0 0 50px rgba(255,215,0,.15);
+  background:#fff;overflow:hidden}
+
+/* ─── CELL BASE ───────────────────────────────── */
+.bc{position:relative;display:flex;align-items:center;
+  justify-content:center;overflow:visible}
+
+/* Home corners */
+.hG{background:var(--green)} .hY{background:var(--yellow)}
+.hR{background:var(--red)}   .hB{background:var(--blue)}
+
+/* Home inner white panel */
+.hW{background:rgba(255,255,255,.9)}
+
+/* Token slot circles */
+.ts{background:rgba(255,255,255,.9)}
+.ts::before{content:'';position:absolute;width:68%;height:68%;
+  border-radius:50%;border:2.5px solid rgba(0,0,0,.15);
+  box-shadow:inset 0 2px 4px rgba(0,0,0,.2)}
+.tsG::before{background:rgba(67,160,71,.2);border-color:var(--green)}
+.tsY::before{background:rgba(253,216,53,.2);border-color:var(--yellow)}
+.tsR::before{background:rgba(229,57,53,.2);border-color:var(--red)}
+.tsB::before{background:rgba(30,136,229,.2);border-color:var(--blue)}
+
+/* Path cells */
+.pc{background:#fff;border:.5px solid #ccc}
+
+/* Home run strips */
+.hrR{background:#FFCDD2;border:.5px solid #ccc}
+.hrG{background:#C8E6C9;border:.5px solid #ccc}
+.hrY{background:#FFF9C4;border:.5px solid #ccc}
+.hrB{background:#BBDEFB;border:.5px solid #ccc}
+
+/* Safe star */
+.safe::after{content:'★';font-size:clamp(7px,1.6vmin,13px);
+  color:var(--gold);text-shadow:0 0 4px rgba(255,215,0,.5);
+  position:absolute;pointer-events:none;z-index:1}
+
+/* Entry arrows */
+.eR::before{content:'→';color:var(--red);font-size:clamp(6px,1.3vmin,11px);
+  position:absolute;font-weight:700;z-index:2}
+.eG::before{content:'↓';color:var(--green);font-size:clamp(6px,1.3vmin,11px);
+  position:absolute;font-weight:700;z-index:2}
+.eY::before{content:'←';color:var(--yellow);font-size:clamp(6px,1.3vmin,11px);
+  position:absolute;font-weight:700;z-index:2}
+.eB::before{content:'↑';color:var(--blue);font-size:clamp(6px,1.3vmin,11px);
+  position:absolute;font-weight:700;z-index:2}
+
+/* Center cells */
+.cTL{background:linear-gradient(135deg,var(--green) 50%,transparent 50%)}
+.cTR{background:linear-gradient(225deg,var(--yellow) 50%,transparent 50%)}
+.cBL{background:linear-gradient(45deg,var(--red) 50%,transparent 50%)}
+.cBR{background:linear-gradient(315deg,var(--blue) 50%,transparent 50%)}
+.cC{background:#fff;display:flex;align-items:center;
+  justify-content:center;font-size:clamp(8px,2vmin,16px)}
+.cT{background:linear-gradient(180deg,var(--green),transparent)}
+.cBo{background:linear-gradient(0deg,var(--red),transparent)}
+.cL{background:linear-gradient(90deg,var(--red),transparent)}
+.cRi{background:linear-gradient(270deg,var(--yellow),transparent)}
+
+/* Movable highlight */
+.movable-cell{animation:cellPulse .7s ease-in-out infinite}
+@keyframes cellPulse{
+  0%,100%{box-shadow:inset 0 0 0 2px gold}
+  50%{box-shadow:inset 0 0 0 2.5px orange;background:rgba(255,215,0,.18)}}
+
+/* ─── TOKENS ──────────────────────────────────── */
+.tok{position:absolute;border-radius:50%;
+  border:2px solid rgba(255,255,255,.9);
+  display:flex;align-items:center;justify-content:center;
+  font-size:clamp(6px,1.3vmin,10px);font-weight:800;color:#fff;
+  cursor:pointer;z-index:10;text-shadow:0 1px 2px rgba(0,0,0,.5);
+  transition:transform .15s,box-shadow .15s;user-select:none;
+  box-shadow:0 2px 5px rgba(0,0,0,.4)}
+.tok-home{width:clamp(16px,4.2vmin,26px);height:clamp(16px,4.2vmin,26px)}
+.tok-path{width:clamp(11px,2.8vmin,18px);height:clamp(11px,2.8vmin,18px)}
+.tokR{background:radial-gradient(circle at 35% 35%,#EF5350,#B71C1C)}
+.tokG{background:radial-gradient(circle at 35% 35%,#66BB6A,#1B5E20)}
+.tokY{background:radial-gradient(circle at 35% 35%,#FFF176,#F57F17);color:#333;text-shadow:none}
+.tokB{background:radial-gradient(circle at 35% 35%,#42A5F5,#0D47A1)}
+.tok.movable{animation:tokBounce .6s ease-in-out infinite;
+  box-shadow:0 0 0 3px gold,0 2px 5px rgba(0,0,0,.4)}
+@keyframes tokBounce{0%,100%{transform:translateY(0)}50%{transform:translateY(-3px)}}
+.tok.selected{transform:scale(1.3);box-shadow:0 0 0 3px #fff,0 0 8px rgba(255,255,255,.7)}
+
+/* ─── CONTROLS ROW ────────────────────────────── */
+.controls-row{width:100%;max-width:500px;display:flex;
+  align-items:center;justify-content:space-between;
+  gap:6px;padding:0 2px;flex-shrink:0}
+
+/* Player panels */
+.player-panels{display:flex;gap:4px;flex:1}
+.player-panel{flex:1;background:rgba(255,255,255,.08);
+  border-radius:8px;padding:5px 4px;border:2px solid transparent;
+  transition:all .3s;text-align:center}
+.player-panel.active{border-color:var(--pc);
+  background:rgba(255,255,255,.15);box-shadow:0 0 10px var(--pc)}
+.player-panel.elim{opacity:.3;filter:grayscale(.8)}
+.panel-name{font-size:clamp(8px,1.7vmin,12px);font-weight:700;
+  display:flex;align-items:center;justify-content:center;gap:3px}
+.panel-dot{width:8px;height:8px;border-radius:50%;
+  background:var(--pc);flex-shrink:0}
+.panel-tkns{display:flex;justify-content:center;gap:2px;margin-top:3px}
+.ptd{width:clamp(4px,.9vmin,7px);height:clamp(4px,.9vmin,7px);
+  border-radius:50%;background:var(--pc);opacity:.25}
+.ptd.on{opacity:1}
+
+/* ─── DICE ────────────────────────────────────── */
+.dice-area{display:flex;flex-direction:column;
+  align-items:center;gap:5px;flex-shrink:0}
+.dice{width:clamp(50px,10vmin,66px);height:clamp(50px,10vmin,66px);
+  background:#fff;border-radius:10px;
+  box-shadow:0 4px 12px rgba(0,0,0,.4),inset 0 1px 3px rgba(255,255,255,.8);
+  cursor:pointer;user-select:none;
+  display:grid;grid-template-columns:repeat(3,1fr);
+  grid-template-rows:repeat(3,1fr);
+  padding:12%;gap:10%;transition:transform .2s}
+.dice:hover:not(.disabled){transform:scale(1.06) rotate(-4deg)}
+.dice.disabled{opacity:.45;cursor:not-allowed}
+.dice.rolling{animation:dSpin .5s ease-in-out 3}
+@keyframes dSpin{
+  0%{transform:rotate(0) scale(1)}
+  25%{transform:rotate(-18deg) scale(1.12)}
+  75%{transform:rotate(18deg) scale(1.12)}
+  100%{transform:rotate(0) scale(1)}}
+.dd{border-radius:50%;display:none}
+.dd.v{display:block}
+.ddR{background:var(--red)} .ddG{background:var(--green)}
+.ddY{background:var(--yellow)} .ddB{background:var(--blue)}
+.dd-def{background:#222}
+.roll-btn{background:linear-gradient(135deg,#FF6F00,#FFD600);
+  border:none;border-radius:7px;color:#000;
+  font-size:clamp(10px,1.9vmin,13px);font-weight:800;
+  padding:6px 12px;cursor:pointer;transition:all .2s;
+  box-shadow:0 3px 8px rgba(255,111,0,.4)}
+.roll-btn:hover:not(:disabled){transform:translateY(-2px)}
+.roll-btn:disabled{opacity:.35;cursor:not-allowed}
+
+/* ─── TURN AREA ───────────────────────────────── */
+.turn-area{text-align:center;flex:1;min-width:0}
+.turn-text{font-size:clamp(10px,2.1vmin,14px);font-weight:700;white-space:nowrap}
+.turn-sub{font-size:clamp(8px,1.4vmin,11px);opacity:.6;margin-top:2px}
+
+/* ─── SETUP SCREEN ────────────────────────────── */
+.setup-screen{position:fixed;inset:0;
+  background:radial-gradient(ellipse at center,#283593,#0d1b6e);
+  display:flex;flex-direction:column;align-items:center;
+  justify-content:center;padding:20px;z-index:100;overflow-y:auto}
+.setup-screen.hidden{display:none}
+.setup-title h1{font-size:clamp(28px,6vmin,40px);font-weight:900;text-align:center;
+  background:linear-gradient(135deg,#FFD700,#FF8F00);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.setup-card{background:rgba(255,255,255,.08);border-radius:14px;
+  padding:18px;width:100%;max-width:380px;
+  border:1px solid rgba(255,255,255,.15);margin:10px 0}
+.setup-card h3{color:rgba(255,255,255,.5);font-size:11px;
+  text-transform:uppercase;letter-spacing:.1em;margin-bottom:10px}
+.player-count{display:flex;gap:8px;margin-bottom:14px}
+.count-btn{flex:1;padding:11px;border-radius:9px;
+  border:1px solid rgba(255,255,255,.2);background:transparent;
+  color:rgba(255,255,255,.6);font-weight:700;cursor:pointer;transition:all .2s}
+.count-btn.active{background:linear-gradient(135deg,#FF6F00,#FFD600);
+  color:#000;border-color:transparent}
+.pc-row{display:flex;align-items:center;gap:10px;padding:9px;
+  border-radius:9px;margin-bottom:7px;border:2px solid transparent;transition:all .2s}
+.pc-row.active{border-color:var(--rc)}
+.pc-row.dim{opacity:.38}
+.rc-dot{width:14px;height:14px;border-radius:50%;background:var(--rc);flex-shrink:0}
+.rc-name{flex:1;font-weight:700;font-size:14px;color:var(--rc)}
+.rc-types{display:flex;gap:4px}
+.type-btn{padding:5px 10px;border-radius:6px;
+  border:1px solid rgba(255,255,255,.2);background:transparent;
+  color:rgba(255,255,255,.5);font-size:11px;cursor:pointer;transition:all .2s}
+.type-btn.active{background:rgba(255,255,255,.2);color:#fff;
+  border-color:rgba(255,255,255,.5)}
+.start-btn{width:100%;max-width:380px;padding:15px;
+  background:linear-gradient(135deg,#00C853,#1B5E20);
+  border:none;border-radius:12px;color:#fff;
+  font-size:17px;font-weight:800;cursor:pointer;
+  transition:all .2s;box-shadow:0 4px 16px rgba(0,200,83,.35)}
+.start-btn:hover{transform:translateY(-2px);box-shadow:0 6px 20px rgba(0,200,83,.5)}
+
+/* ─── WIN MODAL ───────────────────────────────── */
+.win-modal{position:fixed;inset:0;background:rgba(0,0,0,.9);
+  display:none;align-items:center;justify-content:center;z-index:200}
+.win-modal.active{display:flex}
+.win-content{background:#1a237e;border-radius:20px;padding:36px;
+  text-align:center;border:2px solid var(--gold);
+  box-shadow:0 0 40px rgba(255,215,0,.3);max-width:300px}
+.win-emoji{font-size:clamp(52px,10vmin,72px);margin-bottom:12px}
+.win-title{font-size:clamp(22px,5vmin,30px);font-weight:900;margin-bottom:6px}
+.win-sub{color:rgba(255,255,255,.6);margin-bottom:22px;font-size:14px}
+.win-btns{display:flex;gap:10px}
+.win-btn{flex:1;padding:13px;border-radius:9px;border:none;
+  font-weight:700;cursor:pointer;font-size:14px;transition:all .2s}
+.win-btn.primary{background:linear-gradient(135deg,#FF6F00,#FFD600);color:#000}
+.win-btn.sec{background:rgba(255,255,255,.15);color:#fff}
+
+/* ─── COUNTDOWN OVERLAY ───────────────────────── */
+.cd-overlay{position:absolute;inset:0;background:rgba(0,0,0,.82);
+  border-radius:6px;display:none;flex-direction:column;
+  align-items:center;justify-content:center;z-index:50}
+.cd-overlay.active{display:flex}
+.cd-icon{font-size:clamp(36px,7vmin,56px);animation:shake 1s infinite}
+@keyframes shake{0%,100%{transform:rotate(-10deg)}50%{transform:rotate(10deg)}}
+.cd-text{font-size:clamp(11px,2.2vmin,15px);color:rgba(255,255,255,.7);margin:6px 0}
+.cd-num{font-size:clamp(32px,6.5vmin,52px);font-weight:900;color:#EF5350}
+.cd-bar{width:55%;height:5px;background:rgba(255,255,255,.2);
+  border-radius:3px;margin-top:12px;overflow:hidden}
+.cd-fill{height:100%;background:linear-gradient(90deg,#EF5350,#FF6F00);
+  border-radius:3px;transition:width 1s linear}
+
+/* ─── GAME LOG (hidden but functional) ─────────── */
+.game-log{display:none}
 </style>
 </head>
 <body>
 
-<!-- Header -->
-<header class="game-header">
-  <a href="../../../index.html" class="back-btn">← Back</a>
-  <div class="header-title">🎲 LUDO</div>
-  <div style="width:60px"></div>
-</header>
-
-<!-- Setup Screen -->
+<!-- SETUP SCREEN -->
 <div class="setup-screen" id="setupScreen">
-  <div class="setup-title">
-    <div style="font-size: clamp(48px, 10vmin, 72px); margin-bottom: 8px;">🎲</div>
-    <h1>Ludo</h1>
-    <p style="color: var(--text-muted); margin-top: 8px;">Classic Board Game</p>
+  <div class="setup-title" style="margin-bottom:16px">
+    <div style="font-size:clamp(44px,9vmin,64px);margin-bottom:4px">🎲</div>
+    <h1>LUDO</h1>
+    <p style="color:rgba(255,255,255,.5);margin-top:6px;font-size:14px">Classic Board Game</p>
   </div>
-  
   <div class="setup-card">
     <h3>Number of Players</h3>
     <div class="player-count">
-      <button class="count-btn" data-count="2">2</button>
-      <button class="count-btn active" data-count="3">3</button>
-      <button class="count-btn" data-count="4">4</button>
+      <button class="count-btn" data-n="2">2 Players</button>
+      <button class="count-btn active" data-n="3">3 Players</button>
+      <button class="count-btn" data-n="4">4 Players</button>
     </div>
-    
     <h3>Player Settings</h3>
-    <div id="playerConfigs"></div>
+    <div id="pcRows"></div>
   </div>
-  
   <button class="start-btn" id="startBtn">▶ Start Game</button>
 </div>
 
-<!-- Game Screen -->
-<div class="game-container" id="gameScreen" style="display: none;">
-  
-  <!-- Player Cards -->
-  <div class="player-card card-red" id="card-red">
-    <div class="card-avatar">🔴</div>
-    <div class="card-info">
-      <div class="card-name">Red</div>
-      <div class="card-type">Human</div>
-      <div class="card-tokens">
-        <div class="token-dot active"></div>
-        <div class="token-dot active"></div>
-        <div class="token-dot active"></div>
-        <div class="token-dot active"></div>
-      </div>
-    </div>
-  </div>
-  
-  <div class="player-card card-blue" id="card-blue">
-    <div class="card-avatar">🔵</div>
-    <div class="card-info">
-      <div class="card-name">Blue</div>
-      <div class="card-type">AI</div>
-      <div class="card-tokens">
-        <div class="token-dot active"></div>
-        <div class="token-dot active"></div>
-        <div class="token-dot active"></div>
-        <div class="token-dot active"></div>
-      </div>
-    </div>
-  </div>
-  
-  <div class="player-card card-green" id="card-green">
-    <div class="card-avatar">🟢</div>
-    <div class="card-info">
-      <div class="card-name">Green</div>
-      <div class="card-type">AI</div>
-      <div class="card-tokens">
-        <div class="token-dot active"></div>
-        <div class="token-dot active"></div>
-        <div class="token-dot active"></div>
-        <div class="token-dot active"></div>
-      </div>
-    </div>
-  </div>
-  
-  <div class="player-card card-yellow" id="card-yellow">
-    <div class="card-avatar">🟡</div>
-    <div class="card-info">
-      <div class="card-name">Yellow</div>
-      <div class="card-type">AI</div>
-      <div class="card-tokens">
-        <div class="token-dot active"></div>
-        <div class="token-dot active"></div>
-        <div class="token-dot active"></div>
-        <div class="token-dot active"></div>
-      </div>
-    </div>
-  </div>
-  
+<!-- GAME SCREEN -->
+<div class="game-wrapper" id="gameScreen" style="display:none">
+
+  <header class="game-header">
+    <a href="../../../index.html" class="back-btn">← Back</a>
+    <div class="header-title">🎲 LUDO</div>
+    <div style="width:50px"></div>
+  </header>
+
   <!-- Board -->
-  <div class="board-wrapper">
-    <div class="ludo-board" id="ludoBoard">
-      
-      <!-- Green Home (Top Left) -->
-      <div class="home-base green" id="home-green">
-        <div class="home-inner">
-          <div class="token-slot" data-home="green" data-idx="0"></div>
-          <div class="token-slot" data-home="green" data-idx="1"></div>
-          <div class="token-slot" data-home="green" data-idx="2"></div>
-          <div class="token-slot" data-home="green" data-idx="3"></div>
-        </div>
+  <div class="board-area">
+    <div class="board-wrapper">
+      <div class="ludo-board" id="ludoBoard"></div>
+      <!-- Countdown overlay -->
+      <div class="cd-overlay" id="cdOverlay">
+        <div class="cd-icon">🏃</div>
+        <div class="cd-text">Player inactive!</div>
+        <div class="cd-num" id="cdNum">30</div>
+        <div class="cd-bar"><div class="cd-fill" id="cdFill" style="width:100%"></div></div>
+        <div class="cd-text" style="margin-top:6px;font-size:11px">Eliminating in...</div>
       </div>
-      
-      <!-- Blue Path (Top Middle) -->
-      <div class="path-vertical blue-path" id="path-blue"></div>
-      
-      <!-- Yellow Home (Top Right) - In 3-player game this might be unused -->
-      <div class="home-base yellow" id="home-yellow" style="display: none;">
-        <div class="home-inner">
-          <div class="token-slot" data-home="yellow" data-idx="0"></div>
-          <div class="token-slot" data-home="yellow" data-idx="1"></div>
-          <div class="token-slot" data-home="yellow" data-idx="2"></div>
-          <div class="token-slot" data-home="yellow" data-idx="3"></div>
-        </div>
-      </div>
-      
-      <!-- Red Path (Middle Left) -->
-      <div class="path-horizontal red-path" id="path-red"></div>
-      
-      <!-- Center -->
-      <div class="center-area">
-        <div class="center-diamond">
-          <div class="center-triangle green"></div>
-          <div class="center-triangle yellow"></div>
-          <div class="center-triangle red"></div>
-          <div class="center-triangle blue"></div>
-        </div>
-        <div class="center-icon">🏠</div>
-      </div>
-      
-      <!-- Green Path (Middle Right) -->
-      <div class="path-horizontal green-path" id="path-green"></div>
-      
-      <!-- Red Home (Bottom Left) -->
-      <div class="home-base red" id="home-red">
-        <div class="home-inner">
-          <div class="token-slot" data-home="red" data-idx="0"></div>
-          <div class="token-slot" data-home="red" data-idx="1"></div>
-          <div class="token-slot" data-home="red" data-idx="2"></div>
-          <div class="token-slot" data-home="red" data-idx="3"></div>
-        </div>
-      </div>
-      
-      <!-- Yellow Path (Bottom Middle) -->
-      <div class="path-vertical yellow-path" id="path-yellow"></div>
-      
-      <!-- Blue Home (Bottom Right) -->
-      <div class="home-base blue" id="home-blue">
-        <div class="home-inner">
-          <div class="token-slot" data-home="blue" data-idx="0"></div>
-          <div class="token-slot" data-home="blue" data-idx="1"></div>
-          <div class="token-slot" data-home="blue" data-idx="2"></div>
-          <div class="token-slot" data-home="blue" data-idx="3"></div>
-        </div>
-      </div>
-      
-      <!-- Elimination Countdown Overlay -->
-      <div class="countdown-overlay" id="countdownOverlay">
-        <div class="countdown-icon">🏃</div>
-        <div class="countdown-text">Player disconnected!</div>
-        <div class="countdown-timer" id="countdownTimer">30</div>
-        <div class="countdown-bar">
-          <div class="countdown-fill" id="countdownFill" style="width: 100%;"></div>
-        </div>
-        <div class="countdown-text" style="margin-top: 8px; font-size: 11px;">Eliminating in...</div>
-      </div>
-      
     </div>
   </div>
-  
+
   <!-- Controls -->
-  <div class="controls-area">
-    <div class="turn-indicator">
-      <div class="turn-text" id="turnText" style="color: var(--red);">Red's Turn</div>
-      <div class="turn-sub" id="turnSub">Click the dice to roll!</div>
+  <div class="controls-row">
+    <!-- Player panels -->
+    <div class="player-panels" id="playerPanels"></div>
+
+    <!-- Dice -->
+    <div class="dice-area">
+      <div class="dice disabled" id="dice">
+        <!-- 9 dot positions in 3×3 grid -->
+        <div class="dd" id="d1"></div><div class="dd" id="d2"></div><div class="dd" id="d3"></div>
+        <div class="dd" id="d4"></div><div class="dd" id="d5"></div><div class="dd" id="d6"></div>
+        <div class="dd" id="d7"></div><div class="dd" id="d8"></div><div class="dd" id="d9"></div>
+      </div>
+      <button class="roll-btn" id="rollBtn" disabled>Roll</button>
     </div>
-    
-    <div class="dice-container">
-      <div class="dice" id="dice">🎲</div>
-      <button class="roll-btn" id="rollBtn">Roll Dice</button>
-    </div>
-    
-    <div class="game-log" id="gameLog">
-      <div class="log-entry">Game started! Good luck!</div>
+
+    <!-- Turn info -->
+    <div class="turn-area">
+      <div class="turn-text" id="turnText">Red's Turn</div>
+      <div class="turn-sub" id="turnSub">Click Roll!</div>
     </div>
   </div>
+
+  <div class="game-log" id="gameLog"></div>
 </div>
 
-<!-- Win Modal -->
+<!-- WIN MODAL -->
 <div class="win-modal" id="winModal">
   <div class="win-content">
     <div class="win-emoji" id="winEmoji">🏆</div>
     <div class="win-title" id="winTitle">Red Wins!</div>
-    <div class="win-subtitle" id="winSubtitle">Congratulations!</div>
-    <div class="win-buttons">
+    <div class="win-sub" id="winSub">Congratulations!</div>
+    <div class="win-btns">
       <button class="win-btn primary" id="playAgainBtn">Play Again</button>
-      <button class="win-btn secondary" id="menuBtn">Menu</button>
+      <button class="win-btn sec" id="menuBtn">Menu</button>
     </div>
   </div>
 </div>
 
 <script>
-// ═══════════════════════════════════════════════════════════════
-// GAME CONSTANTS & CONFIG
-// ═══════════════════════════════════════════════════════════════
+// ════════════════════════════════════════════════════
+// CONSTANTS
+// ════════════════════════════════════════════════════
 
-const PLAYERS = ['red', 'green', 'yellow', 'blue']; // Order: bottom-left, top-left, top-right, bottom-right
+const PLAYERS = ['red','green','yellow','blue'];
 const COLORS = {
-  red: { main: '#ef4444', dark: '#b91c1c', light: '#fca5a5' },
-  green: { main: '#22c55e', dark: '#15803d', light: '#86efac' },
-  yellow: { main: '#eab308', dark: '#a16207', light: '#fde047' },
-  blue: { main: '#3b82f6', dark: '#1d4ed8', light: '#93c5fd' }
+  red:    {main:'#E53935',light:'#EF9A9A',panel:'#E53935'},
+  green:  {main:'#43A047',light:'#A5D6A7',panel:'#43A047'},
+  yellow: {main:'#F9A825',light:'#FFF9C4',panel:'#F9A825'},
+  blue:   {main:'#1E88E5',light:'#90CAF9',panel:'#1E88E5'}
 };
 
-// Ludo path structure - 52 main path + 5 home = 57 total positions
-// Position 0 = home (yard), 1-52 = main path, 53-57 = home column, 58 = finished
+// 52 global path positions: [row, col] (0-indexed, 15×15 grid)
+const PATH = [
+  // Global 0-4: Red arm going right
+  [6,1],[6,2],[6,3],[6,4],[6,5],
+  // Global 5-12: left side going up + top
+  [5,6],[4,6],[3,6],[2,6],[1,6],[0,6],[0,7],[0,8],
+  // Global 13-17: Green arm going down
+  [1,8],[2,8],[3,8],[4,8],[5,8],
+  // Global 18-25: right of center + turn
+  [6,9],[6,10],[6,11],[6,12],[6,13],[6,14],[7,14],[8,14],
+  // Global 26-30: Yellow arm going left
+  [8,13],[8,12],[8,11],[8,10],[8,9],
+  // Global 31-38: bottom-right going down + bottom
+  [9,8],[10,8],[11,8],[12,8],[13,8],[14,8],[14,7],[14,6],
+  // Global 39-43: Blue arm going up
+  [13,6],[12,6],[11,6],[10,6],[9,6],
+  // Global 44-51: left of center going left + turn
+  [8,5],[8,4],[8,3],[8,2],[8,1],[8,0],[7,0],[6,0]
+];
 
-// Entry positions for each player (global path index where they start)
-const ENTRY_POSITIONS = { red: 0, green: 13, yellow: 26, blue: 39 };
+// Safe squares (global positions 0-51)
+const SAFE = new Set([0,8,13,21,26,34,39,47]);
 
-// Safe squares (star positions) - these are the GLOBAL path positions
-// In classic Ludo: each player's entry + 8 squares after each entry
-const SAFE_SQUARES = new Set([0, 8, 13, 21, 26, 34, 39, 47]);
+// Entry positions for each player on path
+const ENTRY = {red:0, green:13, yellow:26, blue:39};
 
-// ═══════════════════════════════════════════════════════════════
+// Home stretch cells [row,col] for each player (positions 53-57)
+const HOME_RUN = {
+  red:    [[7,1],[7,2],[7,3],[7,4],[7,5]],
+  green:  [[1,7],[2,7],[3,7],[4,7],[5,7]],
+  yellow: [[7,13],[7,12],[7,11],[7,10],[7,9]],
+  blue:   [[13,7],[12,7],[11,7],[10,7],[9,7]]
+};
+
+// Reverse lookup: "r-c" → global index
+const RC_TO_GLOBAL = {};
+PATH.forEach(([r,c],i) => { RC_TO_GLOBAL[`${r}-${c}`] = i; });
+
+// Reverse lookup for home run
+const RC_TO_HR = {}; // "r-c" → {player, hrIdx}
+Object.entries(HOME_RUN).forEach(([p,cells]) => {
+  cells.forEach(([r,c],i) => { RC_TO_HR[`${r}-${c}`] = {player:p, hrIdx:i}; });
+});
+
+// Dice face dot positions (1=top-left, 2=top-mid, 3=top-right,
+//                          4=mid-left, 5=center, 6=mid-right,
+//                          7=bot-left, 8=bot-mid, 9=bot-right)
+const DICE_FACES = {
+  1:[5],
+  2:[1,9],
+  3:[1,5,9],
+  4:[1,3,7,9],
+  5:[1,3,5,7,9],
+  6:[1,3,4,6,7,9]
+};
+
+// ════════════════════════════════════════════════════
 // GAME STATE
-// ═══════════════════════════════════════════════════════════════
+// ════════════════════════════════════════════════════
 
-let gameState = {
+let G = {
   playerCount: 3,
-  playerTypes: { red: 'human', green: 'ai', yellow: 'ai', blue: 'ai' },
-  activePlayers: [],
-  tokens: {}, // { red: [0,0,0,0], ... }
-  currentPlayer: 0,
-  diceValue: null,
-  phase: 'roll', // 'roll', 'move', 'animating'
-  rollCount: 0,
+  ptypes: {red:'human',green:'ai',yellow:'ai',blue:'ai'},
+  active: [],
+  tokens: {}, // {red:[0,0,0,0], ...} 0=home, 1-52=path, 53-57=homerun, 58=finish
+  curIdx: 0,
+  diceVal: null,
+  phase: 'roll', // 'roll'|'move'|'anim'
   eliminated: new Set(),
   winner: null
 };
 
-let countdownInterval = null;
+let cdInterval = null;
 
-// ═══════════════════════════════════════════════════════════════
-// SETUP SCREEN
-// ═══════════════════════════════════════════════════════════════
+// ════════════════════════════════════════════════════
+// BOARD BUILDING
+// ════════════════════════════════════════════════════
 
-function initSetup() {
-  const container = document.getElementById('playerConfigs');
-  
-  function renderConfigs() {
-    container.innerHTML = '';
-    PLAYERS.forEach((player, idx) => {
-      const isActive = idx < gameState.playerCount;
-      const config = document.createElement('div');
-      config.className = `player-config ${isActive ? 'active' : 'inactive'}`;
-      config.style.setProperty('--token-color', COLORS[player].main);
-      
-      config.innerHTML = `
-        <div class="config-dot" style="background: ${COLORS[player].main}"></div>
-        <div class="config-name" style="color: ${COLORS[player].main}; text-transform: capitalize">${player}</div>
-        <div class="config-type">
-          <button class="type-btn ${isActive && gameState.playerTypes[player] === 'human' ? 'active' : ''}" 
-                  data-player="${player}" data-type="human" ${!isActive ? 'disabled' : ''}>👤 Human</button>
-          <button class="type-btn ${isActive && gameState.playerTypes[player] === 'ai' ? 'active' : ''}" 
-                  data-player="${player}" data-type="ai" ${!isActive ? 'disabled' : ''}>🤖 AI</button>
-        </div>
-      `;
-      container.appendChild(config);
+function buildBoard() {
+  const board = document.getElementById('ludoBoard');
+  board.innerHTML = '';
+
+  for (let r = 0; r < 15; r++) {
+    for (let c = 0; c < 15; c++) {
+      const cell = document.createElement('div');
+      cell.id = `C${r}-${c}`;
+      cell.className = 'bc';
+
+      const info = cellInfo(r, c);
+      applyCell(cell, r, c, info);
+      board.appendChild(cell);
+    }
+  }
+}
+
+function cellInfo(r, c) {
+  // Home corners
+  if (r<6&&c<6) return {type:'home',p:'green'};
+  if (r<6&&c>8) return {type:'home',p:'yellow'};
+  if (r>8&&c<6) return {type:'home',p:'red'};
+  if (r>8&&c>8) return {type:'home',p:'blue'};
+
+  // Center 3×3
+  if (r>=6&&r<=8&&c>=6&&c<=8) return {type:'center'};
+
+  // Home run strips (middle column/row of each arm)
+  if (c===7&&r>=1&&r<=5) return {type:'homerun',p:'green'};
+  if (c===7&&r>=9&&r<=13) return {type:'homerun',p:'blue'};
+  if (r===7&&c>=1&&c<=5) return {type:'homerun',p:'red'};
+  if (r===7&&c>=9&&c<=13) return {type:'homerun',p:'yellow'};
+
+  // Path cell
+  const gpos = RC_TO_GLOBAL[`${r}-${c}`];
+  if (gpos !== undefined) return {type:'path', gpos};
+  return {type:'path', gpos:-1};
+}
+
+function applyCell(cell, r, c, info) {
+  const {type, p, gpos} = info;
+
+  if (type === 'home') {
+    // Token slot positions within each home
+    const slots = homeSlots(p);
+    const slotKey = `${r}-${c}`;
+    if (slots[slotKey] !== undefined) {
+      cell.classList.add('ts', `ts${p[0].toUpperCase()}`);
+      cell.dataset.homeSlot = p;          // used as selector [data-home-slot]
+      cell.dataset.slotIdx  = slots[slotKey]; // used as selector [data-slot-idx]
+    } else if (isInnerPanel(r, c, p)) {
+      cell.classList.add('hW');
+    } else {
+      cell.classList.add(`h${p[0].toUpperCase()}`);
+    }
+    return;
+  }
+
+  if (type === 'center') {
+    applyCenterCell(cell, r, c);
+    return;
+  }
+
+  if (type === 'homerun') {
+    cell.classList.add(`hr${p[0].toUpperCase()}`);
+    // Mark home run cells with data attribute
+    const hr = RC_TO_HR[`${r}-${c}`];
+    if (hr) { cell.dataset.hrPlayer = hr.player; cell.dataset.hrIdx = hr.hrIdx; }
+    return;
+  }
+
+  // Path cell
+  cell.classList.add('pc');
+  if (gpos >= 0) {
+    cell.dataset.gpos = gpos;
+    if (SAFE.has(gpos)) cell.classList.add('safe');
+    // Entry arrows
+    Object.entries(ENTRY).forEach(([player, epos]) => {
+      if (gpos === epos) cell.classList.add(`e${player[0].toUpperCase()}`);
     });
-    
-    container.querySelectorAll('.type-btn').forEach(btn => {
-      btn.addEventListener('click', () => {
-        gameState.playerTypes[btn.dataset.player] = btn.dataset.type;
-        renderConfigs();
-      });
-    });
-  }
-  
-  document.querySelectorAll('.count-btn').forEach(btn => {
-    btn.addEventListener('click', () => {
-      gameState.playerCount = parseInt(btn.dataset.count);
-      document.querySelectorAll('.count-btn').forEach(b => b.classList.remove('active'));
-      btn.classList.add('active');
-      renderConfigs();
-    });
-  });
-  
-  renderConfigs();
-  document.getElementById('startBtn').addEventListener('click', startGame);
-}
-
-// ═══════════════════════════════════════════════════════════════
-// GAME INITIALIZATION
-// ═══════════════════════════════════════════════════════════════
-
-function startGame() {
-  // Initialize game state
-  gameState.activePlayers = PLAYERS.slice(0, gameState.playerCount);
-  gameState.tokens = {};
-  gameState.activePlayers.forEach(p => {
-    gameState.tokens[p] = [0, 0, 0, 0];
-  });
-  gameState.currentPlayer = 0;
-  gameState.diceValue = null;
-  gameState.phase = 'roll';
-  gameState.rollCount = 0;
-  gameState.eliminated.clear();
-  gameState.winner = null;
-  
-  if (countdownInterval) {
-    clearInterval(countdownInterval);
-    countdownInterval = null;
-  }
-  
-  // Show/hide home bases based on player count
-  if (gameState.playerCount < 4) {
-    document.getElementById('home-yellow').style.display = 'none';
-  } else {
-    document.getElementById('home-yellow').style.display = 'flex';
-  }
-  
-  // Build path cells with correct safe zones
-  buildPathCells();
-  
-  // Update player cards
-  updatePlayerCards();
-  
-  // Show game screen
-  document.getElementById('setupScreen').classList.add('hidden');
-  document.getElementById('gameScreen').style.display = 'flex';
-  
-  // Initial render
-  renderTokens();
-  updateUI();
-  
-  addLog('🎮 Game started! Click the dice to roll.');
-  
-  if (isCurrentPlayerAI()) {
-    setTimeout(aiTurn, 1000);
   }
 }
 
-// ═══════════════════════════════════════════════════════════════
-// BUILD PATH CELLS WITH CORRECT SAFE ZONES
-// ═══════════════════════════════════════════════════════════════
-
-function buildPathCells() {
-  // Blue path (top vertical) - 18 cells (3x6 grid)
-  // Global positions: 13-24 (blue entry at 13)
-  const bluePath = document.getElementById('path-blue');
-  bluePath.innerHTML = '';
-  for (let i = 0; i < 18; i++) {
-    const cell = document.createElement('div');
-    cell.className = 'path-cell';
-    cell.id = `cell-blue-${i}`;
-    
-    // Map local index to global position
-    // Blue path: indices map to global positions around blue's area
-    const globalPos = mapBlueIndexToGlobal(i);
-    
-    if (SAFE_SQUARES.has(globalPos)) cell.classList.add('safe');
-    if (globalPos === 13) cell.classList.add('start'); // Blue start
-    
-    bluePath.appendChild(cell);
-  }
-  
-  // Red path (left horizontal) - 18 cells (6x3 grid)
-  // Global positions: 0-12 and some wrapping
-  const redPath = document.getElementById('path-red');
-  redPath.innerHTML = '';
-  for (let i = 0; i < 18; i++) {
-    const cell = document.createElement('div');
-    cell.className = 'path-cell';
-    cell.id = `cell-red-${i}`;
-    
-    const globalPos = mapRedIndexToGlobal(i);
-    
-    if (SAFE_SQUARES.has(globalPos)) cell.classList.add('safe');
-    if (globalPos === 0) cell.classList.add('start'); // Red start
-    
-    redPath.appendChild(cell);
-  }
-  
-  // Green path (right horizontal) - 18 cells
-  // Global positions: 26-38
-  const greenPath = document.getElementById('path-green');
-  greenPath.innerHTML = '';
-  for (let i = 0; i < 18; i++) {
-    const cell = document.createElement('div');
-    cell.className = 'path-cell';
-    cell.id = `cell-green-${i}`;
-    
-    const globalPos = mapGreenIndexToGlobal(i);
-    
-    if (SAFE_SQUARES.has(globalPos)) cell.classList.add('safe');
-    if (globalPos === 26) cell.classList.add('start'); // Green start
-    
-    greenPath.appendChild(cell);
-  }
-  
-  // Yellow path (bottom vertical) - 18 cells
-  // Global positions: 39-51
-  const yellowPath = document.getElementById('path-yellow');
-  yellowPath.innerHTML = '';
-  for (let i = 0; i < 18; i++) {
-    const cell = document.createElement('div');
-    cell.className = 'path-cell';
-    cell.id = `cell-yellow-${i}`;
-    
-    const globalPos = mapYellowIndexToGlobal(i);
-    
-    if (SAFE_SQUARES.has(globalPos)) cell.classList.add('safe');
-    if (globalPos === 39) cell.classList.add('start'); // Yellow start
-    
-    yellowPath.appendChild(cell);
-  }
-}
-
-// Map path indices to global positions (0-51)
-// These mappings need to match the visual layout
-function mapBlueIndexToGlobal(index) {
-  // Blue path cells map to specific global positions
-  // Blue entry is at global 13
-  // Safe at 13 (start) and 21
-  const mapping = {
-    6: 13, // Blue start (top of path, going down)
-    15: 21 // Safe zone
-    // Add more mappings as needed
+// Which cells are token slots inside each home
+function homeSlots(p) {
+  const map = {
+    green:  {'1-1':0,'1-3':1,'3-1':2,'3-3':3},
+    yellow: {'1-11':0,'1-13':1,'3-11':2,'3-13':3},
+    red:    {'10-1':0,'10-3':1,'12-1':2,'12-3':3},
+    blue:   {'10-11':0,'10-13':1,'12-11':2,'12-13':3}
   };
-  return mapping[index] ?? -1;
+  return map[p];
 }
 
-function mapRedIndexToGlobal(index) {
-  // Red entry at global 0
-  // Safe at 0 (start) and 8
-  const mapping = {
-    3: 0, // Red start
-    12: 8 // Safe zone
+// White inner panel cells (non-slot cells in white area)
+function isInnerPanel(r, c, p) {
+  const panels = {
+    green:  (r>=1&&r<=4&&c>=1&&c<=4),
+    yellow: (r>=1&&r<=4&&c>=11&&c<=14),
+    red:    (r>=10&&r<=13&&c>=1&&c<=4),
+    blue:   (r>=10&&r<=13&&c>=11&&c<=14)
   };
-  return mapping[index] ?? -1;
+  return panels[p];
 }
 
-function mapGreenIndexToGlobal(index) {
-  // Green entry at global 26
-  // Safe at 26 (start) and 34
-  const mapping = {
-    3: 26, // Green start
-    12: 34 // Safe zone
-  };
-  return mapping[index] ?? -1;
+function applyCenterCell(cell, r, c) {
+  // Map 3×3 center (rows 6-8, cols 6-8)
+  const lr = r-6, lc = c-6; // 0-2, 0-2
+  const map = [
+    ['cTL','cT','cTR'],
+    ['cL','cC','cRi'],
+    ['cBL','cBo','cBR']
+  ];
+  cell.classList.add(map[lr][lc]);
+  if (lr===1&&lc===1) cell.textContent='🏠';
 }
 
-function mapYellowIndexToGlobal(index) {
-  // Yellow entry at global 39
-  // Safe at 39 (start) and 47
-  const mapping = {
-    6: 39, // Yellow start
-    15: 47 // Safe zone
-  };
-  return mapping[index] ?? -1;
-}
-
-// ═══════════════════════════════════════════════════════════════
+// ════════════════════════════════════════════════════
 // TOKEN RENDERING
-// ═══════════════════════════════════════════════════════════════
+// ════════════════════════════════════════════════════
 
 function renderTokens() {
-  document.querySelectorAll('.ludo-token').forEach(t => t.remove());
-  
-  gameState.activePlayers.forEach(player => {
-    if (gameState.eliminated.has(player)) return;
-    
-    gameState.tokens[player].forEach((pos, idx) => {
-      const token = createToken(player, idx);
-      
-      if (pos === 0) {
-        // In home base
-        const slot = document.querySelector(`[data-home="${player}"][data-idx="${idx}"]`);
-        if (slot) slot.appendChild(token);
-      } else if (pos >= 58) {
-        // Finished - in center
-        // Could show finished tokens in center
-      } else {
-        // On path - position absolutely
-        // Simplified for now - just log position
-        console.log(`Token ${player}-${idx} at position ${pos}`);
-      }
+  // Remove existing tokens
+  document.querySelectorAll('.tok').forEach(t => t.remove());
+
+  G.active.forEach(player => {
+    if (G.eliminated.has(player)) return;
+    G.tokens[player].forEach((pos, idx) => {
+      placeTokenIndexed(player, idx, pos);
     });
   });
 }
 
-function createToken(player, idx) {
-  const token = document.createElement('div');
-  token.className = `ludo-token token-${player}`;
-  token.dataset.player = player;
-  token.dataset.idx = idx;
-  token.innerHTML = `
-    <div class="token-head"></div>
-    <div class="token-body"></div>
-    <div class="token-number">${idx + 1}</div>
-  `;
-  
-  if (canMoveToken(player, idx)) {
-    token.classList.add('movable');
+function placeTokenIndexed(player, idx, pos) {
+  const token = createTokenEl(player, idx, pos);
+  const cell  = getCellForPosImproved(player, pos, idx);
+  if (!cell) return;
+
+  // Count existing tokens on cell for stacking
+  const tokensOnCell = cell.querySelectorAll('.tok').length;
+  cell.appendChild(token);
+
+  // Offset stacked tokens
+  if (tokensOnCell > 0) {
+    const offsets = [[0,0],[2,2],[-2,2],[2,-2],[-2,-2]];
+    const off = offsets[Math.min(tokensOnCell, 4)];
+    token.style.left = `calc(50% + ${off[0]}px - 50%)`;
+    token.style.top  = `calc(50% + ${off[1]}px - 50%)`;
   }
-  
+}
+
+function getCellForPos(player, pos) {
+  if (pos === 0) {
+    // Home slot
+    const slots = document.querySelectorAll(`[data-home-slot="${player}"]`);
+    // Find first empty slot
+    for (const slot of slots) {
+      if (!slot.querySelector('.tok')) return slot;
+    }
+    return slots[0] || null;
+  }
+  if (pos >= 58) return null; // Finished (show at center)
+  if (pos >= 53) {
+    // Home run (1-5 → hr index 0-4)
+    const hrIdx = pos - 53;
+    return document.querySelector(`[data-hr-player="${player}"][data-hr-idx="${hrIdx}"]`);
+  }
+  // Main path
+  const local = pos; // 1-52
+  const globalIdx = (ENTRY[player] + local - 1) % 52;
+  return document.querySelector(`[data-gpos="${globalIdx}"]`);
+}
+
+function homeSlotCell(player, idx) {
+  return document.querySelector(`[data-home-slot="${player}"][data-slot-idx="${idx}"]`);
+}
+
+function createTokenEl(player, idx, pos) {
+  const token = document.createElement('div');
+  const p1    = player[0].toUpperCase();
+  token.className = `tok tok${p1} ${pos===0?'tok-home':'tok-path'}`;
+  token.dataset.player = player;
+  token.dataset.idx    = idx;
+  token.textContent    = idx + 1;
+
+  if (canMove(player, idx)) token.classList.add('movable');
   token.addEventListener('click', () => handleTokenClick(player, idx));
   return token;
 }
 
-// ═══════════════════════════════════════════════════════════════
-// GAME LOGIC
-// ═══════════════════════════════════════════════════════════════
-
-function currentPlayer() {
-  return gameState.activePlayers[gameState.currentPlayer];
-}
-
-function isCurrentPlayerAI() {
-  return gameState.playerTypes[currentPlayer()] === 'ai';
-}
-
-function canMoveToken(player, tokenIdx) {
-  if (player !== currentPlayer()) return false;
-  if (gameState.phase !== 'move') return false;
-  if (gameState.eliminated.has(player)) return false;
-  
-  const pos = gameState.tokens[player][tokenIdx];
-  const dice = gameState.diceValue;
-  
+function getCellForPosImproved(player, pos, idx) {
   if (pos === 0) {
-    return dice === 6; // Can only leave home with 6
-  } else if (pos >= 58) {
-    return false; // Already finished
-  } else {
-    return pos + dice <= 58; // Can move if won't overshoot
+    return homeSlotCell(player, idx);
   }
+  return getCellForPos(player, pos);
 }
 
-// ═══════════════════════════════════════════════════════════════
-// DICE ROLLING - FIXED
-// ═══════════════════════════════════════════════════════════════
+// ════════════════════════════════════════════════════
+// DICE
+// ════════════════════════════════════════════════════
+
+function showDiceFace(val, colorClass) {
+  const dots = document.querySelectorAll('.dd');
+  dots.forEach((d,i) => {
+    d.className = `dd ${colorClass||'dd-def'}`;
+    if (DICE_FACES[val] && DICE_FACES[val].includes(i+1)) d.classList.add('v');
+  });
+}
 
 function rollDice() {
-  console.log('rollDice called, phase:', gameState.phase, 'isAI:', isCurrentPlayerAI());
-  
-  if (gameState.phase !== 'roll') {
-    console.log('Cannot roll: not in roll phase');
-    return;
-  }
-  if (isCurrentPlayerAI()) {
-    console.log('Cannot roll: AI turn');
-    return;
-  }
-  
+  if (G.phase !== 'roll') return;
+  if (isAI()) return;
   performRoll();
 }
 
 function performRoll() {
-  console.log('performRoll started');
-  gameState.phase = 'animating';
-  
+  G.phase = 'anim';
   const dice = document.getElementById('dice');
+  updateDiceUI();
   dice.classList.add('rolling');
-  dice.classList.remove('disabled');
-  
-  // Animation frames
-  const faces = ['⚀','⚁','⚂','⚃','⚄','⚅'];
+
   let rolls = 0;
-  const maxRolls = 10;
-  
-  const interval = setInterval(() => {
-    dice.textContent = faces[Math.floor(Math.random() * 6)];
-    rolls++;
-    
-    if (rolls >= maxRolls) {
-      clearInterval(interval);
+  const intv = setInterval(() => {
+    showDiceFace(Math.ceil(Math.random()*6));
+    if (++rolls >= 9) {
+      clearInterval(intv);
       dice.classList.remove('rolling');
-      
-      // Final value
-      gameState.diceValue = Math.floor(Math.random() * 6) + 1;
-      dice.textContent = faces[gameState.diceValue - 1];
-      
-      console.log('Rolled:', gameState.diceValue);
+      G.diceVal = Math.ceil(Math.random()*6);
+      const p = curPlayer();
+      const cc = {red:'ddR',green:'ddG',yellow:'ddY',blue:'ddB'};
+      showDiceFace(G.diceVal, cc[p]);
       afterRoll();
     }
-  }, 100);
+  }, 80);
+}
+
+// ════════════════════════════════════════════════════
+// GAME LOGIC
+// ════════════════════════════════════════════════════
+
+function curPlayer() { return G.active[G.curIdx]; }
+function isAI()      { return G.ptypes[curPlayer()] === 'ai'; }
+
+function canMove(player, tokenIdx) {
+  if (player !== curPlayer()) return false;
+  if (G.phase !== 'move') return false;
+  if (G.eliminated.has(player)) return false;
+  const pos  = G.tokens[player][tokenIdx];
+  const dice = G.diceVal;
+  if (pos === 0) return dice === 6;
+  if (pos >= 58) return false;
+  return pos + dice <= 58;
 }
 
 function afterRoll() {
-  const player = currentPlayer();
-  const dice = gameState.diceValue;
-  
-  addLog(`<span style="color: ${COLORS[player].main}">${player.charAt(0).toUpperCase() + player.slice(1)}</span> rolled ${dice}`);
-  
-  // Check for valid moves
-  const movableTokens = gameState.tokens[player]
+  const player = curPlayer();
+  const dice   = G.diceVal;
+  // Check movability without mutating phase
+  const movable = G.tokens[player]
     .map((pos, idx) => ({ pos, idx }))
-    .filter(({ pos, idx }) => canMoveToken(player, idx));
-  
-  if (movableTokens.length === 0) {
-    addLog('No valid moves!');
-    setTimeout(nextTurn, 1500);
+    .filter(({ pos }) => {
+      if (pos === 0) return dice === 6;
+      if (pos >= 58) return false;
+      return pos + dice <= 58;
+    });
+
+  addLog(`${cap(player)} rolled ${dice}`);
+
+  if (movable.length === 0) {
+    addLog('No valid moves. Next turn!');
+    setTimeout(nextTurn, 1200);
     return;
   }
-  
-  gameState.phase = 'move';
+
+  G.phase = 'move';
   updateUI();
   renderTokens();
-  
-  if (movableTokens.length === 1 && isCurrentPlayerAI()) {
-    setTimeout(() => moveToken(player, movableTokens[0].idx), 800);
+
+  // AI auto-move
+  if (isAI()) {
+    // Pick a capture or random movable token
+    const best = aiChoose(player, movable);
+    setTimeout(() => moveToken(player, best.idx), 700);
   }
 }
 
-function handleTokenClick(player, tokenIdx) {
-  if (!canMoveToken(player, tokenIdx)) return;
-  moveToken(player, tokenIdx);
+function aiChoose(player, movable) {
+  // Prefer tokens that can capture or tokens furthest along
+  let best = movable[0];
+  movable.forEach(t => {
+    if (t.pos > best.pos) best = t;
+  });
+  return best;
 }
 
-function moveToken(player, tokenIdx) {
-  const oldPos = gameState.tokens[player][tokenIdx];
+function handleTokenClick(player, idx) {
+  if (!canMove(player, idx)) return;
+  moveToken(player, idx);
+}
+
+function moveToken(player, idx) {
+  const oldPos = G.tokens[player][idx];
   let newPos;
-  
+
   if (oldPos === 0) {
-    newPos = 1; // Leave home
-    addLog(`${player.charAt(0).toUpperCase() + player.slice(1)} enters the game!`);
+    newPos = 1;
+    addLog(`${cap(player)} enters the game!`);
   } else {
-    newPos = oldPos + gameState.diceValue;
+    newPos = oldPos + G.diceVal;
     if (newPos > 58) newPos = 58;
   }
-  
-  gameState.tokens[player][tokenIdx] = newPos;
-  
-  // Check captures
-  if (newPos >= 1 && newPos <= 52) {
-    checkCapture(player, tokenIdx, newPos);
-  }
-  
-  // Check win
+
+  G.tokens[player][idx] = newPos;
+
+  // Check captures (only on main path 1-52)
+  if (newPos >= 1 && newPos <= 52) checkCapture(player, idx, newPos);
+
+  // Win check
   if (newPos === 58) {
-    const finished = gameState.tokens[player].filter(p => p === 58).length;
-    addLog(`${player.charAt(0).toUpperCase() + player.slice(1)} token reached home! (${finished}/4)`);
-    if (finished === 4) {
-      endGame(player);
-      return;
-    }
+    const done = G.tokens[player].filter(p => p === 58).length;
+    addLog(`${cap(player)} token ${idx+1} home! (${done}/4)`);
+    if (done === 4) { endGame(player); return; }
   }
-  
+
   renderTokens();
-  
-  if (gameState.diceValue === 6) {
+
+  if (G.diceVal === 6) {
     addLog('🎲 Extra turn!');
-    gameState.phase = 'roll';
+    G.phase = 'roll';
     updateUI();
-    if (isCurrentPlayerAI()) setTimeout(aiTurn, 800);
+    if (isAI()) setTimeout(() => performRoll(), 800);
   } else {
-    setTimeout(nextTurn, 600);
+    setTimeout(nextTurn, 500);
   }
 }
 
-function checkCapture(player, tokenIdx, pos) {
-  const entry = ENTRY_POSITIONS[player];
-  const globalPos = (entry + pos - 1) % 52;
-  
-  if (SAFE_SQUARES.has(globalPos)) return; // Can't capture on safe squares
-  
-  gameState.activePlayers.forEach(opponent => {
-    if (opponent === player || gameState.eliminated.has(opponent)) return;
-    
-    gameState.tokens[opponent].forEach((oppPos, oppIdx) => {
-      if (oppPos >= 1 && oppPos <= 52) {
-        const oppEntry = ENTRY_POSITIONS[opponent];
-        const oppGlobalPos = (oppEntry + oppPos - 1) % 52;
-        if (oppGlobalPos === globalPos) {
-          gameState.tokens[opponent][oppIdx] = 0;
-          addLog(`💥 ${player} captured ${opponent}'s token!`);
-        }
+function checkCapture(player, tokenIdx, localPos) {
+  const globalP = (ENTRY[player] + localPos - 1) % 52;
+  if (SAFE.has(globalP)) return;
+
+  G.active.forEach(opp => {
+    if (opp === player || G.eliminated.has(opp)) return;
+    G.tokens[opp].forEach((oppPos, oppIdx) => {
+      if (oppPos < 1 || oppPos > 52) return;
+      const oppGlobal = (ENTRY[opp] + oppPos - 1) % 52;
+      if (oppGlobal === globalP) {
+        G.tokens[opp][oppIdx] = 0;
+        addLog(`💥 ${cap(player)} captured ${opp}'s token!`);
       }
     });
   });
 }
 
 function nextTurn() {
-  if (gameState.winner) return;
-  
-  gameState.currentPlayer = (gameState.currentPlayer + 1) % gameState.activePlayers.length;
-  gameState.diceValue = null;
-  gameState.phase = 'roll';
-  
-  if (gameState.eliminated.has(currentPlayer())) {
-    nextTurn();
-    return;
-  }
-  
+  if (G.winner) return;
+  G.curIdx = (G.curIdx + 1) % G.active.length;
+  G.diceVal = null;
+  G.phase   = 'roll';
+  if (G.eliminated.has(curPlayer())) { nextTurn(); return; }
   updateUI();
   renderTokens();
-  
-  if (isCurrentPlayerAI()) {
-    setTimeout(aiTurn, 1000);
-  }
+  if (isAI()) setTimeout(() => performRoll(), 900);
 }
 
-function aiTurn() {
-  if (gameState.phase !== 'roll') return;
-  performRoll();
-}
-
-// ═══════════════════════════════════════════════════════════════
+// ════════════════════════════════════════════════════
 // ELIMINATION COUNTDOWN
-// ═══════════════════════════════════════════════════════════════
+// ════════════════════════════════════════════════════
 
 function startEliminationCountdown(player) {
-  if (gameState.eliminated.has(player)) return;
-  
-  const overlay = document.getElementById('countdownOverlay');
-  const timer = document.getElementById('countdownTimer');
-  const fill = document.getElementById('countdownFill');
-  
-  let seconds = 30;
+  if (G.eliminated.has(player)) return;
+  const overlay = document.getElementById('cdOverlay');
+  const num     = document.getElementById('cdNum');
+  const fill    = document.getElementById('cdFill');
+  let secs = 30;
   overlay.classList.add('active');
-  timer.textContent = seconds;
+  num.textContent  = secs;
   fill.style.width = '100%';
-  
-  addLog(`⚠️ ${player} inactive! Elimination in 30s...`);
-  
-  countdownInterval = setInterval(() => {
-    seconds--;
-    timer.textContent = seconds;
-    fill.style.width = (seconds / 30 * 100) + '%';
-    
-    if (seconds <= 0) {
-      clearInterval(countdownInterval);
+  addLog(`⚠️ ${cap(player)} inactive! Eliminating in 30s...`);
+  cdInterval = setInterval(() => {
+    secs--;
+    num.textContent  = secs;
+    fill.style.width = (secs/30*100)+'%';
+    if (secs <= 0) {
+      clearInterval(cdInterval);
       eliminatePlayer(player);
       overlay.classList.remove('active');
     }
@@ -1582,183 +822,210 @@ function startEliminationCountdown(player) {
 }
 
 function eliminatePlayer(player) {
-  gameState.eliminated.add(player);
-  gameState.tokens[player] = [58, 58, 58, 58];
-  
-  const card = document.getElementById(`card-${player}`);
-  if (card) {
-    card.classList.add('eliminated');
-    card.querySelector('.card-avatar').innerHTML = '🚫';
-    card.querySelector('.card-type').textContent = 'Eliminated';
-  }
-  
-  addLog(`❌ ${player} was eliminated!`);
+  G.eliminated.add(player);
+  G.tokens[player] = [58,58,58,58];
+  addLog(`❌ ${cap(player)} was eliminated!`);
+  updatePlayerPanels();
   renderTokens();
-  
-  const remaining = gameState.activePlayers.filter(p => !gameState.eliminated.has(p));
-  if (remaining.length === 1) {
-    endGame(remaining[0]);
-  } else if (currentPlayer() === player) {
-    nextTurn();
-  }
+  const rem = G.active.filter(p => !G.eliminated.has(p));
+  if (rem.length === 1) endGame(rem[0]);
+  else if (curPlayer() === player) nextTurn();
 }
 
-// Test elimination with 'D' key
-document.addEventListener('keydown', (e) => {
-  if (e.key === 'd' || e.key === 'D') {
-    const current = currentPlayer();
-    if (!gameState.eliminated.has(current)) {
-      startEliminationCountdown(current);
-    }
+// Key 'D' to test elimination
+document.addEventListener('keydown', e => {
+  if ((e.key==='d'||e.key==='D') && document.getElementById('gameScreen').style.display!=='none') {
+    startEliminationCountdown(curPlayer());
   }
 });
 
-// ═══════════════════════════════════════════════════════════════
+// ════════════════════════════════════════════════════
 // UI UPDATES
-// ═══════════════════════════════════════════════════════════════
+// ════════════════════════════════════════════════════
 
 function updateUI() {
-  const player = currentPlayer();
-  const color = COLORS[player];
-  
-  const turnText = document.getElementById('turnText');
-  const turnSub = document.getElementById('turnSub');
-  turnText.textContent = player.charAt(0).toUpperCase() + player.slice(1) + "'s Turn";
-  turnText.style.color = color.main;
-  
-  if (gameState.phase === 'roll') {
-    turnSub.textContent = isCurrentPlayerAI() ? '🤖 AI thinking...' : 'Click the dice to roll!';
-  } else if (gameState.phase === 'move') {
-    turnSub.textContent = 'Select a token to move';
+  const player = curPlayer();
+  const color  = COLORS[player].main;
+
+  document.getElementById('turnText').textContent = `${cap(player)}'s Turn`;
+  document.getElementById('turnText').style.color = color;
+
+  if (G.phase==='roll') {
+    document.getElementById('turnSub').textContent = isAI() ? '🤖 AI is thinking...' : '🎲 Click Roll!';
+  } else if (G.phase==='move') {
+    document.getElementById('turnSub').textContent = 'Select a token';
   } else {
-    turnSub.textContent = 'Rolling...';
+    document.getElementById('turnSub').textContent = 'Rolling...';
   }
-  
-  gameState.activePlayers.forEach(p => {
-    const card = document.getElementById(`card-${p}`);
-    if (card) {
-      card.classList.toggle('active', p === player && !gameState.eliminated.has(p));
-      const dots = card.querySelectorAll('.token-dot');
-      gameState.tokens[p].forEach((pos, i) => {
-        dots[i].classList.toggle('active', pos < 58);
-      });
-    }
-  });
-  
-  const dice = document.getElementById('dice');
+
+  updateDiceUI();
+  updatePlayerPanels();
+}
+
+function updateDiceUI() {
+  const dice    = document.getElementById('dice');
   const rollBtn = document.getElementById('rollBtn');
-  
-  if (gameState.diceValue) {
-    const faces = ['⚀','⚁','⚂','⚃','⚄','⚅'];
-    dice.textContent = faces[gameState.diceValue - 1];
+  const enabled = G.phase==='roll' && !isAI();
+
+  rollBtn.disabled = !enabled;
+  dice.classList.toggle('disabled', !enabled);
+
+  if (G.diceVal) {
+    const cc = {red:'ddR',green:'ddG',yellow:'ddY',blue:'ddB'};
+    showDiceFace(G.diceVal, cc[curPlayer()]);
   } else {
-    dice.textContent = '🎲';
-  }
-  
-  rollBtn.disabled = gameState.phase !== 'roll' || isCurrentPlayerAI();
-  
-  if (rollBtn.disabled) {
-    dice.classList.add('disabled');
-  } else {
-    dice.classList.remove('disabled');
+    // Clear all dots when not yet rolled
+    document.querySelectorAll('.dd').forEach(d => { d.className = 'dd'; });
   }
 }
 
-function updatePlayerCards() {
-  gameState.activePlayers.forEach(p => {
-    const card = document.getElementById(`card-${p}`);
-    if (card) {
-      const type = gameState.playerTypes[p];
-      card.querySelector('.card-type').textContent = type === 'ai' ? '🤖 AI' : '👤 Human';
-      card.style.display = 'flex';
-    }
-  });
-  
-  PLAYERS.slice(gameState.playerCount).forEach(p => {
-    const card = document.getElementById(`card-${p}`);
-    if (card) card.style.display = 'none';
+function updatePlayerPanels() {
+  const container = document.getElementById('playerPanels');
+  container.innerHTML = '';
+
+  G.active.forEach(p => {
+    const isActive  = p === curPlayer() && !G.eliminated.has(p);
+    const isElim    = G.eliminated.has(p);
+    const panel     = document.createElement('div');
+    panel.className = `player-panel${isActive?' active':''}${isElim?' elim':''}`;
+    panel.style.setProperty('--pc', COLORS[p].panel);
+
+    const dotsHTML = G.tokens[p]
+      .map(pos => `<div class="ptd${pos<58?' on':''}"></div>`)
+      .join('');
+    const typeLabel = G.ptypes[p]==='ai' ? '🤖' : '👤';
+
+    panel.innerHTML = `
+      <div class="panel-name">
+        <div class="panel-dot"></div>${cap(p)}${typeLabel}
+      </div>
+      <div class="panel-tkns">${dotsHTML}</div>
+    `;
+    container.appendChild(panel);
   });
 }
 
-function addLog(message) {
+function addLog(msg) {
   const log = document.getElementById('gameLog');
-  const entry = document.createElement('div');
-  entry.className = 'log-entry';
-  entry.innerHTML = message;
-  log.appendChild(entry);
-  log.scrollTop = log.scrollHeight;
-  
-  while (log.children.length > 20) {
-    log.removeChild(log.firstChild);
-  }
+  const el  = document.createElement('div');
+  el.textContent = msg;
+  log.appendChild(el);
+  while (log.children.length > 30) log.removeChild(log.firstChild);
 }
 
-// ═══════════════════════════════════════════════════════════════
+function cap(str) { return str.charAt(0).toUpperCase() + str.slice(1); }
+
+// ════════════════════════════════════════════════════
 // GAME END
-// ═══════════════════════════════════════════════════════════════
+// ════════════════════════════════════════════════════
 
 function endGame(winner) {
-  gameState.winner = winner;
-  
-  const modal = document.getElementById('winModal');
-  const title = document.getElementById('winTitle');
-  const subtitle = document.getElementById('winSubtitle');
-  const emoji = document.getElementById('winEmoji');
-  
-  const color = COLORS[winner];
-  title.textContent = winner.charAt(0).toUpperCase() + winner.slice(1) + ' Wins!';
-  title.style.color = color.main;
-  
-  emoji.textContent = ['🏆','🎉','👑','⭐'][Math.floor(Math.random() * 4)];
-  subtitle.textContent = gameState.playerTypes[winner] === 'ai' 
-    ? 'The AI wins this round!' 
-    : 'Congratulations! You won!';
-  
-  modal.classList.add('active');
-  
-  if (countdownInterval) {
-    clearInterval(countdownInterval);
-    countdownInterval = null;
-  }
+  G.winner = winner;
+  if (cdInterval) { clearInterval(cdInterval); cdInterval=null; }
+  const emojis = ['🏆','🎉','👑','⭐'];
+  document.getElementById('winEmoji').textContent  = emojis[Math.floor(Math.random()*4)];
+  document.getElementById('winTitle').textContent  = `${cap(winner)} Wins!`;
+  document.getElementById('winTitle').style.color  = COLORS[winner].main;
+  document.getElementById('winSub').textContent    = G.ptypes[winner]==='ai'
+    ? 'The AI wins this round!' : 'Congratulations! You won!';
+  document.getElementById('winModal').classList.add('active');
 }
 
-// ═══════════════════════════════════════════════════════════════
-// EVENT LISTENERS - FIXED
-// ═══════════════════════════════════════════════════════════════
+// ════════════════════════════════════════════════════
+// SETUP
+// ════════════════════════════════════════════════════
 
-// Multiple ways to roll the dice
-document.getElementById('rollBtn').addEventListener('click', (e) => {
-  console.log('Roll button clicked');
-  e.preventDefault();
-  e.stopPropagation();
-  rollDice();
+function initSetup() {
+  renderSetupRows();
+
+  document.querySelectorAll('.count-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      G.playerCount = parseInt(btn.dataset.n);
+      document.querySelectorAll('.count-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      renderSetupRows();
+    });
+  });
+
+  document.getElementById('startBtn').addEventListener('click', startGame);
+}
+
+function renderSetupRows() {
+  const container = document.getElementById('pcRows');
+  container.innerHTML = '';
+  PLAYERS.forEach((p, i) => {
+    const active = i < G.playerCount;
+    const row    = document.createElement('div');
+    row.className = `pc-row ${active?'active':'dim'}`;
+    row.style.setProperty('--rc', COLORS[p].main);
+    row.innerHTML = `
+      <div class="rc-dot"></div>
+      <div class="rc-name">${cap(p)}</div>
+      <div class="rc-types">
+        <button class="type-btn ${active&&G.ptypes[p]==='human'?'active':''}"
+          data-p="${p}" data-t="human" ${!active?'disabled':''}>👤 Human</button>
+        <button class="type-btn ${active&&G.ptypes[p]==='ai'?'active':''}"
+          data-p="${p}" data-t="ai" ${!active?'disabled':''}>🤖 AI</button>
+      </div>
+    `;
+    container.appendChild(row);
+    row.querySelectorAll('.type-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        G.ptypes[btn.dataset.p] = btn.dataset.t;
+        renderSetupRows();
+      });
+    });
+  });
+}
+
+function startGame() {
+  G.active = PLAYERS.slice(0, G.playerCount);
+  G.tokens = {};
+  G.active.forEach(p => { G.tokens[p] = [0,0,0,0]; });
+  G.curIdx      = 0;
+  G.diceVal     = null;
+  G.phase       = 'roll';
+  G.eliminated  = new Set();
+  G.winner      = null;
+  if (cdInterval) { clearInterval(cdInterval); cdInterval=null; }
+
+  // Build / reset board
+  buildBoard();
+
+  document.getElementById('setupScreen').classList.add('hidden');
+  document.getElementById('gameScreen').style.display = 'flex';
+
+  updateUI();
+  renderTokens();
+  addLog('🎮 Game started!');
+
+  if (isAI()) setTimeout(() => performRoll(), 900);
+}
+
+// ════════════════════════════════════════════════════
+// EVENT LISTENERS
+// ════════════════════════════════════════════════════
+
+document.getElementById('dice').addEventListener('click', e => {
+  e.preventDefault(); rollDice();
 });
-
-document.getElementById('dice').addEventListener('click', (e) => {
-  console.log('Dice clicked');
-  e.preventDefault();
-  e.stopPropagation();
-  rollDice();
+document.getElementById('rollBtn').addEventListener('click', e => {
+  e.preventDefault(); rollDice();
 });
-
 document.getElementById('playAgainBtn').addEventListener('click', () => {
   document.getElementById('winModal').classList.remove('active');
   startGame();
 });
-
 document.getElementById('menuBtn').addEventListener('click', () => {
   document.getElementById('winModal').classList.remove('active');
   document.getElementById('gameScreen').style.display = 'none';
   document.getElementById('setupScreen').classList.remove('hidden');
-  
-  if (countdownInterval) {
-    clearInterval(countdownInterval);
-    countdownInterval = null;
-  }
+  if (cdInterval) { clearInterval(cdInterval); cdInterval=null; }
 });
 
-// Initialize
-console.log('Ludo game initializing...');
+// ════════════════════════════════════════════════════
+// INIT
+// ════════════════════════════════════════════════════
 initSetup();
 </script>
 </body>
