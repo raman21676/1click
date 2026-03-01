@@ -81,7 +81,16 @@ html,body{height:100%;font-family:'Segoe UI',Arial,sans-serif;
 #C10-0.hB,#C11-0.hB,#C12-0.hB,#C13-0.hB,#C14-0.hB{border-left:3px solid var(--blue-d)}
 #C9-5.hB,#C10-5.hB,#C11-5.hB,#C12-5.hB,#C13-5.hB,#C14-5.hB{border-right:3px solid var(--blue-d)}
 
-/* Remove ALL internal borders from house cells (white panel, token slots) */
+/* Remove ALL internal borders from house cells - grid lines between cells */
+/* Red house internal - no borders between cells */
+[id^="C0-"].hR,[id^="C1-"].hR,[id^="C2-"].hR,[id^="C3-"].hR,[id^="C4-"].hR,[id^="C5-"].hR{border:none !important}
+/* Green house internal - no borders between cells */
+[id^="C0-"].hG,[id^="C1-"].hG,[id^="C2-"].hG,[id^="C3-"].hG,[id^="C4-"].hG,[id^="C5-"].hG{border:none !important}
+/* Yellow house internal - no borders between cells */
+[id^="C9-"].hY,[id^="C10-"].hY,[id^="C11-"].hY,[id^="C12-"].hY,[id^="C13-"].hY,[id^="C14-"].hY{border:none !important}
+/* Blue house internal - no borders between cells */
+[id^="C9-"].hB,[id^="C10-"].hB,[id^="C11-"].hB,[id^="C12-"].hB,[id^="C13-"].hB,[id^="C14-"].hB{border:none !important}
+/* Also remove borders from white panel and token slots */
 .bc.hW, .bc.ts{border:none !important}
 .bc.hW::before, .bc.hW::after, .bc.ts::before, .bc.ts::after{border:none !important}
 
