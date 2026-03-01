@@ -582,12 +582,13 @@ function applyCell(cell, r, c, info) {
   if (gpos >= 0) {
     cell.dataset.gpos = gpos;
     if (SAFE.has(gpos)) cell.classList.add('safe');
-    // Entry arrows and debug labels
+    // Entry markers - show which player's entry this is
     Object.entries(ENTRY).forEach(([player, epos]) => {
       if (gpos === epos) {
         cell.classList.add(`e${player[0].toUpperCase()}`);
-        // DEBUG: Add visible label to entry cells
-        cell.dataset.entryLabel = player[0].toUpperCase();
+        // Add visible entry marker
+        cell.style.background = `linear-gradient(135deg, ${COLORS[player].main}40, ${COLORS[player].main}20)`;
+        cell.style.border = `2px solid ${COLORS[player].main}`;
       }
     });
   }
