@@ -786,17 +786,17 @@ function applyCell(cell, r, c, info) {
 
 }
 
-// Which cells are token slots - placed at 4 corners of house (outside white panel)
+// Which cells are token slots - placed at 4 corners of white panel INSIDE house
 function homeSlots(p) {
   const map = {
-    // Red: top-left house - corners at (0,0), (0,5), (5,0), (5,5)
-    red:    {'0-0':0,'0-5':1,'5-0':2,'5-5':3},
-    // Green: top-right house - corners at (0,9), (0,14), (5,9), (5,14)
-    green:  {'0-9':0,'0-14':1,'5-9':2,'5-14':3},
-    // Blue: bottom-left house - corners at (9,0), (9,5), (14,0), (14,5)
-    blue:   {'9-0':0,'9-5':1,'14-0':2,'14-5':3},
-    // Yellow: bottom-right house - corners at (9,9), (9,14), (14,9), (14,14)
-    yellow: {'9-9':0,'9-14':1,'14-9':2,'14-14':3}
+    // Red: top-left house, white panel at rows 1-4, cols 1-4, corners at (1,1), (1,4), (4,1), (4,4)
+    red:    {'1-1':0,'1-4':1,'4-1':2,'4-4':3},
+    // Green: top-right house, white panel at rows 1-4, cols 10-13, corners at (1,10), (1,13), (4,10), (4,13)
+    green:  {'1-10':0,'1-13':1,'4-10':2,'4-13':3},
+    // Blue: bottom-left house, white panel at rows 10-13, cols 1-4, corners at (10,1), (10,4), (13,1), (13,4)
+    blue:   {'10-1':0,'10-4':1,'13-1':2,'13-4':3},
+    // Yellow: bottom-right house, white panel at rows 10-13, cols 10-13, corners at (10,10), (10,13), (13,10), (13,13)
+    yellow: {'10-10':0,'10-13':1,'13-10':2,'13-13':3}
   };
   return map[p];
 }
