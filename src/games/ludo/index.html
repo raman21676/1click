@@ -223,47 +223,46 @@ html,body{height:100%;font-family:'Segoe UI',Arial,sans-serif;
 .dice-scene {
   width: 72px;
   height: 72px;
-  perspective: 500px;
+  perspective: 600px;
   perspective-origin: 50% 40%;
+  position: relative;
+  z-index: 1;
 }
 
 .dice-cube {
   width: 72px;
   height: 72px;
-  position: relative;
+  position: absolute;
   transform-style: preserve-3d;
   transform: rotateX(-25deg) rotateY(25deg);
   will-change: transform;
-  filter: drop-shadow(0 12px 28px rgba(0,0,0,0.45));
+  /* NO filter here - it breaks 3D! */
 }
 
 /* ── FACES ──────────────────────────────────────────────── */
-/* 
-   CRITICAL: translateZ value must be HALF the dice width.
-   Dice is 72px wide → half = 36px.
-   If you change dice size, update all translateZ values too.
-*/
 .face {
   position: absolute;
   width: 72px;
   height: 72px;
-  background: #fffef8;
-  border-radius: 10px;
+  background: linear-gradient(145deg, #fffef8, #f5f5f0);
+  border-radius: 12px;
   box-shadow:
-    inset 0 2px 5px rgba(255,255,255,0.8),
-    inset 0 -2px 4px rgba(0,0,0,0.08);
-  border: 1px solid rgba(0,0,0,0.07);
-  overflow: hidden;
+    inset 0 2px 4px rgba(255,255,255,0.9),
+    inset 0 -2px 3px rgba(0,0,0,0.06),
+    0 0 0 1px rgba(0,0,0,0.08);
   backface-visibility: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
-.face-1 { transform: translateZ(36px); }
-.face-2 { transform: rotateY(180deg)  translateZ(36px); }
-.face-3 { transform: rotateY(90deg)   translateZ(36px); }
-.face-4 { transform: rotateY(-90deg)  translateZ(36px); }
-.face-5 { transform: rotateX(90deg)   translateZ(36px); }
-.face-6 { transform: rotateX(-90deg)  translateZ(36px); }
-
+/* Proper 3D cube face positioning */
+.face-1 { transform: rotateY(0deg)   translateZ(36px); }
+.face-2 { transform: rotateY(180deg) translateZ(36px); }
+.face-3 { transform: rotateY(90deg)  translateZ(36px); }
+.face-4 { transform: rotateY(-90deg) translateZ(36px); }
+.face-5 { transform: rotateX(90deg)  translateZ(36px); }
+.face-6 { transform: rotateX(-90deg) translateZ(36px); }
 /* ── DOT GRID ───────────────────────────────────────────── */
 .dots {
   display: grid;
