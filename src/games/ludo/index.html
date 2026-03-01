@@ -77,15 +77,15 @@ html,body{height:100%;font-family:'Segoe UI',Arial,sans-serif;
   color:var(--gold);text-shadow:0 0 4px rgba(255,215,0,.5);
   position:absolute;pointer-events:none;z-index:1}
 
-/* Entry arrows */
-.eR::before{content:'→';color:var(--red);font-size:clamp(6px,1.3vmin,11px);
-  position:absolute;font-weight:700;z-index:2}
-.eG::before{content:'↓';color:var(--green);font-size:clamp(6px,1.3vmin,11px);
-  position:absolute;font-weight:700;z-index:2}
-.eY::before{content:'←';color:var(--yellow);font-size:clamp(6px,1.3vmin,11px);
-  position:absolute;font-weight:700;z-index:2}
-.eB::before{content:'↑';color:var(--blue);font-size:clamp(6px,1.3vmin,11px);
-  position:absolute;font-weight:700;z-index:2}
+/* Entry arrows with debug labels */
+.eR::before{content:'→R';color:var(--red);font-size:clamp(6px,1.3vmin,10px);
+  position:absolute;font-weight:700;z-index:2;background:rgba(255,255,255,0.8);padding:1px 2px;border-radius:2px}
+.eG::before{content:'↓G';color:var(--green);font-size:clamp(6px,1.3vmin,10px);
+  position:absolute;font-weight:700;z-index:2;background:rgba(255,255,255,0.8);padding:1px 2px;border-radius:2px}
+.eY::before{content:'←Y';color:var(--yellow);font-size:clamp(6px,1.3vmin,10px);
+  position:absolute;font-weight:700;z-index:2;background:rgba(255,255,255,0.8);padding:1px 2px;border-radius:2px}
+.eB::before{content:'↑B';color:var(--blue);font-size:clamp(6px,1.3vmin,10px);
+  position:absolute;font-weight:700;z-index:2;background:rgba(255,255,255,0.8);padding:1px 2px;border-radius:2px}
 
 /* Center cells */
 .cTL{background:linear-gradient(135deg,var(--green) 50%,transparent 50%)}
@@ -582,9 +582,13 @@ function applyCell(cell, r, c, info) {
   if (gpos >= 0) {
     cell.dataset.gpos = gpos;
     if (SAFE.has(gpos)) cell.classList.add('safe');
-    // Entry arrows
+    // Entry arrows and debug labels
     Object.entries(ENTRY).forEach(([player, epos]) => {
-      if (gpos === epos) cell.classList.add(`e${player[0].toUpperCase()}`);
+      if (gpos === epos) {
+        cell.classList.add(`e${player[0].toUpperCase()}`);
+        // DEBUG: Add visible label to entry cells
+        cell.dataset.entryLabel = player[0].toUpperCase();
+      }
     });
   }
 }
