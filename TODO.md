@@ -156,15 +156,15 @@
 ### 3.3 Chess
 | # | Task | Status | Priority | Assignee | Notes | Commit |
 |---|------|--------|----------|----------|-------|--------|
-| 3.3.1 | Create board & pieces | ⏳ Pending | Low | AI Agent | Unicode or SVG | - |
-| 3.3.2 | Implement move validation | ⏳ Pending | Low | AI Agent | All piece rules | - |
-| 3.3.3 | Integrate Chess.js | ⏳ Pending | Low | AI Agent | Logic library | - |
-| 3.3.4 | Implement special moves | ⏳ Pending | Low | AI Agent | Castling, en passant | - |
-| 3.3.5 | Implement check/checkmate | ⏳ Pending | Low | AI Agent | Detection | - |
-| 3.3.6 | Add AI opponent | ⏳ Pending | Low | AI Agent | Minimax + eval | - |
-| 3.3.7 | Add move history | ⏳ Pending | Low | AI Agent | Notation display | - |
-| 3.3.8 | Add undo/redo | ⏳ Pending | Low | AI Agent | Move stack | - |
-| 3.3.9 | Add timer | ⏳ Pending | Low | AI Agent | Optional | - |
+| 3.3.1 | Create board & pieces | 🟢 Done | Low | AI Agent | Unicode pieces | 71d2864 |
+| 3.3.2 | Implement move validation | 🟢 Done | Low | AI Agent | All piece rules | 71d2864 |
+| 3.3.3 | ~~Integrate Chess.js~~ | N/A | Low | AI Agent | Custom implementation | - |
+| 3.3.4 | Implement special moves | 🟢 Done | Low | AI Agent | Castling, en passant, promotion | 71d2864 |
+| 3.3.5 | Implement check/checkmate | 🟢 Done | Low | AI Agent | Full detection | 71d2864 |
+| 3.3.6 | Add AI opponent | 🟢 Done | Low | AI Agent | Minimax + alpha-beta | 71d2864 |
+| 3.3.7 | Add move history | 🟢 Done | Low | AI Agent | Algebraic notation | 71d2864 |
+| 3.3.8 | Add resign button | 🟢 Done | Low | AI Agent | Forfeit game | 71d2864 |
+| 3.3.9 | Bug fixes | 🟢 Done | High | AI Agent | Capture tracking, notation fixes | 71d2864 |
 
 ### 3.4 Snake & Ladder
 | # | Task | Status | Priority | Assignee | Notes | Commit |

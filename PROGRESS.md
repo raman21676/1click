@@ -6,6 +6,56 @@
 
 ## 📋 Session History
 
+### Session 13: Chess Bug Fixes & UI Improvements
+
+**Date:** 2026-03-01
+**Time:** 14:45 IST
+**Agent:** AI Agent
+**Status:** ✅ Complete
+
+#### Summary
+
+Fixed critical bugs in the Chess game: capture tracking was broken, move notation was using the wrong board state, and the move log had increment timing issues. Added resign button and improved UI with better status indicators.
+
+#### Tasks Completed
+
+| #     | Task                      | Description                                                    | Files                  |
+| ----- | ------------------------- | -------------------------------------------------------------- | ---------------------- |
+| 13.1  | Fix Capture Tracking      | capW/capB now correctly updated from applyMove state           | `chess/index.html`     |
+| 13.2  | Fix Move Notation         | Pass board parameter to get piece before move is applied       | `chess/index.html`     |
+| 13.3  | Fix Move Log Display      | Fixed moveNum increment timing for proper pairing              | `chess/index.html`     |
+| 13.4  | Fix AI Move Captures      | AI moves now properly track captured pieces                    | `chess/index.html`     |
+| 13.5  | Add Resign Button         | Player can resign with 🏳️ Resign button                        | `chess/index.html`     |
+| 13.6  | UI Improvements           | Thinking indicator, better move list styling, status messages  | `chess/index.html`     |
+
+#### Technical Details
+
+**Capture Tracking Fix:**
+- Problem: Captures were being overwritten with old state values
+- Solution: Use the captures from the new state returned by `applyMove()`
+- Before: `capW:G.capW` (old state)
+- After: captures come from `newState` returned by `applyMove()`
+
+**Move Notation Fix:**
+- Problem: `moveNotation` was accessing `G.board` after move was applied
+- Solution: Pass `board` parameter and read piece from pre-move board
+- Added proper board parameter to `moveNotation(board, fr, fc, mv, promoP)`
+
+**Move Log Fix:**
+- Problem: `moveNum` was incremented after white's move, causing black's move to look for wrong row
+- Solution: Increment `moveNum` after black's move completes the pair
+
+**Resign Feature:**
+- New "Resign" button in sidebar
+- Shows appropriate game over modal
+- AI wins when player resigns
+
+#### Files Modified
+- `src/games/chess/index.html` - Bug fixes and UI improvements
+- `TODO.md` - Marked chess tasks as complete
+
+---
+
 ### Session 12: Ludo Bug Fixes - Safe Zones & Dice
 
 **Date:** 2026-03-01
