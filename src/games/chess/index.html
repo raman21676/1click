@@ -95,8 +95,12 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
 .ctrl-btn{width:100%;padding:.5rem;border-radius:8px;border:1px solid var(--border);
   background:transparent;color:var(--muted);font-size:.78rem;cursor:pointer;transition:.2s}
 .ctrl-btn:hover{background:var(--bg3);color:var(--text)}
-.move-list{max-height:100px;overflow-y:auto;font-size:.7rem;color:var(--muted);
-  font-family:monospace;line-height:1.6}
+.move-list{max-height:120px;overflow-y:auto;font-size:.75rem;color:var(--muted);
+  font-family:monospace;line-height:1.6;padding:4px;background:var(--bg);border-radius:6px}
+.move-list div{padding:2px 0;border-bottom:1px solid var(--border)}
+.move-list div:last-child{border-bottom:none}
+.thinking{animation:pulse 1.5s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.5}}
 
 /* PROMOTION DIALOG */
 .promo-overlay{position:fixed;inset:0;background:rgba(0,0,0,.8);display:flex;
@@ -193,6 +197,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
       </div>
       <div class="info-card" id="diff-info" style="padding:.5rem .7rem"></div>
       <button class="ctrl-btn" id="new-game-btn">🔄 New Game</button>
+      <button class="ctrl-btn" id="resign-btn">🏳️ Resign</button>
       <button class="ctrl-btn" onclick="showScreen('setup')">⬅ Menu</button>
     </div>
   </div>
@@ -636,11 +641,11 @@ function handleClick(visR,visC){
 }
 
 function executePlayerMove(fr,fc,mv,promoP){
-  const moveStr=moveNotation(fr,fc,mv,promoP);
-  G={...applyMove(G,fr,fc,mv.r,mv.c,mv,promoP),
+  const moveStr=moveNotation(G.board,fr,fc,mv,promoP);
+  const newState=applyMove(G,fr,fc,mv.r,mv.c,mv,promoP);
+  G={...newState,
     playerColor:G.playerColor,difficulty:G.difficulty,
-    selected:null,status:'playing',legal:{},
-    moves:[...G.moves,moveStr],moveNum:G.moveNum,capW:G.capW,capB:G.capB};
+    selected:null,status:'playing',legal:{}};
   // Recompute legal
   G.legal=getLegal(G);
   // Check game status
@@ -658,12 +663,12 @@ function doAiMove(){
   if(G.status==='done')return;
   const mv=aiMove(G);
   if(!mv){checkStatus();return;}
-  const moveStr=moveNotation(mv.r,mv.c,mv.m,null);
+  const moveStr=moveNotation(G.board,mv.r,mv.c,mv.m,null);
   const before=G.turn;
-  G={...applyMove(G,mv.r,mv.c,mv.m.r,mv.m.c,mv.m,'Q'),
+  const newState=applyMove(G,mv.r,mv.c,mv.m.r,mv.m.c,mv.m,'Q');
+  G={...newState,
     playerColor:G.playerColor,difficulty:G.difficulty,
-    selected:null,status:'playing',legal:{},
-    moves:[...G.moves,moveStr],moveNum:G.moveNum,capW:G.capW,capB:G.capB};
+    selected:null,status:'playing',legal:{}};
   G.legal=getLegal(G);
   checkStatus();
   renderBoard();
@@ -712,6 +717,13 @@ function checkStatus(){
   }
 }
 
+function resignGame(){
+  if(G.status==='done')return;
+  G.status='done';
+  const winner=G.playerColor==='white'?'Black':'White';
+  showGameOver('🏳️ Resigned',`${winner} wins!`,'😔');
+}
+
 function showGameOver(title,sub,emoji){
   document.getElementById('over-title').textContent=title;
   document.getElementById('over-sub').textContent=sub;
@@ -724,38 +736,56 @@ function showGameOver(title,sub,emoji){
 // ═══════════════════════════════════════════════════════════════
 const FILE_NAMES='abcdefgh';
 function sqName(r,c){return FILE_NAMES[c]+(8-r);}
-function moveNotation(fr,fc,mv,promo){
-  const p=G.board[fr][fc];if(!p)return'?';
+function moveNotation(board,fr,fc,mv,promo){
+  const p=board[fr][fc];if(!p)return'?';
   const t=p.toUpperCase();
-  const cap=G.board[mv.r][mv.c]||mv.ep?'x':'';
-  const pStr=promo?(UNI[promo]||'Q'):'';
+  const cap=board[mv.r][mv.c]||mv.ep?'x':'';
+  const pStr=promo?(UNI[promo]||''):'';
   if(t==='K'&&mv.cas)return mv.cas.endsWith('K')?'O-O':'O-O-O';
-  if(t==='P')return (cap?FILE_NAMES[fc]:'')+(cap?'x':'')+sqName(mv.r,mv.c)+pStr;
-  return t+sqName(fr,fc)+(cap?'x':'')+sqName(mv.r,mv.c)+pStr;
+  if(t==='P')return (cap?FILE_NAMES[fc]:'')+(cap?'x':'')+sqName(mv.r,mv.c)+(pStr?UNI[promo]:'');
+  return t+sqName(fr,fc)+(cap?'x':'')+sqName(mv.r,mv.c);
 }
 
 function addMoveToLog(str,forColor){
   const log=document.getElementById('move-list');
   if(forColor==='white'){
+    // White's move - create new row
     const div=document.createElement('div');
-    div.innerHTML=`<span style="color:var(--muted)">${G.moveNum}.</span> ${str}`;
+    div.innerHTML=`<span style="color:var(--muted);margin-right:8px">${G.moveNum}.</span>${str}`;
     div.id=`m${G.moveNum}`;
     log.appendChild(div);
-    G.moveNum++;
   }else{
-    const last=document.getElementById(`m${G.moveNum-1}`);
-    if(last)last.innerHTML+=` <span style="color:var(--muted)">${str}</span>`;
+    // Black's move - add to current row
+    const last=document.getElementById(`m${G.moveNum}`);
+    if(last){
+      last.innerHTML+=`<span style="margin-left:12px">${str}</span>`;
+    }else{
+      // If no white move yet (shouldn't happen), create row
+      const div=document.createElement('div');
+      div.innerHTML=`<span style="color:var(--muted);margin-right:8px">${G.moveNum}.</span>... ${str}`;
+      div.id=`m${G.moveNum}`;
+      log.appendChild(div);
+    }
+    G.moveNum++;
   }
   log.scrollTop=log.scrollHeight;
 }
 
 function updateSidebar(){
   const wt=G.turn==='white';
+  const isPlayerTurn=G.turn===G.playerColor;
+  const turnDot=isPlayerTurn?'🟢':'🔴';
   document.getElementById('turn-text').innerHTML=
-    `<span class="turn-dot" style="background:${wt?'#fff':'#333'};border-color:${wt?'#ccc':'#666'}"></span>${wt?'White':'Black'}\'s turn`;
-  updateStatusText(G.status==='check'?'⚠️ Check!':G.turn===G.playerColor?'Your move':'AI thinking…');
-  document.getElementById('cap-white').textContent=G.capW.map(p=>UNI[p]).join(' ');
-  document.getElementById('cap-black').textContent=G.capB.map(p=>UNI[p]).join(' ');
+    `<span class="turn-dot" style="background:${wt?'#fff':'#333'};border-color:${wt?'#ccc':'#666'}"></span>${wt?'White':'Black'}\'s turn ${turnDot}`;
+  
+  let statusMsg='Your move';
+  if(G.status==='check')statusMsg='⚠️ Check!';
+  else if(!isPlayerTurn)statusMsg='<span class="thinking">🤖 AI thinking…</span>';
+  else if(G.selected)statusMsg='Select destination';
+  updateStatusText(statusMsg);
+  
+  document.getElementById('cap-white').textContent=G.capW.map(p=>UNI[p]).join(' ')||'—';
+  document.getElementById('cap-black').textContent=G.capB.map(p=>UNI[p]).join(' ')||'—';
 }
 function updateStatusText(t){document.getElementById('status-text').textContent=t;}
 
@@ -776,6 +806,7 @@ document.querySelectorAll('#diff-row .opt-btn').forEach(b=>{
 });
 document.getElementById('play-btn').addEventListener('click',()=>{showScreen('game');startGame();});
 document.getElementById('new-game-btn').addEventListener('click',startGame);
+document.getElementById('resign-btn').addEventListener('click',resignGame);
 document.getElementById('over-again').addEventListener('click',startGame);
 
 function showScreen(name){
