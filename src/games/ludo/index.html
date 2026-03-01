@@ -1106,9 +1106,9 @@ const FACE_ROTATIONS = {
 
 
 function showDiceFace(val, playerColor) {
-  const cube = document.getElementById('cube');
-  const dice = document.getElementById('dice');
-  const rotation = FACE_ROTATIONS[val];
+  // This function is deprecated - dice animation now handled in performRoll
+  // Keeping for backwards compatibility
+  const playerColor = playerColor || curPlayer();
   
   // Calculate target rotation with 2 full extra spins (720deg) for visual flair
   // The extra spins ensure the dice visibly rotates even when showing same face
@@ -1550,12 +1550,12 @@ function updateUI() {
 }
 
 function updateDiceUI() {
-  const dice    = document.getElementById('dice');
+  const diceScene = document.getElementById('diceScene');
   const rollBtn = document.getElementById('rollBtn');
   const enabled = G.phase==='roll' && !isAI();
 
   rollBtn.disabled = !enabled;
-  dice.classList.toggle('disabled', !enabled);
+  diceScene.classList.toggle('disabled', !enabled);
 
   if (G.diceVal) {
     showDiceFace(G.diceVal, curPlayer());
@@ -1746,7 +1746,7 @@ function startGame() {
 // EVENT LISTENERS
 // ════════════════════════════════════════════════════
 
-document.getElementById('dice').addEventListener('click', e => {
+document.getElementById('diceScene').addEventListener('click', e => {
   e.preventDefault(); rollDice();
 });
 document.getElementById('rollBtn').addEventListener('click', e => {
