@@ -562,6 +562,7 @@ html,body{height:100%;font-family:'Segoe UI',Arial,sans-serif;
 /* ─── GAME LOG (hidden but functional) ─────────── */
 .game-log{display:none}
 </style>
+<script src="https://unpkg.com/peerjs@1.5.2/dist/peerjs.min.js"></script>
 </head>
 <body>
 
@@ -613,63 +614,68 @@ html,body{height:100%;font-family:'Segoe UI',Arial,sans-serif;
   <!-- ONLINE MULTIPLAYER SETTINGS -->
   <div id="onlineSettings" class="setup-card" style="display:none">
     <div id="onlineMenu">
-      <h3>Online Multiplayer</h3>
+      <h3>🌐 Online Multiplayer</h3>
+      <p style="color:rgba(255,255,255,.5);font-size:12px;margin-bottom:12px">Play with friends using a simple code</p>
       <div class="online-options">
         <button class="online-btn" id="createRoomBtn">
           <span class="online-icon">🏠</span>
           <span class="online-title">Create Room</span>
-          <span class="online-desc">Start a new game room</span>
+          <span class="online-desc">Get a code & invite friend</span>
         </button>
         <button class="online-btn" id="joinRoomBtn">
           <span class="online-icon">🔗</span>
           <span class="online-title">Join Room</span>
-          <span class="online-desc">Enter room ID & password</span>
+          <span class="online-desc">Enter friend's 6-digit code</span>
         </button>
       </div>
     </div>
     
-    <!-- CREATE ROOM FORM -->
+    <!-- CREATE ROOM FORM - SIMPLE 6-DIGIT CODE -->
     <div id="createRoomForm" style="display:none">
-      <h3>Create Room</h3>
-      <div class="room-info-box">
-        <div class="room-field">
-          <label>Room ID</label>
-          <div class="room-value" id="generatedRoomId">-</div>
-        </div>
-        <div class="room-field">
-          <label>Password</label>
-          <div class="room-value" id="generatedPassword">-</div>
-        </div>
+      <h3>🏠 Create Room</h3>
+      
+      <div class="simple-room-box" style="text-align:center;padding:20px;background:rgba(0,0,0,.2);border-radius:12px;margin:16px 0">
+        <label style="display:block;font-size:12px;color:rgba(255,255,255,.6);margin-bottom:12px;text-transform:uppercase;letter-spacing:0.05em">Your Room Code</label>
+        <div id="roomCodeDisplay" style="font-size:48px;font-weight:800;color:#FFD700;letter-spacing:8px;font-family:monospace;text-shadow:0 2px 10px rgba(255,215,0,.3)">------</div>
+        <p style="color:rgba(255,255,255,.5);font-size:13px;margin-top:12px">Share this 6-digit code with your friend!</p>
+        <button class="copy-btn" id="copyRoomCodeBtn" style="width:100%;margin-top:12px;display:none">📋 Copy Code</button>
       </div>
-      <div class="room-actions">
-        <button class="generate-btn" id="generateRoomBtn">🔄 Generate New</button>
-        <button class="copy-btn" id="copyRoomBtn">📋 Copy</button>
+      
+      <!-- Status -->
+      <div id="hostStatus" style="display:flex;align-items:center;gap:8px;padding:10px 14px;background:rgba(0,0,0,.2);border-radius:8px;margin:12px 0;font-size:13px">
+        <span class="status-dot" style="width:10px;height:10px;border-radius:50%;background:#999"></span>
+        <span id="hostStatusText">Click 'Generate' to create room</span>
       </div>
-      <div class="room-note">
-        Share these credentials with friends to let them join!
-      </div>
-      <div class="room-buttons">
-        <button class="back-btn-small" id="backFromCreate">Back</button>
-        <button class="start-btn-small" id="startOnlineGame">Create Room</button>
+      
+      <div class="room-buttons" style="margin-top:16px;display:flex;gap:10px">
+        <button class="back-btn-small" id="backFromCreate" style="flex:1">Back</button>
+        <button class="generate-btn" id="generateRoomCodeBtn" style="flex:2">🎲 Generate Code</button>
+        <button class="start-btn-small" id="startOnlineGame" style="flex:2;display:none">▶ Start Game</button>
       </div>
     </div>
     
-    <!-- JOIN ROOM FORM -->
+    <!-- JOIN ROOM FORM - SIMPLE 6-DIGIT CODE -->
     <div id="joinRoomForm" style="display:none">
-      <h3>Join Room</h3>
-      <div class="join-inputs">
-        <div class="input-group">
-          <label>Room ID</label>
-          <input type="text" class="room-input" id="joinRoomId" placeholder="e.g., whale7313">
-        </div>
-        <div class="input-group">
-          <label>Password</label>
-          <input type="text" class="room-input" id="joinRoomPassword" placeholder="e.g., mercury88">
-        </div>
+      <h3>🔗 Join Room</h3>
+      
+      <div class="simple-room-box" style="text-align:center;padding:20px;background:rgba(0,0,0,.2);border-radius:12px;margin:16px 0">
+        <label style="display:block;font-size:12px;color:rgba(255,255,255,.6);margin-bottom:12px;text-transform:uppercase;letter-spacing:0.05em">Enter 6-Digit Room Code</label>
+        <input type="text" id="joinRoomCodeInput" maxlength="6" placeholder="123456" 
+          style="width:100%;font-size:42px;font-weight:800;text-align:center;padding:16px;background:rgba(0,0,0,.3);border:2px solid rgba(255,255,255,.2);border-radius:12px;color:#fff;font-family:monospace;letter-spacing:12px;outline:none;transition:all .2s;text-transform:uppercase;box-sizing:border-box"
+          onfocus="this.style.borderColor='#4CAF50';this.style.boxShadow='0 0 0 4px rgba(76,175,80,.2)'"
+          onblur="this.style.borderColor='rgba(255,255,255,.2)';this.style.boxShadow='none'">
+        <p style="color:rgba(255,255,255,.5);font-size:13px;margin-top:12px">Ask your friend for their room code</p>
       </div>
-      <div class="room-buttons">
-        <button class="back-btn-small" id="backFromJoin">Back</button>
-        <button class="start-btn-small" id="joinOnlineGame">Join Room</button>
+      
+      <!-- Status -->
+      <div id="guestStatus" style="display:flex;align-items:center;gap:8px;padding:10px 14px;background:rgba(0,0,0,.2);border-radius:8px;margin:12px 0;font-size:13px">
+        <span class="status-dot" style="width:10px;height:10px;border-radius:50%;background:#999"></span>
+        <span id="guestStatusText">Enter code and click Join</span>
+      </div>
+      
+      <div class="room-buttons" style="margin-top:16px;display:flex;gap:10px">
+        <button class="back-btn-small" id="backFromJoin" style="flex:1">Back</button>
+        <button class="start-btn-small" id="joinRoomBtnFinal" style="flex:2">🔗 Join Room</button>
       </div>
     </div>
   </div>
@@ -1838,49 +1844,51 @@ function initModeSelection() {
 }
 
 // Online multiplayer room logic
+// ════════════════════════════════════════════════════
+// ONLINE MULTIPLAYER WITH PEERJS (Simple 6-Digit Code)
+// ════════════════════════════════════════════════════
+
+let peer = null;
+let peerConnection = null;
+let isHost = false;
+let roomCode = null;
+
 function initOnlineMultiplayer() {
   // Create Room button
   document.getElementById('createRoomBtn').addEventListener('click', () => {
     document.getElementById('onlineMenu').style.display = 'none';
     document.getElementById('createRoomForm').style.display = 'block';
-    document.getElementById('joinRoomForm').style.display = 'none';
-    generateRoomCredentials(); // Auto-generate on open
+    resetOnlineGame();
   });
   
   // Join Room button
   document.getElementById('joinRoomBtn').addEventListener('click', () => {
     document.getElementById('onlineMenu').style.display = 'none';
-    document.getElementById('createRoomForm').style.display = 'none';
     document.getElementById('joinRoomForm').style.display = 'block';
+    resetOnlineGame();
   });
   
   // Back buttons
-  document.getElementById('backFromCreate').addEventListener('click', showOnlineMenu);
-  document.getElementById('backFromJoin').addEventListener('click', showOnlineMenu);
-  
-  // Generate new room credentials
-  document.getElementById('generateRoomBtn').addEventListener('click', generateRoomCredentials);
-  
-  // Copy room credentials
-  document.getElementById('copyRoomBtn').addEventListener('click', copyRoomCredentials);
-  
-  // Create Room (final)
-  document.getElementById('startOnlineGame').addEventListener('click', () => {
-    alert('Online multiplayer coming soon!\n\nRoom ID: ' + G.roomId + '\nPassword: ' + G.roomPassword);
+  document.getElementById('backFromCreate').addEventListener('click', () => {
+    cleanupPeer();
+    showOnlineMenu();
+  });
+  document.getElementById('backFromJoin').addEventListener('click', () => {
+    cleanupPeer();
+    showOnlineMenu();
   });
   
-  // Join Room (final)
-  document.getElementById('joinOnlineGame').addEventListener('click', () => {
-    const roomId = document.getElementById('joinRoomId').value.trim();
-    const password = document.getElementById('joinRoomPassword').value.trim();
-    
-    if (!roomId || !password) {
-      alert('Please enter both Room ID and Password');
-      return;
-    }
-    
-    alert('Online multiplayer coming soon!\n\nTrying to join: ' + roomId);
-  });
+  // Generate room code
+  document.getElementById('generateRoomCodeBtn').addEventListener('click', createRoom);
+  
+  // Copy room code
+  document.getElementById('copyRoomCodeBtn').addEventListener('click', copyRoomCode);
+  
+  // Start online game (host)
+  document.getElementById('startOnlineGame').addEventListener('click', startOnlineGame);
+  
+  // Join room (guest)
+  document.getElementById('joinRoomBtnFinal').addEventListener('click', joinRoom);
 }
 
 function showOnlineMenu() {
@@ -1889,38 +1897,222 @@ function showOnlineMenu() {
   document.getElementById('joinRoomForm').style.display = 'none';
 }
 
-// Generate random room credentials
-function generateRoomCredentials() {
-  const nouns = ['whale', 'volcano', 'thomas', 'eagle', 'tiger', 'panda', 'rocket', 'dragon', 'phoenix', 'ocean', 'mountain', 'forest', 'castle', 'knight', 'queen', 'nebula', 'galaxy', 'comet', 'thunder', 'lightning'];
-  const secondWords = ['star', 'moon', 'sun', 'fire', 'ice', 'wind', 'storm', 'shadow', 'blaze', 'frost', 'dream', 'wish', 'power', 'magic', 'hero', 'legend', 'myth', 'epic', 'cosmic', 'solar'];
+function resetOnlineGame() {
+  cleanupPeer();
+  isHost = false;
+  roomCode = null;
   
-  // Generate Room ID: noun + number
-  const noun = nouns[Math.floor(Math.random() * nouns.length)];
-  const roomNum = Math.floor(Math.random() * 9000) + 1000; // 1000-9999
-  G.roomId = noun + roomNum;
+  // Reset host UI
+  document.getElementById('roomCodeDisplay').textContent = '------';
+  document.getElementById('copyRoomCodeBtn').style.display = 'none';
+  document.getElementById('generateRoomCodeBtn').style.display = 'inline-block';
+  document.getElementById('startOnlineGame').style.display = 'none';
+  document.getElementById('hostStatusText').textContent = 'Click "Generate" to create room';
+  document.getElementById('hostStatus').querySelector('.status-dot').style.background = '#999';
   
-  // Generate Password: word + number
-  const secondWord = secondWords[Math.floor(Math.random() * secondWords.length)];
-  const passNum = Math.floor(Math.random() * 9000) + 1000; // 1000-9999
-  G.roomPassword = secondWord + passNum;
-  
-  // Update UI
-  document.getElementById('generatedRoomId').textContent = G.roomId;
-  document.getElementById('generatedPassword').textContent = G.roomPassword;
+  // Reset guest UI
+  document.getElementById('joinRoomCodeInput').value = '';
+  document.getElementById('guestStatusText').textContent = 'Enter code and click Join';
+  document.getElementById('guestStatus').querySelector('.status-dot').style.background = '#999';
 }
 
-// Copy room credentials to clipboard
-function copyRoomCredentials() {
-  const text = `Room ID: ${G.roomId}\nPassword: ${G.roomPassword}`;
+function cleanupPeer() {
+  if (peerConnection) {
+    peerConnection.close();
+    peerConnection = null;
+  }
+  if (peer) {
+    peer.destroy();
+    peer = null;
+  }
+}
+
+function generateSixDigitCode() {
+  return Math.floor(100000 + Math.random() * 900000).toString();
+}
+
+// ════════════════════════════════════════════════════
+// HOST FUNCTIONS
+// ════════════════════════════════════════════════════
+
+function createRoom() {
+  cleanupPeer();
+  isHost = true;
+  roomCode = generateSixDigitCode();
   
+  document.getElementById('hostStatusText').textContent = '🔄 Creating room...';
+  
+  // Create Peer with 6-digit code as ID
+  peer = new Peer(roomCode, {
+    debug: 2,
+    config: { iceServers: [{ urls: 'stun:stun.l.google.com:19302' }] }
+  });
+  
+  peer.on('open', (id) => {
+    console.log('[PeerJS] Host created with ID:', id);
+    document.getElementById('roomCodeDisplay').textContent = id;
+    document.getElementById('copyRoomCodeBtn').style.display = 'inline-block';
+    document.getElementById('generateRoomCodeBtn').style.display = 'none';
+    document.getElementById('hostStatusText').textContent = '✅ Room ready! Share code: ' + id;
+  });
+  
+  peer.on('connection', (conn) => {
+    console.log('[PeerJS] Guest connecting:', conn.peer);
+    peerConnection = conn;
+    setupConnection(conn);
+  });
+  
+  peer.on('error', (err) => {
+    console.error('[PeerJS] Host error:', err);
+    if (err.type === 'unavailable-id') {
+      // Code already exists, try again
+      createRoom();
+    } else {
+      document.getElementById('hostStatusText').textContent = '❌ Error: ' + err.message;
+    }
+  });
+}
+
+function copyRoomCode() {
+  const code = document.getElementById('roomCodeDisplay').textContent;
   if (navigator.clipboard) {
-    navigator.clipboard.writeText(text).then(() => {
-      alert('Copied to clipboard!\n\n' + text);
-    }).catch(() => {
-      alert(text);
+    navigator.clipboard.writeText(code).then(() => {
+      alert('Code copied: ' + code);
     });
   } else {
-    alert(text);
+    alert('Your code: ' + code);
+  }
+}
+
+function startOnlineGame() {
+  if (!peerConnection || !peerConnection.open) {
+    alert('Waiting for opponent to connect...');
+    return;
+  }
+  
+  G.isOnline = true;
+  G.playerCount = 2;
+  G.ptypes = {red:'human',green:'human',yellow:'ai',blue:'ai'};
+  startGame();
+  
+  // Notify guest
+  sendToPeer({ type: 'gameStart' });
+}
+
+// ════════════════════════════════════════════════════
+// GUEST FUNCTIONS
+// ════════════════════════════════════════════════════
+
+function joinRoom() {
+  const code = document.getElementById('joinRoomCodeInput').value.trim();
+  
+  if (!code || code.length !== 6 || !/^\d{6}$/.test(code)) {
+    alert('Please enter a valid 6-digit code');
+    return;
+  }
+  
+  cleanupPeer();
+  isHost = false;
+  roomCode = code;
+  
+  document.getElementById('guestStatusText').textContent = '🔗 Connecting...';
+  
+  // Create peer and connect to host
+  peer = new Peer({
+    debug: 2,
+    config: { iceServers: [{ urls: 'stun:stun.l.google.com:19302' }] }
+  });
+  
+  peer.on('open', () => {
+    console.log('[PeerJS] Guest connecting to:', code);
+    peerConnection = peer.connect(code, { reliable: true, serialization: 'json' });
+    setupConnection(peerConnection);
+  });
+  
+  peer.on('error', (err) => {
+    console.error('[PeerJS] Guest error:', err);
+    let msg = 'Connection failed';
+    if (err.type === 'peer-unavailable') msg = 'Room not found';
+    document.getElementById('guestStatusText').textContent = '❌ ' + msg;
+  });
+}
+
+// ════════════════════════════════════════════════════
+// CONNECTION HANDLING
+// ════════════════════════════════════════════════════
+
+function setupConnection(conn) {
+  conn.on('open', () => {
+    console.log('[PeerJS] Connected!');
+    
+    if (isHost) {
+      document.getElementById('hostStatusText').textContent = '🎮 Opponent connected!';
+      document.getElementById('startOnlineGame').style.display = 'inline-block';
+      document.getElementById('hostStatus').querySelector('.status-dot').style.background = '#4CAF50';
+    } else {
+      document.getElementById('guestStatusText').textContent = '🎮 Connected! Waiting for host...';
+      document.getElementById('guestStatus').querySelector('.status-dot').style.background = '#4CAF50';
+    }
+    
+    // Send handshake
+    sendToPeer({
+      type: 'handshake',
+      player: G.humanColor,
+      name: G.playerNames[G.humanColor]
+    });
+  });
+  
+  conn.on('data', (data) => {
+    handlePeerData(data);
+  });
+  
+  conn.on('close', () => {
+    console.log('[PeerJS] Connection closed');
+    addLog('⚠️ Opponent disconnected');
+  });
+  
+  conn.on('error', (err) => {
+    console.error('[PeerJS] Connection error:', err);
+  });
+  
+  // Timeout if not connected
+  setTimeout(() => {
+    if (!conn.open) {
+      if (isHost) {
+        document.getElementById('hostStatusText').textContent = '⏳ Waiting for opponent...';
+      } else {
+        document.getElementById('guestStatusText').textContent = '❌ Could not connect';
+      }
+    }
+  }, 10000);
+}
+
+function sendToPeer(data) {
+  if (peerConnection && peerConnection.open) {
+    peerConnection.send(data);
+  }
+}
+
+function handlePeerData(data) {
+  console.log('[PeerJS] Received:', data);
+  
+  switch (data.type) {
+    case 'handshake':
+      addLog(`🎮 ${data.name} joined!`);
+      break;
+    case 'gameStart':
+      G.isOnline = true;
+      G.playerCount = 2;
+      G.ptypes = {red:'human',green:'human',yellow:'ai',blue:'ai'};
+      startGame();
+      break;
+    case 'roll':
+      G.diceVal = data.value;
+      afterRoll();
+      break;
+    case 'move':
+      moveToken(data.player, data.tokenIdx, false);
+      break;
   }
 }
 
