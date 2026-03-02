@@ -5,9 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>Ludo - 1click Games</title>
 
-<!-- Firebase SDK -->
-<script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-database-compat.js"></script>
+<!-- PeerJS for simple WebRTC signaling -->
+<script src="https://unpkg.com/peerjs@1.5.2/dist/peerjs.min.js"></script>
 <style>
 :root {
   --red:#E53935; --red-l:#EF9A9A; --red-d:#B71C1C;
@@ -2136,8 +2135,23 @@ function initWebRTC() {
   // Host buttons
   document.getElementById('generateRoomCodeBtn')?.addEventListener('click', createRoom);
   document.getElementById('copyRoomCodeBtn')?.addEventListener('click', copyRoomCode);
+// ════════════════════════════════════════════════════
+// PURE WEBRTC WITH PEERJS (No Firebase needed!)
+// ════════════════════════════════════════════════════
+
+// PeerJS uses free public signaling servers
+let peer = null;
+let connection = null;
+let rtcRole = null; // 'host' or 'guest'
+let rtcConnected = false;
+
+// Initialize WebRTC UI
+function initWebRTC() {
+  // Host buttons
+  document.getElementById('generateRoomCodeBtn')?.addEventListener('click', createRoom);
+  document.getElementById('copyRoomCodeBtn')?.addEventListener('click', copyRoomCode);
   
-  // Guest buttons
+  // Guest buttons  
   document.getElementById('joinRoomBtnFinal')?.addEventListener('click', joinRoom);
   
   // Online menu navigation
@@ -2156,13 +2170,13 @@ function initWebRTC() {
   document.getElementById('backFromCreate')?.addEventListener('click', () => {
     document.getElementById('createRoomForm').style.display = 'none';
     document.getElementById('onlineMenu').style.display = 'block';
-    cleanupRoom();
+    cleanupPeer();
   });
   
   document.getElementById('backFromJoin')?.addEventListener('click', () => {
     document.getElementById('joinRoomForm').style.display = 'none';
     document.getElementById('onlineMenu').style.display = 'block';
-    cleanupRoom();
+    cleanupPeer();
   });
   
   document.getElementById('startOnlineGame')?.addEventListener('click', () => {
@@ -2176,11 +2190,9 @@ function initWebRTC() {
 }
 
 function resetWebRTC() {
-  rtcPeer = null;
-  rtcDataChannel = null;
+  cleanupPeer();
   rtcRole = null;
   rtcConnected = false;
-  currentRoomCode = null;
   
   // Reset Host UI
   document.getElementById('roomCodeDisplay').textContent = '------';
@@ -2194,16 +2206,15 @@ function resetWebRTC() {
   updateRTCStatus('guest', 'waiting', 'Enter code and click Join');
 }
 
-function cleanupRoom() {
-  if (roomRef) {
-    roomRef.off();
-    roomRef = null;
+function cleanupPeer() {
+  if (connection) {
+    connection.close();
+    connection = null;
   }
-  if (currentRoomCode && firebaseDB) {
-    // Remove room data
-    firebaseDB.ref('rooms/' + currentRoomCode).remove();
+  if (peer) {
+    peer.destroy();
+    peer = null;
   }
-  currentRoomCode = null;
 }
 
 function generateRoomCode() {
@@ -2225,11 +2236,11 @@ function updateRTCStatus(role, state, message) {
   } else {
     const messages = {
       waiting: '⏳ Waiting...',
-      ready: '✅ Room created! Share the code',
-      joining: '🔗 Joining room...',
-      connecting: '📡 Connecting to peer...',
-      connected: '🎮 Connected! Ready to play',
-      error: '❌ Error occurred'
+      ready: '✅ Room created!',
+      joining: '🔗 Joining...',
+      connecting: '📡 Connecting...',
+      connected: '🎮 Connected!',
+      error: '❌ Error'
     };
     text.textContent = messages[state] || state;
   }
@@ -2242,79 +2253,55 @@ function updateRTCStatus(role, state, message) {
 // HOST - CREATE ROOM
 // ════════════════════════════════════════════════════
 
-async function createRoom() {
+function createRoom() {
   try {
-    initFirebase();
     updateRTCStatus('host', 'ready', '🔄 Creating room...');
-    
     rtcRole = 'host';
-    currentRoomCode = generateRoomCode();
     
-    // Display code
-    document.getElementById('roomCodeDisplay').textContent = currentRoomCode;
-    document.getElementById('copyRoomCodeBtn').style.display = 'inline-block';
-    document.getElementById('generateRoomCodeBtn').style.display = 'none';
+    const roomCode = generateRoomCode();
     
-    // Create WebRTC peer
-    rtcPeer = new RTCPeerConnection(RTC_CONFIG);
-    
-    // Create data channel
-    rtcDataChannel = rtcPeer.createDataChannel('ludoGame', { ordered: true });
-    setupDataChannel(rtcDataChannel);
-    
-    // Handle ICE candidates
-    const iceCandidates = [];
-    rtcPeer.onicecandidate = (event) => {
-      if (event.candidate) {
-        iceCandidates.push(event.candidate.toJSON());
-      }
-    };
-    
-    // Create offer
-    const offer = await rtcPeer.createOffer();
-    await rtcPeer.setLocalDescription(offer);
-    
-    // Wait for ICE gathering
-    await new Promise(resolve => setTimeout(resolve, 2000));
-    
-    // Save to Firebase
-    roomRef = firebaseDB.ref('rooms/' + currentRoomCode);
-    await roomRef.set({
-      host: {
-        offer: rtcPeer.localDescription,
-        candidates: iceCandidates
-      },
-      createdAt: firebase.database.ServerValue.TIMESTAMP
-    });
-    
-    // Listen for guest answer
-    roomRef.child('guest').on('value', async (snapshot) => {
-      const guestData = snapshot.val();
-      if (guestData && guestData.answer && !rtcConnected) {
-        updateRTCStatus('host', 'connecting', '📡 Guest joined! Connecting...');
-        
-        // Set remote description
-        await rtcPeer.setRemoteDescription(new RTCSessionDescription(guestData.answer));
-        
-        // Add ICE candidates
-        if (guestData.candidates) {
-          for (const candidate of guestData.candidates) {
-            await rtcPeer.addIceCandidate(new RTCIceCandidate(candidate));
-          }
-        }
+    // Create Peer with the room code as ID
+    peer = new Peer(roomCode, {
+      debug: 2,
+      config: {
+        iceServers: [
+          { urls: 'stun:stun.l.google.com:19302' },
+          { urls: 'stun:stun1.l.google.com:19302' }
+        ]
       }
     });
     
-    updateRTCStatus('host', 'ready', '✅ Room ready! Share code: ' + currentRoomCode);
+    peer.on('open', (id) => {
+      console.log('[PeerJS] Host peer created with ID:', id);
+      
+      // Display code
+      document.getElementById('roomCodeDisplay').textContent = id;
+      document.getElementById('copyRoomCodeBtn').style.display = 'inline-block';
+      document.getElementById('generateRoomCodeBtn').style.display = 'none';
+      
+      updateRTCStatus('host', 'ready', '✅ Room ready! Share code: ' + id);
+    });
+    
+    // Handle incoming connections
+    peer.on('connection', (conn) => {
+      console.log('[PeerJS] Guest connecting...');
+      connection = conn;
+      setupConnection(conn);
+    });
+    
+    peer.on('error', (err) => {
+      console.error('[PeerJS] Host error:', err);
+      updateRTCStatus('host', 'error', err.message);
+    });
     
   } catch (err) {
     console.error('Error creating room:', err);
-    updateRTCStatus('host', 'error', 'Failed: ' + err.message);
+    updateRTCStatus('host', 'error', err.message);
   }
 }
 
 function copyRoomCode() {
-  const code = currentRoomCode;
+  const code = document.getElementById('roomCodeDisplay').textContent;
   if (navigator.clipboard) {
     navigator.clipboard.writeText(code).then(() => {
       alert('Room code copied: ' + code + '\n\nShare it with your friend!');
@@ -2328,89 +2315,60 @@ function copyRoomCode() {
 // GUEST - JOIN ROOM
 // ════════════════════════════════════════════════════
 
-async function joinRoom() {
+function joinRoom() {
   try {
-    initFirebase();
-    
     const code = document.getElementById('joinRoomCodeInput').value.trim();
     if (!code || code.length !== 6) {
       alert('Please enter a valid 6-digit room code');
       return;
     }
     
-    updateRTCStatus('guest', 'joining', '🔍 Looking for room...');
-    currentRoomCode = code;
+    updateRTCStatus('guest', 'joining', '🔗 Connecting to ' + code + '...');
     rtcRole = 'guest';
     
-    // Get room data from Firebase
-    roomRef = firebaseDB.ref('rooms/' + code);
-    const snapshot = await roomRef.once('value');
-    const roomData = snapshot.val();
-    
-    if (!roomData || !roomData.host) {
-      updateRTCStatus('guest', 'error', 'Room not found!');
-      alert('Room not found. Check the code and try again.');
-      return;
-    }
-    
-    updateRTCStatus('guest', 'connecting', '📡 Found room! Connecting...');
-    
-    // Create peer connection
-    rtcPeer = new RTCPeerConnection(RTC_CONFIG);
-    
-    // Handle data channel from host
-    rtcPeer.ondatachannel = (event) => {
-      rtcDataChannel = event.channel;
-      setupDataChannel(event.channel);
-    };
-    
-    // Handle ICE candidates
-    const iceCandidates = [];
-    rtcPeer.onicecandidate = (event) => {
-      if (event.candidate) {
-        iceCandidates.push(event.candidate.toJSON());
+    // Create peer (random ID)
+    peer = new Peer({
+      debug: 2,
+      config: {
+        iceServers: [
+          { urls: 'stun:stun.l.google.com:19302' },
+          { urls: 'stun:stun1.l.google.com:19302' }
+        ]
       }
-    };
-    
-    // Set remote description (host's offer)
-    await rtcPeer.setRemoteDescription(new RTCSessionDescription(roomData.host.offer));
-    
-    // Add host's ICE candidates
-    if (roomData.host.candidates) {
-      for (const candidate of roomData.host.candidates) {
-        await rtcPeer.addIceCandidate(new RTCIceCandidate(candidate));
-      }
-    }
-    
-    // Create answer
-    const answer = await rtcPeer.createAnswer();
-    await rtcPeer.setLocalDescription(answer);
-    
-    // Wait for ICE gathering
-    await new Promise(resolve => setTimeout(resolve, 2000));
-    
-    // Save answer to Firebase
-    await roomRef.child('guest').set({
-      answer: rtcPeer.localDescription,
-      candidates: iceCandidates
     });
     
-    updateRTCStatus('guest', 'connecting', '⏳ Waiting for host...');
+    peer.on('open', () => {
+      console.log('[PeerJS] Guest peer created, connecting to host:', code);
+      
+      // Connect to host
+      connection = peer.connect(code, {
+        reliable: true,
+        serialization: 'json'
+      });
+      
+      setupConnection(connection);
+    });
+    
+    peer.on('error', (err) => {
+      console.error('[PeerJS] Guest error:', err);
+      updateRTCStatus('guest', 'error', 'Could not connect. Check code.');
+      alert('Connection failed. Make sure:\n1. The code is correct\n2. Host is still waiting\n3. Try again');
+    });
     
   } catch (err) {
     console.error('Error joining room:', err);
-    updateRTCStatus('guest', 'error', 'Failed: ' + err.message);
-    alert('Error joining room: ' + err.message);
+    updateRTCStatus('guest', 'error', err.message);
+    alert('Error: ' + err.message);
   }
 }
 
 // ════════════════════════════════════════════════════
-// DATA CHANNEL
+// CONNECTION HANDLING
 // ════════════════════════════════════════════════════
 
-function setupDataChannel(channel) {
-  channel.onopen = () => {
-    console.log('[WebRTC] Connected!');
+function setupConnection(conn) {
+  conn.on('open', () => {
+    console.log('[PeerJS] Connection opened!');
     rtcConnected = true;
     
     if (rtcRole === 'host') {
@@ -2430,22 +2388,26 @@ function setupDataChannel(channel) {
       player: G.humanColor,
       name: G.playerNames[G.humanColor]
     });
-  };
+  });
   
-  channel.onmessage = (event) => {
-    handleRTCMessage(JSON.parse(event.data));
-  };
+  conn.on('data', (data) => {
+    handleRTCMessage(data);
+  });
   
-  channel.onclose = () => {
-    console.log('[WebRTC] Disconnected');
+  conn.on('close', () => {
+    console.log('[PeerJS] Connection closed');
     rtcConnected = false;
     addLog('⚠️ Opponent disconnected');
-  };
+  });
+  
+  conn.on('error', (err) => {
+    console.error('[PeerJS] Connection error:', err);
+  });
 }
 
 function sendRTCMessage(data) {
-  if (rtcDataChannel?.readyState === 'open') {
-    rtcDataChannel.send(JSON.stringify(data));
+  if (connection?.open) {
+    connection.send(data);
   }
 }
 
@@ -2472,60 +2434,6 @@ function handleRTCMessage(data) {
       break;
   }
 }
-
-// ════════════════════════════════════════════════════
-// EVENT LISTENERS
-// ════════════════════════════════════════════════════
-
-document.getElementById('diceScene').addEventListener('click', e => {
-  e.preventDefault(); rollDice();
-});
-document.getElementById('rollBtn').addEventListener('click', e => {
-  e.preventDefault(); rollDice();
-});
-document.getElementById('playAgainBtn').addEventListener('click', () => {
-  document.getElementById('winModal').classList.remove('active');
-  startGame();
-});
-document.getElementById('menuBtn').addEventListener('click', () => {
-  document.getElementById('winModal').classList.remove('active');
-  document.getElementById('gameScreen').style.display = 'none';
-  document.getElementById('setupScreen').classList.remove('hidden');
-  if (cdInterval) { clearInterval(cdInterval); cdInterval=null; }
-});
-
-// ════════════════════════════════════════════════════
-// INIT
-// ════════════════════════════════════════════════════
-console.log("[DEBUG] Calling initSetup");
-window.onerror = function(msg, url, line) { console.error("[JS ERROR] " + msg + " at line " + line); };
-initSetup();
-
-// DEBUG: Verify board cell positions
-function verifyBoard() {
-  console.log('%c=== BOARD VERIFICATION ===', 'color:red;font-size:16px;font-weight:bold');
-  
-  // Check all entry cells
-  Object.entries(ENTRY).forEach(([player, gpos]) => {
-    const cell = document.querySelector(`[data-gpos="${gpos}"]`);
-    if (cell) {
-      const [pr, pc] = PATH[gpos];
-      console.log(`${player.toUpperCase()} entry (gpos=${gpos}):`);
-      console.log(`  PATH[${gpos}] = [${pr},${pc}] (row ${pr}, col ${pc})`);
-      console.log(`  Cell ID: ${cell.id}`);
-      console.log(`  Cell classes: ${cell.className}`);
-      console.log(`  Expected location: ${player === 'red' ? 'bottom-left' : player === 'green' ? 'top-left' : player === 'yellow' ? 'top-right' : 'bottom-right'}`);
-    } else {
-      console.log(`%c${player.toUpperCase()} entry NOT FOUND!`, 'color:red');
-    }
-  });
-  
-  // Check for duplicate gpos assignments
-  const allGpos = document.querySelectorAll('[data-gpos]');
-  const gposMap = {};
-  allGpos.forEach(cell => {
-    const g = cell.dataset.gpos;
-    if (!gposMap[g]) gposMap[g] = [];
     gposMap[g].push(cell.id);
   });
   
