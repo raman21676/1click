@@ -4,9 +4,6 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>Ludo - 1click Games</title>
-
-<!-- PeerJS for simple WebRTC signaling -->
-<script src="https://unpkg.com/peerjs@1.5.2/dist/peerjs.min.js"></script>
 <style>
 :root {
   --red:#E53935; --red-l:#EF9A9A; --red-d:#B71C1C;
@@ -508,22 +505,6 @@ html,body{height:100%;font-family:'Segoe UI',Arial,sans-serif;
 .room-input:focus{border-color:#FF6F00;background:rgba(0,0,0,.3);box-shadow:0 0 0 3px rgba(255,111,0,.1)}
 .room-input::placeholder{color:rgba(255,255,255,.3);font-family:inherit}
 
-/* WebRTC Styles */
-.webrtc-step{display:flex;gap:12px;margin-bottom:16px;padding:14px;background:rgba(0,0,0,.2);border-radius:10px;border:1px solid rgba(255,255,255,.1)}
-.step-num{width:28px;height:28px;border-radius:50%;background:linear-gradient(135deg,#FF6F00,#FF9800);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:14px;flex-shrink:0}
-.step-content{flex:1}
-.step-content label{display:block;font-size:12px;color:rgba(255,255,255,.6);margin-bottom:8px;font-weight:600}
-.webrtc-code{width:100%;min-height:80px;padding:12px;border-radius:8px;border:1px solid rgba(255,255,255,.2);background:rgba(0,0,0,.3);color:#4CAF50;font-size:12px;font-family:monospace;resize:vertical;outline:none;transition:all .2s;box-sizing:border-box;line-height:1.4}
-.webrtc-code:focus{border-color:#4CAF50;box-shadow:0 0 0 3px rgba(76,175,80,.1)}
-.webrtc-code::placeholder{color:rgba(255,255,255,.3)}
-.webrtc-status{display:flex;align-items:center;gap:8px;padding:10px 14px;background:rgba(0,0,0,.2);border-radius:8px;margin:12px 0;font-size:13px}
-.status-dot{width:10px;height:10px;border-radius:50%;background:#999;animation:pulse 1.5s infinite}
-.status-dot.connected{background:#4CAF50;animation:none}
-.status-dot.error{background:#f44336;animation:none}
-@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
-.webrtc-note{background:rgba(255,193,7,.1);border:1px solid rgba(255,193,7,.3);border-radius:8px;padding:12px;margin:12px 0;font-size:12px;color:rgba(255,235,180,.9)}
-.webrtc-note strong{color:#FFC107}
-
 .pc-row{display:flex;align-items:center;gap:10px;padding:9px;
   border-radius:9px;margin-bottom:7px;border:2px solid transparent;transition:all .2s}
 .pc-row.active{border-color:var(--rc)}
@@ -632,78 +613,63 @@ html,body{height:100%;font-family:'Segoe UI',Arial,sans-serif;
   <!-- ONLINE MULTIPLAYER SETTINGS -->
   <div id="onlineSettings" class="setup-card" style="display:none">
     <div id="onlineMenu">
-      <h3>🌐 Online Multiplayer</h3>
-      <p style="color:rgba(255,255,255,.5);font-size:12px;margin-bottom:12px">Play with friends using a simple 6-digit room code</p>
+      <h3>Online Multiplayer</h3>
       <div class="online-options">
         <button class="online-btn" id="createRoomBtn">
           <span class="online-icon">🏠</span>
           <span class="online-title">Create Room</span>
-          <span class="online-desc">Get a room code & invite friends</span>
+          <span class="online-desc">Start a new game room</span>
         </button>
         <button class="online-btn" id="joinRoomBtn">
           <span class="online-icon">🔗</span>
           <span class="online-title">Join Room</span>
-          <span class="online-desc">Enter friend's 6-digit code</span>
+          <span class="online-desc">Enter room ID & password</span>
         </button>
       </div>
     </div>
     
-    <!-- CREATE ROOM FORM - SIMPLE -->
+    <!-- CREATE ROOM FORM -->
     <div id="createRoomForm" style="display:none">
-      <h3>🏠 Create Room</h3>
-      
-      <div class="simple-room-box">
-        <label style="display:block;font-size:12px;color:rgba(255,255,255,.6);margin-bottom:8px;text-transform:uppercase;letter-spacing:0.05em">Your Room Code</label>
-        <div class="room-code-display" id="roomCodeDisplay" style="font-size:42px;font-weight:800;color:#FFD700;letter-spacing:8px;text-align:center;padding:20px;background:rgba(0,0,0,.3);border-radius:12px;border:2px solid rgba(255,215,0,.3);font-family:monospace">------</div>
-        <p style="color:rgba(255,255,255,.5);font-size:13px;text-align:center;margin-top:12px">Share this 6-digit code with your friend!</p>
-        <button class="copy-btn" id="copyRoomCodeBtn" style="width:100%;margin-top:12px;display:none">📋 Copy Code</button>
+      <h3>Create Room</h3>
+      <div class="room-info-box">
+        <div class="room-field">
+          <label>Room ID</label>
+          <div class="room-value" id="generatedRoomId">-</div>
+        </div>
+        <div class="room-field">
+          <label>Password</label>
+          <div class="room-value" id="generatedPassword">-</div>
+        </div>
       </div>
-      
-      <!-- Connection Status -->
-      <div id="hostStatus" class="webrtc-status" style="margin-top:16px">
-        <span class="status-dot"></span>
-        <span class="status-text">Click 'Generate' to create room</span>
+      <div class="room-actions">
+        <button class="generate-btn" id="generateRoomBtn">🔄 Generate New</button>
+        <button class="copy-btn" id="copyRoomBtn">📋 Copy</button>
       </div>
-      
-      <!-- Debug Log -->
-      <div id="webrtcDebugLog" style="margin-top:12px;padding:10px;background:rgba(0,0,0,.4);border-radius:8px;font-family:monospace;font-size:10px;color:rgba(255,255,255,.6);max-height:100px;overflow-y:auto;display:none">
-        <div>Debug log...</div>
+      <div class="room-note">
+        Share these credentials with friends to let them join!
       </div>
-      
-      <div class="room-buttons" style="margin-top:16px">
+      <div class="room-buttons">
         <button class="back-btn-small" id="backFromCreate">Back</button>
-        <button class="generate-btn" id="generateRoomCodeBtn">🎲 Generate Code</button>
-        <button class="start-btn-small" id="startOnlineGame" style="display:none">Start Game</button>
+        <button class="start-btn-small" id="startOnlineGame">Create Room</button>
       </div>
     </div>
     
-    <!-- JOIN ROOM FORM - SIMPLE -->
+    <!-- JOIN ROOM FORM -->
     <div id="joinRoomForm" style="display:none">
-      <h3>🔗 Join Room</h3>
-      
-      <div class="simple-room-box">
-        <label style="display:block;font-size:12px;color:rgba(255,255,255,.6);margin-bottom:8px;text-transform:uppercase;letter-spacing:0.05em">Enter 6-Digit Room Code</label>
-        <input type="text" id="joinRoomCodeInput" class="room-code-input" maxlength="6" placeholder="123456" 
-          style="width:100%;font-size:36px;font-weight:800;text-align:center;padding:16px;background:rgba(0,0,0,.3);border:2px solid rgba(255,255,255,.2);border-radius:12px;color:#fff;font-family:monospace;letter-spacing:12px;outline:none;transition:all .2s;text-transform:uppercase"
-          onfocus="this.style.borderColor='#4CAF50';this.style.boxShadow='0 0 0 4px rgba(76,175,80,.2)'"
-          onblur="this.style.borderColor='rgba(255,255,255,.2)';this.style.boxShadow='none'">
-        <p style="color:rgba(255,255,255,.5);font-size:13px;text-align:center;margin-top:12px">Ask your friend for their room code</p>
+      <h3>Join Room</h3>
+      <div class="join-inputs">
+        <div class="input-group">
+          <label>Room ID</label>
+          <input type="text" class="room-input" id="joinRoomId" placeholder="e.g., whale7313">
+        </div>
+        <div class="input-group">
+          <label>Password</label>
+          <input type="text" class="room-input" id="joinRoomPassword" placeholder="e.g., mercury88">
+        </div>
       </div>
-      
-      <!-- Connection Status -->
-      <div id="guestStatus" class="webrtc-status" style="margin-top:16px">
-        <span class="status-dot"></span>
-        <span class="status-text">Enter code and click Join</span>
-      </div>
-      
-      <!-- Debug Log -->
-      <div id="webrtcDebugLogGuest" style="margin-top:12px;padding:10px;background:rgba(0,0,0,.4);border-radius:8px;font-family:monospace;font-size:10px;color:rgba(255,255,255,.6);max-height:100px;overflow-y:auto;display:none">
-        <div>Debug log...</div>
-      </div>
-      
-      <div class="room-buttons" style="margin-top:16px">
+      <div class="room-buttons">
         <button class="back-btn-small" id="backFromJoin">Back</button>
-        <button class="start-btn-small" id="joinRoomBtnFinal">🔗 Join Room</button>
+        <button class="start-btn-small" id="joinOnlineGame">Join Room</button>
       </div>
     </div>
   </div>
@@ -898,11 +864,7 @@ let G = {
   eliminated: new Set(),
   winner: null,
   playerNames: {red:'You',green:'AI 1',yellow:'AI 2',blue:'AI 3'}, // Default names
-  playerEmojis: {}, // {red:'👦', green:'👧', ...}
-  // Online multiplayer flags
-  isOnline: false,
-  gameMode: 'local', // 'local' or 'online'
-  roomId: null
+  playerEmojis: {} // {red:'👦', green:'👧', ...}
 };
 
 let cdInterval = null;
@@ -1331,11 +1293,6 @@ function performRoll() {
   G.diceVal = Math.floor(Math.random() * 6) + 1;
   const p = curPlayer();
   
-  // Broadcast roll to opponent if online
-  if (G.isOnline && rtcConnected) {
-    sendRTCMessage({ type: 'roll', player: p, value: G.diceVal });
-  }
-  
   // 1. Strip all animation classes and inline transform
   diceCube.className  = 'dice-cube';
   diceCube.style.transform = '';
@@ -1570,14 +1527,9 @@ function handleTokenClick(player, idx) {
   moveToken(player, idx);
 }
 
-async function moveToken(player, idx, broadcast = true) {
+async function moveToken(player, idx) {
   const oldPos = G.tokens[player][idx];
   let newPos;
-
-  // Broadcast move to opponent if online and broadcast enabled
-  if (broadcast && G.isOnline && rtcConnected) {
-    sendRTCMessage({ type: 'move', player: player, tokenIdx: idx });
-  }
 
   if (oldPos === 0) {
     newPos = 1;
@@ -1887,14 +1839,89 @@ function initModeSelection() {
 
 // Online multiplayer room logic
 function initOnlineMultiplayer() {
-  // Initialize WebRTC peer-to-peer functionality (includes all UI event listeners)
-  initWebRTC();
+  // Create Room button
+  document.getElementById('createRoomBtn').addEventListener('click', () => {
+    document.getElementById('onlineMenu').style.display = 'none';
+    document.getElementById('createRoomForm').style.display = 'block';
+    document.getElementById('joinRoomForm').style.display = 'none';
+    generateRoomCredentials(); // Auto-generate on open
+  });
+  
+  // Join Room button
+  document.getElementById('joinRoomBtn').addEventListener('click', () => {
+    document.getElementById('onlineMenu').style.display = 'none';
+    document.getElementById('createRoomForm').style.display = 'none';
+    document.getElementById('joinRoomForm').style.display = 'block';
+  });
+  
+  // Back buttons
+  document.getElementById('backFromCreate').addEventListener('click', showOnlineMenu);
+  document.getElementById('backFromJoin').addEventListener('click', showOnlineMenu);
+  
+  // Generate new room credentials
+  document.getElementById('generateRoomBtn').addEventListener('click', generateRoomCredentials);
+  
+  // Copy room credentials
+  document.getElementById('copyRoomBtn').addEventListener('click', copyRoomCredentials);
+  
+  // Create Room (final)
+  document.getElementById('startOnlineGame').addEventListener('click', () => {
+    alert('Online multiplayer coming soon!\n\nRoom ID: ' + G.roomId + '\nPassword: ' + G.roomPassword);
+  });
+  
+  // Join Room (final)
+  document.getElementById('joinOnlineGame').addEventListener('click', () => {
+    const roomId = document.getElementById('joinRoomId').value.trim();
+    const password = document.getElementById('joinRoomPassword').value.trim();
+    
+    if (!roomId || !password) {
+      alert('Please enter both Room ID and Password');
+      return;
+    }
+    
+    alert('Online multiplayer coming soon!\n\nTrying to join: ' + roomId);
+  });
 }
 
 function showOnlineMenu() {
   document.getElementById('onlineMenu').style.display = 'block';
   document.getElementById('createRoomForm').style.display = 'none';
   document.getElementById('joinRoomForm').style.display = 'none';
+}
+
+// Generate random room credentials
+function generateRoomCredentials() {
+  const nouns = ['whale', 'volcano', 'thomas', 'eagle', 'tiger', 'panda', 'rocket', 'dragon', 'phoenix', 'ocean', 'mountain', 'forest', 'castle', 'knight', 'queen', 'nebula', 'galaxy', 'comet', 'thunder', 'lightning'];
+  const secondWords = ['star', 'moon', 'sun', 'fire', 'ice', 'wind', 'storm', 'shadow', 'blaze', 'frost', 'dream', 'wish', 'power', 'magic', 'hero', 'legend', 'myth', 'epic', 'cosmic', 'solar'];
+  
+  // Generate Room ID: noun + number
+  const noun = nouns[Math.floor(Math.random() * nouns.length)];
+  const roomNum = Math.floor(Math.random() * 9000) + 1000; // 1000-9999
+  G.roomId = noun + roomNum;
+  
+  // Generate Password: word + number
+  const secondWord = secondWords[Math.floor(Math.random() * secondWords.length)];
+  const passNum = Math.floor(Math.random() * 9000) + 1000; // 1000-9999
+  G.roomPassword = secondWord + passNum;
+  
+  // Update UI
+  document.getElementById('generatedRoomId').textContent = G.roomId;
+  document.getElementById('generatedPassword').textContent = G.roomPassword;
+}
+
+// Copy room credentials to clipboard
+function copyRoomCredentials() {
+  const text = `Room ID: ${G.roomId}\nPassword: ${G.roomPassword}`;
+  
+  if (navigator.clipboard) {
+    navigator.clipboard.writeText(text).then(() => {
+      alert('Copied to clipboard!\n\n' + text);
+    }).catch(() => {
+      alert(text);
+    });
+  } else {
+    alert(text);
+  }
 }
 
 function renderSetupRows() {
@@ -2092,298 +2119,6 @@ function startGame() {
 }
 
 // ════════════════════════════════════════════════════
-// PURE WEBRTC WITH PEERJS (No Firebase needed!)
-// ════════════════════════════════════════════════════
-
-// PeerJS uses free public signaling servers
-let peer = null;
-let connection = null;
-let rtcRole = null; // 'host' or 'guest'
-let rtcConnected = false;
-
-// PeerJS configuration - uses default cloud servers
-const PEER_CONFIG = {
-  debug: 2,
-  config: {
-    iceServers: [
-      { urls: 'stun:stun.l.google.com:19302' },
-      { urls: 'stun:stun1.l.google.com:19302' },
-      { urls: 'stun:stun2.l.google.com:19302' }
-    ]
-  }
-};
-
-// Initialize WebRTC UI
-function initWebRTC() {
-  // Host buttons
-  document.getElementById('generateRoomCodeBtn')?.addEventListener('click', createRoom);
-  document.getElementById('copyRoomCodeBtn')?.addEventListener('click', copyRoomCode);
-  
-  // Guest buttons  
-  document.getElementById('joinRoomBtnFinal')?.addEventListener('click', joinRoom);
-  
-  // Online menu navigation
-  document.getElementById('createRoomBtn')?.addEventListener('click', () => {
-    document.getElementById('onlineMenu').style.display = 'none';
-    document.getElementById('createRoomForm').style.display = 'block';
-    resetWebRTC();
-  });
-  
-  document.getElementById('joinRoomBtn')?.addEventListener('click', () => {
-    document.getElementById('onlineMenu').style.display = 'none';
-    document.getElementById('joinRoomForm').style.display = 'block';
-    resetWebRTC();
-  });
-  
-  document.getElementById('backFromCreate')?.addEventListener('click', () => {
-    document.getElementById('createRoomForm').style.display = 'none';
-    document.getElementById('onlineMenu').style.display = 'block';
-    cleanupPeer();
-  });
-  
-  document.getElementById('backFromJoin')?.addEventListener('click', () => {
-    document.getElementById('joinRoomForm').style.display = 'none';
-    document.getElementById('onlineMenu').style.display = 'block';
-    cleanupPeer();
-  });
-  
-  document.getElementById('startOnlineGame')?.addEventListener('click', () => {
-    if (rtcConnected) {
-      G.isOnline = true;
-      G.playerCount = 2;
-      G.ptypes = {red:'human',green:'human',yellow:'ai',blue:'ai'};
-      startGame();
-    }
-  });
-}
-
-function resetWebRTC() {
-  cleanupPeer();
-  rtcRole = null;
-  rtcConnected = false;
-  
-  // Reset Host UI
-  document.getElementById('roomCodeDisplay').textContent = '------';
-  document.getElementById('copyRoomCodeBtn').style.display = 'none';
-  document.getElementById('generateRoomCodeBtn').style.display = 'inline-block';
-  document.getElementById('startOnlineGame').style.display = 'none';
-  updateRTCStatus('host', 'waiting', 'Click "Generate" to create room');
-  
-  // Reset Guest UI
-  document.getElementById('joinRoomCodeInput').value = '';
-  updateRTCStatus('guest', 'waiting', 'Enter code and click Join');
-  
-  // Clear debug logs
-  const hostDebug = document.getElementById('webrtcDebugLog');
-  const guestDebug = document.getElementById('webrtcDebugLogGuest');
-  if (hostDebug) hostDebug.innerHTML = '<div>Debug log...</div>';
-  if (guestDebug) guestDebug.innerHTML = '<div>Debug log...</div>';
-}
-
-function cleanupPeer() {
-  if (connection) {
-    connection.close();
-    connection = null;
-  }
-  if (peer) {
-    peer.destroy();
-    peer = null;
-  }
-}
-
-function generateRoomCode() {
-  return Math.floor(100000 + Math.random() * 900000).toString();
-}
-
-function updateRTCStatus(role, state, message) {
-  const statusEl = document.getElementById(role + 'Status');
-  if (!statusEl) return;
-  
-  const dot = statusEl.querySelector('.status-dot');
-  const text = statusEl.querySelector('.status-text');
-  if (!dot || !text) return;
-  
-  dot.className = 'status-dot';
-  if (message) text.textContent = message;
-  
-  if (state === 'connected') dot.classList.add('connected');
-  else if (state === 'error') dot.classList.add('error');
-}
-
-function logRTC(...args) {
-  console.log('[WebRTC]', ...args);
-}
-
-// ════════════════════════════════════════════════════
-// HOST - CREATE ROOM
-// ════════════════════════════════════════════════════
-
-function createRoom() {
-  try {
-    updateRTCStatus('host', 'waiting', '🔄 Creating room...');
-    logRTC('Creating room as host...');
-    rtcRole = 'host';
-    
-    const roomCode = generateRoomCode();
-    logRTC('Generated code:', roomCode);
-    
-    // Create Peer with the room code as ID
-    peer = new Peer(roomCode, PEER_CONFIG);
-    
-    peer.on('open', (id) => {
-      logRTC('Host peer created with ID:', id);
-      
-      document.getElementById('roomCodeDisplay').textContent = id;
-      document.getElementById('copyRoomCodeBtn').style.display = 'inline-block';
-      document.getElementById('generateRoomCodeBtn').style.display = 'none';
-      
-      updateRTCStatus('host', 'waiting', '✅ Room ready! Share: ' + id);
-    });
-    
-    peer.on('connection', (conn) => {
-      logRTC('Guest connecting from:', conn.peer);
-      connection = conn;
-      setupConnection(conn);
-    });
-    
-    peer.on('error', (err) => {
-      logRTC('Host error:', err.type, err.message);
-      if (err.type === 'unavailable-id') {
-        updateRTCStatus('host', 'error', 'Code taken, retrying...');
-        setTimeout(() => createRoom(), 500);
-        return;
-      }
-      updateRTCStatus('host', 'error', 'Error: ' + err.message);
-    });
-    
-  } catch (err) {
-    logRTC('Exception creating room:', err);
-    updateRTCStatus('host', 'error', err.message);
-  }
-}
-
-function copyRoomCode() {
-  const code = document.getElementById('roomCodeDisplay').textContent;
-  if (navigator.clipboard) {
-    navigator.clipboard.writeText(code).then(() => {
-      alert('Room code copied: ' + code);
-    });
-  } else {
-    alert('Your room code: ' + code);
-  }
-}
-
-// ════════════════════════════════════════════════════
-// GUEST - JOIN ROOM
-// ════════════════════════════════════════════════════
-
-function joinRoom() {
-  try {
-    const code = document.getElementById('joinRoomCodeInput').value.trim();
-    if (!code || code.length !== 6) {
-      alert('Please enter a valid 6-digit room code');
-      return;
-    }
-    
-    updateRTCStatus('guest', 'waiting', '🔗 Connecting...');
-    logRTC('Joining room:', code);
-    rtcRole = 'guest';
-    
-    peer = new Peer(PEER_CONFIG);
-    
-    peer.on('open', () => {
-      logRTC('Guest peer created, connecting to:', code);
-      
-      connection = peer.connect(code, {
-        reliable: true,
-        serialization: 'json'
-      });
-      
-      setupConnection(connection);
-    });
-    
-    peer.on('error', (err) => {
-      logRTC('Guest error:', err.type, err.message);
-      let msg = 'Could not connect';
-      if (err.type === 'peer-unavailable') msg = 'Room not found';
-      else if (err.type === 'network') msg = 'Network error';
-      updateRTCStatus('guest', 'error', 'Error: ' + msg);
-    });
-    
-  } catch (err) {
-    logRTC('Exception joining room:', err);
-    updateRTCStatus('guest', 'error', err.message);
-  }
-}
-
-// ════════════════════════════════════════════════════
-// CONNECTION HANDLING
-// ════════════════════════════════════════════════════
-
-function setupConnection(conn) {
-  logRTC('Setting up connection...');
-  
-  conn.on('open', () => {
-    logRTC('Connection opened!');
-    rtcConnected = true;
-    
-    if (rtcRole === 'host') {
-      updateRTCStatus('host', 'connected', '🎮 Guest connected!');
-      document.getElementById('startOnlineGame').style.display = 'inline-block';
-    } else {
-      updateRTCStatus('guest', 'connected', '🎮 Connected! Starting...');
-      G.isOnline = true;
-      G.playerCount = 2;
-      G.ptypes = {red:'human',green:'human',yellow:'ai',blue:'ai'};
-      setTimeout(() => startGame(), 1000);
-    }
-    
-    sendRTCMessage({
-      type: 'handshake',
-      player: G.humanColor,
-      name: G.playerNames[G.humanColor]
-    });
-  });
-  
-  conn.on('data', (data) => {
-    logRTC('Received:', data);
-    handleRTCMessage(data);
-  });
-  
-  conn.on('close', () => {
-    logRTC('Connection closed');
-    rtcConnected = false;
-    addLog('⚠️ Opponent disconnected');
-  });
-  
-  conn.on('error', (err) => {
-    logRTC('Connection error:', err);
-  });
-}
-
-function sendRTCMessage(data) {
-  if (connection?.open) {
-    connection.send(data);
-  }
-}
-
-function handleRTCMessage(data) {
-  switch (data.type) {
-    case 'handshake':
-      addLog(`🎮 ${data.name} joined!`);
-      break;
-    case 'roll':
-      G.diceVal = data.value;
-      addLog(`🎲 Opponent rolled ${data.value}`);
-      afterRoll();
-      break;
-    case 'move':
-      moveToken(data.player, data.tokenIdx, false);
-      break;
-  }
-}
-
-// ════════════════════════════════════════════════════
 // EVENT LISTENERS
 // ════════════════════════════════════════════════════
 
@@ -2410,6 +2145,87 @@ document.getElementById('menuBtn').addEventListener('click', () => {
 console.log("[DEBUG] Calling initSetup");
 window.onerror = function(msg, url, line) { console.error("[JS ERROR] " + msg + " at line " + line); };
 initSetup();
+
+// DEBUG: Verify board cell positions
+function verifyBoard() {
+  console.log('%c=== BOARD VERIFICATION ===', 'color:red;font-size:16px;font-weight:bold');
+  
+  // Check all entry cells
+  Object.entries(ENTRY).forEach(([player, gpos]) => {
+    const cell = document.querySelector(`[data-gpos="${gpos}"]`);
+    if (cell) {
+      const [pr, pc] = PATH[gpos];
+      console.log(`${player.toUpperCase()} entry (gpos=${gpos}):`);
+      console.log(`  PATH[${gpos}] = [${pr},${pc}] (row ${pr}, col ${pc})`);
+      console.log(`  Cell ID: ${cell.id}`);
+      console.log(`  Cell classes: ${cell.className}`);
+      console.log(`  Expected location: ${player === 'red' ? 'bottom-left' : player === 'green' ? 'top-left' : player === 'yellow' ? 'top-right' : 'bottom-right'}`);
+    } else {
+      console.log(`%c${player.toUpperCase()} entry NOT FOUND!`, 'color:red');
+    }
+  });
+  
+  // Check for duplicate gpos assignments
+  const allGpos = document.querySelectorAll('[data-gpos]');
+  const gposMap = {};
+  allGpos.forEach(cell => {
+    const g = cell.dataset.gpos;
+    if (!gposMap[g]) gposMap[g] = [];
+    gposMap[g].push(cell.id);
+  });
+  
+  Object.entries(gposMap).forEach(([g, ids]) => {
+    if (ids.length > 1) {
+      console.log(`%cDUPLICATE gpos=${g}: ${ids.join(', ')}`, 'color:red');
+    }
+  });
+  
+  console.log('%c=== END VERIFICATION ===', 'color:red;font-size:16px;font-weight:bold');
+}
+
+// DEBUG: Manually check what's at specific coordinates
+window.checkCell = function(r, c) {
+  const cell = document.getElementById(`C${r}-${c}`);
+  if (!cell) {
+    console.log(`Cell C${r}-${c} not found`);
+    return;
+  }
+  console.log(`Cell C${r}-${c}:`, {
+    id: cell.id,
+    gpos: cell.dataset.gpos,
+    className: cell.className,
+    innerHTML: cell.innerHTML.substring(0, 100)
+  });
+};
+
+// DEBUG: Manually test token placement
+window.testTokenPlacement = function(player) {
+  console.log(`%cTesting token placement for ${player}`, 'color:green;font-size:14px');
+  const entryGpos = ENTRY[player];
+  const [r, c] = PATH[entryGpos];
+  console.log(`${player} entry: gpos=${entryGpos}, coords=[${r},${c}]`);
+  
+  // Check what cell has this gpos
+  const byGpos = document.querySelector(`[data-gpos="${entryGpos}"]`);
+  console.log(`Found by gpos=${entryGpos}:`, byGpos ? byGpos.id : 'NOT FOUND');
+  
+  // Check what gpos the expected cell has
+  const expectedCell = document.getElementById(`C${r}-${c}`);
+  console.log(`Expected cell C${r}-${c} has gpos:`, expectedCell ? expectedCell.dataset.gpos : 'NOT FOUND');
+  
+  // Flash the cells
+  if (byGpos) {
+    byGpos.style.outline = '4px solid red';
+    setTimeout(() => byGpos.style.outline = '', 3000);
+  }
+  if (expectedCell && expectedCell !== byGpos) {
+    expectedCell.style.outline = '4px solid green';
+    setTimeout(() => expectedCell.style.outline = '', 3000);
+  }
+};
+
+// Run verification after a short delay
+setTimeout(verifyBoard, 1000);
 </script>
 </body>
 </html>
