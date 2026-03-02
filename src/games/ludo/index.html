@@ -1289,6 +1289,13 @@ let diceRolling = false;
 
 function performRoll() {
   if (diceRolling || G.phase !== 'roll') return;
+  
+  // In online mode, only current player can roll
+  if (G.isOnline && curPlayer() !== G.humanColor) {
+    addLog('⏳ Wait for your turn!');
+    return;
+  }
+  
   if (!isAI()) G.phase = 'anim';
   diceRolling = true;
   
@@ -1298,6 +1305,11 @@ function performRoll() {
   // Generate result
   G.diceVal = Math.floor(Math.random() * 6) + 1;
   const p = curPlayer();
+  
+  // Broadcast roll to opponent in online mode
+  if (G.isOnline) {
+    sendToPeer({ type: 'roll', player: p, value: G.diceVal });
+  }
   
   // 1. Strip all animation classes and inline transform
   diceCube.className  = 'dice-cube';
@@ -1526,6 +1538,13 @@ function aiChoose(player, diceValue) {
 function handleTokenClick(player, idx) {
   console.log(`[DEBUG] Token clicked: player=${player}, idx=${idx}, pos=${G.tokens[player][idx]}`);
   console.log(`[DEBUG] Current player: ${curPlayer()}, phase: ${G.phase}, dice: ${G.diceVal}`);
+  
+  // In online mode, only current player can move
+  if (G.isOnline && player !== curPlayer()) {
+    addLog('⏳ Wait for your turn!');
+    return;
+  }
+  
   if (!canMove(player, idx)) {
     console.log(`[DEBUG] Move not allowed for ${player} ${idx}`);
     return;
@@ -1548,6 +1567,11 @@ async function moveToken(player, idx) {
     
     // Animate step by step
     await animateTokenSteps(player, idx, oldPos, newPos);
+  }
+
+  // Broadcast move to opponent in online mode
+  if (G.isOnline && player === G.humanColor) {
+    sendToPeer({ type: 'move', player: player, tokenIdx: idx, newPos: newPos });
   }
 
   // Check captures (only on main path 1-52)
@@ -1616,6 +1640,12 @@ function nextTurn() {
   G.diceVal = null;
   G.phase   = 'roll';
   if (G.eliminated.has(curPlayer())) { nextTurn(); return; }
+  
+  // Broadcast turn change in online mode
+  if (G.isOnline) {
+    sendToPeer({ type: 'turn', curIdx: G.curIdx });
+  }
+  
   updateUI();
   renderTokens();
   if (isAI()) setTimeout(() => performRoll(), 900);
@@ -1990,13 +2020,22 @@ function startOnlineGame() {
     return;
   }
   
+  // Count connected human players
+  const humanCount = Object.values(G.ptypes).filter(t => t === 'human').length;
+  
   G.isOnline = true;
-  G.playerCount = 2;
-  G.ptypes = {red:'human',green:'human',yellow:'ai',blue:'ai'};
+  G.playerCount = Math.max(2, humanCount); // At least 2 players
   startGame();
   
-  // Notify guest
-  sendToPeer({ type: 'gameStart' });
+  // Notify all peers with game state
+  sendToPeer({ 
+    type: 'gameStart',
+    playerCount: G.playerCount,
+    ptypes: G.ptypes,
+    playerNames: G.playerNames,
+    active: G.active,
+    myColor: G.humanColor
+  });
 }
 
 // ════════════════════════════════════════════════════
@@ -2101,17 +2140,42 @@ function handlePeerData(data) {
       addLog(`🎮 ${data.name} joined!`);
       break;
     case 'gameStart':
+      // Guest receives game start from host
       G.isOnline = true;
-      G.playerCount = 2;
-      G.ptypes = {red:'human',green:'human',yellow:'ai',blue:'ai'};
+      G.playerCount = data.playerCount || 2;
+      G.ptypes = data.ptypes || {red:'human',green:'human',yellow:'ai',blue:'ai'};
+      G.playerNames = data.playerNames || G.playerNames;
+      G.active = data.active || ['red','green'];
+      G.myColor = data.myColor; // Host's color
       startGame();
       break;
     case 'roll':
-      G.diceVal = data.value;
-      afterRoll();
+      // Only process if it's from current player
+      if (data.player === curPlayer()) {
+        G.diceVal = data.value;
+        addLog(`🎲 ${G.playerNames[data.player] || data.player} rolled ${data.value}`);
+        afterRoll();
+        updateUI();
+      }
       break;
     case 'move':
-      moveToken(data.player, data.tokenIdx, false);
+      // Sync opponent's move
+      if (data.player !== G.humanColor) {
+        // Temporarily set tokens to received state
+        G.tokens[data.player][data.tokenIdx] = data.newPos;
+        renderTokens();
+        addLog(`${G.playerNames[data.player] || data.player} moved token ${data.tokenIdx + 1}`);
+        
+        // Check if turn should advance
+        if (G.diceVal !== 6) {
+          setTimeout(nextTurn, 500);
+        }
+      }
+      break;
+    case 'turn':
+      // Sync turn change
+      G.curIdx = data.curIdx;
+      updateUI();
       break;
   }
 }
