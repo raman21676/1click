@@ -398,12 +398,16 @@ html,body{height:100%;font-family:'Segoe UI',Arial,sans-serif;
 .ddY{background:var(--yellow)} .ddB{background:var(--blue)}
 .dd-def{background:#444}
 .roll-btn{background:linear-gradient(135deg,#FF6F00,#FFD600);
-  border:none;border-radius:7px;color:#000;
-  font-size:clamp(10px,1.9vmin,13px);font-weight:800;
-  padding:6px 12px;cursor:pointer;transition:all .2s;
-  box-shadow:0 3px 8px rgba(255,111,0,.4)}
+  border:none;border-radius:8px;color:#000;
+  font-size:clamp(12px,2.2vmin,15px);font-weight:800;
+  padding:10px 20px;cursor:pointer;transition:all .2s;
+  box-shadow:0 4px 12px rgba(255,111,0,.4);
+  margin-top:12px}
 .roll-btn:hover:not(:disabled){transform:translateY(-2px)}
 .roll-btn:disabled{opacity:.35;cursor:not-allowed}
+
+/* Dice area layout */
+.dice-area{display:flex;flex-direction:column;align-items:center;gap:8px}
 
 /* ─── TURN AREA ───────────────────────────────── */
 .turn-area{text-align:center;flex:1;min-width:0}
@@ -669,6 +673,13 @@ html,body{height:100%;font-family:'Segoe UI',Arial,sans-serif;
       <h3>🔗 Join Room</h3>
       
       <div class="simple-room-box" style="text-align:center;padding:20px;background:rgba(0,0,0,.2);border-radius:12px;margin:16px 0">
+        <!-- Guest Name Input -->
+        <label style="display:block;font-size:12px;color:rgba(255,255,255,.6);margin-bottom:8px;text-transform:uppercase;letter-spacing:0.05em">Your Name</label>
+        <input type="text" id="guestNameInput" maxlength="12" placeholder="Player 2" 
+          style="width:100%;font-size:18px;font-weight:600;text-align:center;padding:12px;background:rgba(0,0,0,.3);border:2px solid rgba(255,255,255,.2);border-radius:10px;color:#fff;outline:none;transition:all .2s;box-sizing:border-box;margin-bottom:16px"
+          onfocus="this.style.borderColor='#4CAF50';this.style.boxShadow='0 0 0 4px rgba(76,175,80,.2)'"
+          onblur="this.style.borderColor='rgba(255,255,255,.2)';this.style.boxShadow='none'">
+        
         <label style="display:block;font-size:12px;color:rgba(255,255,255,.6);margin-bottom:12px;text-transform:uppercase;letter-spacing:0.05em">Enter 6-Digit Room Code</label>
         <input type="text" id="joinRoomCodeInput" maxlength="6" placeholder="123456" 
           style="width:100%;font-size:42px;font-weight:800;text-align:center;padding:16px;background:rgba(0,0,0,.3);border:2px solid rgba(255,255,255,.2);border-radius:12px;color:#fff;font-family:monospace;letter-spacing:12px;outline:none;transition:all .2s;text-transform:uppercase;box-sizing:border-box"
@@ -2205,10 +2216,16 @@ function startOnlineGame() {
 
 function joinRoom() {
   const code = document.getElementById('joinRoomCodeInput').value.trim();
+  const guestName = document.getElementById('guestNameInput').value.trim();
   
   if (!code || code.length !== 6 || !/^\d{6}$/.test(code)) {
     alert('Please enter a valid 6-digit code');
     return;
+  }
+  
+  // Store guest name for later use in handshake
+  if (guestName) {
+    G.guestName = guestName;
   }
   
   cleanupPeer();
@@ -2255,10 +2272,15 @@ function setupConnection(conn) {
     }
     
     // Send handshake
+    // Use guest name if available (for guests joining), otherwise use default
+    let displayName = G.playerNames[G.humanColor];
+    if (!isHost && G.guestName) {
+      displayName = G.guestName;
+    }
     sendToPeer({
       type: 'handshake',
       player: G.humanColor,
-      name: G.playerNames[G.humanColor]
+      name: displayName
     });
   });
   
@@ -2293,6 +2315,14 @@ function handlePeerData(data) {
   switch (data.type) {
     case 'handshake':
       addLog(`🎮 ${data.name} joined!`);
+      // Store guest name in playerNames (guest's color is determined by connection)
+      if (data.player && data.name) {
+        G.playerNames[data.player] = data.name;
+        // Update UI if game hasn't started yet
+        if (document.getElementById('gameScreen').style.display !== 'flex') {
+          renderSetupRows();
+        }
+      }
       break;
     case 'gameStart':
       // Guest receives game start from host
@@ -2306,8 +2336,10 @@ function handlePeerData(data) {
         G.humanColor = data.yourColor;
         // ALSO set ptypes for guest's color to 'human' so dice is enabled
         G.ptypes[data.yourColor] = 'human';
-        // Update player name from AI name to 'You' if needed
-        if (!G.playerNames[data.yourColor] || G.playerNames[data.yourColor].startsWith('AI ')) {
+        // Update player name - use guest's chosen name or default to 'You'
+        if (G.guestName) {
+          G.playerNames[data.yourColor] = G.guestName;
+        } else if (!G.playerNames[data.yourColor] || G.playerNames[data.yourColor].startsWith('AI ')) {
           G.playerNames[data.yourColor] = 'You';
         }
         addLog(`🎮 You are playing as ${cap(data.yourColor)}!`);
