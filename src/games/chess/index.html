@@ -19,6 +19,7 @@
       body {
         height: 100%;
         font-family: "Segoe UI", Arial, sans-serif;
+        overflow: hidden;
       }
       body {
         background: radial-gradient(
@@ -27,30 +28,46 @@
           #7a4520 40%,
           #5c3010 100%
         );
-        display: flex;
-        align-items: center;
-        justify-content: center;
         min-height: 100vh;
-        overflow-y: auto;
       }
+      /* Each screen is a full-viewport exclusive layer */
       .screen {
         display: none;
-        width: 100%;
-        max-width: 460px;
-        margin: 0 auto;
+        position: fixed;
+        inset: 0;
+        overflow-y: auto;
+        z-index: 10;
       }
       .screen.active {
-        display: block;
+        display: flex;
+        flex-direction: column;
+        animation: fadeUp 0.35s ease;
+      }
+      /* Setup centers its content */
+      #setup.active {
+        align-items: center;
+        justify-content: center;
       }
 
       /* === SETUP === */
       #setup {
         padding: 30px 20px 40px;
-        display: flex;
-        flex-direction: column;
+        /* flex column is set by .screen.active */
         align-items: center;
         gap: 20px;
-        animation: fadeUp 0.5s ease;
+        /* background same as body */
+        background: radial-gradient(
+          ellipse at center,
+          #a0612a 0%,
+          #7a4520 40%,
+          #5c3010 100%
+        );
+        max-width: none;
+        width: 100%;
+      }
+      #setup > * {
+        width: 100%;
+        max-width: 460px;
       }
       @keyframes fadeUp {
         from {
@@ -206,13 +223,18 @@
 
       /* === GAME === */
       #game {
-        display: flex;
-        flex-direction: column;
+        /* full viewport flex column — screen already handles the fixed container */
         align-items: center;
-        min-height: 100vh;
-        padding: 14px 12px 16px;
-        gap: 9px;
-        animation: fadeUp 0.35s ease;
+        justify-content: center;
+        padding: 12px 12px 14px;
+        gap: 8px;
+        background: radial-gradient(
+          ellipse at center,
+          #a0612a 0%,
+          #7a4520 40%,
+          #5c3010 100%
+        );
+        min-height: 100%;
       }
       .players-bar {
         display: flex;
@@ -683,11 +705,17 @@
         }
       }
       @media (min-width: 769px) {
-        .screen {
-          max-width: 520px;
+        /* On desktop, cap board area width so it doesn't stretch */
+        .players-bar,
+        .board-section,
+        .ctrl-bar {
+          max-width: 560px;
         }
         #game {
-          padding: 28px 16px;
+          padding: 24px 16px;
+        }
+        #setup > * {
+          max-width: 500px;
         }
       }
     </style>
