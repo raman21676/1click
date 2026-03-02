@@ -2128,46 +2128,10 @@ const RTC_CONFIG = {
     { urls: 'stun:stun.l.google.com:19302' },
     { urls: 'stun:stun1.l.google.com:19302' }
   ]
-};
 
-// State
-let rtcPeer = null;
-let rtcDataChannel = null;
-let rtcRole = null;
-let rtcConnected = false;
-let currentRoomCode = null;
-let roomRef = null;
-
-// Initialize WebRTC UI
-function initWebRTC() {
-  initFirebase();
-  
-  // Host buttons
-  document.getElementById('generateRoomCodeBtn')?.addEventListener('click', createRoom);
-  document.getElementById('copyRoomCodeBtn')?.addEventListener('click', copyRoomCode);
 // ════════════════════════════════════════════════════
 // PURE WEBRTC WITH PEERJS (No Firebase needed!)
 // ════════════════════════════════════════════════════
-
-// Debug mode
-const WEBRTC_DEBUG = true;
-function logRTC(...args) {
-  const msg = args.join(' ');
-  if (WEBRTC_DEBUG) console.log('[WebRTC]', ...args);
-  
-  // Also show in UI
-  const debugEl = rtcRole === 'guest' 
-    ? document.getElementById('webrtcDebugLogGuest')
-    : document.getElementById('webrtcDebugLog');
-  
-  if (debugEl) {
-    debugEl.style.display = 'block';
-    const entry = document.createElement('div');
-    entry.textContent = new Date().toLocaleTimeString() + ': ' + msg;
-    debugEl.appendChild(entry);
-    debugEl.scrollTop = debugEl.scrollHeight;
-  }
-}
 
 // PeerJS uses free public signaling servers
 let peer = null;
@@ -2246,6 +2210,12 @@ function resetWebRTC() {
   // Reset Guest UI
   document.getElementById('joinRoomCodeInput').value = '';
   updateRTCStatus('guest', 'waiting', 'Enter code and click Join');
+  
+  // Clear debug logs
+  const hostDebug = document.getElementById('webrtcDebugLog');
+  const guestDebug = document.getElementById('webrtcDebugLogGuest');
+  if (hostDebug) hostDebug.innerHTML = '<div>Debug log...</div>';
+  if (guestDebug) guestDebug.innerHTML = '<div>Debug log...</div>';
 }
 
 function cleanupPeer() {
@@ -2260,7 +2230,6 @@ function cleanupPeer() {
 }
 
 function generateRoomCode() {
-  // Generate 6-digit code
   return Math.floor(100000 + Math.random() * 900000).toString();
 }
 
@@ -2270,25 +2239,17 @@ function updateRTCStatus(role, state, message) {
   
   const dot = statusEl.querySelector('.status-dot');
   const text = statusEl.querySelector('.status-text');
+  if (!dot || !text) return;
   
   dot.className = 'status-dot';
-  
-  if (message) {
-    text.textContent = message;
-  } else {
-    const messages = {
-      waiting: '⏳ Waiting...',
-      ready: '✅ Room created!',
-      joining: '🔗 Joining...',
-      connecting: '📡 Connecting...',
-      connected: '🎮 Connected!',
-      error: '❌ Error'
-    };
-    text.textContent = messages[state] || state;
-  }
+  if (message) text.textContent = message;
   
   if (state === 'connected') dot.classList.add('connected');
   else if (state === 'error') dot.classList.add('error');
+}
+
+function logRTC(...args) {
+  console.log('[WebRTC]', ...args);
 }
 
 // ════════════════════════════════════════════════════
@@ -2297,7 +2258,7 @@ function updateRTCStatus(role, state, message) {
 
 function createRoom() {
   try {
-    updateRTCStatus('host', 'ready', '🔄 Creating room...');
+    updateRTCStatus('host', 'waiting', '🔄 Creating room...');
     logRTC('Creating room as host...');
     rtcRole = 'host';
     
@@ -2310,15 +2271,13 @@ function createRoom() {
     peer.on('open', (id) => {
       logRTC('Host peer created with ID:', id);
       
-      // Display code
       document.getElementById('roomCodeDisplay').textContent = id;
       document.getElementById('copyRoomCodeBtn').style.display = 'inline-block';
       document.getElementById('generateRoomCodeBtn').style.display = 'none';
       
-      updateRTCStatus('host', 'ready', '✅ Room ready! Share: ' + id);
+      updateRTCStatus('host', 'waiting', '✅ Room ready! Share: ' + id);
     });
     
-    // Handle incoming connections
     peer.on('connection', (conn) => {
       logRTC('Guest connecting from:', conn.peer);
       connection = conn;
@@ -2327,25 +2286,12 @@ function createRoom() {
     
     peer.on('error', (err) => {
       logRTC('Host error:', err.type, err.message);
-      let msg = err.message;
       if (err.type === 'unavailable-id') {
-        msg = 'Code taken, try again';
-        // Retry with new code
+        updateRTCStatus('host', 'error', 'Code taken, retrying...');
         setTimeout(() => createRoom(), 500);
         return;
       }
-      if (err.type === 'network') {
-        msg = 'Network error - check connection';
-      }
-      if (err.type === 'server-error') {
-        msg = 'PeerJS server error - try again';
-      }
-      updateRTCStatus('host', 'error', 'Error: ' + msg);
-    });
-    
-    peer.on('disconnected', () => {
-      logRTC('PeerJS disconnected, attempting reconnect...');
-      peer.reconnect();
+      updateRTCStatus('host', 'error', 'Error: ' + err.message);
     });
     
   } catch (err) {
@@ -2358,7 +2304,7 @@ function copyRoomCode() {
   const code = document.getElementById('roomCodeDisplay').textContent;
   if (navigator.clipboard) {
     navigator.clipboard.writeText(code).then(() => {
-      alert('Room code copied: ' + code + '\n\nShare it with your friend!');
+      alert('Room code copied: ' + code);
     });
   } else {
     alert('Your room code: ' + code);
@@ -2377,21 +2323,18 @@ function joinRoom() {
       return;
     }
     
-    updateRTCStatus('guest', 'joining', '🔗 Connecting to ' + code + '...');
+    updateRTCStatus('guest', 'waiting', '🔗 Connecting...');
     logRTC('Joining room:', code);
     rtcRole = 'guest';
     
-    // Create peer (random ID)
     peer = new Peer(PEER_CONFIG);
     
-    peer.on('open', (myId) => {
-      logRTC('Guest peer created with ID:', myId, ', connecting to host:', code);
+    peer.on('open', () => {
+      logRTC('Guest peer created, connecting to:', code);
       
-      // Connect to host
       connection = peer.connect(code, {
         reliable: true,
-        serialization: 'json',
-        metadata: { player: G.humanColor, name: G.playerNames[G.humanColor] }
+        serialization: 'json'
       });
       
       setupConnection(connection);
@@ -2400,20 +2343,14 @@ function joinRoom() {
     peer.on('error', (err) => {
       logRTC('Guest error:', err.type, err.message);
       let msg = 'Could not connect';
-      if (err.type === 'peer-unavailable') {
-        msg = 'Room not found - check code';
-      } else if (err.type === 'network') {
-        msg = 'Network error - check connection';
-      } else if (err.type === 'server-error') {
-        msg = 'Server error - try again';
-      }
+      if (err.type === 'peer-unavailable') msg = 'Room not found';
+      else if (err.type === 'network') msg = 'Network error';
       updateRTCStatus('guest', 'error', 'Error: ' + msg);
     });
     
   } catch (err) {
     logRTC('Exception joining room:', err);
     updateRTCStatus('guest', 'error', err.message);
-    alert('Error: ' + err.message);
   }
 }
 
@@ -2439,7 +2376,6 @@ function setupConnection(conn) {
       setTimeout(() => startGame(), 1000);
     }
     
-    // Send handshake
     sendRTCMessage({
       type: 'handshake',
       player: G.humanColor,
@@ -2448,7 +2384,7 @@ function setupConnection(conn) {
   });
   
   conn.on('data', (data) => {
-    logRTC('Received data:', data);
+    logRTC('Received:', data);
     handleRTCMessage(data);
   });
   
@@ -2460,16 +2396,7 @@ function setupConnection(conn) {
   
   conn.on('error', (err) => {
     logRTC('Connection error:', err);
-    updateRTCStatus(rtcRole, 'error', 'Connection error');
   });
-  
-  // Timeout if connection doesn't open
-  setTimeout(() => {
-    if (!rtcConnected && conn === connection) {
-      logRTC('Connection timeout');
-      updateRTCStatus(rtcRole, 'error', 'Timeout - try again');
-    }
-  }, 15000); // 15 second timeout
 }
 
 function sendRTCMessage(data) {
@@ -2479,83 +2406,48 @@ function sendRTCMessage(data) {
 }
 
 function handleRTCMessage(data) {
-  console.log('[RTC] Received:', data);
-  
   switch (data.type) {
     case 'handshake':
-      addLog(`🎮 ${data.name} joined as ${data.player}!`);
+      addLog(`🎮 ${data.name} joined!`);
       break;
-      
     case 'roll':
       G.diceVal = data.value;
       addLog(`🎲 Opponent rolled ${data.value}`);
       afterRoll();
       break;
-      
     case 'move':
       moveToken(data.player, data.tokenIdx, false);
       break;
-      
-    case 'chat':
-      addLog(`💬 ${data.name}: ${data.message}`);
-      break;
   }
 }
-    gposMap[g].push(cell.id);
-  });
-  
-  Object.entries(gposMap).forEach(([g, ids]) => {
-    if (ids.length > 1) {
-      console.log(`%cDUPLICATE gpos=${g}: ${ids.join(', ')}`, 'color:red');
-    }
-  });
-  
-  console.log('%c=== END VERIFICATION ===', 'color:red;font-size:16px;font-weight:bold');
 }
+// ════════════════════════════════════════════════════
+// EVENT LISTENERS
+// ════════════════════════════════════════════════════
 
-// DEBUG: Manually check what's at specific coordinates
-window.checkCell = function(r, c) {
-  const cell = document.getElementById(`C${r}-${c}`);
-  if (!cell) {
-    console.log(`Cell C${r}-${c} not found`);
-    return;
-  }
-  console.log(`Cell C${r}-${c}:`, {
-    id: cell.id,
-    gpos: cell.dataset.gpos,
-    className: cell.className,
-    innerHTML: cell.innerHTML.substring(0, 100)
-  });
-};
+document.getElementById('diceScene').addEventListener('click', e => {
+  e.preventDefault(); rollDice();
+});
+document.getElementById('rollBtn').addEventListener('click', e => {
+  e.preventDefault(); rollDice();
+});
+document.getElementById('playAgainBtn').addEventListener('click', () => {
+  document.getElementById('winModal').classList.remove('active');
+  startGame();
+});
+document.getElementById('menuBtn').addEventListener('click', () => {
+  document.getElementById('winModal').classList.remove('active');
+  document.getElementById('gameScreen').style.display = 'none';
+  document.getElementById('setupScreen').classList.remove('hidden');
+  if (cdInterval) { clearInterval(cdInterval); cdInterval=null; }
+});
 
-// DEBUG: Manually test token placement
-window.testTokenPlacement = function(player) {
-  console.log(`%cTesting token placement for ${player}`, 'color:green;font-size:14px');
-  const entryGpos = ENTRY[player];
-  const [r, c] = PATH[entryGpos];
-  console.log(`${player} entry: gpos=${entryGpos}, coords=[${r},${c}]`);
-  
-  // Check what cell has this gpos
-  const byGpos = document.querySelector(`[data-gpos="${entryGpos}"]`);
-  console.log(`Found by gpos=${entryGpos}:`, byGpos ? byGpos.id : 'NOT FOUND');
-  
-  // Check what gpos the expected cell has
-  const expectedCell = document.getElementById(`C${r}-${c}`);
-  console.log(`Expected cell C${r}-${c} has gpos:`, expectedCell ? expectedCell.dataset.gpos : 'NOT FOUND');
-  
-  // Flash the cells
-  if (byGpos) {
-    byGpos.style.outline = '4px solid red';
-    setTimeout(() => byGpos.style.outline = '', 3000);
-  }
-  if (expectedCell && expectedCell !== byGpos) {
-    expectedCell.style.outline = '4px solid green';
-    setTimeout(() => expectedCell.style.outline = '', 3000);
-  }
-};
-
-// Run verification after a short delay
-setTimeout(verifyBoard, 1000);
+// ════════════════════════════════════════════════════
+// INIT
+// ════════════════════════════════════════════════════
+console.log("[DEBUG] Calling initSetup");
+window.onerror = function(msg, url, line) { console.error("[JS ERROR] " + msg + " at line " + line); };
+initSetup();
 </script>
 </body>
 </html>
