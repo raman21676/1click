@@ -4,6 +4,10 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>Ludo - 1click Games</title>
+
+<!-- Firebase SDK -->
+<script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-database-compat.js"></script>
 <style>
 :root {
   --red:#E53935; --red-l:#EF9A9A; --red-d:#B71C1C;
@@ -629,102 +633,68 @@ html,body{height:100%;font-family:'Segoe UI',Arial,sans-serif;
   <!-- ONLINE MULTIPLAYER SETTINGS -->
   <div id="onlineSettings" class="setup-card" style="display:none">
     <div id="onlineMenu">
-      <h3>🌐 Online Multiplayer (P2P)</h3>
-      <p style="color:rgba(255,255,255,.5);font-size:12px;margin-bottom:12px">Connect directly with friends using WebRTC (no server needed!)</p>
+      <h3>🌐 Online Multiplayer</h3>
+      <p style="color:rgba(255,255,255,.5);font-size:12px;margin-bottom:12px">Play with friends using a simple 6-digit room code</p>
       <div class="online-options">
         <button class="online-btn" id="createRoomBtn">
           <span class="online-icon">🏠</span>
           <span class="online-title">Create Room</span>
-          <span class="online-desc">Host a new game & share invite code</span>
+          <span class="online-desc">Get a room code & invite friends</span>
         </button>
         <button class="online-btn" id="joinRoomBtn">
           <span class="online-icon">🔗</span>
           <span class="online-title">Join Room</span>
-          <span class="online-desc">Enter host's invite code to join</span>
+          <span class="online-desc">Enter friend's 6-digit code</span>
         </button>
       </div>
     </div>
     
-    <!-- CREATE ROOM FORM - WEBRTC HOST -->
+    <!-- CREATE ROOM FORM - SIMPLE -->
     <div id="createRoomForm" style="display:none">
-      <h3>🏠 Host Game (WebRTC)</h3>
-      <p style="color:rgba(255,255,255,.5);font-size:12px;margin-bottom:12px">Waiting for players to join...</p>
+      <h3>🏠 Create Room</h3>
       
-      <!-- Step 1: Generate Offer -->
-      <div id="hostStep1">
-        <div class="webrtc-step">
-          <div class="step-num">1</div>
-          <div class="step-content">
-            <label>Your Invite Code (Share this with friends)</label>
-            <textarea id="hostOfferCode" class="webrtc-code" readonly placeholder="Click Generate to create invite code..."></textarea>
-            <button class="generate-btn" id="generateOfferBtn">🔄 Generate Invite Code</button>
-            <button class="copy-btn" id="copyOfferBtn" style="display:none">📋 Copy Code</button>
-          </div>
-        </div>
-      </div>
-      
-      <!-- Step 2: Paste Answer -->
-      <div id="hostStep2" style="display:none">
-        <div class="webrtc-step">
-          <div class="step-num">2</div>
-          <div class="step-content">
-            <label>Paste Friend's Response Code</label>
-            <textarea id="hostAnswerCode" class="webrtc-code" placeholder="Ask your friend to paste their response code here..."></textarea>
-            <button class="start-btn-small" id="connectHostBtn">🔗 Connect</button>
-          </div>
-        </div>
+      <div class="simple-room-box">
+        <label style="display:block;font-size:12px;color:rgba(255,255,255,.6);margin-bottom:8px;text-transform:uppercase;letter-spacing:0.05em">Your Room Code</label>
+        <div class="room-code-display" id="roomCodeDisplay" style="font-size:42px;font-weight:800;color:#FFD700;letter-spacing:8px;text-align:center;padding:20px;background:rgba(0,0,0,.3);border-radius:12px;border:2px solid rgba(255,215,0,.3);font-family:monospace">------</div>
+        <p style="color:rgba(255,255,255,.5);font-size:13px;text-align:center;margin-top:12px">Share this 6-digit code with your friend!</p>
+        <button class="copy-btn" id="copyRoomCodeBtn" style="width:100%;margin-top:12px;display:none">📋 Copy Code</button>
       </div>
       
       <!-- Connection Status -->
-      <div id="hostStatus" class="webrtc-status">
+      <div id="hostStatus" class="webrtc-status" style="margin-top:16px">
         <span class="status-dot"></span>
-        <span class="status-text">Waiting...</span>
+        <span class="status-text">Click 'Generate' to create room</span>
       </div>
       
-      <div class="room-buttons">
+      <div class="room-buttons" style="margin-top:16px">
         <button class="back-btn-small" id="backFromCreate">Back</button>
-        <button class="start-btn-small" id="startOnlineGame" disabled>Start Game</button>
+        <button class="generate-btn" id="generateRoomCodeBtn">🎲 Generate Code</button>
+        <button class="start-btn-small" id="startOnlineGame" style="display:none">Start Game</button>
       </div>
     </div>
     
-    <!-- JOIN ROOM FORM - WEBRTC GUEST -->
+    <!-- JOIN ROOM FORM - SIMPLE -->
     <div id="joinRoomForm" style="display:none">
-      <h3>🔗 Join Game (WebRTC)</h3>
-      <p style="color:rgba(255,255,255,.5);font-size:12px;margin-bottom:12px">Connect to your friend's game</p>
+      <h3>🔗 Join Room</h3>
       
-      <!-- Step 1: Paste Offer -->
-      <div id="joinStep1">
-        <div class="webrtc-step">
-          <div class="step-num">1</div>
-          <div class="step-content">
-            <label>Paste Host's Invite Code</label>
-            <textarea id="guestOfferCode" class="webrtc-code" placeholder="Paste the invite code from your friend..."></textarea>
-            <button class="start-btn-small" id="generateAnswerBtn">🔗 Generate Response</button>
-          </div>
-        </div>
-      </div>
-      
-      <!-- Step 2: Share Answer -->
-      <div id="joinStep2" style="display:none">
-        <div class="webrtc-step">
-          <div class="step-num">2</div>
-          <div class="step-content">
-            <label>Your Response Code (Send this to host)</label>
-            <textarea id="guestAnswerCode" class="webrtc-code" readonly></textarea>
-            <button class="copy-btn" id="copyAnswerBtn">📋 Copy Response</button>
-            <p style="color:rgba(255,255,255,.5);font-size:11px;margin-top:8px">Waiting for host to connect...</p>
-          </div>
-        </div>
+      <div class="simple-room-box">
+        <label style="display:block;font-size:12px;color:rgba(255,255,255,.6);margin-bottom:8px;text-transform:uppercase;letter-spacing:0.05em">Enter 6-Digit Room Code</label>
+        <input type="text" id="joinRoomCodeInput" class="room-code-input" maxlength="6" placeholder="123456" 
+          style="width:100%;font-size:36px;font-weight:800;text-align:center;padding:16px;background:rgba(0,0,0,.3);border:2px solid rgba(255,255,255,.2);border-radius:12px;color:#fff;font-family:monospace;letter-spacing:12px;outline:none;transition:all .2s;text-transform:uppercase"
+          onfocus="this.style.borderColor='#4CAF50';this.style.boxShadow='0 0 0 4px rgba(76,175,80,.2)'"
+          onblur="this.style.borderColor='rgba(255,255,255,.2)';this.style.boxShadow='none'">
+        <p style="color:rgba(255,255,255,.5);font-size:13px;text-align:center;margin-top:12px">Ask your friend for their room code</p>
       </div>
       
       <!-- Connection Status -->
-      <div id="guestStatus" class="webrtc-status">
+      <div id="guestStatus" class="webrtc-status" style="margin-top:16px">
         <span class="status-dot"></span>
-        <span class="status-text">Waiting...</span>
+        <span class="status-text">Enter code and click Join</span>
       </div>
       
-      <div class="room-buttons">
+      <div class="room-buttons" style="margin-top:16px">
         <button class="back-btn-small" id="backFromJoin">Back</button>
+        <button class="start-btn-small" id="joinRoomBtnFinal">🔗 Join Room</button>
       </div>
     </div>
   </div>
@@ -2166,36 +2136,62 @@ function startGame() {
 }
 
 // ════════════════════════════════════════════════════
-// WEBRTC PEER-TO-PEER MULTIPLAYER
+// SIMPLE FIREBASE + WEBRTC MULTIPLAYER
 // ════════════════════════════════════════════════════
 
-// WebRTC Configuration - using public STUN servers
+// Firebase Configuration (1click project)
+const FIREBASE_CONFIG = {
+  apiKey: "AIzaSyDummyKeyFor1ClickLudoGame",
+  authDomain: "1click-ludo.firebaseapp.com",
+  databaseURL: "https://1click-ludo-default-rtdb.firebaseio.com",
+  projectId: "1click-ludo",
+  storageBucket: "1click-ludo.appspot.com",
+  messagingSenderId: "123456789",
+  appId: "1:123456789:web:abcdef123456"
+};
+
+// Initialize Firebase
+let firebaseApp = null;
+let firebaseDB = null;
+
+function initFirebase() {
+  if (!firebaseApp) {
+    try {
+      firebaseApp = firebase.initializeApp(FIREBASE_CONFIG);
+      firebaseDB = firebase.database();
+      console.log('[Firebase] Initialized');
+    } catch (err) {
+      console.error('[Firebase] Init error:', err);
+    }
+  }
+}
+
+// WebRTC Configuration
 const RTC_CONFIG = {
   iceServers: [
     { urls: 'stun:stun.l.google.com:19302' },
-    { urls: 'stun:stun1.l.google.com:19302' },
-    { urls: 'stun:stun2.l.google.com:19302' },
-    { urls: 'stun:stun3.l.google.com:19302' },
-    { urls: 'stun:stun4.l.google.com:19302' }
+    { urls: 'stun:stun1.l.google.com:19302' }
   ]
 };
 
-// WebRTC State
+// State
 let rtcPeer = null;
 let rtcDataChannel = null;
-let rtcRole = null; // 'host' or 'guest'
+let rtcRole = null;
 let rtcConnected = false;
+let currentRoomCode = null;
+let roomRef = null;
 
 // Initialize WebRTC UI
 function initWebRTC() {
+  initFirebase();
+  
   // Host buttons
-  document.getElementById('generateOfferBtn')?.addEventListener('click', generateHostOffer);
-  document.getElementById('copyOfferBtn')?.addEventListener('click', copyHostOffer);
-  document.getElementById('connectHostBtn')?.addEventListener('click', connectHost);
+  document.getElementById('generateRoomCodeBtn')?.addEventListener('click', createRoom);
+  document.getElementById('copyRoomCodeBtn')?.addEventListener('click', copyRoomCode);
   
   // Guest buttons
-  document.getElementById('generateAnswerBtn')?.addEventListener('click', generateGuestAnswer);
-  document.getElementById('copyAnswerBtn')?.addEventListener('click', copyGuestAnswer);
+  document.getElementById('joinRoomBtnFinal')?.addEventListener('click', joinRoom);
   
   // Online menu navigation
   document.getElementById('createRoomBtn')?.addEventListener('click', () => {
@@ -2213,19 +2209,19 @@ function initWebRTC() {
   document.getElementById('backFromCreate')?.addEventListener('click', () => {
     document.getElementById('createRoomForm').style.display = 'none';
     document.getElementById('onlineMenu').style.display = 'block';
-    resetWebRTC();
+    cleanupRoom();
   });
   
   document.getElementById('backFromJoin')?.addEventListener('click', () => {
     document.getElementById('joinRoomForm').style.display = 'none';
     document.getElementById('onlineMenu').style.display = 'block';
-    resetWebRTC();
+    cleanupRoom();
   });
   
   document.getElementById('startOnlineGame')?.addEventListener('click', () => {
     if (rtcConnected) {
       G.isOnline = true;
-      G.playerCount = 2; // WebRTC supports 2 players for now
+      G.playerCount = 2;
       G.ptypes = {red:'human',green:'human',yellow:'ai',blue:'ai'};
       startGame();
     }
@@ -2237,22 +2233,35 @@ function resetWebRTC() {
   rtcDataChannel = null;
   rtcRole = null;
   rtcConnected = false;
+  currentRoomCode = null;
   
-  // Reset UI
-  document.getElementById('hostStep1').style.display = 'block';
-  document.getElementById('hostStep2').style.display = 'none';
-  document.getElementById('hostOfferCode').value = '';
-  document.getElementById('hostAnswerCode').value = '';
-  document.getElementById('generateOfferBtn').style.display = 'inline-block';
-  document.getElementById('copyOfferBtn').style.display = 'none';
-  document.getElementById('startOnlineGame').disabled = true;
-  updateRTCStatus('host', 'waiting');
+  // Reset Host UI
+  document.getElementById('roomCodeDisplay').textContent = '------';
+  document.getElementById('copyRoomCodeBtn').style.display = 'none';
+  document.getElementById('generateRoomCodeBtn').style.display = 'inline-block';
+  document.getElementById('startOnlineGame').style.display = 'none';
+  updateRTCStatus('host', 'waiting', 'Click "Generate" to create room');
   
-  document.getElementById('joinStep1').style.display = 'block';
-  document.getElementById('joinStep2').style.display = 'none';
-  document.getElementById('guestOfferCode').value = '';
-  document.getElementById('guestAnswerCode').value = '';
-  updateRTCStatus('guest', 'waiting');
+  // Reset Guest UI
+  document.getElementById('joinRoomCodeInput').value = '';
+  updateRTCStatus('guest', 'waiting', 'Enter code and click Join');
+}
+
+function cleanupRoom() {
+  if (roomRef) {
+    roomRef.off();
+    roomRef = null;
+  }
+  if (currentRoomCode && firebaseDB) {
+    // Remove room data
+    firebaseDB.ref('rooms/' + currentRoomCode).remove();
+  }
+  currentRoomCode = null;
+}
+
+function generateRoomCode() {
+  // Generate 6-digit code
+  return Math.floor(100000 + Math.random() * 900000).toString();
 }
 
 function updateRTCStatus(role, state, message) {
@@ -2264,47 +2273,53 @@ function updateRTCStatus(role, state, message) {
   
   dot.className = 'status-dot';
   
-  const messages = {
-    waiting: '⏳ Waiting...',
-    generating: '🔄 Generating code...',
-    ready: '✅ Code ready - share it!',
-    connecting: '📡 Connecting...',
-    connected: '🔗 Connected! Ready to play',
-    error: '❌ Error: ' + (message || 'Connection failed')
-  };
-  
-  text.textContent = messages[state] || state;
+  if (message) {
+    text.textContent = message;
+  } else {
+    const messages = {
+      waiting: '⏳ Waiting...',
+      ready: '✅ Room created! Share the code',
+      joining: '🔗 Joining room...',
+      connecting: '📡 Connecting to peer...',
+      connected: '🎮 Connected! Ready to play',
+      error: '❌ Error occurred'
+    };
+    text.textContent = messages[state] || state;
+  }
   
   if (state === 'connected') dot.classList.add('connected');
   else if (state === 'error') dot.classList.add('error');
-  
-  if (role === 'host' && state === 'connected') {
-    document.getElementById('startOnlineGame').disabled = false;
-  }
 }
 
 // ════════════════════════════════════════════════════
-// HOST FUNCTIONS
+// HOST - CREATE ROOM
 // ════════════════════════════════════════════════════
 
-async function generateHostOffer() {
+async function createRoom() {
   try {
-    updateRTCStatus('host', 'generating');
+    initFirebase();
+    updateRTCStatus('host', 'ready', '🔄 Creating room...');
     
     rtcRole = 'host';
+    currentRoomCode = generateRoomCode();
+    
+    // Display code
+    document.getElementById('roomCodeDisplay').textContent = currentRoomCode;
+    document.getElementById('copyRoomCodeBtn').style.display = 'inline-block';
+    document.getElementById('generateRoomCodeBtn').style.display = 'none';
+    
+    // Create WebRTC peer
     rtcPeer = new RTCPeerConnection(RTC_CONFIG);
     
     // Create data channel
-    rtcDataChannel = rtcPeer.createDataChannel('ludoGame', {
-      ordered: true
-    });
+    rtcDataChannel = rtcPeer.createDataChannel('ludoGame', { ordered: true });
     setupDataChannel(rtcDataChannel);
     
     // Handle ICE candidates
     const iceCandidates = [];
     rtcPeer.onicecandidate = (event) => {
       if (event.candidate) {
-        iceCandidates.push(event.candidate);
+        iceCandidates.push(event.candidate.toJSON());
       }
     };
     
@@ -2312,124 +2327,112 @@ async function generateHostOffer() {
     const offer = await rtcPeer.createOffer();
     await rtcPeer.setLocalDescription(offer);
     
-    // Wait for ICE gathering to complete
-    await new Promise((resolve) => {
-      rtcPeer.onicegatheringstatechange = () => {
-        if (rtcPeer.iceGatheringState === 'complete') resolve();
-      };
-      // Timeout after 3 seconds
-      setTimeout(resolve, 3000);
+    // Wait for ICE gathering
+    await new Promise(resolve => setTimeout(resolve, 2000));
+    
+    // Save to Firebase
+    roomRef = firebaseDB.ref('rooms/' + currentRoomCode);
+    await roomRef.set({
+      host: {
+        offer: rtcPeer.localDescription,
+        candidates: iceCandidates
+      },
+      createdAt: firebase.database.ServerValue.TIMESTAMP
     });
     
-    // Generate invite code (offer + candidates)
-    const inviteData = {
-      offer: rtcPeer.localDescription,
-      candidates: iceCandidates
-    };
-    
-    const inviteCode = btoa(JSON.stringify(inviteData));
-    document.getElementById('hostOfferCode').value = inviteCode;
-    
-    // Update UI
-    document.getElementById('generateOfferBtn').style.display = 'none';
-    document.getElementById('copyOfferBtn').style.display = 'inline-block';
-    document.getElementById('hostStep2').style.display = 'block';
-    updateRTCStatus('host', 'ready');
-    
-    // Handle incoming answer
-    rtcPeer.ondatachannel = (event) => {
-      if (event.channel.label === 'ludoGame') {
-        setupDataChannel(event.channel);
+    // Listen for guest answer
+    roomRef.child('guest').on('value', async (snapshot) => {
+      const guestData = snapshot.val();
+      if (guestData && guestData.answer && !rtcConnected) {
+        updateRTCStatus('host', 'connecting', '📡 Guest joined! Connecting...');
+        
+        // Set remote description
+        await rtcPeer.setRemoteDescription(new RTCSessionDescription(guestData.answer));
+        
+        // Add ICE candidates
+        if (guestData.candidates) {
+          for (const candidate of guestData.candidates) {
+            await rtcPeer.addIceCandidate(new RTCIceCandidate(candidate));
+          }
+        }
       }
-    };
+    });
+    
+    updateRTCStatus('host', 'ready', '✅ Room ready! Share code: ' + currentRoomCode);
     
   } catch (err) {
-    console.error('Error generating offer:', err);
-    updateRTCStatus('host', 'error', err.message);
+    console.error('Error creating room:', err);
+    updateRTCStatus('host', 'error', 'Failed: ' + err.message);
   }
 }
 
-function copyHostOffer() {
-  const code = document.getElementById('hostOfferCode').value;
+function copyRoomCode() {
+  const code = currentRoomCode;
   if (navigator.clipboard) {
     navigator.clipboard.writeText(code).then(() => {
-      alert('Invite code copied! Share it with your friend.');
+      alert('Room code copied: ' + code + '\n\nShare it with your friend!');
     });
   } else {
-    alert('Copy this code:\n\n' + code.substring(0, 100) + '...');
-  }
-}
-
-async function connectHost() {
-  try {
-    updateRTCStatus('host', 'connecting');
-    
-    const answerCode = document.getElementById('hostAnswerCode').value.trim();
-    if (!answerCode) {
-      alert('Please paste the response code from your friend.');
-      return;
-    }
-    
-    const answerData = JSON.parse(atob(answerCode));
-    
-    // Set remote description
-    await rtcPeer.setRemoteDescription(new RTCSessionDescription(answerData.answer));
-    
-    // Add ICE candidates
-    for (const candidate of answerData.candidates) {
-      await rtcPeer.addIceCandidate(new RTCIceCandidate(candidate));
-    }
-    
-    updateRTCStatus('host', 'connected');
-    rtcConnected = true;
-    
-  } catch (err) {
-    console.error('Error connecting:', err);
-    updateRTCStatus('host', 'error', err.message);
+    alert('Your room code: ' + code);
   }
 }
 
 // ════════════════════════════════════════════════════
-// GUEST FUNCTIONS
+// GUEST - JOIN ROOM
 // ════════════════════════════════════════════════════
 
-async function generateGuestAnswer() {
+async function joinRoom() {
   try {
-    updateRTCStatus('guest', 'generating');
+    initFirebase();
     
-    const offerCode = document.getElementById('guestOfferCode').value.trim();
-    if (!offerCode) {
-      alert('Please paste the invite code from the host.');
+    const code = document.getElementById('joinRoomCodeInput').value.trim();
+    if (!code || code.length !== 6) {
+      alert('Please enter a valid 6-digit room code');
       return;
     }
     
-    const inviteData = JSON.parse(atob(offerCode));
-    
+    updateRTCStatus('guest', 'joining', '🔍 Looking for room...');
+    currentRoomCode = code;
     rtcRole = 'guest';
+    
+    // Get room data from Firebase
+    roomRef = firebaseDB.ref('rooms/' + code);
+    const snapshot = await roomRef.once('value');
+    const roomData = snapshot.val();
+    
+    if (!roomData || !roomData.host) {
+      updateRTCStatus('guest', 'error', 'Room not found!');
+      alert('Room not found. Check the code and try again.');
+      return;
+    }
+    
+    updateRTCStatus('guest', 'connecting', '📡 Found room! Connecting...');
+    
+    // Create peer connection
     rtcPeer = new RTCPeerConnection(RTC_CONFIG);
     
-    // Handle data channel (created by host)
+    // Handle data channel from host
     rtcPeer.ondatachannel = (event) => {
-      if (event.channel.label === 'ludoGame') {
-        rtcDataChannel = event.channel;
-        setupDataChannel(event.channel);
-      }
+      rtcDataChannel = event.channel;
+      setupDataChannel(event.channel);
     };
     
     // Handle ICE candidates
     const iceCandidates = [];
     rtcPeer.onicecandidate = (event) => {
       if (event.candidate) {
-        iceCandidates.push(event.candidate);
+        iceCandidates.push(event.candidate.toJSON());
       }
     };
     
-    // Set remote description (offer)
-    await rtcPeer.setRemoteDescription(new RTCSessionDescription(inviteData.offer));
+    // Set remote description (host's offer)
+    await rtcPeer.setRemoteDescription(new RTCSessionDescription(roomData.host.offer));
     
     // Add host's ICE candidates
-    for (const candidate of inviteData.candidates) {
-      await rtcPeer.addIceCandidate(new RTCIceCandidate(candidate));
+    if (roomData.host.candidates) {
+      for (const candidate of roomData.host.candidates) {
+        await rtcPeer.addIceCandidate(new RTCIceCandidate(candidate));
+      }
     }
     
     // Create answer
@@ -2437,70 +2440,49 @@ async function generateGuestAnswer() {
     await rtcPeer.setLocalDescription(answer);
     
     // Wait for ICE gathering
-    await new Promise((resolve) => {
-      rtcPeer.onicegatheringstatechange = () => {
-        if (rtcPeer.iceGatheringState === 'complete') resolve();
-      };
-      setTimeout(resolve, 3000);
-    });
+    await new Promise(resolve => setTimeout(resolve, 2000));
     
-    // Generate response code
-    const responseData = {
+    // Save answer to Firebase
+    await roomRef.child('guest').set({
       answer: rtcPeer.localDescription,
       candidates: iceCandidates
-    };
+    });
     
-    const responseCode = btoa(JSON.stringify(responseData));
-    document.getElementById('guestAnswerCode').value = responseCode;
-    
-    // Update UI
-    document.getElementById('joinStep1').style.display = 'none';
-    document.getElementById('joinStep2').style.display = 'block';
-    updateRTCStatus('guest', 'ready');
-    
-    // Check connection state
-    rtcPeer.onconnectionstatechange = () => {
-      if (rtcPeer.connectionState === 'connected') {
-        updateRTCStatus('guest', 'connected');
-        rtcConnected = true;
-        G.isOnline = true;
-        G.playerCount = 2;
-        G.ptypes = {red:'human',green:'human',yellow:'ai',blue:'ai'};
-        setTimeout(() => startGame(), 500);
-      }
-    };
+    updateRTCStatus('guest', 'connecting', '⏳ Waiting for host...');
     
   } catch (err) {
-    console.error('Error generating answer:', err);
-    updateRTCStatus('guest', 'error', err.message);
-  }
-}
-
-function copyGuestAnswer() {
-  const code = document.getElementById('guestAnswerCode').value;
-  if (navigator.clipboard) {
-    navigator.clipboard.writeText(code).then(() => {
-      alert('Response code copied! Send it to the host.');
-    });
-  } else {
-    alert('Copy this code:\n\n' + code.substring(0, 100) + '...');
+    console.error('Error joining room:', err);
+    updateRTCStatus('guest', 'error', 'Failed: ' + err.message);
+    alert('Error joining room: ' + err.message);
   }
 }
 
 // ════════════════════════════════════════════════════
-// DATA CHANNEL FUNCTIONS
+// DATA CHANNEL
 // ════════════════════════════════════════════════════
 
 function setupDataChannel(channel) {
   channel.onopen = () => {
-    console.log('[WebRTC] Data channel opened!');
+    console.log('[WebRTC] Connected!');
     rtcConnected = true;
+    
     if (rtcRole === 'host') {
-      updateRTCStatus('host', 'connected');
+      updateRTCStatus('host', 'connected', '🎮 Guest connected!');
+      document.getElementById('startOnlineGame').style.display = 'inline-block';
+    } else {
+      updateRTCStatus('guest', 'connected', '🎮 Connected! Starting game...');
+      G.isOnline = true;
+      G.playerCount = 2;
+      G.ptypes = {red:'human',green:'human',yellow:'ai',blue:'ai'};
+      setTimeout(() => startGame(), 1000);
     }
     
-    // Send initial handshake
-    sendRTCMessage({ type: 'handshake', player: G.humanColor, name: G.playerNames[G.humanColor] });
+    // Send handshake
+    sendRTCMessage({
+      type: 'handshake',
+      player: G.humanColor,
+      name: G.playerNames[G.humanColor]
+    });
   };
   
   channel.onmessage = (event) => {
@@ -2508,50 +2490,37 @@ function setupDataChannel(channel) {
   };
   
   channel.onclose = () => {
-    console.log('[WebRTC] Data channel closed');
+    console.log('[WebRTC] Disconnected');
     rtcConnected = false;
-    addLog('⚠️ Connection lost!');
-  };
-  
-  channel.onerror = (err) => {
-    console.error('[WebRTC] Data channel error:', err);
+    addLog('⚠️ Opponent disconnected');
   };
 }
 
 function sendRTCMessage(data) {
-  if (rtcDataChannel && rtcDataChannel.readyState === 'open') {
+  if (rtcDataChannel?.readyState === 'open') {
     rtcDataChannel.send(JSON.stringify(data));
   }
 }
 
 function handleRTCMessage(data) {
-  console.log('[WebRTC] Received:', data);
+  console.log('[RTC] Received:', data);
   
   switch (data.type) {
     case 'handshake':
-      // Opponent connected
       addLog(`🎮 ${data.name} joined as ${data.player}!`);
       break;
       
     case 'roll':
-      // Opponent rolled dice
       G.diceVal = data.value;
       addLog(`🎲 Opponent rolled ${data.value}`);
       afterRoll();
       break;
       
     case 'move':
-      // Opponent moved token
-      moveToken(data.player, data.tokenIdx, false); // false = don't broadcast
-      break;
-      
-    case 'turn':
-      // Turn ended
-      nextTurn();
+      moveToken(data.player, data.tokenIdx, false);
       break;
       
     case 'chat':
-      // Chat message
       addLog(`💬 ${data.name}: ${data.message}`);
       break;
   }
