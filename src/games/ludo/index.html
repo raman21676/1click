@@ -615,12 +615,21 @@ html,body{height:100%;font-family:'Segoe UI',Arial,sans-serif;
   <div id="onlineSettings" class="setup-card" style="display:none">
     <div id="onlineMenu">
       <h3>🌐 Online Multiplayer</h3>
-      <p style="color:rgba(255,255,255,.5);font-size:12px;margin-bottom:12px">Play with friends using a simple code</p>
-      <div class="online-options">
+      <p style="color:rgba(255,255,255,.5);font-size:12px;margin-bottom:12px">Play with 2-4 friends using a simple code</p>
+      
+      <!-- Player Count Selection for Online -->
+      <h4 style="margin:12px 0 8px;font-size:13px;color:rgba(255,255,255,.7)">Number of Players</h4>
+      <div class="player-count" id="onlinePlayerCount">
+        <button class="count-btn" data-n="2">2 Players</button>
+        <button class="count-btn" data-n="3">3 Players</button>
+        <button class="count-btn" data-n="4">4 Players</button>
+      </div>
+      
+      <div class="online-options" style="margin-top:16px">
         <button class="online-btn" id="createRoomBtn">
           <span class="online-icon">🏠</span>
           <span class="online-title">Create Room</span>
-          <span class="online-desc">Get a code & invite friend</span>
+          <span class="online-desc">Get a code & invite friends</span>
         </button>
         <button class="online-btn" id="joinRoomBtn">
           <span class="online-icon">🔗</span>
