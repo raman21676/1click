@@ -2139,11 +2139,32 @@ function initWebRTC() {
 // PURE WEBRTC WITH PEERJS (No Firebase needed!)
 // ════════════════════════════════════════════════════
 
+// Debug mode
+const WEBRTC_DEBUG = true;
+function logRTC(...args) {
+  if (WEBRTC_DEBUG) console.log('[WebRTC]', ...args);
+}
+
 // PeerJS uses free public signaling servers
 let peer = null;
 let connection = null;
 let rtcRole = null; // 'host' or 'guest'
 let rtcConnected = false;
+
+// PeerJS configuration with fallback
+const PEER_CONFIG = {
+  debug: 2,
+  host: '0.peerjs.com',
+  port: 443,
+  secure: true,
+  config: {
+    iceServers: [
+      { urls: 'stun:stun.l.google.com:19302' },
+      { urls: 'stun:stun1.l.google.com:19302' },
+      { urls: 'stun:stun2.l.google.com:19302' }
+    ]
+  }
+};
 
 // Initialize WebRTC UI
 function initWebRTC() {
@@ -2256,46 +2277,58 @@ function updateRTCStatus(role, state, message) {
 function createRoom() {
   try {
     updateRTCStatus('host', 'ready', '🔄 Creating room...');
+    logRTC('Creating room as host...');
     rtcRole = 'host';
     
     const roomCode = generateRoomCode();
+    logRTC('Generated code:', roomCode);
     
     // Create Peer with the room code as ID
-    peer = new Peer(roomCode, {
-      debug: 2,
-      config: {
-        iceServers: [
-          { urls: 'stun:stun.l.google.com:19302' },
-          { urls: 'stun:stun1.l.google.com:19302' }
-        ]
-      }
-    });
+    peer = new Peer(roomCode, PEER_CONFIG);
     
     peer.on('open', (id) => {
-      console.log('[PeerJS] Host peer created with ID:', id);
+      logRTC('Host peer created with ID:', id);
       
       // Display code
       document.getElementById('roomCodeDisplay').textContent = id;
       document.getElementById('copyRoomCodeBtn').style.display = 'inline-block';
       document.getElementById('generateRoomCodeBtn').style.display = 'none';
       
-      updateRTCStatus('host', 'ready', '✅ Room ready! Share code: ' + id);
+      updateRTCStatus('host', 'ready', '✅ Room ready! Share: ' + id);
     });
     
     // Handle incoming connections
     peer.on('connection', (conn) => {
-      console.log('[PeerJS] Guest connecting...');
+      logRTC('Guest connecting from:', conn.peer);
       connection = conn;
       setupConnection(conn);
     });
     
     peer.on('error', (err) => {
-      console.error('[PeerJS] Host error:', err);
-      updateRTCStatus('host', 'error', err.message);
+      logRTC('Host error:', err.type, err.message);
+      let msg = err.message;
+      if (err.type === 'unavailable-id') {
+        msg = 'Code taken, try again';
+        // Retry with new code
+        setTimeout(() => createRoom(), 500);
+        return;
+      }
+      if (err.type === 'network') {
+        msg = 'Network error - check connection';
+      }
+      if (err.type === 'server-error') {
+        msg = 'PeerJS server error - try again';
+      }
+      updateRTCStatus('host', 'error', 'Error: ' + msg);
+    });
+    
+    peer.on('disconnected', () => {
+      logRTC('PeerJS disconnected, attempting reconnect...');
+      peer.reconnect();
     });
     
   } catch (err) {
-    console.error('Error creating room:', err);
+    logRTC('Exception creating room:', err);
     updateRTCStatus('host', 'error', err.message);
   }
 }
@@ -2324,39 +2357,40 @@ function joinRoom() {
     }
     
     updateRTCStatus('guest', 'joining', '🔗 Connecting to ' + code + '...');
+    logRTC('Joining room:', code);
     rtcRole = 'guest';
     
     // Create peer (random ID)
-    peer = new Peer({
-      debug: 2,
-      config: {
-        iceServers: [
-          { urls: 'stun:stun.l.google.com:19302' },
-          { urls: 'stun:stun1.l.google.com:19302' }
-        ]
-      }
-    });
+    peer = new Peer(PEER_CONFIG);
     
-    peer.on('open', () => {
-      console.log('[PeerJS] Guest peer created, connecting to host:', code);
+    peer.on('open', (myId) => {
+      logRTC('Guest peer created with ID:', myId, ', connecting to host:', code);
       
       // Connect to host
       connection = peer.connect(code, {
         reliable: true,
-        serialization: 'json'
+        serialization: 'json',
+        metadata: { player: G.humanColor, name: G.playerNames[G.humanColor] }
       });
       
       setupConnection(connection);
     });
     
     peer.on('error', (err) => {
-      console.error('[PeerJS] Guest error:', err);
-      updateRTCStatus('guest', 'error', 'Could not connect. Check code.');
-      alert('Connection failed. Make sure:\n1. The code is correct\n2. Host is still waiting\n3. Try again');
+      logRTC('Guest error:', err.type, err.message);
+      let msg = 'Could not connect';
+      if (err.type === 'peer-unavailable') {
+        msg = 'Room not found - check code';
+      } else if (err.type === 'network') {
+        msg = 'Network error - check connection';
+      } else if (err.type === 'server-error') {
+        msg = 'Server error - try again';
+      }
+      updateRTCStatus('guest', 'error', 'Error: ' + msg);
     });
     
   } catch (err) {
-    console.error('Error joining room:', err);
+    logRTC('Exception joining room:', err);
     updateRTCStatus('guest', 'error', err.message);
     alert('Error: ' + err.message);
   }
@@ -2367,15 +2401,17 @@ function joinRoom() {
 // ════════════════════════════════════════════════════
 
 function setupConnection(conn) {
+  logRTC('Setting up connection...');
+  
   conn.on('open', () => {
-    console.log('[PeerJS] Connection opened!');
+    logRTC('Connection opened!');
     rtcConnected = true;
     
     if (rtcRole === 'host') {
       updateRTCStatus('host', 'connected', '🎮 Guest connected!');
       document.getElementById('startOnlineGame').style.display = 'inline-block';
     } else {
-      updateRTCStatus('guest', 'connected', '🎮 Connected! Starting game...');
+      updateRTCStatus('guest', 'connected', '🎮 Connected! Starting...');
       G.isOnline = true;
       G.playerCount = 2;
       G.ptypes = {red:'human',green:'human',yellow:'ai',blue:'ai'};
@@ -2391,18 +2427,28 @@ function setupConnection(conn) {
   });
   
   conn.on('data', (data) => {
+    logRTC('Received data:', data);
     handleRTCMessage(data);
   });
   
   conn.on('close', () => {
-    console.log('[PeerJS] Connection closed');
+    logRTC('Connection closed');
     rtcConnected = false;
     addLog('⚠️ Opponent disconnected');
   });
   
   conn.on('error', (err) => {
-    console.error('[PeerJS] Connection error:', err);
+    logRTC('Connection error:', err);
+    updateRTCStatus(rtcRole, 'error', 'Connection error');
   });
+  
+  // Timeout if connection doesn't open
+  setTimeout(() => {
+    if (!rtcConnected && conn === connection) {
+      logRTC('Connection timeout');
+      updateRTCStatus(rtcRole, 'error', 'Timeout - try again');
+    }
+  }, 15000); // 15 second timeout
 }
 
 function sendRTCMessage(data) {
