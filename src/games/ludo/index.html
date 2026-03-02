@@ -1282,6 +1282,18 @@ function logDebug(msg) {
 function rollDice() {
   if (G.phase !== 'roll') return;
   if (isAI()) return;
+  
+  // STRICT TURN CHECK: In online mode, ONLY current player can roll
+  if (G.isOnline) {
+    const currentPlayer = curPlayer();
+    const myPlayer = G.humanColor;
+    
+    if (currentPlayer !== myPlayer) {
+      addLog(`⏳ It's ${G.playerNames[currentPlayer] || currentPlayer}'s turn! Wait...`);
+      return;
+    }
+  }
+  
   performRoll();
 }
 
@@ -1712,13 +1724,29 @@ document.addEventListener('keydown', e => {
 function updateUI() {
   const player = curPlayer();
   const color  = COLORS[player].main;
-
   const displayName = G.playerNames[player] || cap(player);
-  document.getElementById('turnText').textContent = `${displayName}'s Turn`;
-  document.getElementById('turnText').style.color = color;
+  
+  // In online mode, show clear turn indication
+  if (G.isOnline) {
+    const isMyTurn = (player === G.humanColor);
+    if (isMyTurn) {
+      document.getElementById('turnText').textContent = '🎲 YOUR TURN!';
+      document.getElementById('turnText').style.color = '#4CAF50'; // Green for your turn
+    } else {
+      document.getElementById('turnText').textContent = `⏳ ${displayName}'s Turn`;
+      document.getElementById('turnText').style.color = color;
+    }
+  } else {
+    document.getElementById('turnText').textContent = `${displayName}'s Turn`;
+    document.getElementById('turnText').style.color = color;
+  }
 
   if (G.phase==='roll') {
-    document.getElementById('turnSub').innerHTML = isAI() ? '<img src="assets/ai-bot.png" class="ai-bot-icon" alt="AI"> AI is thinking...' : '🎲 Click Roll!';
+    if (G.isOnline && curPlayer() !== G.humanColor) {
+      document.getElementById('turnSub').textContent = '⏳ Wait for opponent...';
+    } else {
+      document.getElementById('turnSub').innerHTML = isAI() ? '<img src="assets/ai-bot.png" class="ai-bot-icon" alt="AI"> AI is thinking...' : '🎲 Click Roll!';
+    }
   } else if (G.phase==='move') {
     document.getElementById('turnSub').textContent = 'Select a token';
   } else {
@@ -1732,10 +1760,26 @@ function updateUI() {
 function updateDiceUI() {
   const diceScene = document.getElementById('diceScene');
   const rollBtn = document.getElementById('rollBtn');
-  const enabled = G.phase==='roll' && !isAI();
+  
+  // Check if dice should be enabled
+  let enabled = G.phase==='roll' && !isAI();
+  
+  // In online mode, ONLY enable dice if it's MY turn
+  if (G.isOnline && enabled) {
+    enabled = (curPlayer() === G.humanColor);
+  }
 
   rollBtn.disabled = !enabled;
   diceScene.classList.toggle('disabled', !enabled);
+  
+  // Update dice visual opacity to show disabled state
+  if (!enabled && G.isOnline) {
+    diceScene.style.opacity = '0.4';
+    diceScene.style.pointerEvents = 'none';
+  } else {
+    diceScene.style.opacity = '1';
+    diceScene.style.pointerEvents = 'auto';
+  }
 
   if (G.diceVal) {
     showDiceFace(G.diceVal, curPlayer());
@@ -2448,10 +2492,22 @@ function startGame() {
 // ════════════════════════════════════════════════════
 
 document.getElementById('diceScene').addEventListener('click', e => {
-  e.preventDefault(); rollDice();
+  e.preventDefault();
+  // Enforce turn validation in online mode
+  if (G.isOnline && curPlayer() !== G.humanColor) {
+    addLog('⏳ Wait for your turn!');
+    return;
+  }
+  rollDice();
 });
 document.getElementById('rollBtn').addEventListener('click', e => {
-  e.preventDefault(); rollDice();
+  e.preventDefault();
+  // Enforce turn validation in online mode
+  if (G.isOnline && curPlayer() !== G.humanColor) {
+    addLog('⏳ Wait for your turn!');
+    return;
+  }
+  rollDice();
 });
 document.getElementById('playAgainBtn').addEventListener('click', () => {
   document.getElementById('winModal').classList.remove('active');
