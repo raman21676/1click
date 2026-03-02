@@ -512,11 +512,16 @@ html,body{height:100%;font-family:'Segoe UI',Arial,sans-serif;
 .rc-dot{width:14px;height:14px;border-radius:50%;background:var(--rc);flex-shrink:0}
 .rc-name{flex:1;font-weight:700;font-size:14px;color:var(--rc)}
 .rc-types{display:flex;gap:4px}
-.type-btn{padding:5px 10px;border-radius:6px;
-  border:1px solid rgba(255,255,255,.2);background:transparent;
-  color:rgba(255,255,255,.5);font-size:11px;cursor:pointer;transition:all .2s}
-.type-btn.active{background:rgba(255,255,255,.2);color:#fff;
-  border-color:rgba(255,255,255,.5)}
+.type-btn{padding:6px 12px;border-radius:8px;
+  border:2px solid rgba(255,255,255,.2);background:rgba(0,0,0,.2);
+  color:rgba(255,255,255,.6);font-size:12px;cursor:pointer;transition:all .2s;
+  display:flex;align-items:center;gap:4px;font-weight:600}
+.type-btn:hover{border-color:rgba(255,255,255,.4);color:rgba(255,255,255,.8)}
+.type-btn.active{background:linear-gradient(135deg,rgba(76,175,80,.9),rgba(69,160,73,.9));color:#fff;
+  border-color:#4CAF50;box-shadow:0 2px 8px rgba(76,175,80,.4)}
+.type-btn[data-type="ai"].active{background:linear-gradient(135deg,rgba(102,102,102,.9),rgba(80,80,80,.9));
+  border-color:#888;box-shadow:0 2px 8px rgba(0,0,0,.3)}
+.pc-row.dim .type-btn{pointer-events:none;opacity:.5}
 .start-btn{width:100%;max-width:380px;padding:15px;
   background:linear-gradient(135deg,#00C853,#1B5E20);
   border:none;border-radius:12px;color:#fff;
@@ -605,6 +610,7 @@ html,body{height:100%;font-family:'Segoe UI',Arial,sans-serif;
       <button class="color-btn" data-color="blue" style="--c:#1E88E5">🔵 Blue</button>
     </div>
     <h3>Player Settings</h3>
+    <p style="color:rgba(255,255,255,.5);font-size:12px;margin-bottom:10px">Click buttons to toggle Human/AI for each player</p>
     <div id="pcRows"></div>
   </div>
   
@@ -1940,28 +1946,72 @@ function renderSetupRows() {
     const row    = document.createElement('div');
     row.className = `pc-row ${isActive?'active':'dim'}`;
     row.style.setProperty('--rc', COLORS[p].main);
-    // Show type as a label
-    const typeBadge = isActive 
-      ? (isHuman ? '<span style="color:#4CAF50;font-weight:700">👤 You</span>' 
-                 : '<span style="color:#999;display:flex;align-items:center;gap:4px"><img src="assets/ai-bot.png" class="ai-bot-icon-small" alt="AI"> AI</span>')
-      : '<span style="color:#666">—</span>';
+    
+    // For active players, show toggle buttons to switch between Human and AI
+    // For inactive players, show "—"
+    let typeControl = '';
+    if (isActive) {
+      const humanActive = isHuman ? 'active' : '';
+      const aiActive = !isHuman ? 'active' : '';
+      typeControl = `
+        <div class="rc-types">
+          <button class="type-btn ${humanActive}" data-player="${p}" data-type="human">👤 Human</button>
+          <button class="type-btn ${aiActive}" data-player="${p}" data-type="ai"><img src="assets/ai-bot.png" class="ai-bot-icon-small" alt="AI"> AI</button>
+        </div>
+      `;
+    } else {
+      typeControl = '<div class="rc-types"><span style="color:#666">—</span></div>';
+    }
+    
     row.innerHTML = `
       <div class="rc-dot"></div>
       <div class="rc-name">${cap(p)}</div>
-      <div class="rc-types">${typeBadge}</div>
+      ${typeControl}
     `;
-    // Click any row to select that color as human (regardless of active status)
-    row.style.cursor = 'pointer';
-    row.addEventListener('click', () => {
-      G.humanColor = p;
-      PLAYERS.forEach(pl => { G.ptypes[pl] = 'ai'; });
-      G.ptypes[p] = 'human';
-      // Update color button UI
-      document.querySelectorAll('.color-btn').forEach(b => {
-        b.classList.toggle('active', b.dataset.color === p);
+    
+    // Click row to select that color as "You" (primary human player)
+    // Only for active players
+    if (isActive) {
+      row.style.cursor = 'pointer';
+      row.addEventListener('click', (e) => {
+        // Don't trigger if clicking on the type buttons
+        if (e.target.classList.contains('type-btn')) return;
+        
+        G.humanColor = p;
+        // Update color button UI
+        document.querySelectorAll('.color-btn').forEach(b => {
+          b.classList.toggle('active', b.dataset.color === p);
+        });
+        renderSetupRows();
       });
-      renderSetupRows();
-    });
+      
+      // Add click handlers for the type buttons
+      const humanBtn = row.querySelector('[data-type="human"]');
+      const aiBtn = row.querySelector('[data-type="ai"]');
+      
+      if (humanBtn) {
+        humanBtn.addEventListener('click', (e) => {
+          e.stopPropagation();
+          G.ptypes[p] = 'human';
+          renderSetupRows();
+        });
+      }
+      
+      if (aiBtn) {
+        aiBtn.addEventListener('click', (e) => {
+          e.stopPropagation();
+          // Don't allow setting the last human to AI
+          const humanCount = Object.values(G.ptypes).filter(t => t === 'human').length;
+          if (isHuman && humanCount <= 1) {
+            alert('At least one player must be Human!');
+            return;
+          }
+          G.ptypes[p] = 'ai';
+          renderSetupRows();
+        });
+      }
+    }
+    
     container.appendChild(row);
   });
 }
