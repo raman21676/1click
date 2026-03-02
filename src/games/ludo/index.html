@@ -620,10 +620,11 @@ html,body{height:100%;font-family:'Segoe UI',Arial,sans-serif;
       <!-- Player Count Selection for Online -->
       <h4 style="margin:12px 0 8px;font-size:13px;color:rgba(255,255,255,.7)">Number of Players</h4>
       <div class="player-count" id="onlinePlayerCount">
-        <button class="count-btn" data-n="2">2 Players</button>
+        <button class="count-btn active" data-n="2">2 Players</button>
         <button class="count-btn" data-n="3">3 Players</button>
         <button class="count-btn" data-n="4">4 Players</button>
       </div>
+      <p id="multiPlayerNote" style="color:#FFA726;font-size:11px;margin-top:6px;display:none">⚠️ 3-4 players: Host must share code with all players</p>
       
       <div class="online-options" style="margin-top:16px">
         <button class="online-btn" id="createRoomBtn">
@@ -1888,11 +1889,28 @@ function initModeSelection() {
 // ════════════════════════════════════════════════════
 
 let peer = null;
-let peerConnection = null;
+let peerConnection = null; // For 2-player mode
+let peerConnections = []; // For 3-4 player mode (host only)
 let isHost = false;
 let roomCode = null;
+let connectedPlayers = 0;
+let myPeerId = null; // This player's peer ID
 
 function initOnlineMultiplayer() {
+  // Online player count selection
+  document.querySelectorAll('#onlinePlayerCount .count-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      G.onlinePlayerCount = parseInt(btn.dataset.n);
+      document.querySelectorAll('#onlinePlayerCount .count-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      // Show note for 3-4 players
+      const note = document.getElementById('multiPlayerNote');
+      if (note) note.style.display = G.onlinePlayerCount > 2 ? 'block' : 'none';
+    });
+  });
+  // Default to 2 players for online
+  G.onlinePlayerCount = 2;
+  
   // Create Room button
   document.getElementById('createRoomBtn').addEventListener('click', () => {
     document.getElementById('onlineMenu').style.display = 'none';
@@ -1940,6 +1958,8 @@ function resetOnlineGame() {
   cleanupPeer();
   isHost = false;
   roomCode = null;
+  peerConnections = []; // Array for multiple connections
+  connectedPlayers = 0;
   
   // Reset host UI
   document.getElementById('roomCodeDisplay').textContent = '------';
@@ -1956,14 +1976,37 @@ function resetOnlineGame() {
 }
 
 function cleanupPeer() {
+  // Close all connections
   if (peerConnection) {
     peerConnection.close();
     peerConnection = null;
   }
+  peerConnections.forEach(conn => conn.close());
+  peerConnections = [];
+  connectedPlayers = 0;
+  
   if (peer) {
     peer.destroy();
     peer = null;
   }
+}
+
+function getActiveConnection() {
+  // For 2-player, return single connection
+  if (peerConnection && peerConnection.open) return peerConnection;
+  // For multiplayer, return first available connection
+  return peerConnections.find(c => c.open);
+}
+
+function sendToPeer(data) {
+  // Send to single peer (2-player mode)
+  if (peerConnection && peerConnection.open) {
+    peerConnection.send(data);
+  }
+  // Send to all peers (3-4 player mode, host only)
+  peerConnections.forEach(conn => {
+    if (conn.open) conn.send(data);
+  });
 }
 
 function generateSixDigitCode() {
@@ -1978,8 +2021,9 @@ function createRoom() {
   cleanupPeer();
   isHost = true;
   roomCode = generateSixDigitCode();
+  const maxPlayers = G.onlinePlayerCount || 2;
   
-  document.getElementById('hostStatusText').textContent = '🔄 Creating room...';
+  document.getElementById('hostStatusText').textContent = '🔄 Creating room for ' + maxPlayers + ' players...';
   
   // Create Peer with 6-digit code as ID
   peer = new Peer(roomCode, {
@@ -1992,19 +2036,34 @@ function createRoom() {
     document.getElementById('roomCodeDisplay').textContent = id;
     document.getElementById('copyRoomCodeBtn').style.display = 'inline-block';
     document.getElementById('generateRoomCodeBtn').style.display = 'none';
-    document.getElementById('hostStatusText').textContent = '✅ Room ready! Share code: ' + id;
+    document.getElementById('hostStatusText').textContent = `✅ Room ready! (${connectedPlayers}/${maxPlayers}) Share: ${id}`;
   });
   
   peer.on('connection', (conn) => {
     console.log('[PeerJS] Guest connecting:', conn.peer);
-    peerConnection = conn;
-    setupConnection(conn);
+    
+    // For 2-player mode, use single connection
+    if (maxPlayers === 2) {
+      peerConnection = conn;
+      setupConnection(conn);
+    } else {
+      // For 3-4 player mode, add to connections array
+      peerConnections.push(conn);
+      connectedPlayers = peerConnections.filter(c => c.open).length;
+      document.getElementById('hostStatusText').textContent = `✅ Players: ${connectedPlayers}/${maxPlayers} - Code: ${roomCode}`;
+      setupConnection(conn);
+      
+      // Enable start button if we have enough players
+      if (connectedPlayers >= maxPlayers - 1) {
+        document.getElementById('startOnlineGame').style.display = 'inline-block';
+        document.getElementById('hostStatusText').textContent = `🎮 Ready! All ${maxPlayers} players connected`;
+      }
+    }
   });
   
   peer.on('error', (err) => {
     console.error('[PeerJS] Host error:', err);
     if (err.type === 'unavailable-id') {
-      // Code already exists, try again
       createRoom();
     } else {
       document.getElementById('hostStatusText').textContent = '❌ Error: ' + err.message;
@@ -2024,16 +2083,23 @@ function copyRoomCode() {
 }
 
 function startOnlineGame() {
-  if (!peerConnection || !peerConnection.open) {
-    alert('Waiting for opponent to connect...');
+  const maxPlayers = G.onlinePlayerCount || 2;
+  const hasConnection = peerConnection?.open || peerConnections.some(c => c.open);
+  
+  if (!hasConnection) {
+    alert('Waiting for players to connect...');
     return;
   }
   
-  // Count connected human players
-  const humanCount = Object.values(G.ptypes).filter(t => t === 'human').length;
+  // For 3-4 players, check if enough players connected
+  if (maxPlayers > 2 && peerConnections.filter(c => c.open).length < maxPlayers - 1) {
+    if (!confirm(`Only ${peerConnections.filter(c => c.open).length + 1}/${maxPlayers} players connected. Start anyway?`)) {
+      return;
+    }
+  }
   
   G.isOnline = true;
-  G.playerCount = Math.max(2, humanCount); // At least 2 players
+  G.playerCount = maxPlayers;
   startGame();
   
   // Notify all peers with game state
@@ -2133,12 +2199,6 @@ function setupConnection(conn) {
       }
     }
   }, 10000);
-}
-
-function sendToPeer(data) {
-  if (peerConnection && peerConnection.open) {
-    peerConnection.send(data);
-  }
 }
 
 function handlePeerData(data) {
