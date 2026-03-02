@@ -665,6 +665,11 @@ html,body{height:100%;font-family:'Segoe UI',Arial,sans-serif;
         <span class="status-text">Click 'Generate' to create room</span>
       </div>
       
+      <!-- Debug Log -->
+      <div id="webrtcDebugLog" style="margin-top:12px;padding:10px;background:rgba(0,0,0,.4);border-radius:8px;font-family:monospace;font-size:10px;color:rgba(255,255,255,.6);max-height:100px;overflow-y:auto;display:none">
+        <div>Debug log...</div>
+      </div>
+      
       <div class="room-buttons" style="margin-top:16px">
         <button class="back-btn-small" id="backFromCreate">Back</button>
         <button class="generate-btn" id="generateRoomCodeBtn">🎲 Generate Code</button>
@@ -689,6 +694,11 @@ html,body{height:100%;font-family:'Segoe UI',Arial,sans-serif;
       <div id="guestStatus" class="webrtc-status" style="margin-top:16px">
         <span class="status-dot"></span>
         <span class="status-text">Enter code and click Join</span>
+      </div>
+      
+      <!-- Debug Log -->
+      <div id="webrtcDebugLogGuest" style="margin-top:12px;padding:10px;background:rgba(0,0,0,.4);border-radius:8px;font-family:monospace;font-size:10px;color:rgba(255,255,255,.6);max-height:100px;overflow-y:auto;display:none">
+        <div>Debug log...</div>
       </div>
       
       <div class="room-buttons" style="margin-top:16px">
@@ -2142,7 +2152,21 @@ function initWebRTC() {
 // Debug mode
 const WEBRTC_DEBUG = true;
 function logRTC(...args) {
+  const msg = args.join(' ');
   if (WEBRTC_DEBUG) console.log('[WebRTC]', ...args);
+  
+  // Also show in UI
+  const debugEl = rtcRole === 'guest' 
+    ? document.getElementById('webrtcDebugLogGuest')
+    : document.getElementById('webrtcDebugLog');
+  
+  if (debugEl) {
+    debugEl.style.display = 'block';
+    const entry = document.createElement('div');
+    entry.textContent = new Date().toLocaleTimeString() + ': ' + msg;
+    debugEl.appendChild(entry);
+    debugEl.scrollTop = debugEl.scrollHeight;
+  }
 }
 
 // PeerJS uses free public signaling servers
