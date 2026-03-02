@@ -1377,6 +1377,11 @@ function canMove(player, tokenIdx) {
 function afterRoll() {
   const player = curPlayer();
   const dice   = G.diceVal;
+  afterRollInternal(player, dice, true); // true = allow auto-actions (nextTurn, auto-move)
+}
+
+// Internal version that can suppress auto-actions (for online mode receiver)
+function afterRollInternal(player, dice, allowAutoActions = true) {
   // Check movability without mutating phase
   const movable = G.tokens[player]
     .map((pos, idx) => ({ pos, idx }))
@@ -1390,7 +1395,9 @@ function afterRoll() {
 
   if (movable.length === 0) {
     addLog('No valid moves. Next turn!');
-    setTimeout(nextTurn, 1200);
+    if (allowAutoActions) {
+      setTimeout(nextTurn, 1200);
+    }
     return;
   }
 
@@ -1400,11 +1407,11 @@ function afterRoll() {
 
   // Auto-move for human player when only one token is movable (except when dice is 6)
   // When dice is 6, player has choice: move existing token OR bring out new one
-  if (!isAI() && movable.length === 1 && dice !== 6) {
+  if (allowAutoActions && !isAI() && movable.length === 1 && dice !== 6) {
     setTimeout(() => moveToken(player, movable[0].idx), 600);
   }
   // AI auto-move
-  else if (isAI()) {
+  else if (allowAutoActions && isAI()) {
     // Use smart AI to pick the best move
     const best = aiChoose(player, dice);
     if (best) {
@@ -2304,10 +2311,11 @@ function handlePeerData(data) {
     case 'roll':
       // Process opponent's roll (data.player is the opponent's color)
       // Don't check curPlayer() here - trust the host's turn progression
+      // Use afterRollInternal with allowAutoActions=false to prevent double nextTurn()
       if (data.player !== G.humanColor) {
         G.diceVal = data.value;
         addLog(`🎲 ${G.playerNames[data.player] || data.player} rolled ${data.value}`);
-        afterRoll();
+        afterRollInternal(data.player, data.value, false); // false = don't auto-advance turn
         updateUI();
       }
       break;
