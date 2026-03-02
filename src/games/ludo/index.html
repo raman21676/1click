@@ -2304,6 +2304,12 @@ function handlePeerData(data) {
       // CRITICAL: Set guest's assigned color
       if (data.yourColor) {
         G.humanColor = data.yourColor;
+        // ALSO set ptypes for guest's color to 'human' so dice is enabled
+        G.ptypes[data.yourColor] = 'human';
+        // Update player name from AI name to 'You' if needed
+        if (!G.playerNames[data.yourColor] || G.playerNames[data.yourColor].startsWith('AI ')) {
+          G.playerNames[data.yourColor] = 'You';
+        }
         addLog(`🎮 You are playing as ${cap(data.yourColor)}!`);
       }
       startGame();
