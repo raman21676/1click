@@ -598,10 +598,6 @@ html,body{height:100%;font-family:'Segoe UI',Arial,sans-serif;
       <button class="count-btn active" data-n="3">3 Players</button>
       <button class="count-btn" data-n="4">4 Players</button>
     </div>
-    <h3>Your Name</h3>
-    <div class="name-input-wrap">
-      <input type="text" class="name-input" id="playerNameInput" placeholder="Enter your name" value="You" maxlength="15">
-    </div>
     <h3>Choose Your Color</h3>
     <div class="color-select" id="colorSelect">
       <button class="color-btn active" data-color="red" style="--c:#E53935">🔴 Red</button>
@@ -867,7 +863,7 @@ let G = {
   phase: 'roll', // 'roll'|'move'|'anim'
   eliminated: new Set(),
   winner: null,
-  playerNames: {}, // {red:'James', green:'Hans', ...}
+  playerNames: {red:'You',green:'AI 1',yellow:'AI 2',blue:'AI 3'}, // Default names
   playerEmojis: {} // {red:'👦', green:'👧', ...}
 };
 
@@ -1943,13 +1939,18 @@ function renderSetupRows() {
   PLAYERS.forEach((p, i) => {
     const isActive = activeIndices.includes(i);
     const isHuman = G.ptypes[p] === 'human';
-    const row    = document.createElement('div');
+    const row = document.createElement('div');
     row.className = `pc-row ${isActive?'active':'dim'}`;
     row.style.setProperty('--rc', COLORS[p].main);
+    row.style.flexDirection = 'column';
+    row.style.alignItems = 'stretch';
+    row.style.gap = '8px';
     
     // For active players, show toggle buttons to switch between Human and AI
     // For inactive players, show "—"
     let typeControl = '';
+    let nameInput = '';
+    
     if (isActive) {
       const humanActive = isHuman ? 'active' : '';
       const aiActive = !isHuman ? 'active' : '';
@@ -1959,23 +1960,73 @@ function renderSetupRows() {
           <button class="type-btn ${aiActive}" data-player="${p}" data-type="ai"><img src="assets/ai-bot.png" class="ai-bot-icon-small" alt="AI"> AI</button>
         </div>
       `;
+      
+      // Name input for human players, display name for AI
+      if (isHuman) {
+        nameInput = `
+          <div class="player-name-input-wrap" style="display:flex;gap:6px;align-items:center;margin-top:4px;">
+            <span style="font-size:12px;color:rgba(255,255,255,.6)">Name:</span>
+            <input type="text" class="player-name-input" data-player="${p}" 
+              value="${G.playerNames[p] || 'You'}" 
+              placeholder="Enter name" maxlength="12"
+              style="flex:1;background:rgba(0,0,0,.3);border:1px solid rgba(255,255,255,.2);
+                     border-radius:6px;padding:6px 10px;color:#fff;font-size:13px;
+                     outline:none;transition:all .2s;"
+              onfocus="this.style.borderColor='rgba(76,175,80,.8)';this.style.boxShadow='0 0 8px rgba(76,175,80,.3)';"
+              onblur="this.style.borderColor='rgba(255,255,255,.2)';this.style.boxShadow='none';">
+          </div>
+        `;
+      } else {
+        // Show AI name (non-editable)
+        nameInput = `
+          <div class="player-name-display" style="display:flex;gap:6px;align-items:center;margin-top:4px;">
+            <span style="font-size:12px;color:rgba(255,255,255,.6)">Name:</span>
+            <span style="font-size:13px;color:rgba(255,255,255,.8);font-style:italic;">${G.playerNames[p] || getRandomAIName()}</span>
+          </div>
+        `;
+      }
     } else {
       typeControl = '<div class="rc-types"><span style="color:#666">—</span></div>';
     }
     
-    row.innerHTML = `
+    // Build row content
+    const mainRow = document.createElement('div');
+    mainRow.style.display = 'flex';
+    mainRow.style.alignItems = 'center';
+    mainRow.style.gap = '10px';
+    mainRow.innerHTML = `
       <div class="rc-dot"></div>
       <div class="rc-name">${cap(p)}</div>
       ${typeControl}
     `;
     
+    row.appendChild(mainRow);
+    
+    // Add name input row if active
+    if (isActive && nameInput) {
+      const nameRow = document.createElement('div');
+      nameRow.innerHTML = nameInput;
+      row.appendChild(nameRow);
+      
+      // Add event listener for name input
+      if (isHuman) {
+        const input = nameRow.querySelector('.player-name-input');
+        if (input) {
+          input.addEventListener('input', (e) => {
+            G.playerNames[p] = e.target.value.trim() || 'You';
+          });
+        }
+      }
+    }
+    
     // Click row to select that color as "You" (primary human player)
     // Only for active players
     if (isActive) {
-      row.style.cursor = 'pointer';
-      row.addEventListener('click', (e) => {
-        // Don't trigger if clicking on the type buttons
-        if (e.target.classList.contains('type-btn')) return;
+      mainRow.style.cursor = 'pointer';
+      mainRow.addEventListener('click', (e) => {
+        // Don't trigger if clicking on the type buttons or name input
+        if (e.target.classList.contains('type-btn') || 
+            e.target.classList.contains('player-name-input')) return;
         
         G.humanColor = p;
         // Update color button UI
@@ -1993,6 +2044,12 @@ function renderSetupRows() {
         humanBtn.addEventListener('click', (e) => {
           e.stopPropagation();
           G.ptypes[p] = 'human';
+          // Set default name for human if not already set or was AI
+          if (!G.playerNames[p] || G.playerNames[p].startsWith('AI ') || G.playerNames[p] === 'Computer') {
+            // If this is the first human, use "You", otherwise use "Player X"
+            const existingHuman = Object.entries(G.ptypes).find(([pl, t]) => pl !== p && t === 'human');
+            G.playerNames[p] = existingHuman ? `Player ${cap(p)}` : 'You';
+          }
           renderSetupRows();
         });
       }
@@ -2007,6 +2064,8 @@ function renderSetupRows() {
             return;
           }
           G.ptypes[p] = 'ai';
+          // Generate AI name
+          G.playerNames[p] = getRandomAIName();
           renderSetupRows();
         });
       }
@@ -2032,15 +2091,16 @@ function startGame() {
   G.winner      = null;
   if (cdInterval) { clearInterval(cdInterval); cdInterval=null; }
   
-  // Assign names to players
-  G.playerNames = {};
+  // Assign names to players (preserve already set names)
   G.playerEmojis = {};
-  const humanName = document.getElementById('playerNameInput').value.trim() || 'You';
   G.active.forEach(p => {
-    if (G.ptypes[p] === 'ai') {
-      G.playerNames[p] = getRandomAIName();
-    } else {
-      G.playerNames[p] = humanName;
+    // If name not set or is default, assign appropriate name
+    if (!G.playerNames[p] || G.playerNames[p] === '') {
+      if (G.ptypes[p] === 'ai') {
+        G.playerNames[p] = getRandomAIName();
+      } else {
+        G.playerNames[p] = 'You';
+      }
     }
     G.playerEmojis[p] = getPlayerEmoji(G.playerNames[p]);
   });
