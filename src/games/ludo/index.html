@@ -1878,67 +1878,14 @@ function initModeSelection() {
 
 // Online multiplayer room logic
 function initOnlineMultiplayer() {
-  // Initialize WebRTC peer-to-peer functionality
+  // Initialize WebRTC peer-to-peer functionality (includes all UI event listeners)
   initWebRTC();
-  
-  // Create Room button
-  document.getElementById('createRoomBtn').addEventListener('click', () => {
-    document.getElementById('onlineMenu').style.display = 'none';
-    document.getElementById('createRoomForm').style.display = 'block';
-    document.getElementById('joinRoomForm').style.display = 'none';
-  });
-  
-  // Join Room button
-  document.getElementById('joinRoomBtn').addEventListener('click', () => {
-    document.getElementById('onlineMenu').style.display = 'none';
-    document.getElementById('createRoomForm').style.display = 'none';
-    document.getElementById('joinRoomForm').style.display = 'block';
-  });
-  
-  // Back buttons
-  document.getElementById('backFromCreate').addEventListener('click', showOnlineMenu);
-  document.getElementById('backFromJoin').addEventListener('click', showOnlineMenu);
 }
 
 function showOnlineMenu() {
   document.getElementById('onlineMenu').style.display = 'block';
   document.getElementById('createRoomForm').style.display = 'none';
   document.getElementById('joinRoomForm').style.display = 'none';
-}
-
-// Generate random room credentials
-function generateRoomCredentials() {
-  const nouns = ['whale', 'volcano', 'thomas', 'eagle', 'tiger', 'panda', 'rocket', 'dragon', 'phoenix', 'ocean', 'mountain', 'forest', 'castle', 'knight', 'queen', 'nebula', 'galaxy', 'comet', 'thunder', 'lightning'];
-  const secondWords = ['star', 'moon', 'sun', 'fire', 'ice', 'wind', 'storm', 'shadow', 'blaze', 'frost', 'dream', 'wish', 'power', 'magic', 'hero', 'legend', 'myth', 'epic', 'cosmic', 'solar'];
-  
-  // Generate Room ID: noun + number
-  const noun = nouns[Math.floor(Math.random() * nouns.length)];
-  const roomNum = Math.floor(Math.random() * 9000) + 1000; // 1000-9999
-  G.roomId = noun + roomNum;
-  
-  // Generate Password: word + number
-  const secondWord = secondWords[Math.floor(Math.random() * secondWords.length)];
-  const passNum = Math.floor(Math.random() * 9000) + 1000; // 1000-9999
-  G.roomPassword = secondWord + passNum;
-  
-  // Update UI
-  document.getElementById('generatedRoomId').textContent = G.roomId;
-  document.getElementById('generatedPassword').textContent = G.roomPassword;
-}
-
-// Copy room credentials to clipboard
-function copyRoomCredentials() {
-  const text = `Room ID: ${G.roomId}\nPassword: ${G.roomPassword}`;
-  
-  if (navigator.clipboard) {
-    navigator.clipboard.writeText(text).then(() => {
-      alert('Copied to clipboard!\n\n' + text);
-    }).catch(() => {
-      alert(text);
-    });
-  } else {
-    alert(text);
-  }
 }
 
 function renderSetupRows() {
