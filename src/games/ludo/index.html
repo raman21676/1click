@@ -2092,45 +2092,6 @@ function startGame() {
 }
 
 // ════════════════════════════════════════════════════
-// SIMPLE FIREBASE + WEBRTC MULTIPLAYER
-// ════════════════════════════════════════════════════
-
-// Firebase Configuration (1click project)
-const FIREBASE_CONFIG = {
-  apiKey: "AIzaSyDummyKeyFor1ClickLudoGame",
-  authDomain: "1click-ludo.firebaseapp.com",
-  databaseURL: "https://1click-ludo-default-rtdb.firebaseio.com",
-  projectId: "1click-ludo",
-  storageBucket: "1click-ludo.appspot.com",
-  messagingSenderId: "123456789",
-  appId: "1:123456789:web:abcdef123456"
-};
-
-// Initialize Firebase
-let firebaseApp = null;
-let firebaseDB = null;
-
-function initFirebase() {
-  if (!firebaseApp) {
-    try {
-      firebaseApp = firebase.initializeApp(FIREBASE_CONFIG);
-      firebaseDB = firebase.database();
-      console.log('[Firebase] Initialized');
-    } catch (err) {
-      console.error('[Firebase] Init error:', err);
-    }
-  }
-}
-
-// WebRTC Configuration
-const RTC_CONFIG = {
-  iceServers: [
-    { urls: 'stun:stun.l.google.com:19302' },
-    { urls: 'stun:stun1.l.google.com:19302' }
-  ]
-};
-
-// ════════════════════════════════════════════════════
 // PURE WEBRTC WITH PEERJS (No Firebase needed!)
 // ════════════════════════════════════════════════════
 
