@@ -505,6 +505,22 @@ html,body{height:100%;font-family:'Segoe UI',Arial,sans-serif;
 .room-input:focus{border-color:#FF6F00;background:rgba(0,0,0,.3);box-shadow:0 0 0 3px rgba(255,111,0,.1)}
 .room-input::placeholder{color:rgba(255,255,255,.3);font-family:inherit}
 
+/* WebRTC Styles */
+.webrtc-step{display:flex;gap:12px;margin-bottom:16px;padding:14px;background:rgba(0,0,0,.2);border-radius:10px;border:1px solid rgba(255,255,255,.1)}
+.step-num{width:28px;height:28px;border-radius:50%;background:linear-gradient(135deg,#FF6F00,#FF9800);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:14px;flex-shrink:0}
+.step-content{flex:1}
+.step-content label{display:block;font-size:12px;color:rgba(255,255,255,.6);margin-bottom:8px;font-weight:600}
+.webrtc-code{width:100%;min-height:80px;padding:12px;border-radius:8px;border:1px solid rgba(255,255,255,.2);background:rgba(0,0,0,.3);color:#4CAF50;font-size:12px;font-family:monospace;resize:vertical;outline:none;transition:all .2s;box-sizing:border-box;line-height:1.4}
+.webrtc-code:focus{border-color:#4CAF50;box-shadow:0 0 0 3px rgba(76,175,80,.1)}
+.webrtc-code::placeholder{color:rgba(255,255,255,.3)}
+.webrtc-status{display:flex;align-items:center;gap:8px;padding:10px 14px;background:rgba(0,0,0,.2);border-radius:8px;margin:12px 0;font-size:13px}
+.status-dot{width:10px;height:10px;border-radius:50%;background:#999;animation:pulse 1.5s infinite}
+.status-dot.connected{background:#4CAF50;animation:none}
+.status-dot.error{background:#f44336;animation:none}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+.webrtc-note{background:rgba(255,193,7,.1);border:1px solid rgba(255,193,7,.3);border-radius:8px;padding:12px;margin:12px 0;font-size:12px;color:rgba(255,235,180,.9)}
+.webrtc-note strong{color:#FFC107}
+
 .pc-row{display:flex;align-items:center;gap:10px;padding:9px;
   border-radius:9px;margin-bottom:7px;border:2px solid transparent;transition:all .2s}
 .pc-row.active{border-color:var(--rc)}
@@ -613,63 +629,102 @@ html,body{height:100%;font-family:'Segoe UI',Arial,sans-serif;
   <!-- ONLINE MULTIPLAYER SETTINGS -->
   <div id="onlineSettings" class="setup-card" style="display:none">
     <div id="onlineMenu">
-      <h3>Online Multiplayer</h3>
+      <h3>🌐 Online Multiplayer (P2P)</h3>
+      <p style="color:rgba(255,255,255,.5);font-size:12px;margin-bottom:12px">Connect directly with friends using WebRTC (no server needed!)</p>
       <div class="online-options">
         <button class="online-btn" id="createRoomBtn">
           <span class="online-icon">🏠</span>
           <span class="online-title">Create Room</span>
-          <span class="online-desc">Start a new game room</span>
+          <span class="online-desc">Host a new game & share invite code</span>
         </button>
         <button class="online-btn" id="joinRoomBtn">
           <span class="online-icon">🔗</span>
           <span class="online-title">Join Room</span>
-          <span class="online-desc">Enter room ID & password</span>
+          <span class="online-desc">Enter host's invite code to join</span>
         </button>
       </div>
     </div>
     
-    <!-- CREATE ROOM FORM -->
+    <!-- CREATE ROOM FORM - WEBRTC HOST -->
     <div id="createRoomForm" style="display:none">
-      <h3>Create Room</h3>
-      <div class="room-info-box">
-        <div class="room-field">
-          <label>Room ID</label>
-          <div class="room-value" id="generatedRoomId">-</div>
+      <h3>🏠 Host Game (WebRTC)</h3>
+      <p style="color:rgba(255,255,255,.5);font-size:12px;margin-bottom:12px">Waiting for players to join...</p>
+      
+      <!-- Step 1: Generate Offer -->
+      <div id="hostStep1">
+        <div class="webrtc-step">
+          <div class="step-num">1</div>
+          <div class="step-content">
+            <label>Your Invite Code (Share this with friends)</label>
+            <textarea id="hostOfferCode" class="webrtc-code" readonly placeholder="Click Generate to create invite code..."></textarea>
+            <button class="generate-btn" id="generateOfferBtn">🔄 Generate Invite Code</button>
+            <button class="copy-btn" id="copyOfferBtn" style="display:none">📋 Copy Code</button>
+          </div>
         </div>
-        <div class="room-field">
-          <label>Password</label>
-          <div class="room-value" id="generatedPassword">-</div>
+      </div>
+      
+      <!-- Step 2: Paste Answer -->
+      <div id="hostStep2" style="display:none">
+        <div class="webrtc-step">
+          <div class="step-num">2</div>
+          <div class="step-content">
+            <label>Paste Friend's Response Code</label>
+            <textarea id="hostAnswerCode" class="webrtc-code" placeholder="Ask your friend to paste their response code here..."></textarea>
+            <button class="start-btn-small" id="connectHostBtn">🔗 Connect</button>
+          </div>
         </div>
       </div>
-      <div class="room-actions">
-        <button class="generate-btn" id="generateRoomBtn">🔄 Generate New</button>
-        <button class="copy-btn" id="copyRoomBtn">📋 Copy</button>
+      
+      <!-- Connection Status -->
+      <div id="hostStatus" class="webrtc-status">
+        <span class="status-dot"></span>
+        <span class="status-text">Waiting...</span>
       </div>
-      <div class="room-note">
-        Share these credentials with friends to let them join!
-      </div>
+      
       <div class="room-buttons">
         <button class="back-btn-small" id="backFromCreate">Back</button>
-        <button class="start-btn-small" id="startOnlineGame">Create Room</button>
+        <button class="start-btn-small" id="startOnlineGame" disabled>Start Game</button>
       </div>
     </div>
     
-    <!-- JOIN ROOM FORM -->
+    <!-- JOIN ROOM FORM - WEBRTC GUEST -->
     <div id="joinRoomForm" style="display:none">
-      <h3>Join Room</h3>
-      <div class="join-inputs">
-        <div class="input-group">
-          <label>Room ID</label>
-          <input type="text" class="room-input" id="joinRoomId" placeholder="e.g., whale7313">
-        </div>
-        <div class="input-group">
-          <label>Password</label>
-          <input type="text" class="room-input" id="joinRoomPassword" placeholder="e.g., mercury88">
+      <h3>🔗 Join Game (WebRTC)</h3>
+      <p style="color:rgba(255,255,255,.5);font-size:12px;margin-bottom:12px">Connect to your friend's game</p>
+      
+      <!-- Step 1: Paste Offer -->
+      <div id="joinStep1">
+        <div class="webrtc-step">
+          <div class="step-num">1</div>
+          <div class="step-content">
+            <label>Paste Host's Invite Code</label>
+            <textarea id="guestOfferCode" class="webrtc-code" placeholder="Paste the invite code from your friend..."></textarea>
+            <button class="start-btn-small" id="generateAnswerBtn">🔗 Generate Response</button>
+          </div>
         </div>
       </div>
+      
+      <!-- Step 2: Share Answer -->
+      <div id="joinStep2" style="display:none">
+        <div class="webrtc-step">
+          <div class="step-num">2</div>
+          <div class="step-content">
+            <label>Your Response Code (Send this to host)</label>
+            <textarea id="guestAnswerCode" class="webrtc-code" readonly></textarea>
+            <button class="copy-btn" id="copyAnswerBtn">📋 Copy Response</button>
+            <p style="color:rgba(255,255,255,.5);font-size:11px;margin-top:8px">Waiting for host to connect...</p>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Connection Status -->
+      <div id="guestStatus" class="webrtc-status">
+        <span class="status-dot"></span>
+        <span class="status-text">Waiting...</span>
+      </div>
+      
       <div class="room-buttons">
         <button class="back-btn-small" id="backFromJoin">Back</button>
-        <button class="start-btn-small" id="joinOnlineGame">Join Room</button>
       </div>
     </div>
   </div>
@@ -864,7 +919,11 @@ let G = {
   eliminated: new Set(),
   winner: null,
   playerNames: {red:'You',green:'AI 1',yellow:'AI 2',blue:'AI 3'}, // Default names
-  playerEmojis: {} // {red:'👦', green:'👧', ...}
+  playerEmojis: {}, // {red:'👦', green:'👧', ...}
+  // Online multiplayer flags
+  isOnline: false,
+  gameMode: 'local', // 'local' or 'online'
+  roomId: null
 };
 
 let cdInterval = null;
@@ -1293,6 +1352,11 @@ function performRoll() {
   G.diceVal = Math.floor(Math.random() * 6) + 1;
   const p = curPlayer();
   
+  // Broadcast roll to opponent if online
+  if (G.isOnline && rtcConnected) {
+    sendRTCMessage({ type: 'roll', player: p, value: G.diceVal });
+  }
+  
   // 1. Strip all animation classes and inline transform
   diceCube.className  = 'dice-cube';
   diceCube.style.transform = '';
@@ -1527,9 +1591,14 @@ function handleTokenClick(player, idx) {
   moveToken(player, idx);
 }
 
-async function moveToken(player, idx) {
+async function moveToken(player, idx, broadcast = true) {
   const oldPos = G.tokens[player][idx];
   let newPos;
+
+  // Broadcast move to opponent if online and broadcast enabled
+  if (broadcast && G.isOnline && rtcConnected) {
+    sendRTCMessage({ type: 'move', player: player, tokenIdx: idx });
+  }
 
   if (oldPos === 0) {
     newPos = 1;
@@ -1839,12 +1908,14 @@ function initModeSelection() {
 
 // Online multiplayer room logic
 function initOnlineMultiplayer() {
+  // Initialize WebRTC peer-to-peer functionality
+  initWebRTC();
+  
   // Create Room button
   document.getElementById('createRoomBtn').addEventListener('click', () => {
     document.getElementById('onlineMenu').style.display = 'none';
     document.getElementById('createRoomForm').style.display = 'block';
     document.getElementById('joinRoomForm').style.display = 'none';
-    generateRoomCredentials(); // Auto-generate on open
   });
   
   // Join Room button
@@ -1857,30 +1928,6 @@ function initOnlineMultiplayer() {
   // Back buttons
   document.getElementById('backFromCreate').addEventListener('click', showOnlineMenu);
   document.getElementById('backFromJoin').addEventListener('click', showOnlineMenu);
-  
-  // Generate new room credentials
-  document.getElementById('generateRoomBtn').addEventListener('click', generateRoomCredentials);
-  
-  // Copy room credentials
-  document.getElementById('copyRoomBtn').addEventListener('click', copyRoomCredentials);
-  
-  // Create Room (final)
-  document.getElementById('startOnlineGame').addEventListener('click', () => {
-    alert('Online multiplayer coming soon!\n\nRoom ID: ' + G.roomId + '\nPassword: ' + G.roomPassword);
-  });
-  
-  // Join Room (final)
-  document.getElementById('joinOnlineGame').addEventListener('click', () => {
-    const roomId = document.getElementById('joinRoomId').value.trim();
-    const password = document.getElementById('joinRoomPassword').value.trim();
-    
-    if (!roomId || !password) {
-      alert('Please enter both Room ID and Password');
-      return;
-    }
-    
-    alert('Online multiplayer coming soon!\n\nTrying to join: ' + roomId);
-  });
 }
 
 function showOnlineMenu() {
@@ -2116,6 +2163,398 @@ function startGame() {
   addLog('🎮 Game started!');
 
   if (isAI()) setTimeout(() => performRoll(), 900);
+}
+
+// ════════════════════════════════════════════════════
+// WEBRTC PEER-TO-PEER MULTIPLAYER
+// ════════════════════════════════════════════════════
+
+// WebRTC Configuration - using public STUN servers
+const RTC_CONFIG = {
+  iceServers: [
+    { urls: 'stun:stun.l.google.com:19302' },
+    { urls: 'stun:stun1.l.google.com:19302' },
+    { urls: 'stun:stun2.l.google.com:19302' },
+    { urls: 'stun:stun3.l.google.com:19302' },
+    { urls: 'stun:stun4.l.google.com:19302' }
+  ]
+};
+
+// WebRTC State
+let rtcPeer = null;
+let rtcDataChannel = null;
+let rtcRole = null; // 'host' or 'guest'
+let rtcConnected = false;
+
+// Initialize WebRTC UI
+function initWebRTC() {
+  // Host buttons
+  document.getElementById('generateOfferBtn')?.addEventListener('click', generateHostOffer);
+  document.getElementById('copyOfferBtn')?.addEventListener('click', copyHostOffer);
+  document.getElementById('connectHostBtn')?.addEventListener('click', connectHost);
+  
+  // Guest buttons
+  document.getElementById('generateAnswerBtn')?.addEventListener('click', generateGuestAnswer);
+  document.getElementById('copyAnswerBtn')?.addEventListener('click', copyGuestAnswer);
+  
+  // Online menu navigation
+  document.getElementById('createRoomBtn')?.addEventListener('click', () => {
+    document.getElementById('onlineMenu').style.display = 'none';
+    document.getElementById('createRoomForm').style.display = 'block';
+    resetWebRTC();
+  });
+  
+  document.getElementById('joinRoomBtn')?.addEventListener('click', () => {
+    document.getElementById('onlineMenu').style.display = 'none';
+    document.getElementById('joinRoomForm').style.display = 'block';
+    resetWebRTC();
+  });
+  
+  document.getElementById('backFromCreate')?.addEventListener('click', () => {
+    document.getElementById('createRoomForm').style.display = 'none';
+    document.getElementById('onlineMenu').style.display = 'block';
+    resetWebRTC();
+  });
+  
+  document.getElementById('backFromJoin')?.addEventListener('click', () => {
+    document.getElementById('joinRoomForm').style.display = 'none';
+    document.getElementById('onlineMenu').style.display = 'block';
+    resetWebRTC();
+  });
+  
+  document.getElementById('startOnlineGame')?.addEventListener('click', () => {
+    if (rtcConnected) {
+      G.isOnline = true;
+      G.playerCount = 2; // WebRTC supports 2 players for now
+      G.ptypes = {red:'human',green:'human',yellow:'ai',blue:'ai'};
+      startGame();
+    }
+  });
+}
+
+function resetWebRTC() {
+  rtcPeer = null;
+  rtcDataChannel = null;
+  rtcRole = null;
+  rtcConnected = false;
+  
+  // Reset UI
+  document.getElementById('hostStep1').style.display = 'block';
+  document.getElementById('hostStep2').style.display = 'none';
+  document.getElementById('hostOfferCode').value = '';
+  document.getElementById('hostAnswerCode').value = '';
+  document.getElementById('generateOfferBtn').style.display = 'inline-block';
+  document.getElementById('copyOfferBtn').style.display = 'none';
+  document.getElementById('startOnlineGame').disabled = true;
+  updateRTCStatus('host', 'waiting');
+  
+  document.getElementById('joinStep1').style.display = 'block';
+  document.getElementById('joinStep2').style.display = 'none';
+  document.getElementById('guestOfferCode').value = '';
+  document.getElementById('guestAnswerCode').value = '';
+  updateRTCStatus('guest', 'waiting');
+}
+
+function updateRTCStatus(role, state, message) {
+  const statusEl = document.getElementById(role + 'Status');
+  if (!statusEl) return;
+  
+  const dot = statusEl.querySelector('.status-dot');
+  const text = statusEl.querySelector('.status-text');
+  
+  dot.className = 'status-dot';
+  
+  const messages = {
+    waiting: '⏳ Waiting...',
+    generating: '🔄 Generating code...',
+    ready: '✅ Code ready - share it!',
+    connecting: '📡 Connecting...',
+    connected: '🔗 Connected! Ready to play',
+    error: '❌ Error: ' + (message || 'Connection failed')
+  };
+  
+  text.textContent = messages[state] || state;
+  
+  if (state === 'connected') dot.classList.add('connected');
+  else if (state === 'error') dot.classList.add('error');
+  
+  if (role === 'host' && state === 'connected') {
+    document.getElementById('startOnlineGame').disabled = false;
+  }
+}
+
+// ════════════════════════════════════════════════════
+// HOST FUNCTIONS
+// ════════════════════════════════════════════════════
+
+async function generateHostOffer() {
+  try {
+    updateRTCStatus('host', 'generating');
+    
+    rtcRole = 'host';
+    rtcPeer = new RTCPeerConnection(RTC_CONFIG);
+    
+    // Create data channel
+    rtcDataChannel = rtcPeer.createDataChannel('ludoGame', {
+      ordered: true
+    });
+    setupDataChannel(rtcDataChannel);
+    
+    // Handle ICE candidates
+    const iceCandidates = [];
+    rtcPeer.onicecandidate = (event) => {
+      if (event.candidate) {
+        iceCandidates.push(event.candidate);
+      }
+    };
+    
+    // Create offer
+    const offer = await rtcPeer.createOffer();
+    await rtcPeer.setLocalDescription(offer);
+    
+    // Wait for ICE gathering to complete
+    await new Promise((resolve) => {
+      rtcPeer.onicegatheringstatechange = () => {
+        if (rtcPeer.iceGatheringState === 'complete') resolve();
+      };
+      // Timeout after 3 seconds
+      setTimeout(resolve, 3000);
+    });
+    
+    // Generate invite code (offer + candidates)
+    const inviteData = {
+      offer: rtcPeer.localDescription,
+      candidates: iceCandidates
+    };
+    
+    const inviteCode = btoa(JSON.stringify(inviteData));
+    document.getElementById('hostOfferCode').value = inviteCode;
+    
+    // Update UI
+    document.getElementById('generateOfferBtn').style.display = 'none';
+    document.getElementById('copyOfferBtn').style.display = 'inline-block';
+    document.getElementById('hostStep2').style.display = 'block';
+    updateRTCStatus('host', 'ready');
+    
+    // Handle incoming answer
+    rtcPeer.ondatachannel = (event) => {
+      if (event.channel.label === 'ludoGame') {
+        setupDataChannel(event.channel);
+      }
+    };
+    
+  } catch (err) {
+    console.error('Error generating offer:', err);
+    updateRTCStatus('host', 'error', err.message);
+  }
+}
+
+function copyHostOffer() {
+  const code = document.getElementById('hostOfferCode').value;
+  if (navigator.clipboard) {
+    navigator.clipboard.writeText(code).then(() => {
+      alert('Invite code copied! Share it with your friend.');
+    });
+  } else {
+    alert('Copy this code:\n\n' + code.substring(0, 100) + '...');
+  }
+}
+
+async function connectHost() {
+  try {
+    updateRTCStatus('host', 'connecting');
+    
+    const answerCode = document.getElementById('hostAnswerCode').value.trim();
+    if (!answerCode) {
+      alert('Please paste the response code from your friend.');
+      return;
+    }
+    
+    const answerData = JSON.parse(atob(answerCode));
+    
+    // Set remote description
+    await rtcPeer.setRemoteDescription(new RTCSessionDescription(answerData.answer));
+    
+    // Add ICE candidates
+    for (const candidate of answerData.candidates) {
+      await rtcPeer.addIceCandidate(new RTCIceCandidate(candidate));
+    }
+    
+    updateRTCStatus('host', 'connected');
+    rtcConnected = true;
+    
+  } catch (err) {
+    console.error('Error connecting:', err);
+    updateRTCStatus('host', 'error', err.message);
+  }
+}
+
+// ════════════════════════════════════════════════════
+// GUEST FUNCTIONS
+// ════════════════════════════════════════════════════
+
+async function generateGuestAnswer() {
+  try {
+    updateRTCStatus('guest', 'generating');
+    
+    const offerCode = document.getElementById('guestOfferCode').value.trim();
+    if (!offerCode) {
+      alert('Please paste the invite code from the host.');
+      return;
+    }
+    
+    const inviteData = JSON.parse(atob(offerCode));
+    
+    rtcRole = 'guest';
+    rtcPeer = new RTCPeerConnection(RTC_CONFIG);
+    
+    // Handle data channel (created by host)
+    rtcPeer.ondatachannel = (event) => {
+      if (event.channel.label === 'ludoGame') {
+        rtcDataChannel = event.channel;
+        setupDataChannel(event.channel);
+      }
+    };
+    
+    // Handle ICE candidates
+    const iceCandidates = [];
+    rtcPeer.onicecandidate = (event) => {
+      if (event.candidate) {
+        iceCandidates.push(event.candidate);
+      }
+    };
+    
+    // Set remote description (offer)
+    await rtcPeer.setRemoteDescription(new RTCSessionDescription(inviteData.offer));
+    
+    // Add host's ICE candidates
+    for (const candidate of inviteData.candidates) {
+      await rtcPeer.addIceCandidate(new RTCIceCandidate(candidate));
+    }
+    
+    // Create answer
+    const answer = await rtcPeer.createAnswer();
+    await rtcPeer.setLocalDescription(answer);
+    
+    // Wait for ICE gathering
+    await new Promise((resolve) => {
+      rtcPeer.onicegatheringstatechange = () => {
+        if (rtcPeer.iceGatheringState === 'complete') resolve();
+      };
+      setTimeout(resolve, 3000);
+    });
+    
+    // Generate response code
+    const responseData = {
+      answer: rtcPeer.localDescription,
+      candidates: iceCandidates
+    };
+    
+    const responseCode = btoa(JSON.stringify(responseData));
+    document.getElementById('guestAnswerCode').value = responseCode;
+    
+    // Update UI
+    document.getElementById('joinStep1').style.display = 'none';
+    document.getElementById('joinStep2').style.display = 'block';
+    updateRTCStatus('guest', 'ready');
+    
+    // Check connection state
+    rtcPeer.onconnectionstatechange = () => {
+      if (rtcPeer.connectionState === 'connected') {
+        updateRTCStatus('guest', 'connected');
+        rtcConnected = true;
+        G.isOnline = true;
+        G.playerCount = 2;
+        G.ptypes = {red:'human',green:'human',yellow:'ai',blue:'ai'};
+        setTimeout(() => startGame(), 500);
+      }
+    };
+    
+  } catch (err) {
+    console.error('Error generating answer:', err);
+    updateRTCStatus('guest', 'error', err.message);
+  }
+}
+
+function copyGuestAnswer() {
+  const code = document.getElementById('guestAnswerCode').value;
+  if (navigator.clipboard) {
+    navigator.clipboard.writeText(code).then(() => {
+      alert('Response code copied! Send it to the host.');
+    });
+  } else {
+    alert('Copy this code:\n\n' + code.substring(0, 100) + '...');
+  }
+}
+
+// ════════════════════════════════════════════════════
+// DATA CHANNEL FUNCTIONS
+// ════════════════════════════════════════════════════
+
+function setupDataChannel(channel) {
+  channel.onopen = () => {
+    console.log('[WebRTC] Data channel opened!');
+    rtcConnected = true;
+    if (rtcRole === 'host') {
+      updateRTCStatus('host', 'connected');
+    }
+    
+    // Send initial handshake
+    sendRTCMessage({ type: 'handshake', player: G.humanColor, name: G.playerNames[G.humanColor] });
+  };
+  
+  channel.onmessage = (event) => {
+    handleRTCMessage(JSON.parse(event.data));
+  };
+  
+  channel.onclose = () => {
+    console.log('[WebRTC] Data channel closed');
+    rtcConnected = false;
+    addLog('⚠️ Connection lost!');
+  };
+  
+  channel.onerror = (err) => {
+    console.error('[WebRTC] Data channel error:', err);
+  };
+}
+
+function sendRTCMessage(data) {
+  if (rtcDataChannel && rtcDataChannel.readyState === 'open') {
+    rtcDataChannel.send(JSON.stringify(data));
+  }
+}
+
+function handleRTCMessage(data) {
+  console.log('[WebRTC] Received:', data);
+  
+  switch (data.type) {
+    case 'handshake':
+      // Opponent connected
+      addLog(`🎮 ${data.name} joined as ${data.player}!`);
+      break;
+      
+    case 'roll':
+      // Opponent rolled dice
+      G.diceVal = data.value;
+      addLog(`🎲 Opponent rolled ${data.value}`);
+      afterRoll();
+      break;
+      
+    case 'move':
+      // Opponent moved token
+      moveToken(data.player, data.tokenIdx, false); // false = don't broadcast
+      break;
+      
+    case 'turn':
+      // Turn ended
+      nextTurn();
+      break;
+      
+    case 'chat':
+      // Chat message
+      addLog(`💬 ${data.name}: ${data.message}`);
+      break;
+  }
 }
 
 // ════════════════════════════════════════════════════
