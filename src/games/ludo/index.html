@@ -1591,13 +1591,16 @@ async function moveToken(player, idx) {
     await animateTokenSteps(player, idx, oldPos, newPos);
   }
 
-  // Broadcast move to opponent in online mode
-  if (G.isOnline && player === G.humanColor) {
-    sendToPeer({ type: 'move', player: player, tokenIdx: idx, newPos: newPos });
+  // Check captures (only on main path 1-52) BEFORE broadcasting
+  let captured = [];
+  if (newPos >= 1 && newPos <= 52) {
+    captured = checkCapture(player, idx, newPos);
   }
 
-  // Check captures (only on main path 1-52)
-  if (newPos >= 1 && newPos <= 52) checkCapture(player, idx, newPos);
+  // Broadcast move to opponent in online mode (include captures)
+  if (G.isOnline && player === G.humanColor) {
+    sendToPeer({ type: 'move', player: player, tokenIdx: idx, newPos: newPos, captured: captured });
+  }
 
   // Win check
   if (newPos === 58) {
@@ -1610,6 +1613,10 @@ async function moveToken(player, idx) {
     addLog('🎲 Extra turn!');
     G.phase = 'roll';
     updateUI();
+    // Broadcast extra turn to opponent
+    if (G.isOnline) {
+      sendToPeer({ type: 'extraTurn', player: player });
+    }
     if (isAI()) setTimeout(() => performRoll(), 800);
   } else {
     setTimeout(nextTurn, 500);
@@ -1641,8 +1648,9 @@ function animateTokenSteps(player, idx, fromPos, toPos) {
 
 function checkCapture(player, tokenIdx, localPos) {
   const globalP = (ENTRY[player] + localPos - 1) % 52;
-  if (SAFE.has(globalP)) return;
+  if (SAFE.has(globalP)) return [];
 
+  const captured = [];
   G.active.forEach(opp => {
     if (opp === player || G.eliminated.has(opp)) return;
     G.tokens[opp].forEach((oppPos, oppIdx) => {
@@ -1650,10 +1658,12 @@ function checkCapture(player, tokenIdx, localPos) {
       const oppGlobal = (ENTRY[opp] + oppPos - 1) % 52;
       if (oppGlobal === globalP) {
         G.tokens[opp][oppIdx] = 0;
+        captured.push({ player: opp, tokenIdx: oppIdx });
         addLog(`💥 ${getPlayerDisplayName(player)} captured ${getPlayerDisplayName(opp)}'s token!`);
       }
     });
   });
+  return captured;
 }
 
 function nextTurn() {
@@ -1936,6 +1946,7 @@ let peer = null;
 let peerConnection = null; // For 2-player mode
 let peerConnections = []; // For 3-4 player mode (host only)
 let isHost = false;
+let peerColors = new Map(); // Maps peer connection to assigned color (for host only)
 let roomCode = null;
 let connectedPlayers = 0;
 let myPeerId = null; // This player's peer ID
@@ -2086,6 +2097,11 @@ function createRoom() {
   peer.on('connection', (conn) => {
     console.log('[PeerJS] Guest connecting:', conn.peer);
     
+    // Assign color to this peer (host is red, guests get subsequent colors)
+    const availableColors = PLAYERS.slice(1); // green, yellow, blue
+    const assignedColor = availableColors[peerConnections.length] || 'green';
+    peerColors.set(conn, assignedColor);
+    
     // For 2-player mode, use single connection
     if (maxPlayers === 2) {
       peerConnection = conn;
@@ -2146,14 +2162,33 @@ function startOnlineGame() {
   G.playerCount = maxPlayers;
   startGame();
   
-  // Notify all peers with game state
-  sendToPeer({ 
-    type: 'gameStart',
-    playerCount: G.playerCount,
-    ptypes: G.ptypes,
-    playerNames: G.playerNames,
-    active: G.active,
-    myColor: G.humanColor
+  // Notify all peers with game state - include their assigned color
+  // For 2-player mode
+  if (peerConnection?.open) {
+    const guestColor = peerColors.get(peerConnection) || 'green';
+    peerConnection.send({ 
+      type: 'gameStart',
+      playerCount: G.playerCount,
+      ptypes: G.ptypes,
+      playerNames: G.playerNames,
+      active: G.active,
+      yourColor: guestColor  // Tell guest which color they are
+    });
+  }
+  
+  // For 3-4 player mode
+  peerConnections.forEach(conn => {
+    if (conn.open) {
+      const guestColor = peerColors.get(conn) || 'green';
+      conn.send({ 
+        type: 'gameStart',
+        playerCount: G.playerCount,
+        ptypes: G.ptypes,
+        playerNames: G.playerNames,
+        active: G.active,
+        yourColor: guestColor  // Tell guest which color they are
+      });
+    }
   });
 }
 
@@ -2259,12 +2294,17 @@ function handlePeerData(data) {
       G.ptypes = data.ptypes || {red:'human',green:'human',yellow:'ai',blue:'ai'};
       G.playerNames = data.playerNames || G.playerNames;
       G.active = data.active || ['red','green'];
-      G.myColor = data.myColor; // Host's color
+      // CRITICAL: Set guest's assigned color
+      if (data.yourColor) {
+        G.humanColor = data.yourColor;
+        addLog(`🎮 You are playing as ${cap(data.yourColor)}!`);
+      }
       startGame();
       break;
     case 'roll':
-      // Only process if it's from current player
-      if (data.player === curPlayer()) {
+      // Process opponent's roll (data.player is the opponent's color)
+      // Don't check curPlayer() here - trust the host's turn progression
+      if (data.player !== G.humanColor) {
         G.diceVal = data.value;
         addLog(`🎲 ${G.playerNames[data.player] || data.player} rolled ${data.value}`);
         afterRoll();
@@ -2272,23 +2312,39 @@ function handlePeerData(data) {
       }
       break;
     case 'move':
-      // Sync opponent's move
+      // Sync opponent's move - DO NOT call nextTurn() here!
+      // The mover already calls nextTurn() after their move.
+      // Receiver just updates state and waits for 'turn' message.
       if (data.player !== G.humanColor) {
-        // Temporarily set tokens to received state
         G.tokens[data.player][data.tokenIdx] = data.newPos;
+        
+        // Process any captures (opponent captured our tokens)
+        if (data.captured && data.captured.length > 0) {
+          data.captured.forEach(cap => {
+            G.tokens[cap.player][cap.tokenIdx] = 0;
+            addLog(`💥 Your token was captured!`);
+          });
+        }
+        
         renderTokens();
         addLog(`${G.playerNames[data.player] || data.player} moved token ${data.tokenIdx + 1}`);
-        
-        // Check if turn should advance
-        if (G.diceVal !== 6) {
-          setTimeout(nextTurn, 500);
-        }
+        // Turn advancement is handled by 'turn' message from the mover
       }
       break;
     case 'turn':
       // Sync turn change
       G.curIdx = data.curIdx;
+      G.diceVal = null;
+      G.phase = 'roll';
       updateUI();
+      break;
+    case 'extraTurn':
+      // Opponent gets extra turn (rolled 6)
+      if (data.player !== G.humanColor) {
+        G.phase = 'roll';
+        addLog(`🎲 ${G.playerNames[data.player] || data.player} gets extra turn!`);
+        updateUI();
+      }
       break;
   }
 }
@@ -2445,11 +2501,14 @@ function renderSetupRows() {
 }
 
 function startGame() {
-  // Build active players starting from human color
-  const humanIdx = PLAYERS.indexOf(G.humanColor);
-  G.active = [];
-  for (let i = 0; i < G.playerCount; i++) {
-    G.active.push(PLAYERS[(humanIdx + i) % 4]);
+  // Build active players starting from human color (only for local/pass & play)
+  // In online mode, G.active is already set by the host before calling startGame
+  if (!G.isOnline || G.active.length === 0) {
+    const humanIdx = PLAYERS.indexOf(G.humanColor);
+    G.active = [];
+    for (let i = 0; i < G.playerCount; i++) {
+      G.active.push(PLAYERS[(humanIdx + i) % 4]);
+    }
   }
   G.tokens = {};
   G.active.forEach(p => { G.tokens[p] = [0,0,0,0]; });
