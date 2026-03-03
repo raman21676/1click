@@ -536,13 +536,19 @@ function startGame() {
   G.queenPocketedBy = null;
   G.awaitingCover = false;
   
+  // Show game screen first (needed for canvas sizing)
+  document.getElementById('setupScreen').style.display = 'none';
+  document.getElementById('gameScreen').style.display = 'flex';
+  
   // Setup canvas
   G.canvas = document.getElementById('gameCanvas');
   G.ctx = G.canvas.getContext('2d');
   
-  // Set canvas size
-  resizeCanvas();
-  window.addEventListener('resize', resizeCanvas);
+  // Set canvas size (after screen is visible)
+  requestAnimationFrame(() => {
+    resizeCanvas();
+    window.addEventListener('resize', resizeCanvas);
+  });
   
   // Initialize coins
   initCoins();
@@ -555,10 +561,6 @@ function startGame() {
   
   // Update UI
   updateGameUI();
-  
-  // Show game screen
-  document.getElementById('setupScreen').style.display = 'none';
-  document.getElementById('gameScreen').style.display = 'flex';
   
   // Start game loop
   requestAnimationFrame(gameLoop);
