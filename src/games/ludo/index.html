@@ -275,6 +275,95 @@ html,body{height:100%;font-family:'Segoe UI',Arial,sans-serif;
   border-radius:50%;background:var(--pc);opacity:.25}
 .ptd.on{opacity:1}
 
+/* Lives display for online mode */
+.panel-lives {
+  display: flex;
+  justify-content: center;
+  gap: 2px;
+  margin-top: 3px;
+  font-size: clamp(8px, 1.5vmin, 11px);
+}
+.panel-lives .heart {
+  color: #ef5350;
+  opacity: 1;
+}
+.panel-lives .heart.lost {
+  opacity: 0.3;
+}
+
+/* Auto-turn countdown overlay */
+.auto-turn-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0,0,0,0.7);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  opacity: 0;
+  visibility: hidden;
+  transition: all 0.3s ease;
+}
+.auto-turn-overlay.active {
+  opacity: 1;
+  visibility: visible;
+}
+.auto-turn-box {
+  background: linear-gradient(135deg, #1e293b, #0f172a);
+  border: 2px solid #ef5350;
+  border-radius: 16px;
+  padding: 24px 32px;
+  text-align: center;
+  box-shadow: 0 0 30px rgba(239,83,80,0.4);
+  max-width: 320px;
+}
+.auto-turn-title {
+  font-size: 18px;
+  font-weight: 700;
+  color: #ef5350;
+  margin-bottom: 12px;
+}
+.auto-turn-player {
+  font-size: 16px;
+  color: #fff;
+  margin-bottom: 8px;
+}
+.auto-turn-lives {
+  font-size: 14px;
+  color: #94a3b8;
+  margin-bottom: 16px;
+}
+.auto-turn-lives .lives-hearts {
+  color: #ef5350;
+  font-size: 16px;
+  margin-left: 4px;
+}
+.auto-turn-countdown {
+  font-size: 48px;
+  font-weight: 800;
+  color: #fff;
+  font-family: 'Poppins', sans-serif;
+  text-shadow: 0 0 20px rgba(239,83,80,0.6);
+}
+.auto-turn-progress {
+  width: 200px;
+  height: 6px;
+  background: rgba(255,255,255,0.1);
+  border-radius: 3px;
+  margin-top: 16px;
+  overflow: hidden;
+}
+.auto-turn-progress-bar {
+  height: 100%;
+  background: linear-gradient(90deg, #ef5350, #ff7043);
+  border-radius: 3px;
+  transition: width 0.1s linear;
+}
+
 /* AI Bot icon styling */
 .ai-bot-icon{width:18px;height:18px;vertical-align:middle;margin-right:4px}
 .ai-bot-icon-small{width:14px;height:14px;vertical-align:middle}
@@ -790,6 +879,22 @@ html,body{height:100%;font-family:'Segoe UI',Arial,sans-serif;
         <div class="cd-bar"><div class="cd-fill" id="cdFill" style="width:100%"></div></div>
         <div class="cd-text" style="margin-top:6px;font-size:11px">Eliminating in...</div>
       </div>
+      
+      <!-- Auto-turn countdown overlay (online mode only) -->
+      <div class="auto-turn-overlay" id="autoTurnOverlay">
+        <div class="auto-turn-box">
+          <div class="auto-turn-title">⏰ Time's Up!</div>
+          <div class="auto-turn-player" id="autoTurnPlayer">Player</div>
+          <div class="auto-turn-lives">
+            Lives left: <span class="lives-hearts" id="autoTurnLives">❤️❤️❤️❤️❤️</span>
+          </div>
+          <div class="auto-turn-countdown" id="autoTurnCountdown">10</div>
+          <div class="auto-turn-progress">
+            <div class="auto-turn-progress-bar" id="autoTurnProgressBar" style="width:100%"></div>
+          </div>
+          <div style="margin-top:12px;font-size:12px;color:#94a3b8">Auto-playing turn...</div>
+        </div>
+      </div>
     </div>
   </div>
 
@@ -957,7 +1062,11 @@ let G = {
   eliminated: new Set(),
   winner: null,
   playerNames: {red:'You',green:'AI 1',yellow:'AI 2',blue:'AI 3'}, // Default names
-  playerEmojis: {} // {red:'👦', green:'👧', ...}
+  playerEmojis: {}, // {red:'👦', green:'👧', ...}
+  // Online mode auto-play system
+  lives: {}, // {red:5, green:5, ...} - 5 lives per player in online mode
+  autoTurnTimer: null, // countdown timer
+  autoTurnCountdown: 0 // current countdown value
 };
 
 let cdInterval = null;
@@ -1395,6 +1504,9 @@ function performRoll() {
     return;
   }
   
+  // Stop auto-turn countdown when player takes action manually
+  stopAutoTurnCountdown();
+  
   if (!isAI()) G.phase = 'anim';
   diceRolling = true;
   
@@ -1659,6 +1771,11 @@ function handleTokenClick(player, idx) {
 }
 
 async function moveToken(player, idx) {
+  // Stop auto-turn countdown when player moves manually
+  if (G.isOnline && !isAI()) {
+    stopAutoTurnCountdown();
+  }
+  
   const oldPos = G.tokens[player][idx];
   let newPos;
 
@@ -1752,6 +1869,10 @@ function checkCapture(player, tokenIdx, localPos) {
 
 function nextTurn() {
   if (G.winner) return;
+  
+  // Stop any existing auto-turn countdown
+  stopAutoTurnCountdown();
+  
   G.curIdx = (G.curIdx + 1) % G.active.length;
   G.diceVal = null;
   G.phase   = 'roll';
@@ -1764,6 +1885,12 @@ function nextTurn() {
   
   updateUI();
   renderTokens();
+  
+  // Start auto-turn countdown in online mode
+  if (G.isOnline) {
+    startAutoTurnCountdown();
+  }
+  
   if (isAI()) setTimeout(() => performRoll(), 900);
 }
 
@@ -1810,6 +1937,157 @@ document.addEventListener('keydown', e => {
     startEliminationCountdown(curPlayer());
   }
 });
+
+// ════════════════════════════════════════════════════
+// ONLINE MODE AUTO-TURN SYSTEM (10 seconds, 5 lives)
+// ════════════════════════════════════════════════════
+
+const AUTO_TURN_SECONDS = 10;
+const MAX_LIVES = 5;
+
+// Initialize lives for all players in online mode
+function initLives() {
+  G.lives = {};
+  G.active.forEach(p => {
+    G.lives[p] = MAX_LIVES;
+  });
+}
+
+// Start auto-turn countdown for current player (online mode only)
+function startAutoTurnCountdown() {
+  // Only in online mode
+  if (!G.isOnline) return;
+  
+  // Clear any existing timer
+  stopAutoTurnCountdown();
+  
+  const player = curPlayer();
+  
+  // Don't countdown for eliminated players
+  if (G.eliminated.has(player)) return;
+  
+  // Don't countdown if game is over
+  if (G.winner) return;
+  
+  G.autoTurnCountdown = AUTO_TURN_SECONDS;
+  
+  // Update overlay with player info
+  updateAutoTurnOverlay(player);
+  
+  // Start the countdown timer
+  G.autoTurnTimer = setInterval(() => {
+    G.autoTurnCountdown--;
+    updateAutoTurnOverlay(player);
+    
+    if (G.autoTurnCountdown <= 0) {
+      clearInterval(G.autoTurnTimer);
+      G.autoTurnTimer = null;
+      performAutoTurn(player);
+    }
+  }, 1000);
+}
+
+// Stop the auto-turn countdown
+function stopAutoTurnCountdown() {
+  if (G.autoTurnTimer) {
+    clearInterval(G.autoTurnTimer);
+    G.autoTurnTimer = null;
+  }
+  G.autoTurnCountdown = 0;
+  hideAutoTurnOverlay();
+}
+
+// Update the auto-turn overlay UI
+function updateAutoTurnOverlay(player) {
+  const overlay = document.getElementById('autoTurnOverlay');
+  const playerName = document.getElementById('autoTurnPlayer');
+  const livesEl = document.getElementById('autoTurnLives');
+  const countdownEl = document.getElementById('autoTurnCountdown');
+  const progressBar = document.getElementById('autoTurnProgressBar');
+  
+  if (!overlay || G.autoTurnCountdown <= 0) {
+    hideAutoTurnOverlay();
+    return;
+  }
+  
+  overlay.classList.add('active');
+  playerName.textContent = getPlayerDisplayName(player);
+  
+  const lives = G.lives[player] || 0;
+  livesEl.textContent = '❤️'.repeat(lives) + '🖤'.repeat(MAX_LIVES - lives);
+  
+  countdownEl.textContent = G.autoTurnCountdown;
+  progressBar.style.width = (G.autoTurnCountdown / AUTO_TURN_SECONDS * 100) + '%';
+}
+
+// Hide the auto-turn overlay
+function hideAutoTurnOverlay() {
+  const overlay = document.getElementById('autoTurnOverlay');
+  if (overlay) overlay.classList.remove('active');
+}
+
+// Perform auto-turn (roll + move) for a player
+function performAutoTurn(player) {
+  hideAutoTurnOverlay();
+  
+  // Deduct a life
+  G.lives[player] = (G.lives[player] || MAX_LIVES) - 1;
+  const remainingLives = G.lives[player];
+  
+  addLog(`⏰ ${getPlayerDisplayName(player)} didn't respond! Auto-playing... (Lives: ${remainingLives}/${MAX_LIVES})`);
+  
+  // If no lives left, eliminate the player
+  if (remainingLives <= 0) {
+    addLog(`❌ ${getPlayerDisplayName(player)} ran out of lives and was eliminated!`);
+    eliminatePlayer(player);
+    return;
+  }
+  
+  // Update UI to show lives
+  updatePlayerPanels();
+  
+  // Perform roll and move like AI
+  setTimeout(() => {
+    // Roll the dice
+    G.diceVal = Math.floor(Math.random() * 6) + 1;
+    addLog(`🎲 ${getPlayerDisplayName(player)} auto-rolled ${G.diceVal}`);
+    
+    // Broadcast roll in online mode
+    if (G.isOnline) {
+      sendToPeer({ type: 'roll', player: player, value: G.diceVal });
+    }
+    
+    // Animate dice (simplified for auto-turn)
+    const diceCube = document.getElementById('diceCube');
+    if (diceCube) {
+      diceCube.style.transform = DICE_FINAL[G.diceVal];
+    }
+    
+    // Process the roll after a short delay
+    setTimeout(() => {
+      afterRollInternal(player, G.diceVal, true);
+      
+      // If move phase, auto-select best token like AI
+      if (G.phase === 'move') {
+        const movable = G.tokens[player]
+          .map((pos, idx) => ({ pos, idx }))
+          .filter(({ pos }) => {
+            if (pos === 0) return G.diceVal === 6;
+            if (pos >= 57) return false;
+            return pos + G.diceVal <= 57;
+          });
+        
+        if (movable.length > 0) {
+          // Use AI to choose best move
+          const best = aiChoose(player, G.diceVal);
+          if (best) {
+            setTimeout(() => moveToken(player, best.idx), 500);
+          }
+        }
+      }
+    }, 800);
+  }, 500);
+}
 
 // ════════════════════════════════════════════════════
 // UI UPDATES
@@ -1896,12 +2174,21 @@ function updatePlayerPanels() {
       .join('');
     const displayName = G.playerNames[p] || cap(p);
     const emoji = G.playerEmojis[p] || '👤';
+    
+    // Show lives in online mode
+    let livesHTML = '';
+    if (G.isOnline && !isElim) {
+      const lives = G.lives[p] || 0;
+      const hearts = '❤️'.repeat(lives) + '🖤'.repeat(MAX_LIVES - lives);
+      livesHTML = `<div class="panel-lives">${hearts}</div>`;
+    }
 
     panel.innerHTML = `
       <div class="panel-name">
         <div class="panel-dot"></div>${displayName}${emoji}
       </div>
       <div class="panel-tkns">${dotsHTML}</div>
+      ${livesHTML}
     `;
     container.appendChild(panel);
   });
@@ -2445,10 +2732,15 @@ function handlePeerData(data) {
       break;
     case 'turn':
       // Sync turn change
+      stopAutoTurnCountdown(); // Stop any existing countdown
       G.curIdx = data.curIdx;
       G.diceVal = null;
       G.phase = 'roll';
       updateUI();
+      // Start auto-turn countdown in online mode
+      if (G.isOnline) {
+        startAutoTurnCountdown();
+      }
       break;
     case 'extraTurn':
       // Opponent gets extra turn (rolled 6)
@@ -2630,6 +2922,12 @@ function startGame() {
   G.eliminated  = new Set();
   G.winner      = null;
   if (cdInterval) { clearInterval(cdInterval); cdInterval=null; }
+  
+  // Initialize lives for online mode (5 lives per player)
+  if (G.isOnline) {
+    initLives();
+    stopAutoTurnCountdown(); // Clear any existing timer
+  }
   
   // Assign names to players (preserve already set names)
   G.playerEmojis = {};
