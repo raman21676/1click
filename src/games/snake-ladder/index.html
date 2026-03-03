@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <meta name="description" content="Play Snake and Ladder online for free! Classic board game with up to 4 players.">
+  <meta name="description" content="Play Snake and Ladder online for free! Classic board game with up to 4 players. Pass & Play or Online Multiplayer!">
   <meta name="theme-color" content="#0f172a">
   <link rel="canonical" href="https://1click.live/src/games/snake-ladder/">
   <title>Snake &amp; Ladder - 1click Games</title>
@@ -74,7 +74,7 @@
       background:rgba(255,255,255,.05);
       border:1px solid rgba(255,255,255,.1);
       border-radius:16px; padding:24px;
-      width:100%; max-width:400px;
+      width:100%; max-width:420px;
     }
     .setup-label { font-size:13px; color:#94a3b8; margin-bottom:10px; display:block; }
     .count-row { display:flex; gap:8px; margin-bottom:20px; }
@@ -112,6 +112,78 @@
     .back-home { margin-top:20px; color:#64748b; text-decoration:none; font-size:14px; }
     .back-home:hover { color:#94a3b8; }
 
+    /* ── MODE SELECTION ── */
+    .mode-grid {
+      display:flex; flex-direction:column; gap:10px; margin-bottom:20px;
+    }
+    .mode-btn {
+      display:flex; align-items:center; gap:12px;
+      padding:14px; border-radius:12px;
+      border:2px solid transparent;
+      background:rgba(255,255,255,.05);
+      color:#fff; cursor:pointer;
+      transition:all .2s; text-align:left;
+    }
+    .mode-btn:hover { background:rgba(255,255,255,.1); }
+    .mode-btn.active {
+      border-color:var(--accent);
+      background:rgba(76,175,80,.15);
+    }
+    .mode-icon { font-size:2rem; width:40px; text-align:center; flex-shrink:0; }
+    .mode-title { font-size:1rem; font-weight:700; display:block; }
+    .mode-desc { font-size:12px; color:#94a3b8; display:block; }
+
+    /* ── ONLINE SECTIONS ── */
+    #onlineMenu { display:block; }
+    #createRoomForm { display:none; }
+    #joinRoomForm { display:none; }
+    .online-options { display:flex; flex-direction:column; gap:10px; margin:16px 0; }
+    .online-btn {
+      display:flex; align-items:center; gap:12px;
+      padding:14px; border-radius:12px;
+      border:2px solid rgba(255,255,255,.18);
+      background:rgba(255,255,255,.05);
+      color:#fff; cursor:pointer;
+      transition:all .2s; text-align:left;
+    }
+    .online-btn:hover { border-color:rgba(255,255,255,.4); background:rgba(255,255,255,.08); }
+    .room-code-display {
+      font-size:42px; font-weight:800; color:#FFD700;
+      letter-spacing:8px; font-family:monospace;
+      text-shadow:0 2px 10px rgba(255,215,0,.3);
+      text-align:center; padding:20px;
+      background:rgba(0,0,0,.2); border-radius:12px;
+    }
+    .room-input {
+      width:100%; font-size:36px; font-weight:800; text-align:center;
+      padding:16px; background:rgba(0,0,0,.3);
+      border:2px solid rgba(255,255,255,.2); border-radius:12px;
+      color:#fff; font-family:monospace; letter-spacing:12px;
+      outline:none; transition:all .2s; text-transform:uppercase;
+    }
+    .room-input:focus { border-color:#4CAF50; box-shadow:0 0 0 4px rgba(76,175,80,.2); }
+    .status-row {
+      display:flex; align-items:center; gap:8px; padding:10px 14px;
+      background:rgba(0,0,0,.2); border-radius:8px; margin:12px 0;
+      font-size:13px;
+    }
+    .status-dot { width:10px; height:10px; border-radius:50%; background:#999; }
+    .btn-row { display:flex; gap:10px; margin-top:16px; }
+    .btn-small {
+      flex:1; padding:10px; border:2px solid rgba(255,255,255,.2);
+      background:rgba(255,255,255,.05); color:#fff;
+      border-radius:8px; cursor:pointer; font-family:inherit; font-size:14px;
+    }
+    .btn-small:hover { border-color:rgba(255,255,255,.4); }
+    .btn-primary {
+      flex:2; padding:10px; border:none;
+      background:linear-gradient(135deg,#4CAF50,#66BB6A); color:#fff;
+      border-radius:8px; cursor:pointer; font-family:inherit; font-size:14px;
+      font-weight:700;
+    }
+    .btn-primary:hover { opacity:.9; }
+    .btn-primary:disabled { opacity:.5; cursor:not-allowed; }
+
     /* ── GAME SCREEN ── */
     #gameScreen { display:none; height:100dvh; flex-direction:column; overflow:hidden; }
 
@@ -131,7 +203,7 @@
       min-height:0;
     }
 
-    /* ── TURN BANNER (thin) ── */
+    /* ── TURN BANNER ── */
     .turn-banner {
       width:100%; max-width:520px; flex-shrink:0;
       background:rgba(255,255,255,.06);
@@ -142,14 +214,14 @@
     .turn-name { font-size:.95rem; font-weight:700; }
     .turn-msg  { font-size:11px; color:#94a3b8; }
 
-    /* ── CONTROLS ROW (Ludo-style) ── */
+    /* ── CONTROLS ROW ── */
     .controls-row {
       width:100%; max-width:520px; flex-shrink:0;
       display:flex; align-items:center; justify-content:space-between;
       gap:8px; padding:0 2px;
     }
 
-    /* ── DICE (Ludo-identical) ── */
+    /* ── DICE ── */
     .dice-area { display:flex; flex-direction:column; align-items:center; gap:6px; flex-shrink:0; }
     .dice-scene {
       width:56px; height:56px;
@@ -174,7 +246,6 @@
       backface-visibility:hidden;
       display:flex; align-items:center; justify-content:center;
     }
-    /* Ludo face positioning — face-1..face-6 */
     .face-1 { transform:rotateY(  0deg) translateZ(28px); }
     .face-2 { transform:rotateY(180deg) translateZ(28px); }
     .face-3 { transform:rotateY( 90deg) translateZ(28px); }
@@ -195,7 +266,6 @@
       box-shadow:0 1px 3px rgba(0,0,0,.4),inset 0 -1px 1px rgba(0,0,0,.2);
       justify-self:center; align-self:center;
     }
-    /* Ludo dot positions */
     .face-1 .dot:nth-child(1){ grid-area:2/2; }
     .face-2 .dot:nth-child(1){ grid-area:1/1; } .face-2 .dot:nth-child(2){ grid-area:3/3; }
     .face-3 .dot:nth-child(1){ grid-area:1/1; } .face-3 .dot:nth-child(2){ grid-area:2/2; } .face-3 .dot:nth-child(3){ grid-area:3/3; }
@@ -203,7 +273,6 @@
     .face-5 .dot:nth-child(1){ grid-area:1/1; } .face-5 .dot:nth-child(2){ grid-area:1/3; } .face-5 .dot:nth-child(3){ grid-area:2/2; } .face-5 .dot:nth-child(4){ grid-area:3/1; } .face-5 .dot:nth-child(5){ grid-area:3/3; }
     .face-6 .dot:nth-child(1){ grid-area:1/1; } .face-6 .dot:nth-child(2){ grid-area:1/3; } .face-6 .dot:nth-child(3){ grid-area:2/1; } .face-6 .dot:nth-child(4){ grid-area:2/3; } .face-6 .dot:nth-child(5){ grid-area:3/1; } .face-6 .dot:nth-child(6){ grid-area:3/3; }
 
-    /* Ludo-identical per-face roll animations */
     @keyframes roll1 {
       0%   { transform:rotateX(-25deg) rotateY(25deg); }
       20%  { transform:rotateX(-200deg) rotateY(150deg) rotateZ(30deg); }
@@ -252,7 +321,6 @@
     .dice-cube.rolling-4 { animation:roll4 0.85s cubic-bezier(.22,.61,.36,1) forwards; }
     .dice-cube.rolling-5 { animation:roll5 0.85s cubic-bezier(.22,.61,.36,1) forwards; }
     .dice-cube.rolling-6 { animation:roll6 0.85s cubic-bezier(.22,.61,.36,1) forwards; }
-    /* Wrapper bounce — simulates physical throw */
     .dice-scene.rolling { animation:diceThrow 0.85s cubic-bezier(.22,.61,.36,1) forwards; }
     @keyframes diceThrow {
       0%   { transform:translateY(0)     scale(1.00); }
@@ -274,7 +342,7 @@
     .roll-btn:hover:not(:disabled) { transform:translateY(-2px); }
     .roll-btn:disabled { opacity:.35; cursor:not-allowed; }
 
-    /* ── BOARD (IMAGE) ── */
+    /* ── BOARD ── */
     .board-wrap {
       position:relative;
       width:100%; max-width:520px;
@@ -289,7 +357,6 @@
       display:block;
       border-radius:8px;
     }
-    /* SVG overlay for tokens only */
     #tokensSvg {
       position:absolute; inset:0;
       pointer-events:none;
@@ -346,6 +413,8 @@
 
     @media (max-width:420px) {
       .game-body { padding:6px; gap:6px; }
+      .room-code-display { font-size:32px; letter-spacing:4px; }
+      .room-input { font-size:28px; letter-spacing:8px; }
     }
   </style>
 </head>
@@ -364,34 +433,120 @@
 <div id="setupScreen">
   <h1 class="setup-title">🐍 Snake &amp; Ladder 🪜</h1>
   <p class="setup-sub">Climb ladders, dodge snakes, reach 100!</p>
+  
   <div class="setup-card">
-    <label class="setup-label">Number of Players</label>
-    <div class="count-row" id="countRow">
-      <button class="count-btn active" data-n="2">2</button>
-      <button class="count-btn" data-n="3">3</button>
-      <button class="count-btn" data-n="4">4</button>
+    <!-- Mode Selection -->
+    <label class="setup-label">Select Game Mode</label>
+    <div class="mode-grid" id="modeGrid">
+      <button class="mode-btn active" data-mode="local">
+        <span class="mode-icon">👥</span>
+        <div>
+          <span class="mode-title">Pass &amp; Play</span>
+          <span class="mode-desc">Play with friends on this device</span>
+        </div>
+      </button>
+      <button class="mode-btn" data-mode="online">
+        <span class="mode-icon">🌐</span>
+        <div>
+          <span class="mode-title">Online Multiplayer</span>
+          <span class="mode-desc">Play with friends remotely</span>
+        </div>
+      </button>
     </div>
-    <label class="setup-label">Player Names</label>
-    <div class="player-inputs" id="playerInputs">
-      <div class="input-row">
-        <div class="color-dot" style="background:#E53935"></div>
-        <input class="name-input" data-pi="0" placeholder="Player 1" value="Player 1">
+
+    <!-- LOCAL SETTINGS -->
+    <div id="localSettings">
+      <label class="setup-label">Number of Players</label>
+      <div class="count-row" id="countRow">
+        <button class="count-btn active" data-n="2">2</button>
+        <button class="count-btn" data-n="3">3</button>
+        <button class="count-btn" data-n="4">4</button>
       </div>
-      <div class="input-row">
-        <div class="color-dot" style="background:#1E88E5"></div>
-        <input class="name-input" data-pi="1" placeholder="Player 2" value="Player 2">
+      <label class="setup-label">Player Names</label>
+      <div class="player-inputs" id="playerInputs">
+        <div class="input-row">
+          <div class="color-dot" style="background:#E53935"></div>
+          <input class="name-input" data-pi="0" placeholder="Player 1" value="Player 1">
+        </div>
+        <div class="input-row">
+          <div class="color-dot" style="background:#1E88E5"></div>
+          <input class="name-input" data-pi="1" placeholder="Player 2" value="Player 2">
+        </div>
+        <div class="input-row" style="display:none">
+          <div class="color-dot" style="background:#43A047"></div>
+          <input class="name-input" data-pi="2" placeholder="Player 3" value="Player 3">
+        </div>
+        <div class="input-row" style="display:none">
+          <div class="color-dot" style="background:#FDD835"></div>
+          <input class="name-input" data-pi="3" placeholder="Player 4" value="Player 4">
+        </div>
       </div>
-      <div class="input-row" style="display:none">
-        <div class="color-dot" style="background:#43A047"></div>
-        <input class="name-input" data-pi="2" placeholder="Player 3" value="Player 3">
+      <button class="start-btn" id="startBtn">🎮 Start Game</button>
+    </div>
+
+    <!-- ONLINE SETTINGS -->
+    <div id="onlineSettings">
+      <!-- Menu -->
+      <div id="onlineMenu">
+        <label class="setup-label">Number of Players</label>
+        <div class="count-row" id="onlineCountRow">
+          <button class="count-btn active" data-n="2">2</button>
+          <button class="count-btn" data-n="3">3</button>
+          <button class="count-btn" data-n="4">4</button>
+        </div>
+        <div class="online-options">
+          <button class="online-btn" id="createRoomBtn">
+            <span class="mode-icon">🏠</span>
+            <div>
+              <span class="mode-title">Create Room</span>
+              <span class="mode-desc">Get a code & invite friends</span>
+            </div>
+          </button>
+          <button class="online-btn" id="joinRoomBtn">
+            <span class="mode-icon">🔗</span>
+            <div>
+              <span class="mode-title">Join Room</span>
+              <span class="mode-desc">Enter friend's 6-digit code</span>
+            </div>
+          </button>
+        </div>
       </div>
-      <div class="input-row" style="display:none">
-        <div class="color-dot" style="background:#FDD835"></div>
-        <input class="name-input" data-pi="3" placeholder="Player 4" value="Player 4">
+
+      <!-- Create Room -->
+      <div id="createRoomForm">
+        <label class="setup-label">Your Room Code</label>
+        <div class="room-code-display" id="roomCodeDisplay">------</div>
+        <p style="color:#94a3b8; font-size:13px; text-align:center; margin:8px 0;">Share this 6-digit code with your friend!</p>
+        <div class="status-row">
+          <span class="status-dot" id="hostStatusDot"></span>
+          <span id="hostStatusText">Click Generate to create room</span>
+        </div>
+        <div class="btn-row">
+          <button class="btn-small" id="backFromCreate">Back</button>
+          <button class="btn-primary" id="generateRoomBtn">🎲 Generate</button>
+          <button class="btn-primary" id="startOnlineBtn" style="display:none;">▶ Start</button>
+        </div>
+      </div>
+
+      <!-- Join Room -->
+      <div id="joinRoomForm">
+        <label class="setup-label">Your Name</label>
+        <input type="text" id="guestNameInput" maxlength="12" placeholder="Player 2" value="Player 2"
+          style="width:100%; padding:12px; margin-bottom:12px; background:rgba(0,0,0,.3); border:1px solid rgba(255,255,255,.2); border-radius:8px; color:#fff; font-size:16px;">
+        <label class="setup-label">Enter 6-Digit Room Code</label>
+        <input type="text" id="joinRoomInput" class="room-input" maxlength="6" placeholder="123456">
+        <div class="status-row">
+          <span class="status-dot" id="guestStatusDot"></span>
+          <span id="guestStatusText">Enter code and click Join</span>
+        </div>
+        <div class="btn-row">
+          <button class="btn-small" id="backFromJoin">Back</button>
+          <button class="btn-primary" id="joinRoomFinalBtn">🔗 Join Room</button>
+        </div>
       </div>
     </div>
-    <button class="start-btn" id="startBtn">🎮 Start Game</button>
   </div>
+  
   <a class="back-home" href="../../../index.html">← Back to Games</a>
 </div>
 
@@ -404,48 +559,34 @@
   </header>
 
   <div class="game-body">
-
-    <!-- Turn Banner (top) -->
     <div class="turn-banner">
       <div>
         <div class="turn-name" id="turnName">Player 1's Turn</div>
-        <div class="turn-msg"  id="turnMsg">Roll the dice!</div>
+        <div class="turn-msg" id="turnMsg">Roll the dice!</div>
       </div>
     </div>
 
-    <!-- Board: image + SVG token overlay -->
     <div class="board-wrap">
       <img class="board-img" src="assets/board.png" alt="Snake and Ladder Board">
       <svg id="tokensSvg" viewBox="0 0 100 100" preserveAspectRatio="none"></svg>
     </div>
 
-    <!-- Controls row (Ludo-style): player panels + dice -->
     <div class="controls-row">
-      <!-- Player panels -->
       <div class="player-panels" id="playerPanels"></div>
-
-      <!-- 3D Dice -->
       <div class="dice-area">
         <div class="dice-scene" id="diceScene">
           <div class="dice-cube" id="diceCube">
-            <!-- Face 1: center dot -->
             <div class="face face-1"><div class="dots"><div class="dot"></div></div></div>
-            <!-- Face 2: top-left + bottom-right -->
             <div class="face face-2"><div class="dots"><div class="dot"></div><div class="dot"></div></div></div>
-            <!-- Face 3: diagonal -->
             <div class="face face-3"><div class="dots"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div></div>
-            <!-- Face 4: four corners -->
             <div class="face face-4"><div class="dots"><div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div></div></div>
-            <!-- Face 5: four corners + center -->
             <div class="face face-5"><div class="dots"><div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div></div></div>
-            <!-- Face 6: two columns of three -->
             <div class="face face-6"><div class="dots"><div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div></div></div>
           </div>
         </div>
         <button class="roll-btn" id="rollBtn">🎲 ROLL</button>
       </div>
     </div>
-
   </div>
 </div>
 
@@ -459,6 +600,7 @@
   </div>
 </div>
 
+<script src="https://unpkg.com/peerjs@1.5.2/dist/peerjs.min.js"></script>
 <script src="../../assets/js/sound.js"></script>
 <script>
 // ═══════════════════════════════════════════════════
@@ -467,13 +609,9 @@
 const PLAYER_COLORS = ['#E53935','#1E88E5','#43A047','#FDD835'];
 const PLAYER_TXT    = ['#fff',   '#fff',   '#fff',   '#222'  ];
 
-// Snakes: head → tail
 const SNAKES = { 99:41, 92:72, 83:59, 66:55, 36:14, 38:20, 31:10 };
-
-// Ladders: bottom → top
 const LADDERS = { 2:23, 5:35, 13:49, 24:44, 42:61, 53:74, 64:86 };
 
-// Dice final transforms (front=1, right=2, top=3, bottom=4, left=5, back=6)
 const DICE_FINAL = {
   1:'rotateX(0deg) rotateY(0deg)',
   2:'rotateX(0deg) rotateY(-90deg)',
@@ -493,39 +631,31 @@ let G = {
   current: 0,
   busy: false,
   over: false,
+  mode: 'local', // 'local' or 'online'
+  isOnline: false,
+  isHost: false,
+  myPlayerIndex: 0, // In online mode, which player am I
+  roomCode: null,
+  onlineCount: 2,
 };
+
+// PeerJS variables
+let peer = null;
+let connection = null;
 
 // ═══════════════════════════════════════════════════
 //  COORDINATE HELPER
 // ═══════════════════════════════════════════════════
-// The board image is a perfect 10×10 grid.
-// We map cell number → center in SVG viewBox 0 0 100 100.
-// Board image layout (matching generated image & reference):
-//   Top row: 100,99,98,...,91  (left→right)
-//   Row 2:    81,82,83,...,90  (left→right)
-//   Row 3:    80,79,78,...,71  (left→right)
-//   ...zigzag...
-//   Bottom row: 1,2,3,...,10   (left→right)
 function cellCenter(num) {
-  // gridRow: 0 = top row (100..91), 9 = bottom row (1..10)
   const gridRow = Math.floor((100 - num) / 10);
-  const posInRow = (100 - num) % 10; // 0 = leftmost number in this row (from top)
-
+  const posInRow = (100 - num) % 10;
   let col;
   if (gridRow % 2 === 0) {
-    // Even rows (0,2,4,6,8): numbers go RIGHT→LEFT top side, 100,99,...91
-    // posInRow 0 → col 0 (leftmost)
     col = posInRow;
   } else {
-    // Odd rows (1,3,5,7,9): numbers go LEFT→RIGHT, 81,82,...90
-    // posInRow 0 → col 9 (rightmost)
     col = 9 - posInRow;
   }
-
-  return {
-    x: col * 10 + 5,
-    y: gridRow * 10 + 5,
-  };
+  return { x: col * 10 + 5, y: gridRow * 10 + 5 };
 }
 
 // ═══════════════════════════════════════════════════
@@ -541,21 +671,60 @@ window.addEventListener('load', () => {
 //  SETUP
 // ═══════════════════════════════════════════════════
 function initSetup() {
+  // Mode selection
+  document.getElementById('modeGrid').addEventListener('click', e => {
+    const btn = e.target.closest('.mode-btn');
+    if (!btn) return;
+    document.querySelectorAll('.mode-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    G.mode = btn.dataset.mode;
+    updateModeDisplay();
+  });
+
+  // Local settings
   document.getElementById('countRow').addEventListener('click', e => {
     const btn = e.target.closest('.count-btn');
     if (!btn) return;
-    document.querySelectorAll('.count-btn').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('#countRow .count-btn').forEach(b => b.classList.remove('active'));
     btn.classList.add('active');
     G.count = parseInt(btn.dataset.n);
     refreshInputRows();
   });
-  document.getElementById('startBtn').addEventListener('click', startGame);
+
+  // Online player count
+  document.getElementById('onlineCountRow').addEventListener('click', e => {
+    const btn = e.target.closest('.count-btn');
+    if (!btn) return;
+    document.querySelectorAll('#onlineCountRow .count-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    G.onlineCount = parseInt(btn.dataset.n);
+  });
+
+  // Start buttons
+  document.getElementById('startBtn').addEventListener('click', startLocalGame);
   document.getElementById('rollBtn').addEventListener('click', onRoll);
   document.getElementById('playAgainBtn').addEventListener('click', () => {
     document.getElementById('winModal').classList.remove('open');
     document.getElementById('gameScreen').style.display = 'none';
     document.getElementById('setupScreen').style.display = 'flex';
+    cleanupPeer();
   });
+
+  // Online buttons
+  document.getElementById('createRoomBtn').addEventListener('click', showCreateRoom);
+  document.getElementById('joinRoomBtn').addEventListener('click', showJoinRoom);
+  document.getElementById('backFromCreate').addEventListener('click', showOnlineMenu);
+  document.getElementById('backFromJoin').addEventListener('click', showOnlineMenu);
+  document.getElementById('generateRoomBtn').addEventListener('click', createRoom);
+  document.getElementById('startOnlineBtn').addEventListener('click', startOnlineGame);
+  document.getElementById('joinRoomFinalBtn').addEventListener('click', joinRoom);
+}
+
+function updateModeDisplay() {
+  const isLocal = G.mode === 'local';
+  document.getElementById('localSettings').style.display = isLocal ? 'block' : 'none';
+  document.getElementById('onlineSettings').style.display = isLocal ? 'none' : 'block';
+  if (!isLocal) showOnlineMenu();
 }
 
 function refreshInputRows() {
@@ -565,18 +734,238 @@ function refreshInputRows() {
 }
 
 // ═══════════════════════════════════════════════════
-//  START GAME
+//  ONLINE MULTIPLAYER
 // ═══════════════════════════════════════════════════
-function startGame() {
+function showOnlineMenu() {
+  document.getElementById('onlineMenu').classList.add('active');
+  document.getElementById('createRoomForm').classList.remove('active');
+  document.getElementById('joinRoomForm').classList.remove('active');
+}
+
+function showCreateRoom() {
+  document.getElementById('onlineMenu').style.display = 'none';
+  document.getElementById('createRoomForm').style.display = 'block';
+}
+
+function showJoinRoom() {
+  document.getElementById('onlineMenu').style.display = 'none';
+  document.getElementById('joinRoomForm').style.display = 'block';
+}
+
+function generateRoomCode() {
+  return Math.floor(100000 + Math.random() * 900000).toString();
+}
+
+function createRoom() {
+  cleanupPeer();
+  G.isHost = true;
+  G.roomCode = generateRoomCode();
+  
+  document.getElementById('hostStatusText').textContent = 'Creating room...';
+  document.getElementById('hostStatusDot').style.background = '#FFA500';
+  
+  peer = new Peer(G.roomCode, {
+    debug: 2,
+    config: { iceServers: [{ urls: 'stun:stun.l.google.com:19302' }] }
+  });
+  
+  peer.on('open', id => {
+    document.getElementById('roomCodeDisplay').textContent = id;
+    document.getElementById('hostStatusText').textContent = 'Room ready! Waiting for players...';
+    document.getElementById('hostStatusDot').style.background = '#4CAF50';
+    document.getElementById('generateRoomBtn').style.display = 'none';
+    document.getElementById('startOnlineBtn').style.display = 'inline-block';
+  });
+  
+  peer.on('connection', conn => {
+    connection = conn;
+    setupConnection(conn);
+    document.getElementById('hostStatusText').textContent = 'Player connected! Ready to start.';
+  });
+  
+  peer.on('error', err => {
+    console.error('[PeerJS] Error:', err);
+    if (err.type === 'unavailable-id') {
+      G.roomCode = generateRoomCode();
+      createRoom();
+    } else {
+      document.getElementById('hostStatusText').textContent = 'Error: ' + err.message;
+      document.getElementById('hostStatusDot').style.background = '#f44336';
+    }
+  });
+}
+
+function joinRoom() {
+  cleanupPeer();
+  G.isHost = false;
+  G.roomCode = document.getElementById('joinRoomInput').value.trim().toUpperCase();
+  
+  if (G.roomCode.length !== 6) {
+    document.getElementById('guestStatusText').textContent = 'Please enter a 6-digit code';
+    document.getElementById('guestStatusDot').style.background = '#f44336';
+    return;
+  }
+  
+  document.getElementById('guestStatusText').textContent = 'Connecting...';
+  document.getElementById('guestStatusDot').style.background = '#FFA500';
+  
+  peer = new Peer({
+    debug: 2,
+    config: { iceServers: [{ urls: 'stun:stun.l.google.com:19302' }] }
+  });
+  
+  peer.on('open', () => {
+    connection = peer.connect(G.roomCode);
+    setupConnection(connection);
+  });
+  
+  peer.on('error', err => {
+    console.error('[PeerJS] Error:', err);
+    document.getElementById('guestStatusText').textContent = 'Connection failed';
+    document.getElementById('guestStatusDot').style.background = '#f44336';
+  });
+}
+
+function setupConnection(conn) {
+  conn.on('open', () => {
+    if (!G.isHost) {
+      document.getElementById('guestStatusText').textContent = 'Connected! Waiting for host...';
+      document.getElementById('guestStatusDot').style.background = '#4CAF50';
+      // Send handshake
+      const name = document.getElementById('guestNameInput').value.trim() || 'Player 2';
+      conn.send({ type: 'handshake', name: name, playerIndex: 1 });
+    }
+  });
+  
+  conn.on('data', handlePeerData);
+  
+  conn.on('close', () => {
+    if (!G.over) {
+      setMsg('⚠️ Opponent disconnected');
+    }
+  });
+  
+  conn.on('error', err => {
+    console.error('[PeerJS] Connection error:', err);
+  });
+}
+
+function handlePeerData(data) {
+  console.log('[PeerJS] Received:', data);
+  
+  switch (data.type) {
+    case 'handshake':
+      // Host receives guest info
+      if (G.isHost && data.name) {
+        G.players[1] = { name: data.name, color: PLAYER_COLORS[1], text: PLAYER_TXT[1] };
+      }
+      break;
+      
+    case 'gameStart':
+      // Guest receives game start
+      G.isOnline = true;
+      G.myPlayerIndex = 1;
+      G.count = data.count || 2;
+      G.players = data.players || [
+        { name: 'Host', color: PLAYER_COLORS[0], text: PLAYER_TXT[0] },
+        { name: document.getElementById('guestNameInput').value.trim() || 'Player 2', color: PLAYER_COLORS[1], text: PLAYER_TXT[1] }
+      ];
+      initGame();
+      break;
+      
+    case 'roll':
+      // Opponent rolled
+      if (data.playerIndex !== G.myPlayerIndex) {
+        performRollAnimation(data.value, false);
+      }
+      break;
+      
+    case 'moveComplete':
+      // Opponent's move completed
+      if (data.playerIndex !== G.myPlayerIndex) {
+        G.positions[data.playerIndex] = data.position;
+        G.current = data.nextPlayer;
+        G.busy = false;
+        renderTokens();
+        renderUI();
+        document.getElementById('rollBtn').disabled = (G.current !== G.myPlayerIndex);
+      }
+      break;
+      
+    case 'turn':
+      G.current = data.current;
+      G.busy = false;
+      renderUI();
+      document.getElementById('rollBtn').disabled = (G.current !== G.myPlayerIndex);
+      break;
+  }
+}
+
+function sendToPeer(data) {
+  if (connection && connection.open) {
+    connection.send(data);
+  }
+}
+
+function cleanupPeer() {
+  if (connection) {
+    connection.close();
+    connection = null;
+  }
+  if (peer) {
+    peer.destroy();
+    peer = null;
+  }
+  G.isHost = false;
+  G.isOnline = false;
+  G.roomCode = null;
+}
+
+function startOnlineGame() {
+  if (!connection || !connection.open) {
+    document.getElementById('hostStatusText').textContent = 'Wait for player to connect!';
+    return;
+  }
+  
+  G.isOnline = true;
+  G.myPlayerIndex = 0;
+  G.count = 2; // For simplicity, online is 2 players
+  
+  // Initialize players
+  const inputs = document.querySelectorAll('#playerInputs .name-input');
+  G.players = [
+    { name: inputs[0].value.trim() || 'Player 1', color: PLAYER_COLORS[0], text: PLAYER_TXT[0] },
+    { name: G.players[1]?.name || 'Player 2', color: PLAYER_COLORS[1], text: PLAYER_TXT[1] }
+  ];
+  
+  // Notify guest
+  sendToPeer({
+    type: 'gameStart',
+    count: G.count,
+    players: G.players
+  });
+  
+  initGame();
+}
+
+// ═══════════════════════════════════════════════════
+//  GAME START
+// ═══════════════════════════════════════════════════
+function startLocalGame() {
+  G.isOnline = false;
   const inputs = document.querySelectorAll('#playerInputs .name-input');
   G.players = [];
   for (let i = 0; i < G.count; i++) {
     G.players.push({
       name: inputs[i].value.trim() || `Player ${i+1}`,
       color: PLAYER_COLORS[i],
-      text:  PLAYER_TXT[i],
+      text: PLAYER_TXT[i],
     });
   }
+  initGame();
+}
+
+function initGame() {
   G.positions = [0, 0, 0, 0];
   G.current = 0;
   G.busy = false;
@@ -585,25 +974,50 @@ function startGame() {
   document.getElementById('setupScreen').style.display = 'none';
   document.getElementById('gameScreen').style.display = 'flex';
 
+  // In online mode, only current player can roll
+  if (G.isOnline) {
+    document.getElementById('rollBtn').disabled = (G.current !== G.myPlayerIndex);
+  } else {
+    document.getElementById('rollBtn').disabled = false;
+  }
+
   renderUI();
   renderTokens();
   trySound(() => SoundManager.playSuccess());
 }
 
+// ═══════════════════════════════════════════════════
+//  ROLL
+// ═══════════════════════════════════════════════════
 function onRoll() {
   if (G.busy || G.over) return;
+  
+  // Online: only current player can roll
+  if (G.isOnline && G.current !== G.myPlayerIndex) {
+    return;
+  }
+  
   G.busy = true;
   document.getElementById('rollBtn').disabled = true;
 
-  const val   = Math.floor(Math.random() * 6) + 1;
-  const cube  = document.getElementById('diceCube');
+  const val = Math.floor(Math.random() * 6) + 1;
+  
+  // Broadcast to peer in online mode
+  if (G.isOnline) {
+    sendToPeer({ type: 'roll', playerIndex: G.myPlayerIndex, value: val });
+  }
+  
+  performRollAnimation(val, true);
+}
+
+function performRollAnimation(val, shouldProcess) {
+  const cube = document.getElementById('diceCube');
   const scene = document.getElementById('diceScene');
 
-  // Reset cleanly (Ludo pattern)
   cube.className = 'dice-cube';
   cube.style.transform = '';
   scene.classList.remove('rolling');
-  void cube.offsetWidth; // force reflow
+  void cube.offsetWidth;
 
   cube.classList.add('rolling-' + val);
   scene.classList.add('rolling');
@@ -613,7 +1027,9 @@ function onRoll() {
     cube.style.transform = DICE_FINAL[val];
     cube.classList.remove('rolling-' + val);
     scene.classList.remove('rolling');
-    handleMove(G.current, val);
+    if (shouldProcess) {
+      handleMove(G.current, val);
+    }
   }, 850);
 }
 
@@ -638,7 +1054,7 @@ function handleMove(pi, steps) {
       setTimeout(() => {
         G.positions[pi] = SNAKES[raw];
         renderTokens();
-        setTimeout(endTurn, 500);
+        setTimeout(() => endTurnWithSync(pi), 500);
       }, 700);
     } else if (LADDERS[raw] !== undefined) {
       setMsg('🪜 Ladder! Climb up!');
@@ -646,16 +1062,55 @@ function handleMove(pi, steps) {
       setTimeout(() => {
         G.positions[pi] = LADDERS[raw];
         renderTokens();
-        setTimeout(endTurn, 500);
+        setTimeout(() => endTurnWithSync(pi), 500);
       }, 700);
     } else if (raw === 100) {
       trySound(() => SoundManager.playWin());
       showWin(pi);
+      // Sync win
+      if (G.isOnline) {
+        sendToPeer({ type: 'moveComplete', playerIndex: pi, position: 100, nextPlayer: pi, won: true });
+      }
     } else {
       trySound(() => SoundManager.playMove());
-      endTurn();
+      endTurnWithSync(pi);
     }
   });
+}
+
+function endTurnWithSync(pi) {
+  const nextPlayer = (pi + 1) % G.count;
+  
+  // Sync with peer
+  if (G.isOnline) {
+    sendToPeer({
+      type: 'moveComplete',
+      playerIndex: pi,
+      position: G.positions[pi],
+      nextPlayer: nextPlayer
+    });
+  }
+  
+  G.current = nextPlayer;
+  G.busy = false;
+  
+  // In online mode, only enable roll if it's my turn
+  if (G.isOnline) {
+    document.getElementById('rollBtn').disabled = (G.current !== G.myPlayerIndex);
+  } else {
+    document.getElementById('rollBtn').disabled = false;
+  }
+  
+  // Reset dice
+  const cube = document.getElementById('diceCube');
+  cube.className = 'dice-cube';
+  cube.style.transform = 'rotateX(-25deg) rotateY(25deg)';
+  
+  renderUI();
+}
+
+function endTurn() {
+  endTurnWithSync(G.current);
 }
 
 function animSteps(pi, from, to, done) {
@@ -670,18 +1125,6 @@ function animSteps(pi, from, to, done) {
     else done();
   }
   tick();
-}
-
-function endTurn() {
-  if (G.over) return;
-  G.current = (G.current + 1) % G.count;
-  G.busy = false;
-  document.getElementById('rollBtn').disabled = false;
-  // Reset dice to neutral position (Ludo style)
-  const cube = document.getElementById('diceCube');
-  cube.className = 'dice-cube';
-  cube.style.transform = 'rotateX(-25deg) rotateY(25deg)';
-  renderUI();
 }
 
 function showWin(pi) {
@@ -701,7 +1144,18 @@ function renderUI() {
   const nameEl = document.getElementById('turnName');
   nameEl.textContent = `${p.name}'s Turn`;
   nameEl.style.color = p.color;
-  setMsg('Roll the dice!');
+  
+  // Add online indicator
+  if (G.isOnline) {
+    if (G.current === G.myPlayerIndex) {
+      setMsg('Your turn! Roll the dice!');
+    } else {
+      setMsg(`Waiting for ${p.name}...`);
+    }
+  } else {
+    setMsg('Roll the dice!');
+  }
+  
   renderPanels();
 }
 
@@ -733,7 +1187,6 @@ function renderTokens() {
   const svg = document.getElementById('tokensSvg');
   svg.innerHTML = '';
 
-  // Group by cell
   const groups = {};
   G.players.forEach((p, i) => {
     const pos = G.positions[i];
@@ -750,7 +1203,6 @@ function renderTokens() {
       const p = G.players[pi];
       const r = n > 2 ? 2.6 : 3.2;
 
-      // Offset tokens that share a cell
       let ox = 0, oy = 0;
       if (n === 2) { ox = (k === 0 ? -2.5 : 2.5); }
       else if (n === 3) { ox = (k - 1) * 3; oy = k === 1 ? -1 : 1; }
@@ -759,13 +1211,11 @@ function renderTokens() {
       const cx = c.x + ox;
       const cy = c.y + oy;
 
-      // Shadow
       const sh = svgEl('circle');
       sh.setAttribute('cx', cx + .5); sh.setAttribute('cy', cy + .7);
       sh.setAttribute('r', r); sh.setAttribute('fill', 'rgba(0,0,0,.4)');
       svg.appendChild(sh);
 
-      // Body
       const circ = svgEl('circle');
       circ.setAttribute('cx', cx); circ.setAttribute('cy', cy);
       circ.setAttribute('r', r);
@@ -774,7 +1224,6 @@ function renderTokens() {
       circ.setAttribute('stroke-width', '1.2');
       svg.appendChild(circ);
 
-      // Number label
       const txt = svgEl('text');
       txt.setAttribute('x', cx); txt.setAttribute('y', cy + r * 0.4);
       txt.setAttribute('text-anchor', 'middle');
