@@ -590,16 +590,6 @@ function startGame() {
   trySound(() => SoundManager.playSuccess());
 }
 
-// Ludo-identical dice final transforms
-const DICE_FINAL = {
-  1: 'rotateX(-720deg) rotateY(720deg)',
-  2: 'rotateX(-720deg) rotateY(900deg)',
-  3: 'rotateX(-720deg) rotateY(630deg)',
-  4: 'rotateX(-720deg) rotateY(810deg)',
-  5: 'rotateX(-810deg) rotateY(720deg)',
-  6: 'rotateX(-630deg) rotateY(720deg)',
-};
-
 function onRoll() {
   if (G.busy || G.over) return;
   G.busy = true;
