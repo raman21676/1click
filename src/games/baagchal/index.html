@@ -550,8 +550,9 @@
         <!-- Menu Screen -->
         <div class="menu-screen" id="menu-screen">
             <h2 class="menu-title">🐅 Baagchal 🐐</h2>
-            <button class="menu-btn friend" id="btn-friend">👥 Play with Friend</button>
-            <button class="menu-btn ai" id="btn-ai">🤖 Play with Computer</button>
+            <button class="menu-btn friend" id="btn-friend">👥 Pass & Play</button>
+            <button class="menu-btn ai" id="btn-ai"><img src="assets/ai-bot.png" style="width:24px;height:24px;vertical-align:middle;margin-right:8px;border-radius:50%;"> Play with Computer</button>
+            <button class="menu-btn online" id="btn-online" style="background: linear-gradient(135deg, #f59e0b, #ef4444);color:white;">🌐 Online Multiplayer</button>
             
             <div class="rules-box">
                 <h3>📜 Rules</h3>
@@ -590,6 +591,28 @@
             
             <button class="start-btn" id="btn-start-ai">Start Game</button>
             <button class="back-menu-btn" id="btn-back-menu">← Back to Menu</button>
+        </div>
+
+        <!-- Online Setup Screen -->
+        <div class="online-setup" id="online-setup" style="display:none;flex:1;flex-direction:column;justify-content:center;padding:2rem;gap:1.5rem;">
+            <h2 class="setup-title">🌐 Online Multiplayer</h2>
+            
+            <div class="setup-section">
+                <h4>Create Room</h4>
+                <p style="color:var(--text-muted);font-size:0.85rem;margin-bottom:0.8rem;">Create a room and invite a friend</p>
+                <button class="start-btn" id="btn-create-room" style="background:linear-gradient(135deg,#22c55e,#16a34a);">Create Room</button>
+            </div>
+            
+            <div class="setup-section">
+                <h4>Join Room</h4>
+                <p style="color:var(--text-muted);font-size:0.85rem;margin-bottom:0.8rem;">Enter 6-digit room code</p>
+                <input type="text" id="room-code-input" maxlength="6" placeholder="ROOM CODE" style="width:100%;padding:1rem;font-size:1.2rem;text-align:center;border-radius:8px;border:2px solid var(--border);background:var(--bg);color:var(--text);text-transform:uppercase;letter-spacing:4px;margin-bottom:0.8rem;">
+                <button class="start-btn" id="btn-join-room" style="background:linear-gradient(135deg,#3b82f6,#2563eb);">Join Room</button>
+            </div>
+            
+            <div id="online-status" style="text-align:center;color:var(--text-muted);font-size:0.9rem;min-height:1.5rem;"></div>
+            
+            <button class="back-menu-btn" id="btn-back-menu-online">← Back to Menu</button>
         </div>
 
         <!-- Game Screen -->
@@ -1738,7 +1761,210 @@ class BaagchalGame {
 }
 
 new BaagchalGame();
+    }
+    
+    // Online Multiplayer
+    setupOnline() {
+        document.getElementById('btn-online').addEventListener('click', () => {
+            this.showOnlineSetup();
+        });
+        document.getElementById('btn-back-menu-online').addEventListener('click', () => {
+            this.showMenu();
+        });
+        document.getElementById('btn-create-room').addEventListener('click', () => {
+            this.createRoom();
+        });
+        document.getElementById('btn-join-room').addEventListener('click', () => {
+            this.joinRoom();
+        });
+    }
+    
+    showOnlineSetup() {
+        document.getElementById('menu-screen').style.display = 'none';
+        document.getElementById('ai-setup').style.display = 'none';
+        document.getElementById('online-setup').style.display = 'flex';
+        document.getElementById('game-screen').style.display = 'none';
+    }
+    
+    createRoom() {
+        const roomCode = Math.floor(100000 + Math.random() * 900000).toString();
+        document.getElementById('online-status').innerHTML = 
+            `<span style="color:#22c55e;">Room created! Code: <strong style="font-size:1.3rem;letter-spacing:2px;">${roomCode}</strong></span>`;
+        
+        // Initialize PeerJS as host
+        this.initPeerJS(roomCode, true);
+    }
+    
+    joinRoom() {
+        const roomCode = document.getElementById('room-code-input').value.trim().toUpperCase();
+        if (roomCode.length !== 6) {
+            document.getElementById('online-status').innerHTML = 
+                `<span style="color:#ef4444;">Please enter a valid 6-digit room code</span>`;
+            return;
+        }
+        
+        document.getElementById('online-status').innerHTML = 
+            `<span style="color:#3b82f6;">Connecting...</span>`;
+        
+        // Initialize PeerJS as guest
+        this.initPeerJS(roomCode, false);
+    }
+    
+    initPeerJS(roomCode, isHost) {
+        this.isOnline = true;
+        this.isHost = isHost;
+        this.roomCode = roomCode;
+        this.onlineSide = isHost ? 'G' : 'T'; // Host plays Goat, Guest plays Tiger
+        
+        // Generate unique peer ID
+        const peerId = `baagchal-${roomCode}-${isHost ? 'host' : 'guest'}-${Date.now()}`;
+        
+        this.peer = new Peer(peerId, {
+            host: '0.peerjs.com',
+            port: 443,
+            secure: true,
+            debug: 1
+        });
+        
+        this.peer.on('open', (id) => {
+            console.log('PeerJS connected:', id);
+            if (isHost) {
+                document.getElementById('online-status').innerHTML = 
+                    `<span style="color:#22c55e;">Room ${roomCode} created! Waiting for opponent...</span>`;
+            } else {
+                // Connect to host
+                const hostId = `baagchal-${roomCode}-host`;
+                this.conn = this.peer.connect(hostId);
+                this.setupConnection();
+            }
+        });
+        
+        this.peer.on('connection', (conn) => {
+            this.conn = conn;
+            this.setupConnection();
+        });
+        
+        this.peer.on('error', (err) => {
+            console.error('PeerJS error:', err);
+            document.getElementById('online-status').innerHTML = 
+                `<span style="color:#ef4444;">Connection error: ${err.message}</span>`;
+        });
+    }
+    
+    setupConnection() {
+        this.conn.on('open', () => {
+            console.log('PeerJS connection opened');
+            document.getElementById('online-status').innerHTML = 
+                `<span style="color:#22c55e;">Connected! Starting game...</span>`;
+            
+            if (this.isHost) {
+                // Host starts the game
+                setTimeout(() => this.startOnlineGame(), 1000);
+            }
+        });
+        
+        this.conn.on('data', (data) => {
+            this.handlePeerData(data);
+        });
+        
+        this.conn.on('close', () => {
+            document.getElementById('online-status').innerHTML = 
+                `<span style="color:#ef4444;">Opponent disconnected</span>`;
+        });
+    }
+    
+    startOnlineGame() {
+        this.gameMode = 'ONLINE';
+        this.playerSide = this.onlineSide;
+        this.resetGame();
+        document.getElementById('online-setup').style.display = 'none';
+        document.getElementById('game-screen').style.display = 'flex';
+        this.render();
+        
+        // Send start signal to opponent
+        if (this.conn) {
+            this.conn.send({
+                type: 'start',
+                board: this.board,
+                turn: this.turn,
+                phase: this.phase,
+                goatsPlaced: this.goatsPlaced,
+                goatsCaptured: this.goatsCaptured
+            });
+        }
+    }
+    
+    handlePeerData(data) {
+        console.log('Received:', data);
+        
+        switch(data.type) {
+            case 'start':
+                this.board = data.board;
+                this.turn = data.turn;
+                this.phase = data.phase;
+                this.goatsPlaced = data.goatsPlaced;
+                this.goatsCaptured = data.goatsCaptured;
+                document.getElementById('online-setup').style.display = 'none';
+                document.getElementById('game-screen').style.display = 'flex';
+                this.render();
+                break;
+                
+            case 'move':
+                this.board = data.board;
+                this.turn = data.turn;
+                this.phase = data.phase;
+                this.goatsPlaced = data.goatsPlaced;
+                this.goatsCaptured = data.goatsCaptured;
+                this.winner = data.winner;
+                this.render();
+                break;
+        }
+    }
+    
+    sendMoveToPeer() {
+        if (this.conn) {
+            this.conn.send({
+                type: 'move',
+                board: this.board,
+                turn: this.turn,
+                phase: this.phase,
+                goatsPlaced: this.goatsPlaced,
+                goatsCaptured: this.goatsCaptured,
+                winner: this.winner
+            });
+        }
+    }
+    
+    // Override endTurn for online
+    endTurn() {
+        if (this.isOnline) {
+            this.sendMoveToPeer();
+        }
+        this.render();
+    }
+    
+    // Override handleCellClick for online
+    handleCellClick(index) {
+        if (this.winner) return;
+        if (this.isOnline && this.turn !== this.playerSide) return; // Not my turn
+        if (this.isOnline && this.turn !== this.onlineSide) return; // Wrong side
+        
+        // ... rest of original logic handled by existing code ...
+        // Call parent's logic and then send move
+        const originalEndTurn = this.endTurn.bind(this);
+        this.endTurn = () => {
+            if (this.isOnline) {
+                this.sendMoveToPeer();
+            }
+            this.render();
+        };
+    }
+}
+
+const game = new BaagchalGame();
+game.setupOnline();
     </script>
+    <script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js"></script>
     <script src="../../assets/js/sound.js"></script>
     <script>
       window.addEventListener('load', () => {

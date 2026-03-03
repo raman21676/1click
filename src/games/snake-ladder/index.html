@@ -42,7 +42,7 @@
 
     /* ── SOUND BTN ── */
     #soundBtn {
-      position:fixed; bottom:20px; right:20px;
+      position:fixed; top:70px; right:20px;
       width:46px; height:46px; border-radius:50%;
       background:linear-gradient(135deg,#14b8a6,#06b6d4);
       border:none; cursor:pointer;
@@ -438,7 +438,14 @@
     <!-- Mode Selection -->
     <label class="setup-label">Select Game Mode</label>
     <div class="mode-grid" id="modeGrid">
-      <button class="mode-btn active" data-mode="local">
+      <button class="mode-btn active" data-mode="ai">
+        <span class="mode-icon">🤖</span>
+        <div>
+          <span class="mode-title">vs Computer</span>
+          <span class="mode-desc">Play against AI opponent</span>
+        </div>
+      </button>
+      <button class="mode-btn" data-mode="local">
         <span class="mode-icon">👥</span>
         <div>
           <span class="mode-title">Pass &amp; Play</span>
@@ -610,7 +617,7 @@ const PLAYER_COLORS = ['#E53935','#1E88E5','#43A047','#FDD835'];
 const PLAYER_TXT    = ['#fff',   '#fff',   '#fff',   '#222'  ];
 
 const SNAKES = { 99:41, 92:72, 83:59, 66:55, 36:14, 38:20, 31:10 };
-const LADDERS = { 2:23, 5:35, 13:49, 24:44, 42:61, 53:74, 64:86 };
+const LADDERS = { 2:23, 5:35, 13:49, 24:45, 42:61, 53:74, 64:86 };
 
 const DICE_FINAL = {
   1:'rotateX(0deg) rotateY(0deg)',
@@ -955,12 +962,30 @@ function startLocalGame() {
   G.isOnline = false;
   const inputs = document.querySelectorAll('#playerInputs .name-input');
   G.players = [];
-  for (let i = 0; i < G.count; i++) {
+  
+  // AI Mode: 2 players (human vs AI)
+  if (G.mode === 'ai') {
+    G.count = 2;
     G.players.push({
-      name: inputs[i].value.trim() || `Player ${i+1}`,
-      color: PLAYER_COLORS[i],
-      text: PLAYER_TXT[i],
+      name: inputs[0].value.trim() || 'Player 1',
+      color: PLAYER_COLORS[0],
+      text: PLAYER_TXT[0],
     });
+    G.players.push({
+      name: 'Computer',
+      color: PLAYER_COLORS[1],
+      text: PLAYER_TXT[1],
+      isAI: true
+    });
+  } else {
+    // Local multiplayer
+    for (let i = 0; i < G.count; i++) {
+      G.players.push({
+        name: inputs[i].value.trim() || `Player ${i+1}`,
+        color: PLAYER_COLORS[i],
+        text: PLAYER_TXT[i],
+      });
+    }
   }
   initGame();
 }
@@ -975,8 +1000,11 @@ function initGame() {
   document.getElementById('gameScreen').style.display = 'flex';
 
   // In online mode, only current player can roll
+  // In AI mode, only human (player 0) can roll, AI is player 1
   if (G.isOnline) {
     document.getElementById('rollBtn').disabled = (G.current !== G.myPlayerIndex);
+  } else if (G.mode === 'ai') {
+    document.getElementById('rollBtn').disabled = false;
   } else {
     document.getElementById('rollBtn').disabled = false;
   }
@@ -1107,6 +1135,12 @@ function endTurnWithSync(pi) {
   cube.style.transform = 'rotateX(-25deg) rotateY(25deg)';
   
   renderUI();
+  
+  // AI Turn: Auto-roll for computer player
+  if (!G.isOnline && G.mode === 'ai' && G.current === 1 && !G.over) {
+    document.getElementById('rollBtn').disabled = true;
+    setTimeout(() => onRoll(), 1000);
+  }
 }
 
 function endTurn() {

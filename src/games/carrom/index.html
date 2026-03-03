@@ -1,1303 +1,1441 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <meta name="description" content="Play Carrom Board online for free! Classic board game with realistic physics. Pocket coins, cover the queen, and win!">
-  <meta name="keywords" content="carrom, carrom board, carrom game, board game, striker game">
-  <meta name="theme-color" content="#0f172a">
-  <link rel="canonical" href="https://1click.live/src/games/carrom/">
-  <title>Carrom Board - 1click Games</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;800&display=swap" rel="stylesheet">
-  <style>
-    *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
-
-    :root {
-      --bg: #0f172a;
-      --accent: #4CAF50;
-      --board-wood: #d4a574;
-      --board-border: #8b5a2b;
-    }
-
-    html, body {
-      height: 100%;
-      font-family: 'Poppins', -apple-system, sans-serif;
-      background: linear-gradient(135deg, var(--bg) 0%, #1a1a2e 100%);
-      color: #fff;
-      overflow: hidden;
-    }
-
-    /* ── LOADING ── */
-    #loadingScreen {
-      position:fixed; inset:0;
-      background:var(--bg);
-      display:flex; flex-direction:column;
-      align-items:center; justify-content:center;
-      z-index:9999;
-      transition:opacity .5s, visibility .5s;
-    }
-    #loadingScreen.hidden { opacity:0; visibility:hidden; }
-    .load-icon { font-size:4rem; animation:pulse 1.4s ease-in-out infinite; }
-    @keyframes pulse { 0%,100%{transform:scale(1)} 50%{transform:scale(1.12)} }
-    .load-text { margin-top:1rem; color:#94a3b8; font-size:1.1rem; }
-
-    /* ── SOUND BTN ── */
-    #soundBtn {
-      position:fixed; bottom:20px; right:20px;
-      width:46px; height:46px; border-radius:50%;
-      background:linear-gradient(135deg,#14b8a6,#06b6d4);
-      border:none; cursor:pointer;
-      display:flex; align-items:center; justify-content:center;
-      font-size:1.3rem;
-      box-shadow:0 4px 14px rgba(20,184,166,.4);
-      transition:transform .2s;
-      z-index:1000;
-    }
-    #soundBtn:hover { transform:scale(1.1); }
-    #soundBtn.muted { background:linear-gradient(145deg,#475569,#334155); }
-
-    /* ── SETUP SCREEN ── */
-    #setupScreen {
-      min-height:100vh;
-      display:flex; flex-direction:column;
-      align-items:center; justify-content:center;
-      padding:24px;
-    }
-    .setup-title {
-      font-size:clamp(2rem,8vw,3.2rem);
-      font-weight:800;
-      background:linear-gradient(135deg,#d4a574,#8b5a2b,#d4a574);
-      -webkit-background-clip:text; -webkit-text-fill-color:transparent;
-      text-align:center; margin-bottom:.4rem;
-    }
-    .setup-sub { color:#94a3b8; margin-bottom:2rem; text-align:center; }
-    .setup-card {
-      background:rgba(255,255,255,.05);
-      border:1px solid rgba(255,255,255,.1);
-      border-radius:16px; padding:24px;
-      width:100%; max-width:400px;
-    }
-    .setup-label { font-size:13px; color:#94a3b8; margin-bottom:10px; display:block; }
-    .mode-grid { display:flex; flex-direction:column; gap:10px; margin-bottom:20px; }
-    .mode-btn {
-      display:flex; align-items:center; gap:12px;
-      padding:14px; border-radius:12px;
-      border:2px solid transparent;
-      background:rgba(255,255,255,.05);
-      color:#fff; cursor:pointer;
-      transition:all .2s; text-align:left;
-    }
-    .mode-btn:hover { background:rgba(255,255,255,.1); }
-    .mode-btn.active {
-      border-color:var(--accent);
-      background:rgba(76,175,80,.15);
-    }
-    .mode-icon { font-size:2rem; width:40px; text-align:center; flex-shrink:0; }
-    .mode-title { font-size:1rem; font-weight:700; display:block; }
-    .mode-desc { font-size:12px; color:#94a3b8; display:block; }
-    .color-row { display:flex; gap:8px; margin-bottom:20px; }
-    .color-btn {
-      flex:1; padding:12px;
-      border:2px solid rgba(255,255,255,.18);
-      background:rgba(255,255,255,.05);
-      color:#fff; border-radius:8px;
-      cursor:pointer; font-size:14px; font-family:inherit;
-      transition:all .25s; display:flex; align-items:center; justify-content:center; gap:6px;
-    }
-    .color-btn:hover { border-color:var(--accent); }
-    .color-btn.active { border-color:var(--accent); background:rgba(76,175,80,.18); }
-    .name-input {
-      width:100%; padding:12px 14px;
-      border:1px solid rgba(255,255,255,.18);
-      background:rgba(0,0,0,.3); color:#fff;
-      border-radius:8px; font-size:14px; font-family:inherit;
-      margin-bottom:12px;
-    }
-    .start-btn {
-      width:100%; padding:14px;
-      border:none;
-      background:linear-gradient(135deg,#4CAF50,#66BB6A);
-      color:#fff; font-size:16px; font-weight:700;
-      border-radius:12px; cursor:pointer; font-family:inherit;
-      transition:transform .2s, box-shadow .2s;
-      box-shadow:0 4px 16px rgba(76,175,80,.35);
-    }
-    .start-btn:hover { transform:translateY(-2px); box-shadow:0 6px 20px rgba(76,175,80,.5); }
-    .rules-box {
-      background:rgba(255,255,255,.03);
-      border:1px solid rgba(255,255,255,.1);
-      border-radius:10px; padding:16px;
-      margin-top:16px; font-size:12px; color:#94a3b8;
-    }
-    .rules-box h4 { color:#fff; margin-bottom:8px; font-size:13px; }
-    .rules-box ul { margin-left:16px; }
-    .rules-box li { margin-bottom:4px; }
-    .back-home { margin-top:20px; color:#64748b; text-decoration:none; font-size:14px; }
-    .back-home:hover { color:#94a3b8; }
-
-    /* ── GAME SCREEN ── */
-    #gameScreen { display:none; height:100dvh; flex-direction:column; overflow:hidden; }
-
-    .game-header {
-      display:flex; align-items:center; justify-content:space-between;
-      padding:10px 16px; flex-shrink:0;
-      background:rgba(0,0,0,.35);
-      border-bottom:1px solid rgba(255,255,255,.08);
-    }
-    .gh-back { color:#94a3b8; text-decoration:none; font-size:14px; padding:4px; }
-    .gh-title { font-weight:700; font-size:1.1rem; }
-    .gh-spacer { width:50px; }
-
-    .game-body {
-      flex:1; display:flex; flex-direction:column;
-      align-items:center; justify-content:center;
-      padding:10px; gap:10px;
-      min-height:0;
-    }
-
-    /* ── SCOREBOARD ── */
-    .scoreboard {
-      width:100%; max-width:600px;
-      display:flex; justify-content:space-between;
-      gap:10px; flex-shrink:0;
-    }
-    .player-score {
-      flex:1; padding:12px 16px;
-      background:rgba(255,255,255,.05);
-      border:2px solid transparent;
-      border-radius:12px;
-      text-align:center;
-    }
-    .player-score.active {
-      border-color:var(--pc);
-      background:rgba(255,255,255,.1);
-      box-shadow:0 0 15px var(--pc);
-    }
-    .player-name { font-size:14px; font-weight:600; }
-    .player-points { font-size:24px; font-weight:800; color:var(--pc); }
-    .coins-pocketed { font-size:11px; color:#94a3b8; margin-top:4px; }
-
-    /* ── CANVAS CONTAINER ── */
-    .canvas-container {
-      position:relative;
-      width:100%; max-width:600px;
-      aspect-ratio:1;
-      flex-shrink:1;
-    }
-    #gameCanvas {
-      width:100%; height:100%;
-      border-radius:12px;
-      box-shadow:0 8px 40px rgba(0,0,0,.6), 0 0 0 3px rgba(255,255,255,.08);
-      cursor:crosshair;
-    }
-
-    /* ── CONTROLS ── */
-    .controls {
-      width:100%; max-width:600px;
-      display:flex; align-items:center; justify-content:space-between;
-      gap:10px; flex-shrink:0;
-    }
-    .turn-indicator {
-      padding:10px 16px;
-      background:rgba(255,255,255,.05);
-      border-radius:8px;
-      font-size:13px;
-    }
-    .turn-indicator span { font-weight:700; }
-    .power-meter {
-      flex:1; max-width:150px;
-      height:8px; background:rgba(255,255,255,.1);
-      border-radius:4px; overflow:hidden;
-    }
-    .power-fill {
-      height:100%; width:0%;
-      background:linear-gradient(90deg,#4CAF50,#FFD600,#FF6F00);
-      transition:width .1s;
-    }
-    .btn-undo {
-      padding:10px 16px;
-      border:2px solid rgba(255,255,255,.2);
-      background:rgba(255,255,255,.05);
-      color:#fff; border-radius:8px;
-      cursor:pointer; font-size:13px;
-    }
-    .btn-undo:hover { border-color:rgba(255,255,255,.4); }
-
-    /* ── WIN MODAL ── */
-    .modal-bg {
-      position:fixed; inset:0;
-      background:rgba(0,0,0,.82);
-      display:none; align-items:center; justify-content:center;
-      z-index:500;
-    }
-    .modal-bg.open { display:flex; }
-    .modal-box {
-      background:linear-gradient(135deg,#1e293b,#0f172a);
-      border:2px solid #4CAF50;
-      border-radius:20px; padding:40px 36px;
-      text-align:center; max-width:320px; width:90%;
-      animation:modalPop .45s ease;
-    }
-    @keyframes modalPop { from{transform:scale(.8);opacity:0} to{transform:scale(1);opacity:1} }
-    .modal-emoji { font-size:4rem; margin-bottom:14px; }
-    .modal-title { font-size:1.8rem; font-weight:800; margin-bottom:6px; }
-    .modal-sub { color:#94a3b8; margin-bottom:22px; font-size:15px; }
-    .modal-btn {
-      padding:12px 28px;
-      border:none;
-      background:linear-gradient(135deg,#4CAF50,#66BB6A);
-      color:#fff; font-size:16px; font-weight:700;
-      border-radius:12px; cursor:pointer; font-family:inherit;
-      transition:transform .2s;
-      margin:4px;
-    }
-    .modal-btn:hover { transform:translateY(-2px); }
-
-    @media (max-width:480px) {
-      .canvas-container { max-width:100%; }
-      .player-score { padding:10px 12px; }
-      .player-points { font-size:20px; }
-    }
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<meta name="description" content="Play Carrom Board online – realistic physics, smart AI, trajectory preview, and beautiful board. Free!">
+<title>Carrom Board – 1click Games</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+:root{
+  --bg:#0a0e1a;
+  --bg-grad:radial-gradient(ellipse at 30% 20%,#1a1f3a 0%,#0a0e1a 50%,#050810 100%);
+  --wood1:#c8933a;--wood2:#a0722a;--wood3:#7a5420;
+  --green:#22c55e;--red:#ef4444;--gold:#f59e0b;
+  --ui:#1e293b;--ui2:#334155;--text:#f1f5f9;--muted:#94a3b8;
+}
+html,body{height:100%;font-family:'Poppins',sans-serif;background:var(--bg-grad),var(--bg);background-attachment:fixed;color:var(--text);overflow:hidden;user-select:none}
+/* LOADING */
+#loading{position:fixed;inset:0;background:var(--bg);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:9999;transition:opacity .5s,visibility .5s}
+#loading.out{opacity:0;visibility:hidden}
+.load-disc{width:72px;height:72px;border-radius:50%;background:radial-gradient(circle at 35% 35%,#fff 0%,#e0e0e0 40%,#aaa 100%);box-shadow:0 4px 20px rgba(0,0,0,.5);animation:spin 1.2s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.load-txt{margin-top:20px;color:var(--muted);font-size:1rem;letter-spacing:.05em}
+/* SETUP */
+#setup{min-height:100dvh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px}
+.s-title{font-size:clamp(2rem,8vw,3rem);font-weight:900;background:linear-gradient(135deg,#f59e0b,#ef4444,#f59e0b);-webkit-background-clip:text;-webkit-text-fill-color:transparent;text-align:center;letter-spacing:-.02em}
+.s-sub{color:var(--muted);margin:.5rem 0 2rem;text-align:center;font-size:.9rem}
+.s-card{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.1);border-radius:20px;padding:28px;width:100%;max-width:420px;backdrop-filter:blur(10px)}
+.s-label{font-size:12px;font-weight:700;color:var(--muted);letter-spacing:.08em;text-transform:uppercase;margin-bottom:10px;display:block}
+.mode-grid{display:flex;flex-direction:column;gap:10px;margin-bottom:22px}
+.mode-btn{display:flex;align-items:center;gap:14px;padding:14px 16px;border-radius:14px;border:2px solid rgba(255,255,255,.08);background:rgba(255,255,255,.04);color:#fff;cursor:pointer;transition:all .2s;text-align:left;font-family:inherit}
+.mode-btn:hover{background:rgba(255,255,255,.08)}
+.mode-btn.sel{border-color:var(--green);background:rgba(34,197,94,.12)}
+.mode-ic{font-size:2rem;width:44px;text-align:center;flex-shrink:0}
+.mode-title{font-size:.95rem;font-weight:700;display:block}
+.mode-desc{font-size:.75rem;color:var(--muted);display:block}
+.diff-row,.color-row{display:flex;gap:8px;margin-bottom:22px}
+.pill{flex:1;padding:11px 8px;border:2px solid rgba(255,255,255,.1);background:rgba(255,255,255,.04);color:#fff;border-radius:10px;cursor:pointer;font-family:inherit;font-size:.8rem;font-weight:600;transition:all .2s;text-align:center}
+.pill:hover{border-color:rgba(255,255,255,.3)}
+.pill.sel{border-color:var(--green);background:rgba(34,197,94,.15)}
+.name-row{display:flex;flex-direction:column;gap:10px;margin-bottom:22px}
+.name-in{width:100%;padding:12px 14px;border:1px solid rgba(255,255,255,.15);background:rgba(0,0,0,.3);color:#fff;border-radius:10px;font-size:.9rem;font-family:inherit;transition:border-color .2s}
+.name-in:focus{outline:none;border-color:var(--green)}
+.start-btn{width:100%;padding:16px;border:none;background:linear-gradient(135deg,#22c55e,#16a34a);color:#fff;font-size:1rem;font-weight:800;border-radius:14px;cursor:pointer;font-family:inherit;transition:all .2s;box-shadow:0 4px 20px rgba(34,197,94,.3);letter-spacing:.03em}
+.start-btn:hover{transform:translateY(-2px);box-shadow:0 8px 28px rgba(34,197,94,.45)}
+.back-a{display:block;margin-top:18px;text-align:center;color:var(--muted);text-decoration:none;font-size:.85rem}
+.back-a:hover{color:#fff}
+/* GAME */
+#game{display:none;height:100dvh;flex-direction:column;overflow:hidden}
+.g-hdr{display:flex;align-items:center;justify-content:space-between;padding:10px 16px;background:rgba(0,0,0,.4);border-bottom:1px solid rgba(255,255,255,.07);flex-shrink:0;gap:8px}
+.g-back{color:var(--muted);text-decoration:none;font-size:.85rem;padding:4px 8px;border-radius:6px;white-space:nowrap}
+.g-back:hover{color:#fff}
+.g-title{font-weight:800;font-size:1rem;text-align:center;flex:1;background:linear-gradient(90deg,#f59e0b,#ef4444);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.g-body{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:8px;gap:8px;min-height:0}
+/* SCOREBOARD */
+.scoreboard{width:100%;max-width:580px;display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:8px;flex-shrink:0}
+.p-card{padding:10px 14px;background:linear-gradient(145deg,rgba(255,255,255,.08),rgba(255,255,255,.02));border:1px solid rgba(255,255,255,.1);border-radius:14px;transition:all .3s;position:relative;overflow:hidden;box-shadow:0 4px 12px rgba(0,0,0,0.3),inset 0 1px 0 rgba(255,255,255,.1)}
+.p-card::before{content:'';position:absolute;inset:0;opacity:0;transition:opacity .3s}
+.p-card.my::before{background:linear-gradient(135deg,var(--pc,.5),transparent);opacity:.15}
+.p-card.active{border-color:var(--pc,#888);box-shadow:0 0 20px var(--pc,#888),0 4px 16px rgba(0,0,0,0.4);transform:translateY(-2px)}
+.p-name{font-size:.78rem;font-weight:600;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.p-pts{font-size:1.4rem;font-weight:900;color:var(--pc,#fff);line-height:1}
+.p-coins{font-size:.72rem;color:var(--muted);margin-top:2px}
+.vs-badge{text-align:center;font-size:.7rem;font-weight:700;color:var(--muted);background:rgba(255,255,255,.05);border-radius:8px;padding:6px 8px}
+/* CANVAS */
+.c-wrap{position:relative;width:100%;max-width:580px;aspect-ratio:1;flex-shrink:1;min-height:0;border-radius:12px;box-shadow:0 20px 60px rgba(0,0,0,0.8),0 0 0 1px rgba(255,255,255,0.05);overflow:hidden}
+#cv{width:100%;height:100%;cursor:crosshair;display:block;border-radius:12px}
+/* CONTROLS */
+.controls{width:100%;max-width:580px;display:flex;align-items:center;gap:10px;flex-shrink:0}
+.turn-pill{padding:8px 14px;border-radius:10px;font-size:.8rem;background:rgba(255,255,255,.06);white-space:nowrap;flex-shrink:0}
+.turn-pill b{color:var(--green)}
+.power-wrap{flex:1;display:flex;align-items:center;gap:8px}
+.power-lbl{font-size:.7rem;color:var(--muted);flex-shrink:0}
+.power-track{flex:1;height:10px;background:rgba(255,255,255,.08);border-radius:6px;overflow:hidden;position:relative;cursor:pointer}
+.power-fill{height:100%;width:0%;background:linear-gradient(90deg,#22c55e,#f59e0b,#ef4444);border-radius:6px;transition:width .08s}
+.energy-wrap{flex:1;display:flex;align-items:center;gap:8px;max-width:120px}
+.energy-lbl{font-size:.7rem;color:var(--muted);flex-shrink:0}
+.energy-track{flex:1;height:10px;background:rgba(255,255,255,.08);border-radius:6px;overflow:hidden;position:relative}
+.energy-fill{height:100%;width:100%;background:linear-gradient(90deg,#3b82f6,#8b5cf6);border-radius:6px;transition:width .3s}
+.energy-fill.low{width:0%;background:linear-gradient(90deg,#ef4444,#dc2626)}
+.msg-pill{padding:8px 14px;border-radius:10px;font-size:.78rem;background:rgba(245,158,11,.12);color:var(--gold);border:1px solid rgba(245,158,11,.25);display:none;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:200px;flex-shrink:0}
+.msg-pill.show{display:block}
+/* MODAL */
+.overlay{position:fixed;inset:0;background:rgba(0,0,0,.85);display:none;align-items:center;justify-content:center;z-index:500;backdrop-filter:blur(4px)}
+.overlay.open{display:flex}
+.modal{background:linear-gradient(145deg,#1e293b,#0f172a);border:2px solid #f59e0b;border-radius:24px;padding:40px 36px;text-align:center;max-width:340px;width:90%;animation:popIn .4s ease}
+@keyframes popIn{from{transform:scale(.8);opacity:0}to{transform:scale(1);opacity:1}}
+.m-emoji{font-size:4rem;margin-bottom:12px}
+.m-title{font-size:1.8rem;font-weight:900;margin-bottom:4px}
+.m-sub{color:var(--muted);margin-bottom:24px;font-size:.9rem}
+.m-btns{display:flex;gap:10px;justify-content:center;flex-wrap:wrap}
+.m-btn{padding:12px 24px;border:none;background:linear-gradient(135deg,#22c55e,#16a34a);color:#fff;font-size:.95rem;font-weight:700;border-radius:12px;cursor:pointer;font-family:inherit;transition:all .2s}
+.m-btn:hover{transform:translateY(-2px)}
+.m-btn.sec{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.2)}
+@media(max-width:480px){.c-wrap{max-width:100vmin}.controls{flex-wrap:wrap}.msg-pill{max-width:140px}}
+</style>
 </head>
 <body>
 
-<!-- Loading -->
-<div id="loadingScreen">
-  <div class="load-icon">🎯</div>
-  <div class="load-text">Loading Carrom Board…</div>
-</div>
+<div id="loading"><div class="load-disc"></div><p class="load-txt">Loading Carrom Board…</p></div>
 
-<!-- Sound -->
-<button id="soundBtn" title="Toggle sound">🔊</button>
-
-<!-- ════ SETUP SCREEN ════ -->
-<div id="setupScreen">
-  <h1 class="setup-title">🎯 Carrom Board</h1>
-  <p class="setup-sub">Pocket coins, cover the queen, win the game!</p>
-  
-  <div class="setup-card">
-    <label class="setup-label">Select Game Mode</label>
-    <div class="mode-grid" id="modeGrid">
-      <button class="mode-btn active" data-mode="ai">
-        <span class="mode-icon">🤖</span>
-        <div>
-          <span class="mode-title">vs Computer</span>
-          <span class="mode-desc">Play against AI opponent</span>
-        </div>
-      </button>
-      <button class="mode-btn" data-mode="local">
-        <span class="mode-icon">👥</span>
-        <div>
-          <span class="mode-title">Pass & Play</span>
-          <span class="mode-desc">Play with friends on this device</span>
-        </div>
-      </button>
+<!-- SETUP -->
+<div id="setup">
+  <h1 class="s-title">🎯 Carrom Board</h1>
+  <p class="s-sub">Pocket your coins, cover the Queen, claim victory!</p>
+  <div class="s-card">
+    <span class="s-label">Game Mode</span>
+    <div class="mode-grid">
+      <button class="mode-btn sel" data-mode="ai"><span class="mode-ic">🤖</span><div><span class="mode-title">vs Computer</span><span class="mode-desc">Challenge the AI opponent</span></div></button>
+      <button class="mode-btn" data-mode="local"><span class="mode-ic">👥</span><div><span class="mode-title">Pass &amp; Play</span><span class="mode-desc">2 players on same device</span></div></button>
+      <button class="mode-btn" data-mode="online"><span class="mode-ic">🌐</span><div><span class="mode-title">Online Multiplayer</span><span class="mode-desc">Play with friends online</span></div></button>
     </div>
-
-    <label class="setup-label">Choose Your Color</label>
-    <div class="color-row" id="colorRow">
-      <button class="color-btn active" data-color="white">
-        ⚪ White
-      </button>
-      <button class="color-btn" data-color="black">
-        ⚫ Black
-      </button>
+    <span class="s-label" id="diffLabel">AI Difficulty</span>
+    <div class="diff-row" id="diffRow">
+      <button class="pill" data-diff="easy">😊 Easy</button>
+      <button class="pill sel" data-diff="medium">⚡ Medium</button>
+      <button class="pill" data-diff="hard">💀 Hard</button>
     </div>
-
-    <div id="playerNames">
-      <input type="text" id="p1Name" class="name-input" placeholder="Player 1 Name" value="Player 1">
-      <input type="text" id="p2Name" class="name-input" placeholder="Player 2 Name" value="Computer" style="display:none;">
+    <span class="s-label">Your Coin Color</span>
+    <div class="color-row">
+      <button class="pill sel" data-col="white">⚪ White</button>
+      <button class="pill" data-col="black">⚫ Black</button>
     </div>
-
-    <button class="start-btn" id="startBtn">🎮 Start Game</button>
-
-    <div class="rules-box">
-      <h4>📜 How to Play</h4>
-      <ul>
-        <li>Pocket all your color coins (White/Black)</li>
-        <li>Queen (Red) must be covered - pocket another coin right after</li>
-        <li>Black/White coin = 1 point</li>
-        <li>Queen = 5 points (only if covered)</li>
-        <li>First to 29 points or pocket all coins wins</li>
-        <li>Drag striker to aim, pull back for power</li>
-      </ul>
+    <div class="name-row">
+      <input class="name-in" id="n1" type="text" placeholder="Your name" value="Player 1" maxlength="18">
+      <input class="name-in" id="n2" type="text" placeholder="Opponent name" value="Player 2" maxlength="18" style="display:none">
     </div>
+    <button class="start-btn" id="startBtn">🏆 Start Game</button>
   </div>
-  
-  <a class="back-home" href="../../../index.html">← Back to Games</a>
+  <a class="back-a" href="../../../index.html">← Back to All Games</a>
 </div>
 
-<!-- ════ GAME SCREEN ════ -->
-<div id="gameScreen">
-  <header class="game-header">
-    <a class="gh-back" href="../../../index.html">← Back</a>
-    <div class="gh-title">🎯 Carrom Board</div>
-    <div class="gh-spacer"></div>
+<!-- ONLINE SETUP -->
+<div id="onlineSetup" style="display:none;min-height:100dvh;flex-direction:column;align-items:center;justify-content:center;padding:24px">
+  <h1 class="s-title">🌐 Online Multiplayer</h1>
+  <p class="s-sub">Play Carrom with friends online</p>
+  <div class="s-card">
+    <div id="onlineCreate">
+      <span class="s-label">Create Room</span>
+      <p style="color:var(--muted);font-size:.85rem;margin-bottom:16px">Create a room and invite a friend to join</p>
+      <button class="start-btn" id="createRoomBtn" style="background:linear-gradient(135deg,#22c55e,#16a34a);margin-bottom:24px">➕ Create Room</button>
+    </div>
+    <div id="onlineJoin" style="border-top:1px solid rgba(255,255,255,.1);padding-top:24px">
+      <span class="s-label">Join Room</span>
+      <p style="color:var(--muted);font-size:.85rem;margin-bottom:16px">Enter the 6-digit room code</p>
+      <input type="text" id="roomCodeInput" maxlength="6" placeholder="ROOM CODE" style="width:100%;padding:16px;font-size:1.3rem;text-align:center;border-radius:12px;border:2px solid rgba(255,255,255,.2);background:rgba(0,0,0,.3);color:#fff;text-transform:uppercase;letter-spacing:6px;margin-bottom:16px;font-family:inherit;font-weight:700">
+      <button class="start-btn" id="joinRoomBtn" style="background:linear-gradient(135deg,#3b82f6,#2563eb)">🔗 Join Room</button>
+    </div>
+    <div id="onlineStatus" style="margin-top:20px;text-align:center;color:var(--muted);font-size:.9rem;min-height:1.5rem"></div>
+    <button class="back-a" id="backFromOnline" style="margin-top:20px;display:block;text-align:center;background:none;border:none;color:var(--muted);cursor:pointer;font-family:inherit">← Back</button>
+  </div>
+</div>
+
+<!-- GAME -->
+<div id="game">
+  <header class="g-hdr">
+    <a class="g-back" href="../../../index.html">← Back</a>
+    <div class="g-title">🎯 Carrom Board</div>
+    <div style="font-size:.75rem;color:var(--muted);cursor:pointer" id="menuBtn">⚙ Menu</div>
   </header>
-
-  <div class="game-body">
-    <!-- Scoreboard -->
+  <div class="g-body">
     <div class="scoreboard">
-      <div class="player-score active" id="p1Score" style="--pc:#fff;">
-        <div class="player-name" id="p1NameDisplay">Player 1</div>
-        <div class="player-points" id="p1Points">0</div>
-        <div class="coins-pocketed" id="p1Coins">⚪: 0/9</div>
-      </div>
-      <div class="player-score" id="p2Score" style="--pc:#333;">
-        <div class="player-name" id="p2NameDisplay">Computer</div>
-        <div class="player-points" id="p2Points">0</div>
-        <div class="coins-pocketed" id="p2Coins">⚫: 0/9</div>
-      </div>
+      <div class="p-card" id="p0card" style="--pc:#e2e8f0"><div class="p-name" id="p0name">Player 1</div><div class="p-pts" id="p0pts">0</div><div class="p-coins" id="p0coins">⚪ 0/9</div></div>
+      <div class="vs-badge" id="vsBox">VS<br><span id="roundLbl" style="font-size:.6rem;color:var(--gold)">Turn 1</span></div>
+      <div class="p-card" id="p1card" style="--pc:#1a1a1a"><div class="p-name" id="p1name">Computer</div><div class="p-pts" id="p1pts">0</div><div class="p-coins" id="p1coins">⚫ 0/9</div></div>
     </div>
-
-    <!-- Canvas -->
-    <div class="canvas-container">
-      <canvas id="gameCanvas"></canvas>
-    </div>
-
-    <!-- Controls -->
+    <div class="c-wrap"><canvas id="cv"></canvas></div>
     <div class="controls">
-      <div class="turn-indicator">
-        Turn: <span id="turnName">Player 1</span>
+      <div class="turn-pill">Turn: <b id="turnName">Player 1</b></div>
+      <div class="energy-wrap">
+        <span class="energy-lbl">⚡<span id="energyVal">100</span>%</span>
+        <div class="energy-track" id="enTrack"><div class="energy-fill" id="enFill"></div></div>
       </div>
-      <div class="power-meter" id="powerMeter">
-        <div class="power-fill" id="powerFill"></div>
+      <div class="power-wrap">
+        <span class="power-lbl">Power</span>
+        <div class="power-track" id="pwTrack"><div class="power-fill" id="pwFill"></div></div>
       </div>
-      <button class="btn-undo" id="resetStrikerBtn" style="display:none;">↺ Reset Striker</button>
+      <div class="msg-pill" id="msgPill"></div>
     </div>
   </div>
 </div>
 
-<!-- Win Modal -->
-<div class="modal-bg" id="winModal">
-  <div class="modal-box">
-    <div class="modal-emoji">🏆</div>
-    <div class="modal-title" id="winTitle">Player 1 Wins!</div>
-    <div class="modal-sub" id="winSub">Score: 29 - 12</div>
-    <button class="modal-btn" id="playAgainBtn">🔄 Play Again</button>
-    <button class="modal-btn" id="homeBtn">🏠 Home</button>
+<!-- WIN MODAL -->
+<div class="overlay" id="winOverlay">
+  <div class="modal">
+    <div class="m-emoji" id="wEmoji">🏆</div>
+    <div class="m-title" id="wTitle">Player Wins!</div>
+    <div class="m-sub" id="wSub">Final Score</div>
+    <div class="m-btns">
+      <button class="m-btn" id="btnAgain">🔄 Play Again</button>
+      <button class="m-btn sec" id="btnHome">🏠 Menu</button>
+    </div>
   </div>
 </div>
 
-<script src="../../assets/js/sound.js"></script>
+<!-- MENU MODAL -->
+<div class="overlay" id="menuOverlay">
+  <div class="modal" style="max-width:280px">
+    <div class="m-emoji">⏸</div>
+    <div class="m-title" style="font-size:1.2rem">Paused</div>
+    <div class="m-btns" style="margin-top:20px;flex-direction:column">
+      <button class="m-btn" id="btnResume">▶ Resume</button>
+      <button class="m-btn sec" id="btnRestart">🔄 Restart</button>
+      <button class="m-btn sec" id="btnQuit">🏠 Main Menu</button>
+    </div>
+  </div>
+</div>
+
 <script>
-// ═══════════════════════════════════════════════════
-//  CONFIG & CONSTANTS
-// ═══════════════════════════════════════════════════
-const BOARD_SIZE = 800;
-const POCKET_RADIUS = 35;
-const COIN_RADIUS = 18;
-const STRIKER_RADIUS = 26;
-const FRICTION = 0.985;
-const WALL_BOUNCE = 0.7;
-const MIN_VELOCITY = 0.1;
-const MAX_POWER = 25;
+// ══════════════════════════════════════════════════
+// CONSTANTS
+// ══════════════════════════════════════════════════
+const BS = 800;          // Board Size (logical px)
+const BM = 50;           // Board Margin
+const PR = 28;           // Pocket Radius
+const CR = 17;           // Coin Radius
+const SR = 24;           // Striker Radius
+const FRICTION = 0.983;
+const WALL_DMP = 0.72;
+const MIN_V = 0.08;
+const MAX_PWR = 28;
+const LINE_W = BS - BM*2;
+const LANE_Y0 = BS - BM - 80;  // player 0 lane Y
+const LANE_Y1 = BM + 80;       // player 1 lane Y
+const LANE_X_MIN = BS/2 - 90;
+const LANE_X_MAX = BS/2 + 90;
+const POCKETS = [
+  {x:BM, y:BM}, {x:BS-BM, y:BM},
+  {x:BM, y:BS-BM}, {x:BS-BM, y:BS-BM}
+];
 
-const COLORS = {
-  board: '#d4a574',
-  boardDark: '#b8935f',
-  border: '#8b5a2b',
-  pocket: '#1a1a2e',
-  centerCircle: '#c49a6c',
-  arrow: '#fff',
-  striker: '#fff',
-  strikerLine: '#e53935',
-  white: '#fff',
-  black: '#1a1a1a',
-  queen: '#e53935'
+// ══════════════════════════════════════════════════
+// STATE
+// ══════════════════════════════════════════════════
+const G = {
+  cv:null, ctx:null, W:0, H:0, scale:1,
+  mode:'ai', diff:'medium',
+  pNames:['Player 1','Computer'],
+  pColors:['white','black'],
+  pts:[0,0], coinsIn:[0,0],
+  queenHolder:-1,  // who pocketed queen this turn
+  awaitCover:false,
+  queenOnBoard:true,
+  cur:0, turn:1,
+  phase:'place',   // place | aim | moving | ai
+  coins:[], striker:null,
+  strikerX: BS/2,
+  dragging:false, dragX:0, dragY:0,
+  aimAngle:0, aimPower:0,
+  aiming:false,
+  rafId:null,
+  over:false,
+  paused:false,
+  msg:'', msgTimer:0,
+  aiTimer:null,
+  energy:100, maxEnergy:100, energyRegen:15 // Energy system
 };
 
-// ═══════════════════════════════════════════════════
-//  STATE
-// ═══════════════════════════════════════════════════
-let G = {
-  canvas: null,
-  ctx: null,
-  width: 0,
-  height: 0,
-  scale: 1,
-  
-  // Game state
-  mode: 'ai', // 'ai' or 'local'
-  currentPlayer: 0,
-  gameOver: false,
-  
-  // Players
-  players: [
-    { name: 'Player 1', color: 'white', points: 0, coins: 0, queen: false },
-    { name: 'Computer', color: 'black', points: 0, coins: 0, queen: false }
-  ],
-  
-  // Physics objects
-  coins: [],
-  striker: null,
-  
-  // Input state
-  isDragging: false,
-  dragStart: { x: 0, y: 0 },
-  dragCurrent: { x: 0, y: 0 },
-  
-  // Animation
-  animating: false,
-  lastTime: 0,
-  
-  // Queen tracking
-  queenPocketed: false,
-  queenPocketedBy: null,
-  awaitingCover: false,
-  
-  // Striker placement
-  strikerPlaced: false
-};
-
-// ═══════════════════════════════════════════════════
-//  INITIALIZATION
-// ═══════════════════════════════════════════════════
-window.addEventListener('load', () => {
-  setTimeout(() => document.getElementById('loadingScreen').classList.add('hidden'), 500);
-  initSetup();
-  initSoundBtn();
-});
-
+// ══════════════════════════════════════════════════
+// SETUP UI
+// ══════════════════════════════════════════════════
 function initSetup() {
-  // Mode selection
-  document.getElementById('modeGrid').addEventListener('click', e => {
-    const btn = e.target.closest('.mode-btn');
-    if (!btn) return;
-    document.querySelectorAll('.mode-btn').forEach(b => b.classList.remove('active'));
-    btn.classList.add('active');
-    G.mode = btn.dataset.mode;
-    updateSetupUI();
-  });
-
-  // Color selection
-  document.getElementById('colorRow').addEventListener('click', e => {
-    const btn = e.target.closest('.color-btn');
-    if (!btn) return;
-    document.querySelectorAll('.color-btn').forEach(b => b.classList.remove('active'));
-    btn.classList.add('active');
-    const p1IsWhite = btn.dataset.color === 'white';
-    G.players[0].color = p1IsWhite ? 'white' : 'black';
-    G.players[1].color = p1IsWhite ? 'black' : 'white';
-    updateSetupUI();
-  });
-
-  // Start button
+  document.querySelectorAll('.mode-btn').forEach(b=>b.addEventListener('click',()=>{
+    document.querySelectorAll('.mode-btn').forEach(x=>x.classList.remove('sel'));
+    b.classList.add('sel'); G.mode=b.dataset.mode;
+    document.getElementById('diffRow').style.display = G.mode==='ai'?'flex':'none';
+    document.getElementById('diffLabel').style.display = G.mode==='ai'?'block':'none';
+    document.getElementById('n2').style.display = G.mode==='local'?'block':'none';
+    document.getElementById('n2').value = G.mode==='local'?'Player 2':'Computer';
+    if(G.mode==='online'){showOnlineSetup();}
+  }));
+  document.querySelectorAll('[data-diff]').forEach(b=>b.addEventListener('click',()=>{
+    document.querySelectorAll('[data-diff]').forEach(x=>x.classList.remove('sel'));
+    b.classList.add('sel'); G.diff=b.dataset.diff;
+  }));
+  document.querySelectorAll('[data-col]').forEach(b=>b.addEventListener('click',()=>{
+    document.querySelectorAll('[data-col]').forEach(x=>x.classList.remove('sel'));
+    b.classList.add('sel');
+    G.pColors[0]=b.dataset.col; G.pColors[1]=b.dataset.col==='white'?'black':'white';
+  }));
   document.getElementById('startBtn').addEventListener('click', startGame);
-  
-  // Play again
-  document.getElementById('playAgainBtn').addEventListener('click', () => {
-    document.getElementById('winModal').classList.remove('open');
-    resetGame();
-  });
-  
-  // Home button
-  document.getElementById('homeBtn').addEventListener('click', () => {
-    location.reload();
-  });
-  
-  // Reset striker button
-  document.getElementById('resetStrikerBtn').addEventListener('click', resetStrikerPosition);
+  document.getElementById('btnAgain').addEventListener('click',()=>{
+    document.getElementById('winOverlay').classList.remove('open'); resetGame();});
+  document.getElementById('btnHome').addEventListener('click',()=>location.reload());
+  document.getElementById('menuBtn').addEventListener('click',()=>{
+    if(!G.over){G.paused=true; document.getElementById('menuOverlay').classList.add('open');}});
+  document.getElementById('btnResume').addEventListener('click',()=>{
+    G.paused=false; document.getElementById('menuOverlay').classList.remove('open');});
+  document.getElementById('btnRestart').addEventListener('click',()=>{
+    document.getElementById('menuOverlay').classList.remove('open'); resetGame();});
+  document.getElementById('btnQuit').addEventListener('click',()=>location.reload());
 }
 
-function updateSetupUI() {
-  const p2Input = document.getElementById('p2Name');
-  if (G.mode === 'ai') {
-    p2Input.style.display = 'none';
-    p2Input.value = 'Computer';
-  } else {
-    p2Input.style.display = 'block';
-    p2Input.value = 'Player 2';
-  }
-  
-  // Update player colors based on selection
-  const p1IsWhite = document.querySelector('.color-btn.active')?.dataset.color === 'white';
-  G.players[0].color = p1IsWhite ? 'white' : 'black';
-  G.players[1].color = p1IsWhite ? 'black' : 'white';
-}
-
-// ═══════════════════════════════════════════════════
-//  GAME START
-// ═══════════════════════════════════════════════════
 function startGame() {
-  // Get player names
-  G.players[0].name = document.getElementById('p1Name').value.trim() || 'Player 1';
-  G.players[1].name = document.getElementById('p2Name').value.trim() || (G.mode === 'ai' ? 'Computer' : 'Player 2');
-  
-  // Reset game state
-  G.currentPlayer = 0;
-  G.gameOver = false;
-  G.players[0].points = G.players[1].points = 0;
-  G.players[0].coins = G.players[1].coins = 0;
-  G.players[0].queen = G.players[1].queen = false;
-  G.queenPocketed = false;
-  G.queenPocketedBy = null;
-  G.awaitingCover = false;
-  
-  // Show game screen first (needed for canvas sizing)
-  document.getElementById('setupScreen').style.display = 'none';
-  document.getElementById('gameScreen').style.display = 'flex';
-  
-  // Setup canvas
-  G.canvas = document.getElementById('gameCanvas');
-  G.ctx = G.canvas.getContext('2d');
-  
-  // Set canvas size (after screen is visible)
-  requestAnimationFrame(() => {
-    resizeCanvas();
-    window.addEventListener('resize', resizeCanvas);
-  });
-  
-  // Initialize coins
-  initCoins();
-  
-  // Initialize striker
-  resetStrikerPosition();
-  
-  // Setup input handlers
-  setupInputHandlers();
-  
-  // Update UI
-  updateGameUI();
-  
-  // Start game loop
-  requestAnimationFrame(gameLoop);
-  
-  trySound(() => SoundManager.playSuccess());
+  G.pNames[0] = document.getElementById('n1').value.trim()||'Player 1';
+  G.pNames[1] = document.getElementById('n2').value.trim()||(G.mode==='ai'?'Computer':'Player 2');
+  document.getElementById('setup').style.display='none';
+  document.getElementById('game').style.display='flex';
+  G.cv = document.getElementById('cv');
+  G.ctx = G.cv.getContext('2d');
+  window.addEventListener('resize', resizeCanvas);
+  resizeCanvas();
+  resetGame();
+  setupInput();
 }
 
 function resizeCanvas() {
-  const container = document.querySelector('.canvas-container');
-  const rect = container.getBoundingClientRect();
-  G.width = rect.width;
-  G.height = rect.height;
-  G.canvas.width = G.width;
-  G.canvas.height = G.height;
-  G.scale = G.width / BOARD_SIZE;
+  const r = G.cv.getBoundingClientRect();
+  G.W = r.width; G.H = r.height;
+  G.cv.width = G.W; G.cv.height = G.H;
+  G.scale = G.W / BS;
+}
+
+// ══════════════════════════════════════════════════
+// GAME RESET / INIT
+// ══════════════════════════════════════════════════
+function resetGame() {
+  G.pts=[0,0]; G.coinsIn=[0,0];
+  G.queenHolder=-1; G.awaitCover=false; G.queenOnBoard=true;
+  G.cur=0; G.turn=1; G.over=false; G.paused=false;
+  G.phase='place'; G.dragging=false; G.aiming=false;
+  G.energy=100; G.maxEnergy=100; G.energyRegen=15; // Energy system
+  clearTimeout(G.aiTimer);
+  initCoins();
+  placeStriker();
+  updateUI();
+  if(!G.rafId) G.rafId=requestAnimationFrame(loop);
 }
 
 function initCoins() {
-  G.coins = [];
-  
-  const centerX = BOARD_SIZE / 2;
-  const centerY = BOARD_SIZE / 2;
-  
-  // Queen in center
-  G.coins.push({
-    x: centerX,
-    y: centerY,
-    vx: 0, vy: 0,
-    type: 'queen',
-    pocketed: false
-  });
-  
-  // Arrange coins in a circle around queen
-  const numWhite = 9;
-  const numBlack = 9;
-  const radius = COIN_RADIUS * 3.5;
-  
-  for (let i = 0; i < numWhite + numBlack; i++) {
-    const angle = (i * 2 * Math.PI) / (numWhite + numBlack) - Math.PI / 2;
-    const type = i % 2 === 0 ? 'white' : 'black';
-    G.coins.push({
-      x: centerX + Math.cos(angle) * radius,
-      y: centerY + Math.sin(angle) * radius,
-      vx: 0, vy: 0,
-      type: type,
-      pocketed: false
-    });
+  G.coins=[];
+  const cx=BS/2, cy=BS/2;
+  // Queen center
+  G.coins.push({x:cx,y:cy,vx:0,vy:0,type:'queen',in:false});
+  // Standard carrom arrangement: inner ring of 6, outer ring of 12 alternating
+  const r1=CR*2.3, r2=CR*4.5;
+  const inner=6, outer=12;
+  for(let i=0;i<inner;i++){
+    const a=(i*2*Math.PI/inner)+(Math.PI/6);
+    const t= i%2===0 ? 'black':'white';
+    G.coins.push({x:cx+Math.cos(a)*r1,y:cy+Math.sin(a)*r1,vx:0,vy:0,type:t,in:false});
+  }
+  for(let i=0;i<outer;i++){
+    const a=(i*2*Math.PI/outer);
+    const t= i%2===0 ? 'white':'black';
+    G.coins.push({x:cx+Math.cos(a)*r2,y:cy+Math.sin(a)*r2,vx:0,vy:0,type:t,in:false});
   }
 }
 
-function resetStrikerPosition() {
-  // Striker starts at bottom for player 0, top for player 1
-  const isPlayer0 = G.currentPlayer === 0;
-  const y = isPlayer0 ? BOARD_SIZE - 70 : 70;
-  
-  G.striker = {
-    x: BOARD_SIZE / 2,
-    y: y,
-    vx: 0, vy: 0,
-    radius: STRIKER_RADIUS,
-    placed: false
-  };
-  G.strikerPlaced = false;
-  document.getElementById('resetStrikerBtn').style.display = 'none';
+function placeStriker() {
+  const isP0 = G.cur===0;
+  G.strikerX = G.strikerX||BS/2; // Ensure strikerX has a value
+  G.striker={x:G.strikerX, y:isP0?LANE_Y0:LANE_Y1, vx:0,vy:0, r:SR};
+  G.aimAngle = isP0 ? -Math.PI/2 : Math.PI/2;
+  G.aimPower = 0;
+  G.phase = 'place';
 }
 
-function resetGame() {
-  G.players[0].points = G.players[1].points = 0;
-  G.players[0].coins = G.players[1].coins = 0;
-  G.players[0].queen = G.players[1].queen = false;
-  G.currentPlayer = 0;
-  G.gameOver = false;
-  G.queenPocketed = false;
-  G.awaitingCover = false;
-  initCoins();
-  resetStrikerPosition();
-  updateGameUI();
+// ══════════════════════════════════════════════════
+// INPUT
+// ══════════════════════════════════════════════════
+function setupInput() {
+  const cv=G.cv;
+  cv.addEventListener('mousedown',pd,{passive:false});
+  cv.addEventListener('mousemove',pm,{passive:false});
+  cv.addEventListener('mouseup',pu,{passive:false});
+  cv.addEventListener('touchstart',e=>{e.preventDefault();const t=e.touches[0];pd({clientX:t.clientX,clientY:t.clientY})},{passive:false});
+  cv.addEventListener('touchmove',e=>{e.preventDefault();const t=e.touches[0];pm({clientX:t.clientX,clientY:t.clientY})},{passive:false});
+  cv.addEventListener('touchend',e=>{e.preventDefault();pu()},{passive:false});
 }
 
-// ═══════════════════════════════════════════════════
-//  INPUT HANDLERS
-// ═══════════════════════════════════════════════════
-function setupInputHandlers() {
-  const canvas = G.canvas;
-  
-  canvas.addEventListener('mousedown', onPointerDown);
-  canvas.addEventListener('mousemove', onPointerMove);
-  canvas.addEventListener('mouseup', onPointerUp);
-  canvas.addEventListener('touchstart', onTouchStart, { passive: false });
-  canvas.addEventListener('touchmove', onTouchMove, { passive: false });
-  canvas.addEventListener('touchend', onPointerUp);
+function cpt(e) {
+  const r=G.cv.getBoundingClientRect();
+  return {x:(e.clientX-r.left)/G.scale, y:(e.clientY-r.top)/G.scale};
 }
 
-function getCanvasPos(e) {
-  const rect = G.canvas.getBoundingClientRect();
-  const clientX = e.clientX || (e.touches && e.touches[0]?.clientX) || 0;
-  const clientY = e.clientY || (e.touches && e.touches[0]?.clientY) || 0;
-  return {
-    x: (clientX - rect.left) * (BOARD_SIZE / rect.width),
-    y: (clientY - rect.top) * (BOARD_SIZE / rect.height)
-  };
-}
-
-function onTouchStart(e) {
-  e.preventDefault();
-  const touch = e.touches[0];
-  onPointerDown({ clientX: touch.clientX, clientY: touch.clientY });
-}
-
-function onTouchMove(e) {
-  e.preventDefault();
-  const touch = e.touches[0];
-  onPointerMove({ clientX: touch.clientX, clientY: touch.clientY });
-}
-
-function onPointerDown(e) {
-  if (G.animating || G.gameOver) return;
-  
-  // AI's turn - don't allow input
-  if (G.mode === 'ai' && G.currentPlayer === 1) return;
-  
-  const pos = getCanvasPos(e);
-  const s = G.striker;
-  
-  // Check if clicking near striker
-  const dist = Math.hypot(pos.x - s.x, pos.y - s.y);
-  if (dist < s.radius * 2) {
-    G.isDragging = true;
-    G.dragStart = pos;
-    G.dragCurrent = pos;
+function pd(e) {
+  if(G.over||G.paused||G.phase==='moving'||G.phase==='ai') return;
+  if(G.mode==='ai'&&G.cur===1) return;
+  if(isOnline&&G.cur!==myPlayerIdx) return; // Online: only current player
+  const p=cpt(e);
+  const s=G.striker;
+  if(G.phase==='place') {
+    // Slide striker along lane
+    G.dragging=true; G.dragX=p.x; G.dragY=p.y;
+  } else if(G.phase==='aim') {
+    G.aiming=true; G.dragX=p.x; G.dragY=p.y;
   }
 }
 
-function onPointerMove(e) {
-  if (!G.isDragging) return;
-  
-  const pos = getCanvasPos(e);
-  G.dragCurrent = pos;
-  
-  // Update power meter
-  const dx = G.dragStart.x - pos.x;
-  const dy = G.dragStart.y - pos.y;
-  const power = Math.min(Math.hypot(dx, dy) / 10, MAX_POWER);
-  const percent = (power / MAX_POWER) * 100;
-  document.getElementById('powerFill').style.width = percent + '%';
-}
-
-function onPointerUp(e) {
-  if (!G.isDragging) return;
-  
-  G.isDragging = false;
-  document.getElementById('powerFill').style.width = '0%';
-  
-  const dx = G.dragStart.x - G.dragCurrent.x;
-  const dy = G.dragStart.y - G.dragCurrent.y;
-  const power = Math.min(Math.hypot(dx, dy) / 10, MAX_POWER);
-  
-  if (power > 1) {
-    const angle = Math.atan2(dy, dx);
-    G.striker.vx = Math.cos(angle) * power;
-    G.striker.vy = Math.sin(angle) * power;
-    G.animating = true;
-    trySound(() => SoundManager.playClick());
+function pm(e) {
+  if(G.over||G.paused) return;
+  const p=cpt(e);
+  if(G.phase==='place'&&G.dragging) {
+    // Move striker left/right along lane
+    G.striker.x = Math.max(LANE_X_MIN+SR, Math.min(LANE_X_MAX-SR, p.x));
+    G.strikerX = G.striker.x;
+  } else if(G.phase==='aim'&&G.aiming) {
+    const s=G.striker;
+    const dx=p.x-s.x, dy=p.y-s.y;
+    G.aimAngle=Math.atan2(dy,dx);
+    G.aimPower=Math.min(Math.hypot(dx,dy)/8, MAX_PWR);
+    document.getElementById('pwFill').style.width=(G.aimPower/MAX_PWR*100)+'%';
+    // Show energy preview
+    const cost=Math.ceil((G.aimPower/MAX_PWR)*25);
+    const remaining=Math.max(0,G.energy-cost);
+    document.getElementById('energyVal').textContent=remaining;
+    document.getElementById('enFill').style.width=(remaining/G.maxEnergy*100)+'%';
   }
 }
 
-// ═══════════════════════════════════════════════════
-//  PHYSICS & GAME LOOP
-// ═══════════════════════════════════════════════════
-function gameLoop(timestamp) {
-  update();
-  render();
-  requestAnimationFrame(gameLoop);
+function pu() {
+  if(G.phase==='place'&&G.dragging) {
+    G.dragging=false; G.phase='aim';
+  } else if(G.phase==='aim'&&G.aiming) {
+    G.aiming=false;
+    if(G.aimPower>0.8) shoot();
+    else { 
+      G.aimPower=0; 
+      document.getElementById('pwFill').style.width='0%';
+      updateEnergyUI(); // Reset energy preview
+    }
+  }
 }
 
-function update() {
-  if (!G.animating) return;
+function shoot() {
+  // Check energy - power consumption is proportional to shot power
+  const energyCost = Math.ceil((G.aimPower/MAX_PWR)*25); // 0-25 energy per shot
+  if(G.energy<energyCost){showMsg('⚡ Not enough energy!');G.aimPower=0;document.getElementById('pwFill').style.width='0%';return;}
   
-  let moving = false;
+  G.energy=Math.max(0,G.energy-energyCost);
+  updateEnergyUI();
   
-  // Update striker
-  if (updateObject(G.striker)) moving = true;
-  
-  // Update coins
-  for (const coin of G.coins) {
-    if (!coin.pocketed && updateObject(coin)) moving = true;
+  const s=G.striker;
+  s.vx=Math.cos(G.aimAngle)*G.aimPower;
+  s.vy=Math.sin(G.aimAngle)*G.aimPower;
+  G.phase='moving';
+  G.aimPower=0;
+  document.getElementById('pwFill').style.width='0%';
+  // Send move to peer in online mode
+  if(isOnline)sendMoveToPeer();
+}
+
+// ══════════════════════════════════════════════════
+// PHYSICS
+// ══════════════════════════════════════════════════
+function stepPhysics() {
+  if(G.phase!=='moving') return;
+  let anyMoving=false;
+
+  // Step striker
+  if(stepObj(G.striker,SR)) anyMoving=true;
+
+  // Step coins
+  for(const c of G.coins) {
+    if(!c.in && stepObj(c,CR)) anyMoving=true;
   }
-  
-  // Check collisions
-  checkCollisions();
-  
+
+  // Collisions striker<>coins, coin<>coin
+  const active=[G.striker,...G.coins.filter(c=>!c.in)];
+  for(let i=0;i<active.length;i++) for(let j=i+1;j<active.length;j++) collide(active[i],active[j]);
+
   // Check pockets
   checkPockets();
-  
-  // If all stopped, end turn
-  if (!moving && G.animating) {
-    G.animating = false;
-    setTimeout(endTurn, 500);
-  }
+
+  if(!anyMoving) { endTurn(); }
 }
 
-function updateObject(obj) {
-  if (Math.abs(obj.vx) < MIN_VELOCITY && Math.abs(obj.vy) < MIN_VELOCITY) {
-    obj.vx = 0;
-    obj.vy = 0;
-    return false;
-  }
-  
-  // Apply friction
-  obj.vx *= FRICTION;
-  obj.vy *= FRICTION;
-  
-  // Update position
-  obj.x += obj.vx;
-  obj.y += obj.vy;
-  
-  // Wall collisions
-  const r = obj.radius || COIN_RADIUS;
-  const margin = 40;
-  
-  if (obj.x < margin + r) { obj.x = margin + r; obj.vx *= -WALL_BOUNCE; }
-  if (obj.x > BOARD_SIZE - margin - r) { obj.x = BOARD_SIZE - margin - r; obj.vx *= -WALL_BOUNCE; }
-  if (obj.y < margin + r) { obj.y = margin + r; obj.vy *= -WALL_BOUNCE; }
-  if (obj.y > BOARD_SIZE - margin - r) { obj.y = BOARD_SIZE - margin - r; obj.vy *= -WALL_BOUNCE; }
-  
+function stepObj(o,r) {
+  if(Math.abs(o.vx)<MIN_V&&Math.abs(o.vy)<MIN_V){o.vx=0;o.vy=0;return false;}
+  o.vx*=FRICTION; o.vy*=FRICTION;
+  o.x+=o.vx; o.y+=o.vy;
+  const lo=BM+r, hi=BS-BM-r;
+  if(o.x<lo){o.x=lo;o.vx*=-WALL_DMP;}
+  if(o.x>hi){o.x=hi;o.vx*=-WALL_DMP;}
+  if(o.y<lo){o.y=lo;o.vy*=-WALL_DMP;}
+  if(o.y>hi){o.y=hi;o.vy*=-WALL_DMP;}
   return true;
 }
 
-function checkCollisions() {
-  const objects = [G.striker, ...G.coins.filter(c => !c.pocketed)];
-  
-  for (let i = 0; i < objects.length; i++) {
-    for (let j = i + 1; j < objects.length; j++) {
-      const a = objects[i];
-      const b = objects[j];
-      
-      const dx = b.x - a.x;
-      const dy = b.y - a.y;
-      const dist = Math.hypot(dx, dy);
-      const minDist = (a.radius || COIN_RADIUS) + (b.radius || COIN_RADIUS);
-      
-      if (dist < minDist) {
-        // Resolve overlap
-        const overlap = minDist - dist;
-        const nx = dx / dist;
-        const ny = dy / dist;
-        
-        a.x -= nx * overlap * 0.5;
-        a.y -= ny * overlap * 0.5;
-        b.x += nx * overlap * 0.5;
-        b.y += ny * overlap * 0.5;
-        
-        // Elastic collision
-        const dvx = b.vx - a.vx;
-        const dvy = b.vy - a.vy;
-        const dvAlongNormal = dvx * nx + dvy * ny;
-        
-        if (dvAlongNormal > 0) continue;
-        
-        const j = -(1 + 0.9) * dvAlongNormal / 2;
-        const impulseX = j * nx;
-        const impulseY = j * ny;
-        
-        a.vx -= impulseX;
-        a.vy -= impulseY;
-        b.vx += impulseX;
-        b.vy += impulseY;
-      }
-    }
-  }
+function collide(a,b) {
+  const dx=b.x-a.x, dy=b.y-a.y;
+  const dist=Math.hypot(dx,dy);
+  const ra=a.r||CR, rb=b.r||CR;
+  const min=ra+rb;
+  if(dist>=min||dist<0.001) return;
+  const nx=dx/dist, ny=dy/dist;
+  const overlap=(min-dist);
+  a.x-=nx*overlap*0.5; a.y-=ny*overlap*0.5;
+  b.x+=nx*overlap*0.5; b.y+=ny*overlap*0.5;
+  const dvx=b.vx-a.vx, dvy=b.vy-a.vy;
+  const dot=dvx*nx+dvy*ny;
+  if(dot>0) return;
+  const restitution=0.88;
+  const j=-(1+restitution)*dot/2;
+  a.vx-=j*nx; a.vy-=j*ny;
+  b.vx+=j*nx; b.vy+=j*ny;
 }
 
 function checkPockets() {
-  const pockets = [
-    { x: 40, y: 40 },
-    { x: BOARD_SIZE - 40, y: 40 },
-    { x: 40, y: BOARD_SIZE - 40 },
-    { x: BOARD_SIZE - 40, y: BOARD_SIZE - 40 }
-  ];
-  
-  // Check striker
-  const s = G.striker;
-  for (const p of pockets) {
-    if (Math.hypot(s.x - p.x, s.y - p.y) < POCKET_RADIUS) {
-      // Foul - striker pocketed
-      s.vx = 0;
-      s.vy = 0;
-      setTimeout(resetStrikerPosition, 100);
-      return;
+  // Striker pocketed = foul
+  for(const p of POCKETS) {
+    if(Math.hypot(G.striker.x-p.x,G.striker.y-p.y)<PR) {
+      G.striker.vx=G.striker.vy=0;
+      showMsg('⚠ Foul! Striker pocketed – miss a turn');
+      G.phase='foul'; return;
     }
   }
-  
-  // Check coins
-  for (const coin of G.coins) {
-    if (coin.pocketed) continue;
-    
-    for (const p of pockets) {
-      if (Math.hypot(coin.x - p.x, coin.y - p.y) < POCKET_RADIUS - 5) {
-        coin.pocketed = true;
-        coin.vx = 0;
-        coin.vy = 0;
-        onCoinPocketed(coin);
-        break;
+  for(const coin of G.coins) {
+    if(coin.in) continue;
+    for(const p of POCKETS) {
+      if(Math.hypot(coin.x-p.x,coin.y-p.y)<PR-2) {
+        coin.in=true; coin.vx=coin.vy=0;
+        handleCoin(coin);
       }
     }
   }
 }
 
-function onCoinPocketed(coin) {
-  const player = G.players[G.currentPlayer];
-  const opponent = G.players[1 - G.currentPlayer];
-  
-  if (coin.type === 'queen') {
-    G.queenPocketed = true;
-    G.queenPocketedBy = G.currentPlayer;
-    G.awaitingCover = true;
-    trySound(() => SoundManager.playLevelUp());
-  } else if (coin.type === player.color) {
-    player.coins++;
-    player.points++;
-    
-    // Check if queen was covered
-    if (G.awaitingCover && G.queenPocketedBy === G.currentPlayer) {
-      player.queen = true;
-      player.points += 5;
-      G.awaitingCover = false;
-      G.queenPocketed = false;
+function handleCoin(coin) {
+  const myColor=G.pColors[G.cur];
+  if(coin.type==='queen') {
+    G.queenOnBoard=false;
+    G.queenHolder=G.cur;
+    G.awaitCover=true;
+    G.energy=Math.min(G.maxEnergy,G.energy+20); // Energy bonus for queen
+    showMsg('👑 Queen pocketed! +20⚡ Energy');
+  } else if(coin.type===myColor) {
+    G.coinsIn[G.cur]++;
+    G.pts[G.cur]++;
+    G.energy=Math.min(G.maxEnergy,G.energy+10); // Energy bonus for own coin
+    if(G.awaitCover&&G.queenHolder===G.cur) {
+      G.awaitCover=false;
+      G.pts[G.cur]+=5;
+      showMsg('👑 Queen covered! +5 points! +10⚡');
     }
-    
-    trySound(() => SoundManager.playSuccess());
-  } else if (coin.type === opponent.color) {
-    // Opponent's coin - penalty or give to opponent
-    opponent.coins++;
-    opponent.points++;
-    trySound(() => SoundManager.playMove());
+  } else {
+    // opponent coin pocketed by me
+    G.coinsIn[1-G.cur]++;
+    G.pts[1-G.cur]++;
+    G.energy=Math.max(0,G.energy-5); // Energy penalty for opponent coin
+    showMsg('🙈 Pocketed opponent coin! -5⚡');
   }
-  
-  updateGameUI();
-  checkWinCondition();
+  updateUI();
 }
 
+// ══════════════════════════════════════════════════
+// TURN LOGIC
+// ══════════════════════════════════════════════════
 function endTurn() {
-  // Check if queen needs to be returned
-  if (G.awaitingCover && G.queenPocketedBy === G.currentPlayer) {
-    // Didn't cover queen - return it
-    G.coins.push({
-      x: BOARD_SIZE / 2 + (Math.random() - 0.5) * 50,
-      y: BOARD_SIZE / 2 + (Math.random() - 0.5) * 50,
-      vx: 0, vy: 0,
-      type: 'queen',
-      pocketed: false
-    });
-    G.queenPocketed = false;
-    G.awaitingCover = false;
-    setMsg('Queen not covered! Returned to center.');
+  G.phase='done';
+  // If queen pocketed but not covered, return it to center
+  if(G.awaitCover&&G.queenHolder===G.cur) {
+    returnQueen();
+    G.awaitCover=false;
+    G.queenHolder=-1;
+    showMsg('👑 Queen returned – cover it next time!');
   }
-  
-  // Switch player
-  G.currentPlayer = 1 - G.currentPlayer;
-  updateGameUI();
-  
-  // Reset striker
-  resetStrikerPosition();
-  
-  // AI turn
-  if (G.mode === 'ai' && G.currentPlayer === 1 && !G.gameOver) {
-    setTimeout(aiTurn, 1000);
+  checkWin();
+  if(G.over) return;
+
+  // Sync state in online mode
+  if(isOnline)sendCoinSync();
+
+  // Determine if player earned another turn (pocketed own coin)
+  setTimeout(()=>{
+    G.phase==='done' && nextTurn();
+  },600);
+}
+
+function returnQueen() {
+  G.queenOnBoard=true;
+  let qc=G.coins.find(c=>c.type==='queen');
+  if(!qc){G.coins.push(qc={type:'queen',in:false});}
+  qc.in=false;
+  qc.x=BS/2+(Math.random()-.5)*30;
+  qc.y=BS/2+(Math.random()-.5)*30;
+  qc.vx=qc.vy=0;
+}
+
+function nextTurn() {
+  if(G.phase!=='done') return;
+  if(G.over) return;
+  G.cur= (G.mode==='local'||isOnline) ? 1-G.cur : (G.cur===0?1:0);
+  G.turn++;
+  // Regenerate energy at start of turn (up to max)
+  G.energy=Math.min(G.maxEnergy,G.energy+G.energyRegen);
+  updateEnergyUI();
+  placeStriker();
+  updateUI();
+  if(G.mode==='ai'&&G.cur===1) {
+    G.phase='ai';
+    G.aiTimer=setTimeout(doAI, 900+Math.random()*400);
+  }
+  // Sync turn change in online mode
+  if(isOnline)sendCoinSync();
+}
+
+function checkWin() {
+  for(let i=0;i<2;i++){
+    if(G.coinsIn[i]>=9&&!G.awaitCover) { winGame(i); return; }
+    if(G.pts[i]>=29) { winGame(i); return; }
   }
 }
 
-function checkWinCondition() {
-  const p1 = G.players[0];
-  const p2 = G.players[1];
-  
-  let winner = null;
-  
-  // Win by points (29+)
-  if (p1.points >= 29) winner = 0;
-  else if (p2.points >= 29) winner = 1;
-  // Win by pocketing all coins + queen covered
-  else if (p1.coins === 9 && p1.queen) winner = 0;
-  else if (p2.coins === 9 && p2.queen) winner = 1;
-  
-  if (winner !== null) {
-    G.gameOver = true;
-    showWinModal(winner);
-  }
+function winGame(p) {
+  G.over=true;
+  document.getElementById('wEmoji').textContent=p===0?'🏆':'🤖';
+  document.getElementById('wTitle').textContent=G.pNames[p]+' Wins!';
+  document.getElementById('wSub').textContent=`Score: ${G.pts[p]} – ${G.pts[1-p]}`;
+  document.getElementById('winOverlay').classList.add('open');
 }
 
-function showWinModal(winner) {
-  const p = G.players[winner];
-  const other = G.players[1 - winner];
-  document.getElementById('winTitle').textContent = p.name + ' Wins!';
-  document.getElementById('winSub').textContent = `Score: ${p.points} - ${other.points}`;
-  document.getElementById('winTitle').style.color = p.color === 'white' ? '#fff' : '#333';
-  document.getElementById('winModal').classList.add('open');
-  trySound(() => SoundManager.playWin());
-}
+// ══════════════════════════════════════════════════
+// AI
+// ══════════════════════════════════════════════════
+function doAI() {
+  if(G.over||G.cur!==1) return;
+  const myColor=G.pColors[1];
+  const avail=G.coins.filter(c=>!c.in);
+  if(!avail.length){nextTurn();return;}
 
-// ═══════════════════════════════════════════════════
-//  AI
-// ═══════════════════════════════════════════════════
-function aiTurn() {
-  if (G.gameOver) return;
-  
-  const s = G.striker;
-  const myColor = G.players[1].color;
-  
-  // Find valid target coins
-  let targets = G.coins.filter(c => !c.pocketed && c.type !== 'queen');
-  
-  // Prioritize own color, then queen if available
-  let target = null;
-  const myCoins = targets.filter(c => c.type === myColor);
-  const queen = G.coins.find(c => !c.pocketed && c.type === 'queen');
-  
-  if (myCoins.length > 0) {
-    // Try to hit own coin closest to pocket
-    let bestScore = -Infinity;
-    for (const coin of myCoins) {
-      const score = evaluateShot(coin);
-      if (score > bestScore) {
-        bestScore = score;
-        target = coin;
-      }
-    }
-  } else if (queen && !G.awaitingCover) {
-    // Try for queen
-    target = queen;
-  } else if (targets.length > 0) {
-    target = targets[Math.floor(Math.random() * targets.length)];
-  }
-  
-  if (target) {
-    // Calculate angle to target
-    const dx = target.x - s.x;
-    const dy = target.y - s.y;
-    const angle = Math.atan2(dy, dx);
-    
-    // Add some randomness to AI accuracy
-    const accuracy = 0.8 + Math.random() * 0.4;
-    const power = 10 + Math.random() * 8;
-    
-    s.vx = Math.cos(angle) * power * accuracy;
-    s.vy = Math.sin(angle) * power * accuracy;
-    
-    // Ensure striker is moving toward target
-    if (s.vy > 0) s.vy *= -1;
-    
-    G.animating = true;
-  }
-}
+  let bestShot=null, bestScore=-Infinity;
+  const s=G.striker;
 
-function evaluateShot(coin) {
-  // Simple evaluation - prefer coins closer to pockets
-  const pockets = [
-    { x: 40, y: 40 },
-    { x: BOARD_SIZE - 40, y: 40 },
-    { x: 40, y: BOARD_SIZE - 40 },
-    { x: BOARD_SIZE - 40, y: BOARD_SIZE - 40 }
+  // Try each coin as target - compute ideal angle via ghost ball method
+  const candidates=[
+    ...avail.filter(c=>c.type===myColor),
+    ...avail.filter(c=>c.type==='queen'&&!G.awaitCover),
+    ...avail.filter(c=>c.type!==myColor&&c.type!=='queen')
   ];
-  
-  let minDist = Infinity;
-  for (const p of pockets) {
-    const dist = Math.hypot(coin.x - p.x, coin.y - p.y);
-    minDist = Math.min(minDist, dist);
-  }
-  
-  return 1000 - minDist;
-}
 
-// ═══════════════════════════════════════════════════
-//  RENDERING
-// ═══════════════════════════════════════════════════
-function render() {
-  const ctx = G.ctx;
-  const s = G.scale;
-  
-  // Clear
-  ctx.fillStyle = '#0f172a';
-  ctx.fillRect(0, 0, G.width, G.height);
-  
-  ctx.save();
-  ctx.scale(s, s);
-  
-  // Draw board
-  drawBoard(ctx);
-  
-  // Draw striker guide line
-  if (G.isDragging && !G.animating) {
-    drawAimGuide(ctx);
-  }
-  
-  // Draw coins
-  for (const coin of G.coins) {
-    if (!coin.pocketed) {
-      drawCoin(ctx, coin);
+  for(const coin of candidates.slice(0,8)) {
+    for(const pocket of POCKETS) {
+      const shot=computeShot(s,coin,pocket);
+      if(!shot) continue;
+      const score=scoreShotAI(coin,pocket,shot)+
+        (coin.type===myColor?300:0)+
+        (coin.type==='queen'&&!G.awaitCover?150:0);
+      if(score>bestScore){bestScore=score;bestShot=shot;}
     }
   }
-  
-  // Draw striker
-  if (!G.animating || Math.abs(G.striker.vx) > 0.1 || Math.abs(G.striker.vy) > 0.1) {
-    drawStriker(ctx, G.striker);
+
+  if(!bestShot) {
+    // Fallback random shot
+    const t=candidates[Math.floor(Math.random()*candidates.length)];
+    if(t){const ang=Math.atan2(t.y-s.y,t.x-s.x);bestShot={angle:ang,power:12+Math.random()*8};}
   }
-  
+
+  if(bestShot) {
+    // Apply difficulty variance
+    let spread = G.diff==='easy'?0.28: G.diff==='medium'?0.12: 0.04;
+    let pv = G.diff==='easy'?0.65: G.diff==='medium'?0.85: 0.97;
+    // Lateral striker placement
+    G.striker.x = clamp(bestShot.strikerX||BS/2, LANE_X_MIN+SR, LANE_X_MAX-SR);
+    const finalAngle=bestShot.angle+(Math.random()-0.5)*spread*2;
+    let finalPower=bestShot.power*pv;
+    // Check energy constraint - AI must respect energy limit
+    const maxAffordablePower = (G.energy/25)*MAX_PWR;
+    finalPower = Math.min(finalPower, maxAffordablePower);
+    if(finalPower<3){finalPower=Math.min(8,maxAffordablePower);} // Minimum power to have any effect
+    G.aimAngle=finalAngle; G.aimPower=finalPower;
+    setTimeout(()=>{G.phase='aim'; setTimeout(shoot,200);},200);
+  } else { nextTurn(); }
+}
+
+function computeShot(striker,coin,pocket) {
+  // Ghost-ball: find position striker must hit to send coin into pocket
+  const dx=pocket.x-coin.x, dy=pocket.y-coin.y;
+  const dist=Math.hypot(dx,dy);
+  if(dist<0.001) return null;
+  const nx=dx/dist, ny=dy/dist;
+  // Ghost center = coin - (CR*2) in pocket direction
+  const gx=coin.x-nx*(CR+SR), gy=coin.y-ny*(CR+SR);
+  // Striker must travel from its pos to ghost
+  const sdx=gx-striker.x, sdy=gy-striker.y;
+  const sdist=Math.hypot(sdx,sdy);
+  if(sdist<1) return null;
+  const angle=Math.atan2(sdy,sdx);
+  const power=Math.min(8+sdist/30, MAX_PWR);
+  // Best striker X along lane (matching ghost X clamped)
+  const strikerX=clamp(gx, LANE_X_MIN+SR, LANE_X_MAX-SR);
+  return {angle, power, strikerX, gx,gy};
+}
+
+function scoreShotAI(coin,pocket,shot) {
+  // Score: closer to pocket = better, prefer easier angles
+  const d=Math.hypot(coin.x-pocket.x,coin.y-pocket.y);
+  return 500 - d;
+}
+
+// ══════════════════════════════════════════════════
+// TRAJECTORY PREDICTION
+// ══════════════════════════════════════════════════
+function predictTrajectory(sx,sy,angle,maxBounces) {
+  const pts=[{x:sx,y:sy}];
+  let x=sx,y=sy;
+  let dx=Math.cos(angle), dy=Math.sin(angle);
+  const step=8, lo=BM+SR, hi=BS-BM-SR;
+  let bounces=0;
+  for(let i=0;i<300;i++){
+    x+=dx*step; y+=dy*step;
+    if(x<lo){x=lo;dx=-dx;bounces++;} if(x>hi){x=hi;dx=-dx;bounces++;}
+    if(y<lo){y=lo;dy=-dy;bounces++;} if(y>hi){y=hi;dy=-dy;bounces++;}
+    pts.push({x,y});
+    if(bounces>=maxBounces) break;
+    // Stop line on first coin hit
+    const hit=G.coins.find(c=>!c.in&&Math.hypot(c.x-x,c.y-y)<CR+SR-4);
+    if(hit){break;}
+  }
+  return pts;
+}
+
+// ══════════════════════════════════════════════════
+// RENDER
+// ══════════════════════════════════════════════════
+function loop() {
+  G.rafId=requestAnimationFrame(loop);
+  if(!G.paused) stepPhysics();
+  render();
+}
+
+function render() {
+  const ctx=G.ctx, sc=G.scale;
+  ctx.clearRect(0,0,G.W,G.H);
+  ctx.save();
+  ctx.scale(sc,sc);
+  drawBoard(ctx);
+  // Draw trajectory only in aim phase
+  if((G.phase==='aim'||G.phase==='place')&&G.cur===0&&!G.over) {
+    const maxB= G.aiming?2:1;
+    if(G.aiming||G.phase==='aim') {
+      const traj=predictTrajectory(G.striker.x,G.striker.y,G.aimAngle,2);
+      drawTrajectory(ctx,traj);
+    }
+  }
+  drawCoins(ctx);
+  drawStriker(ctx);
+  // Aim arrow when aiming
+  if(G.aiming&&!G.over) drawAimArrow(ctx);
   ctx.restore();
 }
 
 function drawBoard(ctx) {
-  const m = 40; // margin
+  const m=BM, s=BS-BM*2;
   
-  // Board background
-  ctx.fillStyle = COLORS.board;
-  ctx.fillRect(m, m, BOARD_SIZE - m * 2, BOARD_SIZE - m * 2);
+  // ══════════════════════════════════════════════════
+  // 3D WOOD FRAME WITH DEPTH
+  // ══════════════════════════════════════════════════
   
-  // Border
-  ctx.strokeStyle = COLORS.border;
-  ctx.lineWidth = 8;
-  ctx.strokeRect(m, m, BOARD_SIZE - m * 2, BOARD_SIZE - m * 2);
+  // Drop shadow under the board
+  ctx.save();
+  ctx.shadowColor='rgba(0,0,0,0.6)';
+  ctx.shadowBlur=30;
+  ctx.shadowOffsetY=15;
+  roundRect(ctx,m-20,m-20,s+40,s+40,16);
+  ctx.fillStyle='rgba(0,0,0,0.3)';
+  ctx.fill();
+  ctx.restore();
   
-  // Inner border
-  ctx.strokeStyle = '#5d4037';
-  ctx.lineWidth = 3;
-  ctx.strokeRect(m + 15, m + 15, BOARD_SIZE - m * 2 - 30, BOARD_SIZE - m * 2 - 30);
+  // Wood frame side (3D thickness)
+  const frameThickness=22;
+  const frameGrad=ctx.createLinearGradient(m-frameThickness,m-frameThickness,m+s+frameThickness,m+s+frameThickness);
+  frameGrad.addColorStop(0,'#8B5A2B');
+  frameGrad.addColorStop(0.3,'#654321');
+  frameGrad.addColorStop(0.5,'#8B6914');
+  frameGrad.addColorStop(0.7,'#5D3A1A');
+  frameGrad.addColorStop(1,'#4A2510');
+  ctx.fillStyle=frameGrad;
+  roundRect(ctx,m-frameThickness,m-frameThickness,s+frameThickness*2,s+frameThickness*2,16);
+  ctx.fill();
   
+  // Wood grain texture
+  ctx.save();
+  ctx.globalAlpha=0.15;
+  for(let i=0;i<20;i++){
+    ctx.beginPath();
+    const y1=m-20+i*50+Math.sin(i*1.3)*10;
+    const y2=m-20+i*50+Math.cos(i*0.8)*12;
+    ctx.moveTo(m-25,y1);
+    ctx.lineTo(m+s+25,y2);
+    ctx.lineWidth=4+Math.random()*4;
+    ctx.strokeStyle='#2a1a0a';
+    ctx.stroke();
+    
+    // Wood knots
+    if(i%4===0){
+      ctx.beginPath();
+      ctx.ellipse(m+50+Math.random()*(s-100),y1,8,15,Math.random(),0,Math.PI*2);
+      ctx.fillStyle='#3d2310';
+      ctx.fill();
+    }
+  }
+  ctx.restore();
+  
+  // Frame bevel/highlight (top edge)
+  ctx.strokeStyle='rgba(200,150,80,0.6)';
+  ctx.lineWidth=2;
+  roundRect(ctx,m-18,m-18,s+36,s+36,14);
+  ctx.stroke();
+  
+  // Frame inner shadow (depth effect)
+  ctx.strokeStyle='rgba(40,20,10,0.8)';
+  ctx.lineWidth=3;
+  roundRect(ctx,m-8,m-8,s+16,s+16,8);
+  ctx.stroke();
+
+  // ══════════════════════════════════════════════════
+  // 3D PLAYING SURFACE (recessed board)
+  // ══════════════════════════════════════════════════
+  
+  // Surface base with 3D recessed look
+  const surfaceGrad=ctx.createLinearGradient(m,m,m+s,m+s);
+  surfaceGrad.addColorStop(0,'#f0d080');
+  surfaceGrad.addColorStop(0.3,'#e0c070');
+  surfaceGrad.addColorStop(0.7,'#d4b060');
+  surfaceGrad.addColorStop(1,'#c8a050');
+  ctx.fillStyle=surfaceGrad;
+  roundRect(ctx,m,m,s,s,6);
+  ctx.fill();
+  
+  // Surface inner bevel (top highlight)
+  ctx.strokeStyle='rgba(255,230,180,0.4)';
+  ctx.lineWidth=2;
+  roundRect(ctx,m+2,m+2,s-4,s-4,4);
+  ctx.stroke();
+  
+  // Surface texture (felt-like)
+  ctx.save();
+  ctx.globalAlpha=0.03;
+  for(let i=0;i<200;i++){
+    ctx.beginPath();
+    ctx.arc(m+Math.random()*s,m+Math.random()*s,1+Math.random()*2,0,Math.PI*2);
+    ctx.fillStyle='#8B6914';
+    ctx.fill();
+  }
+  ctx.restore();
+
+  // Board lines with 3D effect
+  ctx.strokeStyle='rgba(100,60,20,0.7)';
+  ctx.lineWidth=2;
+  roundRect(ctx,m+12,m+12,s-24,s-24,3);
+  ctx.stroke();
+  
+  // Baseline
+  ctx.strokeStyle='rgba(100,60,20,0.5)';
+  ctx.lineWidth=1.5;
+  roundRect(ctx,m+24,m+24,s-48,s-48,2);
+  ctx.stroke();
+
+  // ══════════════════════════════════════════════════
+  // 3D POCKETS (holes with depth)
+  // ══════════════════════════════════════════════════
+  for(const p of POCKETS) {
+    // Outer rim shadow (depth)
+    ctx.beginPath();
+    ctx.arc(p.x+3,p.y+3,PR,0,Math.PI*2);
+    ctx.fillStyle='rgba(0,0,0,0.4)';
+    ctx.fill();
+    
+    // Pocket hole (dark)
+    ctx.beginPath();
+    ctx.arc(p.x,p.y,PR-2,0,Math.PI*2);
+    const holeGrad=ctx.createRadialGradient(p.x-5,p.y-5,2,p.x,p.y,PR);
+    holeGrad.addColorStop(0,'#3a2010');
+    holeGrad.addColorStop(0.5,'#1a0a00');
+    holeGrad.addColorStop(1,'#0a0500');
+    ctx.fillStyle=holeGrad;
+    ctx.fill();
+    
+    // Rim highlight (3D edge)
+    ctx.beginPath();
+    ctx.arc(p.x,p.y,PR-1,0,Math.PI*2);
+    ctx.strokeStyle='rgba(180,140,80,0.8)';
+    ctx.lineWidth=2;
+    ctx.stroke();
+    
+    // Inner bevel shadow
+    ctx.beginPath();
+    ctx.arc(p.x,p.y,PR-4,0,Math.PI*2);
+    ctx.strokeStyle='rgba(60,30,10,0.6)';
+    ctx.lineWidth=1;
+    ctx.stroke();
+  }
+
+  // ══════════════════════════════════════════════════
+  // STRIKE LANES
+  // ══════════════════════════════════════════════════
+  const laneColor='rgba(130,80,30,0.55)';
+  ctx.strokeStyle=laneColor; ctx.lineWidth=1.8;
+  ctx.beginPath();
+  ctx.moveTo(LANE_X_MIN,LANE_Y0);ctx.lineTo(LANE_X_MAX,LANE_Y0);
+  ctx.stroke();
+  ctx.beginPath();
+  ctx.moveTo(LANE_X_MIN,LANE_Y1);ctx.lineTo(LANE_X_MAX,LANE_Y1);
+  ctx.stroke();
+  for(const lx of [LANE_X_MIN,LANE_X_MAX]) {
+    ctx.beginPath();ctx.moveTo(lx,LANE_Y0-6);ctx.lineTo(lx,LANE_Y0+6);ctx.stroke();
+    ctx.beginPath();ctx.moveTo(lx,LANE_Y1-6);ctx.lineTo(lx,LANE_Y1+6);ctx.stroke();
+  }
+
   // Center circle
   ctx.beginPath();
-  ctx.arc(BOARD_SIZE / 2, BOARD_SIZE / 2, 60, 0, Math.PI * 2);
-  ctx.strokeStyle = COLORS.centerCircle;
-  ctx.lineWidth = 3;
+  ctx.arc(BS/2,BS/2,58,0,Math.PI*2);
+  ctx.strokeStyle='rgba(140,85,30,0.5)';
+  ctx.lineWidth=2;
   ctx.stroke();
-  
-  // Arrows pointing to pockets
-  drawArrow(ctx, BOARD_SIZE / 2, BOARD_SIZE / 2 - 40, -Math.PI / 2);
-  drawArrow(ctx, BOARD_SIZE / 2, BOARD_SIZE / 2 + 40, Math.PI / 2);
-  drawArrow(ctx, BOARD_SIZE / 2 - 40, BOARD_SIZE / 2, Math.PI);
-  drawArrow(ctx, BOARD_SIZE / 2 + 40, BOARD_SIZE / 2, 0);
-  
-  // Striker lines (base lines)
-  ctx.strokeStyle = '#5d4037';
-  ctx.lineWidth = 2;
-  ctx.setLineDash([10, 10]);
-  
-  // Top line
   ctx.beginPath();
-  ctx.moveTo(m + 30, 70);
-  ctx.lineTo(BOARD_SIZE - m - 30, 70);
+  ctx.arc(BS/2,BS/2,24,0,Math.PI*2);
+  ctx.strokeStyle='rgba(180,40,40,0.55)';
+  ctx.lineWidth=2.5;
   ctx.stroke();
-  
-  // Bottom line
-  ctx.beginPath();
-  ctx.moveTo(m + 30, BOARD_SIZE - 70);
-  ctx.lineTo(BOARD_SIZE - m - 30, BOARD_SIZE - 70);
-  ctx.stroke();
-  
+  ctx.beginPath();ctx.arc(BS/2,BS/2,7,0,Math.PI*2);
+  ctx.fillStyle='rgba(200,40,40,0.7)';ctx.fill();
+
+  // Diagonal lines
+  ctx.strokeStyle='rgba(130,80,30,0.3)';
+  ctx.lineWidth=1;
+  ctx.setLineDash([8,8]);
+  ctx.beginPath();ctx.moveTo(BM+26,BM+26);ctx.lineTo(BS-BM-26,BS-BM-26);ctx.stroke();
+  ctx.beginPath();ctx.moveTo(BS-BM-26,BM+26);ctx.lineTo(BM+26,BS-BM-26);ctx.stroke();
   ctx.setLineDash([]);
+}
+
+function drawCoins(ctx) {
+  // Sort coins by Y for proper depth (painters algorithm)
+  const sortedCoins=[...G.coins].filter(c=>!c.in).sort((a,b)=>a.y-b.y);
   
-  // Pockets
-  const pockets = [
-    { x: 40, y: 40 },
-    { x: BOARD_SIZE - 40, y: 40 },
-    { x: 40, y: BOARD_SIZE - 40 },
-    { x: BOARD_SIZE - 40, y: BOARD_SIZE - 40 }
-  ];
-  
-  for (const p of pockets) {
-    ctx.beginPath();
-    ctx.arc(p.x, p.y, POCKET_RADIUS, 0, Math.PI * 2);
-    ctx.fillStyle = COLORS.pocket;
+  for(const c of sortedCoins) {
+    const r=CR;
+    const coinHeight=5; // 3D thickness
+    
+    // Drop shadow on board
+    ctx.save();
+    ctx.shadowColor='rgba(0,0,0,0.4)';
+    ctx.shadowBlur=8;
+    ctx.shadowOffsetY=4;
+    ctx.beginPath();ctx.arc(c.x,c.y,r-1,0,Math.PI*2);
+    ctx.fillStyle='rgba(0,0,0,0.2)';
     ctx.fill();
-    ctx.strokeStyle = '#333';
-    ctx.lineWidth = 3;
-    ctx.stroke();
+    ctx.restore();
+    
+    if(c.type==='queen') {
+      // ══════════════════════════════════════════════════
+      // 3D QUEEN COIN
+      // ══════════════════════════════════════════════════
+      
+      // Side/thickness (3D height)
+      ctx.beginPath();
+      ctx.arc(c.x,c.y+coinHeight,r,0,Math.PI*2);
+      ctx.fillStyle='#600';
+      ctx.fill();
+      
+      // Side gradient for roundness
+      const sideGrad=ctx.createLinearGradient(c.x-r,c.y,c.x+r,c.y);
+      sideGrad.addColorStop(0,'#400');
+      sideGrad.addColorStop(0.5,'#800');
+      sideGrad.addColorStop(1,'#300');
+      ctx.beginPath();
+      ctx.arc(c.x,c.y+coinHeight/2,r,0,Math.PI*2);
+      ctx.fillStyle=sideGrad;
+      ctx.fill();
+      
+      // Top face with metallic shine
+      const topGrad=ctx.createRadialGradient(c.x-r*.4,c.y-r*.4,2,c.x,c.y,r);
+      topGrad.addColorStop(0,'#ff6b6b');
+      topGrad.addColorStop(0.3,'#e53935');
+      topGrad.addColorStop(0.7,'#b71c1c');
+      topGrad.addColorStop(1,'#7f0000');
+      ctx.beginPath();ctx.arc(c.x,c.y,r,0,Math.PI*2);
+      ctx.fillStyle=topGrad;
+      ctx.fill();
+      
+      // Metallic highlight ring
+      ctx.beginPath();ctx.arc(c.x,c.y,r-2,0,Math.PI*2);
+      ctx.strokeStyle='rgba(255,150,150,0.6)';
+      ctx.lineWidth=1.5;
+      ctx.stroke();
+      
+      // Inner detailed ring
+      ctx.beginPath();ctx.arc(c.x,c.y,r*.65,0,Math.PI*2);
+      ctx.strokeStyle='rgba(200,100,100,0.5)';
+      ctx.lineWidth=1;
+      ctx.stroke();
+      
+      // Crown symbol with 3D effect
+      ctx.fillStyle='rgba(255,220,100,0.95)';
+      ctx.font=`bold ${r*.85}px serif`;
+      ctx.textAlign='center';
+      ctx.textBaseline='middle';
+      // Crown shadow
+      ctx.fillStyle='rgba(150,120,0,0.4)';
+      ctx.fillText('♛',c.x+1,c.y+2);
+      // Crown main
+      ctx.fillStyle='rgba(255,220,100,0.95)';
+      ctx.fillText('♛',c.x,c.y+1);
+      // Crown highlight
+      ctx.fillStyle='rgba(255,255,200,0.6)';
+      ctx.fillText('♛',c.x-0.5,c.y);
+      
+    } else {
+      // ══════════════════════════════════════════════════
+      // 3D REGULAR COINS (WHITE/BLACK)
+      // ══════════════════════════════════════════════════
+      const isW=c.type==='white';
+      
+      // Side/thickness shadow
+      ctx.beginPath();
+      ctx.arc(c.x,c.y+coinHeight,r-0.5,0,Math.PI*2);
+      ctx.fillStyle=isW?'#999':'#111';
+      ctx.fill();
+      
+      // Side bevel gradient
+      const sideGrad=ctx.createLinearGradient(c.x-r,c.y,c.x+r,c.y);
+      if(isW){
+        sideGrad.addColorStop(0,'#bbb');
+        sideGrad.addColorStop(0.5,'#eee');
+        sideGrad.addColorStop(1,'#999');
+      }else{
+        sideGrad.addColorStop(0,'#1a1a1a');
+        sideGrad.addColorStop(0.5,'#333');
+        sideGrad.addColorStop(1,'#0a0a0a');
+      }
+      ctx.beginPath();
+      ctx.arc(c.x,c.y+coinHeight/2,r-0.5,0,Math.PI*2);
+      ctx.fillStyle=sideGrad;
+      ctx.fill();
+      
+      // Top face with realistic lighting
+      const topGrad=ctx.createRadialGradient(c.x-r*.35,c.y-r*.35,1,c.x,c.y,r);
+      if(isW){
+        // White coin - glossy plastic look
+        topGrad.addColorStop(0,'#ffffff');
+        topGrad.addColorStop(0.2,'#f5f5f5');
+        topGrad.addColorStop(0.5,'#e0e0e0');
+        topGrad.addColorStop(0.8,'#c0c0c0');
+        topGrad.addColorStop(1,'#a0a0a0');
+      }else{
+        // Black coin - matte with slight sheen
+        topGrad.addColorStop(0,'#555');
+        topGrad.addColorStop(0.3,'#333');
+        topGrad.addColorStop(0.7,'#1a1a1a');
+        topGrad.addColorStop(1,'#0a0a0a');
+      }
+      ctx.beginPath();ctx.arc(c.x,c.y,r,0,Math.PI*2);
+      ctx.fillStyle=topGrad;
+      ctx.fill();
+      
+      // Beveled edge highlight
+      ctx.beginPath();ctx.arc(c.x,c.y,r-1,0,Math.PI*2);
+      ctx.strokeStyle=isW?'rgba(255,255,255,0.8)':'rgba(80,80,80,0.5)';
+      ctx.lineWidth=1.5;
+      ctx.stroke();
+      
+      // Inner ring (recessed detail)
+      ctx.beginPath();ctx.arc(c.x,c.y,r*.6,0,Math.PI*2);
+      ctx.strokeStyle=isW?'rgba(180,180,180,0.6)':'rgba(60,60,60,0.5)';
+      ctx.lineWidth=1.5;
+      ctx.stroke();
+      
+      // Inner recessed gradient
+      const innerGrad=ctx.createRadialGradient(c.x,c.y,1,c.x,c.y,r*.55);
+      if(isW){
+        innerGrad.addColorStop(0,'rgba(255,255,255,0.3)');
+        innerGrad.addColorStop(1,'rgba(200,200,200,0.1)');
+      }else{
+        innerGrad.addColorStop(0,'rgba(80,80,80,0.3)');
+        innerGrad.addColorStop(1,'rgba(30,30,30,0.1)');
+      }
+      ctx.beginPath();ctx.arc(c.x,c.y,r*.55,0,Math.PI*2);
+      ctx.fillStyle=innerGrad;
+      ctx.fill();
+      
+      // Specular highlight (shine spot)
+      ctx.beginPath();ctx.ellipse(c.x-r*.3,c.y-r*.3,r*.25,r*.15,-Math.PI/4,0,Math.PI*2);
+      ctx.fillStyle=isW?'rgba(255,255,255,0.7)':'rgba(100,100,100,0.3)';
+      ctx.fill();
+    }
   }
 }
 
-function drawArrow(ctx, x, y, angle) {
-  ctx.save();
-  ctx.translate(x, y);
-  ctx.rotate(angle);
+function drawStriker(ctx) {
+  const s=G.striker;
+  const r=s.r||SR;
+  const isW=G.pColors[G.cur]==='white';
+  const strikerHeight=8; // Thicker than coins
   
+  // ══════════════════════════════════════════════════
+  // 3D STRIKER
+  // ══════════════════════════════════════════════════
+  
+  // Drop shadow on board
+  ctx.save();
+  ctx.shadowColor='rgba(0,0,0,0.5)';
+  ctx.shadowBlur=12;
+  ctx.shadowOffsetY=5;
+  ctx.beginPath();ctx.arc(s.x,s.y,r-1,0,Math.PI*2);
+  ctx.fillStyle='rgba(0,0,0,0.3)';
+  ctx.fill();
+  ctx.restore();
+  
+  // Side thickness (3D height)
   ctx.beginPath();
-  ctx.moveTo(0, -15);
-  ctx.lineTo(-8, -5);
-  ctx.lineTo(8, -5);
-  ctx.closePath();
-  ctx.fillStyle = COLORS.arrow;
+  ctx.arc(s.x,s.y+strikerHeight,r,0,Math.PI*2);
+  ctx.fillStyle=isW?'#4a5a8a':'#1a1a1a';
   ctx.fill();
   
+  // Side bevel with gradient for roundness
+  const sideGrad=ctx.createLinearGradient(s.x-r,s.y,s.x+r,s.y);
+  if(isW){
+    sideGrad.addColorStop(0,'#5a6a9a');
+    sideGrad.addColorStop(0.3,'#8a9aca');
+    sideGrad.addColorStop(0.5,'#aabaea');
+    sideGrad.addColorStop(0.7,'#7a8aba');
+    sideGrad.addColorStop(1,'#4a5a8a');
+  }else{
+    sideGrad.addColorStop(0,'#222');
+    sideGrad.addColorStop(0.3,'#444');
+    sideGrad.addColorStop(0.5,'#555');
+    sideGrad.addColorStop(0.7,'#333');
+    sideGrad.addColorStop(1,'#111');
+  }
+  ctx.beginPath();
+  ctx.arc(s.x,s.y+strikerHeight/2,r-0.5,0,Math.PI*2);
+  ctx.fillStyle=sideGrad;
+  ctx.fill();
+  
+  // Top face with metallic/plastic shine
+  const topGrad=ctx.createRadialGradient(s.x-r*.4,s.y-r*.4,2,s.x,s.y,r);
+  if(isW){
+    // White striker - glossy with blue tint
+    topGrad.addColorStop(0,'#ffffff');
+    topGrad.addColorStop(0.15,'#e8f0ff');
+    topGrad.addColorStop(0.4,'#c0d0f0');
+    topGrad.addColorStop(0.7,'#90a0d0');
+    topGrad.addColorStop(1,'#6070a0');
+  }else{
+    // Black striker - sleek dark
+    topGrad.addColorStop(0,'#666');
+    topGrad.addColorStop(0.2,'#444');
+    topGrad.addColorStop(0.5,'#2a2a2a');
+    topGrad.addColorStop(0.8,'#1a1a1a');
+    topGrad.addColorStop(1,'#0a0a0a');
+  }
+  ctx.beginPath();ctx.arc(s.x,s.y,r,0,Math.PI*2);
+  ctx.fillStyle=topGrad;
+  ctx.fill();
+  
+  // Outer rim highlight
+  ctx.beginPath();ctx.arc(s.x,s.y,r-1,0,Math.PI*2);
+  ctx.strokeStyle=isW?'rgba(255,255,255,0.9)':'rgba(100,100,100,0.5)';
+  ctx.lineWidth=2;
+  ctx.stroke();
+  
+  // Inner recessed circle
+  ctx.beginPath();ctx.arc(s.x,s.y,r*.7,0,Math.PI*2);
+  ctx.strokeStyle=isW?'rgba(100,120,180,0.4)':'rgba(80,80,80,0.4)';
+  ctx.lineWidth=1.5;
+  ctx.stroke();
+  
+  // Center depression with gradient
+  const centerGrad=ctx.createRadialGradient(s.x,s.y,1,s.x,s.y,r*.65);
+  if(isW){
+    centerGrad.addColorStop(0,'rgba(200,210,240,0.5)');
+    centerGrad.addColorStop(1,'rgba(160,170,200,0.2)');
+  }else{
+    centerGrad.addColorStop(0,'rgba(60,60,60,0.5)');
+    centerGrad.addColorStop(1,'rgba(30,30,30,0.2)');
+  }
+  ctx.beginPath();ctx.arc(s.x,s.y,r*.65,0,Math.PI*2);
+  ctx.fillStyle=centerGrad;
+  ctx.fill();
+  
+  // Large specular highlight (main shine)
+  ctx.beginPath();ctx.ellipse(s.x-r*.35,s.y-r*.35,r*.3,r*.2,-Math.PI/4,0,Math.PI*2);
+  ctx.fillStyle=isW?'rgba(255,255,255,0.8)':'rgba(150,150,150,0.4)';
+  ctx.fill();
+  
+  // Small bright spot highlight
+  ctx.beginPath();ctx.ellipse(s.x-r*.4,s.y-r*.4,r*.12,r*.08,-Math.PI/4,0,Math.PI*2);
+  ctx.fillStyle=isW?'rgba(255,255,255,0.95)':'rgba(200,200,200,0.5)';
+  ctx.fill();
+  
+  // Center marker dot (red)
+  ctx.beginPath();ctx.arc(s.x,s.y,5,0,Math.PI*2);
+  const dotGrad=ctx.createRadialGradient(s.x-2,s.y-2,1,s.x,s.y,5);
+  dotGrad.addColorStop(0,'#ff6666');
+  dotGrad.addColorStop(1,'#cc0000');
+  ctx.fillStyle=dotGrad;
+  ctx.fill();
+  ctx.strokeStyle='rgba(100,0,0,0.5)';
+  ctx.lineWidth=1;
+  ctx.stroke();
+
+  // Lane indicator (when placing)
+  if(G.phase==='place'&&G.cur===0) {
+    ctx.strokeStyle='rgba(255,220,80,.6)';ctx.lineWidth=1.5;ctx.setLineDash([4,4]);
+    ctx.beginPath();ctx.moveTo(LANE_X_MIN,LANE_Y0);ctx.lineTo(LANE_X_MAX,LANE_Y0);ctx.stroke();
+    ctx.setLineDash([]);
+  }
+}
+
+function drawTrajectory(ctx,pts) {
+  if(pts.length<2) return;
+  ctx.save();
+  ctx.setLineDash([7,7]);
+  ctx.strokeStyle='rgba(255,220,60,.55)';
+  ctx.lineWidth=2;
+  ctx.beginPath();
+  ctx.moveTo(pts[0].x,pts[0].y);
+  for(let i=1;i<pts.length;i++) ctx.lineTo(pts[i].x,pts[i].y);
+  ctx.stroke();
+  // Endpoint circle 
+  const last=pts[pts.length-1];
+  ctx.setLineDash([]);
+  ctx.beginPath();ctx.arc(last.x,last.y,SR,0,Math.PI*2);
+  ctx.strokeStyle='rgba(255,220,60,.3)';ctx.lineWidth=1.5;ctx.stroke();
   ctx.restore();
 }
 
-function drawCoin(ctx, coin) {
+function drawAimArrow(ctx) {
+  const s=G.striker;
+  const len=Math.min(G.aimPower*6,90);
+  const ex=s.x+Math.cos(G.aimAngle)*len;
+  const ey=s.y+Math.sin(G.aimAngle)*len;
+  ctx.save();
+  ctx.strokeStyle=`hsl(${120-G.aimPower/MAX_PWR*120},100%,55%)`;
+  ctx.lineWidth=3;
+  ctx.lineCap='round';
+  ctx.beginPath();ctx.moveTo(s.x,s.y);ctx.lineTo(ex,ey);ctx.stroke();
+  // Arrowhead
+  const headLen=12,a=G.aimAngle;
   ctx.beginPath();
-  ctx.arc(coin.x, coin.y, COIN_RADIUS, 0, Math.PI * 2);
-  
-  if (coin.type === 'white') {
-    ctx.fillStyle = COLORS.white;
-    ctx.fill();
-    ctx.strokeStyle = '#ccc';
-    ctx.lineWidth = 2;
-    ctx.stroke();
-  } else if (coin.type === 'black') {
-    ctx.fillStyle = COLORS.black;
-    ctx.fill();
-    ctx.strokeStyle = '#444';
-    ctx.lineWidth = 2;
-    ctx.stroke();
-  } else if (coin.type === 'queen') {
-    ctx.fillStyle = COLORS.queen;
-    ctx.fill();
-    ctx.strokeStyle = '#fff';
-    ctx.lineWidth = 2;
-    ctx.stroke();
-    
-    // Draw 'Q' on queen
-    ctx.fillStyle = '#fff';
-    ctx.font = 'bold 12px Poppins';
-    ctx.textAlign = 'center';
-    ctx.textBaseline = 'middle';
-    ctx.fillText('Q', coin.x, coin.y);
-  }
-  
-  // Highlight
-  ctx.beginPath();
-  ctx.arc(coin.x - 5, coin.y - 5, 4, 0, Math.PI * 2);
-  ctx.fillStyle = 'rgba(255,255,255,0.3)';
-  ctx.fill();
-}
-
-function drawStriker(ctx, striker) {
-  ctx.beginPath();
-  ctx.arc(striker.x, striker.y, striker.radius, 0, Math.PI * 2);
-  ctx.fillStyle = COLORS.striker;
-  ctx.fill();
-  
-  // Red outline
-  ctx.strokeStyle = COLORS.strikerLine;
-  ctx.lineWidth = 3;
+  ctx.moveTo(ex,ey);
+  ctx.lineTo(ex-Math.cos(a-0.4)*headLen,ey-Math.sin(a-0.4)*headLen);
+  ctx.moveTo(ex,ey);
+  ctx.lineTo(ex-Math.cos(a+0.4)*headLen,ey-Math.sin(a+0.4)*headLen);
   ctx.stroke();
-  
-  // Inner highlight
-  ctx.beginPath();
-  ctx.arc(striker.x - 7, striker.y - 7, 6, 0, Math.PI * 2);
-  ctx.fillStyle = 'rgba(255,255,255,0.4)';
-  ctx.fill();
+  ctx.restore();
 }
 
-function drawAimGuide(ctx) {
-  const s = G.striker;
-  const dx = G.dragStart.x - G.dragCurrent.x;
-  const dy = G.dragStart.y - G.dragCurrent.y;
-  const power = Math.min(Math.hypot(dx, dy) / 10, MAX_POWER);
-  
-  if (power < 1) return;
-  
-  const angle = Math.atan2(dy, dx);
-  const guideLength = power * 15;
-  
-  ctx.beginPath();
-  ctx.moveTo(s.x, s.y);
-  ctx.lineTo(s.x + Math.cos(angle) * guideLength, s.y + Math.sin(angle) * guideLength);
-  ctx.strokeStyle = 'rgba(255, 255, 255, 0.5)';
-  ctx.lineWidth = 3;
-  ctx.setLineDash([10, 5]);
-  ctx.stroke();
-  ctx.setLineDash([]);
-  
-  // Power indicator circle
-  ctx.beginPath();
-  ctx.arc(s.x + Math.cos(angle) * guideLength, s.y + Math.sin(angle) * guideLength, 8, 0, Math.PI * 2);
-  ctx.fillStyle = `hsl(${120 - power * 5}, 100%, 50%)`;
-  ctx.fill();
-}
-
-// ═══════════════════════════════════════════════════
-//  UI UPDATES
-// ═══════════════════════════════════════════════════
-function updateGameUI() {
-  const p1 = G.players[0];
-  const p2 = G.players[1];
-  
-  // Names
-  document.getElementById('p1NameDisplay').textContent = p1.name;
-  document.getElementById('p2NameDisplay').textContent = p2.name;
-  
-  // Points
-  document.getElementById('p1Points').textContent = p1.points;
-  document.getElementById('p2Points').textContent = p2.points;
-  
-  // Coins pocketed
-  const p1Icon = p1.color === 'white' ? '⚪' : '⚫';
-  const p2Icon = p2.color === 'white' ? '⚪' : '⚫';
-  document.getElementById('p1Coins').textContent = `${p1Icon}: ${p1.coins}/9` + (p1.queen ? ' 👑' : '');
-  document.getElementById('p2Coins').textContent = `${p2Icon}: ${p2.coins}/9` + (p2.queen ? ' 👑' : '');
-  
-  // Active player highlighting
-  document.getElementById('p1Score').classList.toggle('active', G.currentPlayer === 0);
-  document.getElementById('p2Score').classList.toggle('active', G.currentPlayer === 1);
-  
-  // Update CSS variables for colors
-  document.getElementById('p1Score').style.setProperty('--pc', p1.color === 'white' ? '#fff' : '#333');
-  document.getElementById('p2Score').style.setProperty('--pc', p2.color === 'white' ? '#fff' : '#333');
-  document.getElementById('p1Points').style.color = p1.color === 'white' ? '#fff' : '#aaa';
-  document.getElementById('p2Points').style.color = p2.color === 'white' ? '#fff' : '#aaa';
-  
-  // Turn indicator
-  document.getElementById('turnName').textContent = G.players[G.currentPlayer].name;
-}
-
-function setMsg(msg) {
-  // Optional: show temporary message
-  console.log(msg);
-}
-
-// ═══════════════════════════════════════════════════
-//  SOUND
-// ═══════════════════════════════════════════════════
-function trySound(fn) {
-  try { if (typeof SoundManager !== 'undefined' && SoundManager.enabled) fn(); } catch(e) {}
-}
-
-function initSoundBtn() {
-  const btn = document.getElementById('soundBtn');
-  function update() {
-    try {
-      const on = typeof SoundManager !== 'undefined' ? SoundManager.enabled : true;
-      btn.textContent = on ? '🔊' : '🔇';
-      btn.classList.toggle('muted', !on);
-    } catch(e) {}
+// ══════════════════════════════════════════════════
+// UI HELPERS
+// ══════════════════════════════════════════════════
+function updateUI() {
+  for(let i=0;i<2;i++){
+    const col=G.pColors[i]==='white'?'#e2e8f0':'#334155';
+    document.getElementById('p'+i+'card').style.setProperty('--pc',col);
+    document.getElementById('p'+i+'pts').textContent=G.pts[i];
+    document.getElementById('p'+i+'name').textContent=G.pNames[i];
+    const icon=G.pColors[i]==='white'?'⚪':'⚫';
+    document.getElementById('p'+i+'coins').textContent=`${icon} ${G.coinsIn[i]}/9`;
+    document.getElementById('p'+i+'card').classList.toggle('active',G.cur===i);
   }
-  btn.addEventListener('click', () => {
-    try { SoundManager.toggle(); if (SoundManager.enabled) SoundManager.playClick(); } catch(e) {}
-    update();
+  document.getElementById('turnName').textContent=G.pNames[G.cur];
+  document.getElementById('roundLbl').textContent='Turn '+G.turn;
+  updateEnergyUI();
+}
+
+function updateEnergyUI(){
+  const pct=Math.max(0,Math.min(100,(G.energy/G.maxEnergy)*100));
+  document.getElementById('energyVal').textContent=Math.floor(pct);
+  document.getElementById('enFill').style.width=pct+'%';
+  document.getElementById('enFill').classList.toggle('low',pct<25);
+}
+
+let msgTO=null;
+function showMsg(txt) {
+  const el=document.getElementById('msgPill');
+  el.textContent=txt; el.classList.add('show');
+  clearTimeout(msgTO);
+  msgTO=setTimeout(()=>el.classList.remove('show'),3500);
+}
+
+function roundRect(ctx,x,y,w,h,r) {
+  ctx.beginPath();
+  ctx.moveTo(x+r,y);ctx.lineTo(x+w-r,y);ctx.arcTo(x+w,y,x+w,y+r,r);
+  ctx.lineTo(x+w,y+h-r);ctx.arcTo(x+w,y+h,x+w-r,y+h,r);
+  ctx.lineTo(x+r,y+h);ctx.arcTo(x,y+h,x,y+h-r,r);
+  ctx.lineTo(x,y+r);ctx.arcTo(x,y,x+r,y,r);
+  ctx.closePath();
+}
+
+function clamp(v,lo,hi){return Math.max(lo,Math.min(hi,v));}
+
+// ══════════════════════════════════════════════════
+// ONLINE MULTIPLAYER (PeerJS)
+// ══════════════════════════════════════════════════
+let peer=null,conn=null,isOnline=false,isHost=false,roomCode='',myPlayerIdx=0;
+
+function initOnlineSetup(){
+  document.getElementById('createRoomBtn').onclick=createRoom;
+  document.getElementById('joinRoomBtn').onclick=joinRoom;
+  document.getElementById('backFromOnline').onclick=()=>{
+    document.getElementById('onlineSetup').style.display='none';
+    document.getElementById('setup').style.display='flex';
+    if(peer){peer.destroy();peer=null;conn=null;}
+  };
+}
+
+function showOnlineSetup(){
+  document.getElementById('setup').style.display='none';
+  document.getElementById('onlineSetup').style.display='flex';
+  document.getElementById('onlineStatus').textContent='';
+  document.getElementById('roomCodeInput').value='';
+  initOnlineSetup();
+}
+
+function createRoom(){
+  roomCode=Math.floor(100000+Math.random()*900000).toString();
+  document.getElementById('onlineStatus').innerHTML='<span style="color:#22c55e">Room <b>'+roomCode+'</b> created! Waiting for opponent...</span>';
+  initPeerJS(roomCode,true);
+}
+
+function joinRoom(){
+  const code=document.getElementById('roomCodeInput').value.trim().toUpperCase();
+  if(code.length!==6){document.getElementById('onlineStatus').innerHTML='<span style="color:#ef4444">Enter valid 6-digit code</span>';return;}
+  roomCode=code;
+  document.getElementById('onlineStatus').textContent='Connecting...';
+  initPeerJS(roomCode,false);
+}
+
+function initPeerJS(code,isH){
+  isHost=isH;isOnline=true;myPlayerIdx=isHost?0:1;
+  const myId='carrom-'+code+'-'+(isHost?'host':'guest')+'-'+Date.now();
+  peer=new Peer(myId,{host:'0.peerjs.com',port:443,secure:true,debug:1});
+  
+  peer.on('open',(id)=>{
+    console.log('Peer open:',id);
+    if(!isHost){
+      const hostId='carrom-'+code+'-host';
+      conn=peer.connect(hostId);
+      setupConnection();
+    }
   });
-  update();
+  
+  peer.on('connection',(c)=>{conn=c;setupConnection();});
+  peer.on('error',(e)=>{document.getElementById('onlineStatus').innerHTML='<span style="color:#ef4444">Error: '+e.message+'</span>';});
 }
+
+function setupConnection(){
+  conn.on('open',()=>{
+    console.log('Connection open');
+    document.getElementById('onlineStatus').innerHTML='<span style="color:#22c55e">Connected! Starting game...</span>';
+    if(isHost){
+      // Host starts game after short delay
+      setTimeout(()=>startOnlineGame(),800);
+    }
+  });
+  
+  conn.on('data',(d)=>handlePeerData(d));
+  conn.on('close',()=>{showMsg('Opponent disconnected');isOnline=false;});
+  conn.on('error',(e)=>console.error('Conn error:',e));
+}
+
+function startOnlineGame(){
+  mode='local';// Use local mode for online (both human controlled)
+  diff='medium';myColor='white';
+  p[0].name=isHost?'You':'Opponent';
+  p[1].name=isHost?'Opponent':'You';
+  p[0].col='white';p[1].col='black';
+  p[0].idx=0;p[1].idx=1;
+  
+  document.getElementById('onlineSetup').style.display='none';
+  document.getElementById('game').style.display='flex';
+  resizeCanvas();resetGame();render();
+  
+  // Send start to peer
+  if(conn)conn.send({type:'start',names:[p[0].name,p[1].name],cols:[p[0].col,p[1].col]});
+}
+
+function handlePeerData(d){
+  console.log('Peer data:',d);
+  switch(d.type){
+    case 'start':
+      p[0].name=d.names[0];p[1].name=d.names[1];
+      p[0].col=d.cols[0];p[1].col=d.cols[1];
+      document.getElementById('onlineSetup').style.display='none';
+      document.getElementById('game').style.display='flex';
+      resizeCanvas();resetGame();render();
+      break;
+    case 'move':
+      // Apply remote move - striker shot data
+      striker.x=d.striker.x;striker.y=d.striker.y;
+      striker.vx=d.striker.vx;striker.vy=d.striker.vy;
+      // Sync coins state
+      coins.forEach((c,i)=>{if(d.coins[i]){c.x=d.coins[i].x;c.y=d.coins[i].y;c.pocketed=d.coins[i].pocketed;c.on=d.coins[i].on;}});
+      moving=true;queenReturned=d.queenReturned;
+      // Sync game state
+      p[0].pts=d.scores[0];p[1].pts=d.scores[1];
+      p[0].pocketed=d.pocketed[0];p[1].pocketed=d.pocketed[1];
+      turn=d.turn;turnNumber=d.turnNumber;
+      updateUI();render();
+      requestAnimationFrame(loop);
+      break;
+    case 'coinSync':
+      // Sync coins after pocket/score change
+      coins.forEach((c,i)=>{if(d.coins[i]){c.x=d.coins[i].x;c.y=d.coins[i].y;c.pocketed=d.coins[i].pocketed;c.on=d.coins[i].on;}});
+      p[0].pts=d.scores[0];p[1].pts=d.scores[1];
+      p[0].pocketed=d.pocketed[0];p[1].pocketed=d.pocketed[1];
+      updateUI();render();
+      break;
+  }
+}
+
+function sendMoveToPeer(){
+  if(!conn||!isOnline)return;
+  const coinData=coins.map(c=>({x:c.x,y:c.y,pocketed:c.pocketed,on:c.on}));
+  conn.send({
+    type:'move',
+    striker:{x:striker.x,y:striker.y,vx:striker.vx,vy:striker.vy},
+    coins:coinData,
+    scores:[p[0].pts,p[1].pts],
+    pocketed:[p[0].pocketed,p[1].pocketed],
+    turn:turn,turnNumber:turnNumber,queenReturned:queenReturned
+  });
+}
+
+function sendCoinSync(){
+  if(!conn||!isOnline)return;
+  const coinData=coins.map(c=>({x:c.x,y:c.y,pocketed:c.pocketed,on:c.on}));
+  conn.send({type:'coinSync',coins:coinData,scores:[p[0].pts,p[1].pts],pocketed:[p[0].pocketed,p[1].pocketed]});
+}
+
+// ══════════════════════════════════════════════════
+// BOOT
+// ══════════════════════════════════════════════════
+window.addEventListener('load',()=>{
+  setTimeout(()=>document.getElementById('loading').classList.add('out'),600);
+  initSetup();
+  // Hide diff label if local mode preselected (default is ai)
+  document.getElementById('diffRow').style.display='flex';
+  document.getElementById('diffLabel').style.display='block';
+  initOnlineSetup();
+});
 </script>
+<script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js"></script>
 </body>
 </html>
