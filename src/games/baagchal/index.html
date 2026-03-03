@@ -875,9 +875,10 @@ class BaagchalGame {
                         } else {
                             setTimeout(() => this.makeGoatMove(), 600);
                         }
+                    } else if (this.turn === "T" && this.playerSide === "G") {
+                        // AI is Tiger, user is Goat - AI must now move a tiger
+                        setTimeout(() => this.makeTigerMove(), 600);
                     }
-                    // If turn is T and user is Tiger, DON'T auto-move - let user control
-                    // If turn is G and user is Goat, user just moved, wait for their next input
                 }
             } else if (canSelect && index !== this.selectedCell) {
                 this.selectedCell = index;
@@ -930,20 +931,40 @@ class BaagchalGame {
             this.executeMove(bestMove.from, bestMove.to);
             this.checkWinner();
             this.render();
-            
-            // After tiger moves, it's goat's turn
-            // If in placement phase, goat places
-            if (this.gameMode === "AI" && this.playerSide === "G" && !this.winner) {
-                if (this.phase === "PLACEMENT") {
-                    // Goat needs to place - wait for human input
-                    // Don't auto-place for human
-                } else {
-                    // In movement phase, wait for human to move goat
-                }
-            }
+            // Turn is now 'G' after executeMove, human goat will move
+        } else {
+            // All tigers trapped - no valid move. Switch turn to avoid freeze.
+            this.turn = "G";
+            this.checkWinner(); // This triggers goat win if all 4 actually trapped
+            this.render();
         }
     }
     
+    // Get landing spots where tigers would land when capturing an existing goat
+    // Blocking these spots prevents the tiger's capture
+    getTigerCaptureLandingSpots() {
+        const landingSpots = new Set();
+        for (let i = 0; i < 25; i++) {
+            if (this.board[i] !== "T") continue;
+            const fx = i % 5, fy = Math.floor(i / 5);
+            const directions = [[-2,-2],[-2,0],[-2,2],[0,-2],[0,2],[2,-2],[2,0],[2,2]];
+            for (const [dx, dy] of directions) {
+                const tx = fx + dx, ty = fy + dy;
+                const mx = fx + dx/2, my = fy + dy/2;
+                if (tx < 0 || tx >= 5 || ty < 0 || ty >= 5) continue;
+                if (mx < 0 || mx >= 5 || my < 0 || my >= 5) continue;
+                const landingPos = Math.round(ty) * 5 + Math.round(tx);
+                const midPos = Math.round(my) * 5 + Math.round(mx);
+                // Tiger at i jumps over midPos (must have a goat) to empty landingPos
+                if (this.board[midPos] === "G" && this.board[landingPos] === null &&
+                    ADJACENT[i].includes(midPos) && ADJACENT[midPos].includes(landingPos)) {
+                    landingSpots.add(landingPos);
+                }
+            }
+        }
+        return [...landingSpots];
+    }
+
     // AI places a goat
     makeGoatPlacement() {
         if (this.winner || this.phase !== "PLACEMENT" || this.turn !== "G") return;
@@ -960,7 +981,7 @@ class BaagchalGame {
         let selectedSpot;
         
         if (this.aiDifficulty === "easy") {
-            // EASY: Try to be safe, but not very smart about it
+            // EASY: Avoid immediate capture (no blocking strategy)
             const safeSpots = emptySpots.filter(spot => !this.canBeCaptured(spot));
             if (safeSpots.length > 0) {
                 selectedSpot = safeSpots[Math.floor(Math.random() * safeSpots.length)];
@@ -968,42 +989,48 @@ class BaagchalGame {
                 selectedSpot = emptySpots[Math.floor(Math.random() * emptySpots.length)];
             }
         } else if (this.aiDifficulty === "intermediate") {
-            // MEDIUM: ALWAYS avoid capture, prefer far from tigers
-            const safeSpots = emptySpots.filter(spot => !this.canBeCaptured(spot));
-            
-            if (safeSpots.length > 0) {
-                // Filter for spots not adjacent to tigers
-                const farSafeSpots = safeSpots.filter(spot => !this.isNearTiger(spot));
-                if (farSafeSpots.length > 0) {
-                    selectedSpot = farSafeSpots[Math.floor(Math.random() * farSafeSpots.length)];
-                } else {
-                    selectedSpot = safeSpots[Math.floor(Math.random() * safeSpots.length)];
-                }
+            // MEDIUM: ALWAYS avoid capture + block tiger captures when possible
+            // Priority 1: Block landing spots where tiger would capture an existing goat
+            const blockingSpots = this.getTigerCaptureLandingSpots()
+                .filter(s => emptySpots.includes(s) && !this.canBeCaptured(s));
+            if (blockingSpots.length > 0) {
+                selectedSpot = blockingSpots[Math.floor(Math.random() * blockingSpots.length)];
             } else {
-                // No safe spots - this shouldn't happen often in placement phase
-                // Pick the spot that would capture the fewest goats
-                selectedSpot = this.getLeastDangerousSpot(emptySpots);
-            }
-        } else {
-            // HARD: Perfect safety + strategic trapping
-            const safeSpots = emptySpots.filter(spot => !this.canBeCaptured(spot));
-            
-            if (safeSpots.length > 0) {
-                // Prioritize spots that restrict tiger mobility
-                const strategicSpots = safeSpots.filter(spot => 
-                    this.restrictsTigerMobility(spot) || this.blocksTigerMovement(spot)
-                );
-                if (strategicSpots.length > 0) {
-                    selectedSpot = strategicSpots[Math.floor(Math.random() * strategicSpots.length)];
-                } else {
+                const safeSpots = emptySpots.filter(spot => !this.canBeCaptured(spot));
+                if (safeSpots.length > 0) {
                     const farSafeSpots = safeSpots.filter(spot => !this.isNearTiger(spot));
                     selectedSpot = farSafeSpots.length > 0
                         ? farSafeSpots[Math.floor(Math.random() * farSafeSpots.length)]
                         : safeSpots[Math.floor(Math.random() * safeSpots.length)];
+                } else {
+                    selectedSpot = this.getLeastDangerousSpot(emptySpots);
                 }
+            }
+        } else {
+            // HARD: Block captures + restrict tiger mobility + strategic trapping
+            // Priority 1: Block landing spots where tiger would capture an existing goat
+            const blockingSpots = this.getTigerCaptureLandingSpots()
+                .filter(s => emptySpots.includes(s) && !this.canBeCaptured(s));
+            if (blockingSpots.length > 0) {
+                selectedSpot = blockingSpots[Math.floor(Math.random() * blockingSpots.length)];
             } else {
-                // No safe spots - sacrifice strategically
-                selectedSpot = this.getLeastDangerousSpot(emptySpots);
+                const safeSpots = emptySpots.filter(spot => !this.canBeCaptured(spot));
+                if (safeSpots.length > 0) {
+                    // Prioritize spots that restrict tiger mobility
+                    const strategicSpots = safeSpots.filter(spot => 
+                        this.restrictsTigerMobility(spot) || this.blocksTigerMovement(spot)
+                    );
+                    if (strategicSpots.length > 0) {
+                        selectedSpot = strategicSpots[Math.floor(Math.random() * strategicSpots.length)];
+                    } else {
+                        const farSafeSpots = safeSpots.filter(spot => !this.isNearTiger(spot));
+                        selectedSpot = farSafeSpots.length > 0
+                            ? farSafeSpots[Math.floor(Math.random() * farSafeSpots.length)]
+                            : safeSpots[Math.floor(Math.random() * safeSpots.length)];
+                    }
+                } else {
+                    selectedSpot = this.getLeastDangerousSpot(emptySpots);
+                }
             }
         }
         
