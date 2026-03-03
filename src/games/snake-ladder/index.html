@@ -634,23 +634,24 @@
     const CELL_COLORS = ['green', 'yellow', 'blue', 'red'];
     
     // Snakes (head -> tail) - Based on the reference image
+    // FIXED: Removed conflicts with ladders
     const SNAKES = {
-      83: 60,   // Green snake top left
-      92: 72,   // Blue/yellow snake top right
-      66: 55,   // Red/yellow snake middle
+      83: 59,   // Green snake top left (was 60, conflicted with ladder)
+      92: 72,   // Blue snake top right
+      66: 55,   // Red snake middle
       36: 14,   // Red snake left middle
       38: 20,   // Blue/yellow snake left
       31: 10,   // Green snake bottom right
-      99: 41,   // Additional snake
+      99: 41,   // Long green snake
     };
     
     // Ladders (bottom -> top)
     const LADDERS = {
       2: 23,    // Ladder 1
-      5: 36,    // Ladder 2
+      5: 35,    // Ladder 2 (was 36, conflicted with snake head)
       13: 49,   // Ladder 3
       24: 44,   // Ladder 4
-      42: 60,   // Ladder 5
+      42: 61,   // Ladder 5 (was 60, conflicted with snake tail)
       53: 74,   // Ladder 6
       64: 86,   // Ladder 7
     };
@@ -745,29 +746,35 @@
       const board = document.getElementById('gameBoard');
       board.innerHTML = '';
       
-      // Build cells in zigzag pattern
-      // Row 0 (bottom): 1-10 (left to right)
-      // Row 1: 11-20 (right to left)
-      // Row 2: 21-30 (left to right)
+      // Build cells in CSS grid order (top to bottom)
+      // But numbers go: 100 at top-left, zigzag down to 1 at bottom-left
+      // Grid row 0 (top): 100, 99, 98, 97, 96, 95, 94, 93, 92, 91 (left to right)
+      // Grid row 1: 81, 82, 83, 84, 85, 86, 87, 88, 89, 90 (right to left)
+      // Grid row 2: 80, 79, 78, 77, 76, 75, 74, 73, 72, 71 (left to right)
       // etc.
       
-      for (let row = 0; row < BOARD_SIZE; row++) {
+      for (let gridRow = 0; gridRow < BOARD_SIZE; gridRow++) {
         for (let col = 0; col < BOARD_SIZE; col++) {
           const cell = document.createElement('div');
           cell.className = 'cell';
           
-          // Calculate cell number
+          // Calculate cell number based on grid position
+          // Top row (gridRow 0) = 91-100
+          // Bottom row (gridRow 9) = 1-10
           let cellNum;
-          if (row % 2 === 0) {
-            // Even rows (0, 2, 4, 6, 8): left to right
-            cellNum = row * 10 + col + 1;
+          
+          if (gridRow % 2 === 0) {
+            // Even rows (0, 2, 4, 6, 8): numbers go left to right, decreasing
+            cellNum = 100 - (gridRow * 10) - col;
           } else {
-            // Odd rows (1, 3, 5, 7, 9): right to left
-            cellNum = row * 10 + (9 - col) + 1;
+            // Odd rows (1, 3, 5, 7, 9): numbers go right to left, decreasing
+            cellNum = 100 - (gridRow * 10) - (9 - col);
           }
           
-          // Color based on position (zigzag color pattern)
-          const colorIndex = (row * 10 + col) % 4;
+          // Color based on visual position (not grid position)
+          // This creates the 4-color repeating pattern
+          const visualRow = 9 - gridRow;
+          const colorIndex = (visualRow * 10 + col) % 4;
           let colorClass = CELL_COLORS[colorIndex];
           
           // Special cells
@@ -789,65 +796,168 @@
     }
     
     // ============================================
-    // DRAW SNAKES (SVG)
+    // DRAW SNAKES (SVG) - Cartoon Style
     // ============================================
     function drawSnakes() {
       const svg = document.getElementById('snakesLayer');
       svg.innerHTML = '';
       
-      const snakeColors = {
-        83: '#66BB6A',   // Green
-        92: '#64B5F6',   // Blue
-        66: '#EF5350',   // Red
-        36: '#EF5350',   // Red
-        38: '#64B5F6',   // Blue
-        31: '#66BB6A',   // Green
-        99: '#66BB6A',   // Green
-      };
+      // Snake definitions with custom paths for each snake
+      // Format: [headCell, tailCell, color, stripeColor, pathType]
+      const snakeDefs = [
+        { head: 83, tail: 59, color: '#4CAF50', stripe: '#81C784', path: 'curvy-down-left' },
+        { head: 92, tail: 72, color: '#2196F3', stripe: '#64B5F6', path: 'straight-down' },
+        { head: 66, tail: 55, color: '#F44336', stripe: '#EF5350', path: 'short-curve' },
+        { head: 36, tail: 14, color: '#F44336', stripe: '#EF5350', path: 'long-zigzag' },
+        { head: 38, tail: 20, color: '#2196F3', stripe: '#BBDEFB', path: 'wave-down' },
+        { head: 31, tail: 10, color: '#4CAF50', stripe: '#A5D6A7', path: 's-curve-long' },
+        { head: 99, tail: 41, color: '#4CAF50', stripe: '#81C784', path: 'very-long' },
+      ];
       
-      Object.entries(SNAKES).forEach(([head, tail]) => {
-        const headPos = getCellCenter(parseInt(head));
-        const tailPos = getCellCenter(tail);
+      snakeDefs.forEach(snake => {
+        const headPos = getCellCenter(snake.head);
+        const tailPos = getCellCenter(snake.tail);
         
-        // Create curved path for snake
-        const midX = (headPos.x + tailPos.x) / 2 + (Math.random() - 0.5) * 15;
-        const midY = (headPos.y + tailPos.y) / 2;
+        // Create snake body path based on type
+        const path = createSnakePath(headPos, tailPos, snake.path);
         
-        const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
-        const d = `M ${headPos.x} ${headPos.y} Q ${midX} ${midY} ${tailPos.x} ${tailPos.y}`;
+        // Draw main body (thicker)
+        const bodyPath = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+        bodyPath.setAttribute('d', path);
+        bodyPath.setAttribute('stroke', snake.color);
+        bodyPath.setAttribute('stroke-width', '5');
+        bodyPath.setAttribute('fill', 'none');
+        bodyPath.setAttribute('stroke-linecap', 'round');
+        svg.appendChild(bodyPath);
         
-        path.setAttribute('d', d);
-        path.setAttribute('stroke', snakeColors[head] || '#66BB6A');
-        path.setAttribute('stroke-width', '3');
-        path.setAttribute('fill', 'none');
-        path.setAttribute('stroke-linecap', 'round');
+        // Draw stripe (thinner, in middle)
+        const stripePath = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+        stripePath.setAttribute('d', path);
+        stripePath.setAttribute('stroke', snake.stripe);
+        stripePath.setAttribute('stroke-width', '2');
+        stripePath.setAttribute('fill', 'none');
+        stripePath.setAttribute('stroke-linecap', 'round');
+        stripePath.setAttribute('stroke-dasharray', '4,3');
+        svg.appendChild(stripePath);
         
-        // Add wavy effect with multiple strokes
-        svg.appendChild(path);
+        // Draw snake head (larger, ellipse)
+        const headGroup = document.createElementNS('http://www.w3.org/2000/svg', 'g');
         
-        // Snake head (circle)
-        const headCircle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
-        headCircle.setAttribute('cx', headPos.x);
-        headCircle.setAttribute('cy', headPos.y);
-        headCircle.setAttribute('r', '2.5');
-        headCircle.setAttribute('fill', snakeColors[head] || '#66BB6A');
-        svg.appendChild(headCircle);
+        // Head ellipse
+        const headEllipse = document.createElementNS('http://www.w3.org/2000/svg', 'ellipse');
+        headEllipse.setAttribute('cx', headPos.x);
+        headEllipse.setAttribute('cy', headPos.y);
+        headEllipse.setAttribute('rx', '4');
+        headEllipse.setAttribute('ry', '3.5');
+        headEllipse.setAttribute('fill', snake.color);
+        svg.appendChild(headEllipse);
         
-        // Snake eyes
+        // Eyes
+        const eyeOffset = 1.5;
         const eye1 = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
-        eye1.setAttribute('cx', headPos.x - 0.8);
-        eye1.setAttribute('cy', headPos.y - 0.8);
-        eye1.setAttribute('r', '0.5');
+        eye1.setAttribute('cx', headPos.x - eyeOffset);
+        eye1.setAttribute('cy', headPos.y - 1);
+        eye1.setAttribute('r', '1.2');
         eye1.setAttribute('fill', 'white');
         svg.appendChild(eye1);
         
+        const pupil1 = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+        pupil1.setAttribute('cx', headPos.x - eyeOffset);
+        pupil1.setAttribute('cy', headPos.y - 1);
+        pupil1.setAttribute('r', '0.5');
+        pupil1.setAttribute('fill', 'black');
+        svg.appendChild(pupil1);
+        
         const eye2 = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
-        eye2.setAttribute('cx', headPos.x + 0.8);
-        eye2.setAttribute('cy', headPos.y - 0.8);
-        eye2.setAttribute('r', '0.5');
+        eye2.setAttribute('cx', headPos.x + eyeOffset);
+        eye2.setAttribute('cy', headPos.y - 1);
+        eye2.setAttribute('r', '1.2');
         eye2.setAttribute('fill', 'white');
         svg.appendChild(eye2);
+        
+        const pupil2 = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+        pupil2.setAttribute('cx', headPos.x + eyeOffset);
+        pupil2.setAttribute('cy', headPos.y - 1);
+        pupil2.setAttribute('r', '0.5');
+        pupil2.setAttribute('fill', 'black');
+        svg.appendChild(pupil2);
+        
+        // Tongue (small red line sticking out)
+        const tongue = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+        tongue.setAttribute('x1', headPos.x);
+        tongue.setAttribute('y1', headPos.y + 2);
+        tongue.setAttribute('x2', headPos.x);
+        tongue.setAttribute('y2', headPos.y + 5);
+        tongue.setAttribute('stroke', '#F44336');
+        tongue.setAttribute('stroke-width', '1.5');
+        svg.appendChild(tongue);
       });
+    }
+    
+    // Helper to create different snake path shapes
+    function createSnakePath(head, tail, type) {
+      const dx = tail.x - head.x;
+      const dy = tail.y - head.y;
+      
+      switch(type) {
+        case 'curvy-down-left':
+          // Snake 83->60: curves left then down
+          const cp1x = head.x - 10;
+          const cp1y = head.y + 5;
+          const cp2x = tail.x - 8;
+          const cp2y = tail.y - 5;
+          return `M ${head.x} ${head.y} C ${cp1x} ${cp1y}, ${cp2x} ${cp2y}, ${tail.x} ${tail.y}`;
+          
+        case 'straight-down':
+          // Snake 92->72: mostly straight down with slight curve
+          const midX = (head.x + tail.x) / 2 + 3;
+          const midY = (head.y + tail.y) / 2;
+          return `M ${head.x} ${head.y} Q ${midX} ${midY} ${tail.x} ${tail.y}`;
+          
+        case 'short-curve':
+          // Snake 66->55: short curve
+          const scMidX = (head.x + tail.x) / 2 + 5;
+          const scMidY = (head.y + tail.y) / 2;
+          return `M ${head.x} ${head.y} Q ${scMidX} ${scMidY} ${tail.x} ${tail.y}`;
+          
+        case 'long-zigzag':
+          // Snake 36->14: long S-curve
+          const z1x = head.x + 8;
+          const z1y = head.y + 8;
+          const z2x = tail.x - 8;
+          const z2y = tail.y - 8;
+          return `M ${head.x} ${head.y} C ${z1x} ${z1y}, ${z2x} ${z2y}, ${tail.x} ${tail.y}`;
+          
+        case 'wave-down':
+          // Snake 38->20: wave pattern
+          const w1x = head.x - 5;
+          const w1y = head.y + 5;
+          const w2x = tail.x + 5;
+          const w2y = tail.y - 5;
+          return `M ${head.x} ${head.y} C ${w1x} ${w1y}, ${w2x} ${w2y}, ${tail.x} ${tail.y}`;
+          
+        case 's-curve-long':
+          // Snake 31->10: long S-curve
+          const s1x = head.x + 6;
+          const s1y = head.y + 6;
+          const s2x = tail.x - 6;
+          const s2y = tail.y - 6;
+          return `M ${head.x} ${head.y} C ${s1x} ${s1y}, ${s2x} ${s2y}, ${tail.x} ${tail.y}`;
+          
+        case 'very-long':
+          // Snake 99->41: very long snake with multiple curves
+          const v1x = head.x - 8;
+          const v1y = head.y + 15;
+          const v2x = tail.x + 8;
+          const v2y = tail.y - 10;
+          return `M ${head.x} ${head.y} C ${v1x} ${v1y}, ${v2x} ${v2y}, ${tail.x} ${tail.y}`;
+          
+        default:
+          // Simple quadratic curve
+          const midx = (head.x + tail.x) / 2;
+          const midy = (head.y + tail.y) / 2;
+          return `M ${head.x} ${head.y} Q ${midx} ${midy} ${tail.x} ${tail.y}`;
+      }
     }
     
     // ============================================
@@ -918,27 +1028,27 @@
     // HELPER FUNCTIONS
     // ============================================
     function getCellCenter(cellNum) {
-      // Find row and col from cell number
-      // Row 0: 1-10, Row 1: 11-20, etc.
-      const row = Math.floor((cellNum - 1) / 10);
+      // Find grid position from cell number
+      // 100 is at grid row 0, col 0
+      // 91 is at grid row 0, col 9
+      // 81 is at grid row 1, col 0
+      // 1 is at grid row 9, col 0
+      
+      const gridRow = Math.floor((100 - cellNum) / 10);
       let col;
       
-      if (row % 2 === 0) {
-        // Even rows: left to right
-        col = (cellNum - 1) % 10;
+      if (gridRow % 2 === 0) {
+        // Even rows: 100, 99, 98... (left to right in number, so col decreases)
+        col = 100 - cellNum - (gridRow * 10);
       } else {
-        // Odd rows: right to left
-        col = 9 - ((cellNum - 1) % 10);
+        // Odd rows: 81, 82, 83... (right to left in number, so col increases)
+        col = 9 - (100 - cellNum - (gridRow * 10));
       }
       
       // Convert to percentage (center of cell)
-      // Grid is 10x10, so each cell is 10%
-      // But cells are in CSS grid order, so row 0 is bottom in game terms
-      const visualRow = 9 - row; // Flip for visual representation
-      
       return {
         x: col * 10 + 5,  // 5% is center of 10% cell
-        y: visualRow * 10 + 5
+        y: gridRow * 10 + 5
       };
     }
     
