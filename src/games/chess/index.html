@@ -479,11 +479,18 @@ body {
   position: absolute;
   width: 28%;
   height: 28%;
-  background: rgba(0,0,0,0.25);
+  background: rgba(0,0,0,0.35);
   border-radius: 50%;
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
+  box-shadow: 0 0 4px rgba(255,255,255,0.3);
+}
+.square.light.valid-move::after {
+  background: rgba(0,0,0,0.3);
+}
+.square.dark.valid-move::after {
+  background: rgba(255,255,255,0.35);
 }
 .square.valid-capture::after {
   content: '';
@@ -493,16 +500,25 @@ body {
   width: 90%;
   height: 90%;
   transform: translate(-50%, -50%);
-  border: 4px solid rgba(0,0,0,0.35);
+  border: 4px solid rgba(0,0,0,0.4);
   border-radius: 50%;
   box-sizing: border-box;
+}
+.square.dark.valid-capture::after {
+  border-color: rgba(255,255,255,0.45);
 }
 .square.check { 
   background: var(--check) !important;
   box-shadow: inset 0 0 0 4px rgba(255,0,0,0.5);
 }
 .square.last-move { 
-  background: rgba(255,215,0,0.25) !important;
+  box-shadow: inset 0 0 0 4px rgba(255,215,0,0.8);
+}
+.square.last-move.light { 
+  background: linear-gradient(135deg, rgba(255,215,0,0.3), rgba(255,215,0,0.2)) !important;
+}
+.square.last-move.dark { 
+  background: linear-gradient(135deg, rgba(255,215,0,0.25), rgba(255,215,0,0.15)) !important;
 }
 
 .piece {
