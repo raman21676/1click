@@ -3,6 +3,16 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="description" content="Play Chess online for free! 3 modes: vs AI, Pass & Play, Online Multiplayer. Full chess rules with castling, en passant, promotion.">
+<meta name="keywords" content="chess, online chess, chess game, play chess, chess vs computer, multiplayer chess">
+<meta name="robots" content="index, follow">
+<meta name="theme-color" content="#0f172a">
+<link rel="canonical" href="https://1click.live/src/games/chess/">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://1click.live/src/games/chess/">
+<meta property="og:title" content="Chess - 1click Games">
+<meta property="og:description" content="Play Chess online! AI, local multiplayer, or online PvP.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
 <title>Chess - 1click Games</title>
 <style>
 * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
@@ -760,9 +770,65 @@ body {
   background: var(--wood-light);
   border-radius: 3px;
 }
+.loading-screen {
+  position: fixed;
+  inset: 0;
+  background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+  transition: opacity 0.5s ease, visibility 0.5s ease;
+}
+.loading-screen.hidden {
+  opacity: 0;
+  visibility: hidden;
+}
+.loading-logo {
+  font-size: 4rem;
+  animation: pulse 1.5s ease-in-out infinite;
+}
+@keyframes pulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.1); }
+}
+.loading-text {
+  margin-top: 1rem;
+  color: #94a3b8;
+  font-size: 1.2rem;
+}
+.sound-toggle {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #14b8a6 0%, #06b6d4 100%);
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.5rem;
+  box-shadow: 0 4px 15px rgba(20, 184, 166, 0.4);
+  transition: all 0.3s ease;
+  z-index: 1000;
+}
+.sound-toggle:hover { transform: scale(1.1); }
+.sound-toggle.muted {
+  background: linear-gradient(135deg, #64748b 0%, #475569 100%);
+}
 </style>
 </head>
 <body>
+
+<div id="loadingScreen" class="loading-screen">
+  <div class="loading-logo">♟️</div>
+  <div class="loading-text">Loading Chess...</div>
+</div>
+<button id="soundToggle" class="sound-toggle" title="Toggle Sound">🔊</button>
 
 <!-- SETUP SCREEN -->
 <div id="setupScreen" class="screen active">
@@ -1780,6 +1846,26 @@ function checkGameEnd() {
     document.getElementById('gameOverModal').classList.add('show');
   }
 }
+</script>
+<script src="../../assets/js/sound.js"></script>
+<script>
+  window.addEventListener('load', () => {
+    setTimeout(() => {
+      document.getElementById('loadingScreen').classList.add('hidden');
+    }, 500);
+  });
+  
+  const soundToggle = document.getElementById('soundToggle');
+  function updateSoundIcon() {
+    soundToggle.textContent = SoundManager.enabled ? '🔊' : '🔇';
+    soundToggle.classList.toggle('muted', !SoundManager.enabled);
+  }
+  soundToggle.addEventListener('click', () => {
+    SoundManager.toggle();
+    updateSoundIcon();
+    if (SoundManager.enabled) SoundManager.playClick();
+  });
+  updateSoundIcon();
 </script>
 
 </body>

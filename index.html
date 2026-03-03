@@ -6,6 +6,12 @@
     <meta name="description" content="1click - Free online mini games. Play Tic-Tac-Toe, Snake, Sudoku, Baagchal and more instantly in your browser!">
     <meta name="keywords" content="online games, free games, mini games, tic-tac-toe, snake, sudoku, baagchal, browser games">
     <meta name="author" content="1click Games">
+    <meta name="robots" content="index, follow">
+    <meta name="language" content="English">
+    <meta name="revisit-after" content="7 days">
+    <meta name="theme-color" content="#0f172a">
+    <meta name="msapplication-TileColor" content="#0f172a">
+    <link rel="canonical" href="https://1click.live/">
     
     <!-- Open Graph / Social Media -->
     <meta property="og:type" content="website">
@@ -19,7 +25,21 @@
     <meta property="twitter:url" content="https://1click.live">
     <meta property="twitter:title" content="1click - Free Online Mini Games">
     <meta property="twitter:description" content="Play free mini games instantly in your browser. No downloads required!">
-    <meta property="twitter:image" content="./src/assets/images/og-image.png">
+    <meta property="twitter:image" content="https://1click.live/src/assets/images/og-image.png">
+    
+    <!-- Additional SEO -->
+    <meta name="application-name" content="1click Games">
+    <meta name="apple-mobile-web-app-title" content="1click">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    
+    <!-- Preconnect for performance -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="dns-prefetch" href="https://fonts.googleapis.com">
+    
+    <!-- Stylesheets -->
+    <link rel="stylesheet" href="./src/assets/css/loading.css">
     
     <title>1click - Free Online Mini Games</title>
     
@@ -569,6 +589,18 @@
     </style>
 </head>
 <body>
+    <!-- Loading Screen -->
+    <div id="loadingScreen" class="loading-screen">
+        <div class="loading-logo">🎮</div>
+        <div class="loading-text">1click Games</div>
+        <div class="loading-progress">
+            <div class="loading-progress-bar"></div>
+        </div>
+        <div class="loading-spinner"></div>
+    </div>
+    
+    <!-- Sound Toggle -->
+    <button id="soundToggle" class="sound-toggle" title="Toggle Sound">🔊</button>
     <!-- Theme Toggle -->
     <button class="theme-toggle" id="themeToggle" aria-label="Toggle theme">
         <span id="themeIcon">🌙</span>
@@ -727,6 +759,41 @@
     </footer>
 
     <!-- Scripts -->
+    <script src="./src/assets/js/sound.js"></script>
+    <script>
+        // Hide loading screen when page loads
+        window.addEventListener('load', () => {
+            setTimeout(() => {
+                document.getElementById('loadingScreen').classList.add('hidden');
+            }, 800);
+        });
+        
+        // Sound Toggle Functionality
+        const soundToggle = document.getElementById('soundToggle');
+        
+        function updateSoundIcon() {
+            soundToggle.textContent = SoundManager.enabled ? '🔊' : '🔇';
+            soundToggle.classList.toggle('muted', !SoundManager.enabled);
+        }
+        
+        soundToggle.addEventListener('click', () => {
+            SoundManager.toggle();
+            updateSoundIcon();
+            if (SoundManager.enabled) SoundManager.playClick();
+        });
+        
+        updateSoundIcon();
+        
+        // Add click sounds to buttons and links
+        document.querySelectorAll('button, a, .game-card').forEach(el => {
+            el.addEventListener('click', () => {
+                if (SoundManager.enabled) SoundManager.playClick();
+            });
+            el.addEventListener('mouseenter', () => {
+                if (SoundManager.enabled) SoundManager.playHover();
+            });
+        });
+    </script>
     <script>
         // Theme Toggle Functionality
         const themeToggle = document.getElementById('themeToggle');
