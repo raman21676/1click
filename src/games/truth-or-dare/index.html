@@ -543,13 +543,14 @@ function doSpin() {
   // Pick random winner
   state.winnerIdx = Math.floor(Math.random() * n);
 
-  // Target angle: winner slice should end up at the TOP (where the ticker is)
-  // At angle=0, slice 0 is at the top center.
-  // Slice i center is at (i * sliceDeg) degrees from the angle origin.
-  // We want winner slice center to face UP (angle = 0 from top).
-  // So final wheel angle such that: angle + winner * sliceDeg = random_offset_within_slice
+  // Target angle: winner slice CENTER should end up at the TOP (where the ticker is)
+  // At angle=0, slice 0 starts at the top (-90°), so slice 0 center is at (-90° + slice/2).
+  // To center slice i at the top (where ticker is), we need:
+  //   angle + i*slice - 90° + slice/2 = -90°
+  //   angle = -(i*slice + slice/2)
+  // So we rotate backwards by (winnerIdx * slice + half slice) to center that slice at top.
   const offsetInSlice = (Math.random() - 0.5) * sliceDeg * 0.7; // wiggle within slice
-  const targetWheelAngleDeg = -(state.winnerIdx * sliceDeg) + offsetInSlice;
+  const targetWheelAngleDeg = -(state.winnerIdx * sliceDeg) - (sliceDeg / 2) + offsetInSlice;
 
   // Spin: add multiple full rotations for drama
   const extraSpins = 5 + Math.floor(Math.random() * 4);
