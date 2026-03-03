@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Basic Test</title>
+<style>
+body { font-family: sans-serif; padding: 20px; }
+#box { padding: 20px; background: #ddd; margin: 10px 0; }
+</style>
+</head>
+<body>
+<h1>Basic Button Test</h1>
+<div id="box">Click the button below</div>
+<button id="testbtn">CLICK ME</button>
+
+<script>
+var box = document.getElementById('box');
+var btn = document.getElementById('testbtn');
+
+btn.onclick = function() {
+  box.innerHTML = 'BUTTON WORKS! Time: ' + new Date().toLocaleTimeString();
+  box.style.background = '#4caf50';
+  box.style.color = 'white';
+};
+</script>
+</body>
+</html>

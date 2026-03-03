@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Debug</title>
+<style>
+.page { display: none; }
+.page.active { display: block; }
+button { padding: 20px; font-size: 18px; margin: 10px; }
+</style>
+</head>
+<body>
+<div id="page1" class="page active">
+  <h1>Page 1</h1>
+  <button id="btn1">Go to Page 2</button>
+</div>
+<div id="page2" class="page">
+  <h1>Page 2</h1>
+  <button id="btn2">Back</button>
+</div>
+<script>
+console.log('Script start');
+
+function goPage2() {
+  console.log('goPage2 called');
+  document.getElementById('page1').classList.remove('active');
+  document.getElementById('page2').classList.add('active');
+}
+
+function goPage1() {
+  console.log('goPage1 called');
+  document.getElementById('page2').classList.remove('active');
+  document.getElementById('page1').classList.add('active');
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+  console.log('DOM ready');
+  document.getElementById('btn1').addEventListener('click', goPage2);
+  document.getElementById('btn2').addEventListener('click', goPage1);
+  console.log('Listeners attached');
+});
+
+console.log('Script end');
+</script>
+</body>
+</html>

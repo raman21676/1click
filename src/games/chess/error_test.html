@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Error Test</title>
+<style>
+body { padding: 20px; background: #222; color: white; font-family: monospace; }
+#log { white-space: pre-wrap; background: #333; padding: 10px; margin-top: 10px; }
+button { padding: 15px 30px; font-size: 16px; cursor: pointer; margin: 5px; }
+</style>
+</head>
+<body>
+<h2>Error Test</h2>
+<button id="btn1">Test 1</button>
+<button id="btn2">Test 2</button>
+<div id="log"></div>
+
+<script>
+var log = document.getElementById('log');
+function out(msg) {
+  log.textContent += msg + '\n';
+  console.log(msg);
+}
+
+try {
+  out('Script starting...');
+  
+  // Test 1: Direct assignment
+  document.getElementById('btn1').onclick = function() {
+    out('Button 1 clicked (onclick)');
+  };
+  out('Test 1: onclick assigned');
+  
+  // Test 2: addEventListener
+  document.getElementById('btn2').addEventListener('click', function() {
+    out('Button 2 clicked (addEventListener)');
+  });
+  out('Test 2: listener added');
+  
+  out('Setup complete!');
+} catch (e) {
+  out('ERROR: ' + e.message);
+  out('Stack: ' + e.stack);
+}
+</script>
+</body>
+</html>

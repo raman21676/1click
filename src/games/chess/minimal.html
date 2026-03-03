@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Minimal Chess Test</title>
+<style>
+body { margin: 0; padding: 20px; font-family: sans-serif; background: #333; color: white; }
+.page { display: none; }
+.page.active { display: block; }
+button { padding: 15px 30px; font-size: 16px; margin: 5px; cursor: pointer; }
+#board { display: grid; grid-template-columns: repeat(8, 40px); gap: 0; margin: 20px 0; }
+.sq { width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; font-size: 24px; }
+.sq.w { background: #f0d9b5; }
+.sq.b { background: #b58863; }
+</style>
+</head>
+<body>
+
+<div id="setup" class="page active">
+  <h2>Chess Test</h2>
+  <button id="btn-white">White</button>
+  <button id="btn-black">Black</button>
+  <br><br>
+  <button id="btn-play">PLAY</button>
+</div>
+
+<div id="game" class="page">
+  <h2>Game</h2>
+  <div id="board"></div>
+  <button id="btn-back">Back</button>
+</div>
+
+<script>
+// Global function first
+function showGame() {
+  document.getElementById('setup').classList.remove('active');
+  document.getElementById('game').classList.add('active');
+  drawBoard();
+}
+
+function showSetup() {
+  document.getElementById('game').classList.remove('active');
+  document.getElementById('setup').classList.add('active');
+}
+
+function drawBoard() {
+  var b = document.getElementById('board');
+  b.innerHTML = '';
+  var pieces = ['♜','♞','♝','♛','♚','♝','♞','♜'];
+  var pawns = ['♟','♟','♟','♟','♟','♟','♟','♟'];
+  
+  for (var r = 0; r < 8; r++) {
+    for (var c = 0; c < 8; c++) {
+      var sq = document.createElement('div');
+      sq.className = 'sq ' + ((r+c)%2 ? 'b' : 'w');
+      
+      if (r === 0) sq.textContent = pieces[c];
+      else if (r === 1) sq.textContent = pawns[c];
+      else if (r === 6) sq.textContent = '♙';
+      else if (r === 7) sq.textContent = ['♖','♘','♗','♕','♔','♗','♘','♖'][c];
+      
+      b.appendChild(sq);
+    }
+  }
+}
+
+// Attach events when DOM is ready
+document.addEventListener('DOMContentLoaded', function() {
+  console.log('DOM ready - minimal test');
+  
+  document.getElementById('btn-white').addEventListener('click', function() { alert('White selected'); });
+  document.getElementById('btn-black').addEventListener('click', function() { alert('Black selected'); });
+  document.getElementById('btn-play').addEventListener('click', showGame);
+  document.getElementById('btn-back').addEventListener('click', showSetup);
+  
+  console.log('Events attached');
+});
+</script>
+
+</body>
+</html>

@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>No defer test</title>
+<style>
+body { padding: 20px; background: #222; color: white; }
+button { padding: 20px; font-size: 18px; }
+#msg { margin-top: 20px; padding: 10px; background: #444; }
+</style>
+</head>
+<body>
+
+<button id="mybtn">TEST BUTTON</button>
+<div id="msg">Waiting...</div>
+
+<script>
+// Attach event directly without DOMContentLoaded
+try {
+  var btn = document.getElementById('mybtn');
+  var msg = document.getElementById('msg');
+  
+  if (btn) {
+    btn.addEventListener('click', function() {
+      msg.textContent = 'WORKS! Clicked at ' + new Date().toLocaleTimeString();
+    });
+    msg.textContent = 'Button found and listener attached';
+  } else {
+    msg.textContent = 'ERROR: Button not found!';
+  }
+} catch (e) {
+  document.body.innerHTML += '<p style="color:red">Error: ' + e.message + '</p>';
+}
+</script>
+
+</body>
+</html>
