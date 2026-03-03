@@ -1,0 +1,1301 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="description" content="Play Carrom Board online for free! Classic board game with realistic physics. Pocket coins, cover the queen, and win!">
+  <meta name="keywords" content="carrom, carrom board, carrom game, board game, striker game">
+  <meta name="theme-color" content="#0f172a">
+  <link rel="canonical" href="https://1click.live/src/games/carrom/">
+  <title>Carrom Board - 1click Games</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+
+    :root {
+      --bg: #0f172a;
+      --accent: #4CAF50;
+      --board-wood: #d4a574;
+      --board-border: #8b5a2b;
+    }
+
+    html, body {
+      height: 100%;
+      font-family: 'Poppins', -apple-system, sans-serif;
+      background: linear-gradient(135deg, var(--bg) 0%, #1a1a2e 100%);
+      color: #fff;
+      overflow: hidden;
+    }
+
+    /* ── LOADING ── */
+    #loadingScreen {
+      position:fixed; inset:0;
+      background:var(--bg);
+      display:flex; flex-direction:column;
+      align-items:center; justify-content:center;
+      z-index:9999;
+      transition:opacity .5s, visibility .5s;
+    }
+    #loadingScreen.hidden { opacity:0; visibility:hidden; }
+    .load-icon { font-size:4rem; animation:pulse 1.4s ease-in-out infinite; }
+    @keyframes pulse { 0%,100%{transform:scale(1)} 50%{transform:scale(1.12)} }
+    .load-text { margin-top:1rem; color:#94a3b8; font-size:1.1rem; }
+
+    /* ── SOUND BTN ── */
+    #soundBtn {
+      position:fixed; bottom:20px; right:20px;
+      width:46px; height:46px; border-radius:50%;
+      background:linear-gradient(135deg,#14b8a6,#06b6d4);
+      border:none; cursor:pointer;
+      display:flex; align-items:center; justify-content:center;
+      font-size:1.3rem;
+      box-shadow:0 4px 14px rgba(20,184,166,.4);
+      transition:transform .2s;
+      z-index:1000;
+    }
+    #soundBtn:hover { transform:scale(1.1); }
+    #soundBtn.muted { background:linear-gradient(145deg,#475569,#334155); }
+
+    /* ── SETUP SCREEN ── */
+    #setupScreen {
+      min-height:100vh;
+      display:flex; flex-direction:column;
+      align-items:center; justify-content:center;
+      padding:24px;
+    }
+    .setup-title {
+      font-size:clamp(2rem,8vw,3.2rem);
+      font-weight:800;
+      background:linear-gradient(135deg,#d4a574,#8b5a2b,#d4a574);
+      -webkit-background-clip:text; -webkit-text-fill-color:transparent;
+      text-align:center; margin-bottom:.4rem;
+    }
+    .setup-sub { color:#94a3b8; margin-bottom:2rem; text-align:center; }
+    .setup-card {
+      background:rgba(255,255,255,.05);
+      border:1px solid rgba(255,255,255,.1);
+      border-radius:16px; padding:24px;
+      width:100%; max-width:400px;
+    }
+    .setup-label { font-size:13px; color:#94a3b8; margin-bottom:10px; display:block; }
+    .mode-grid { display:flex; flex-direction:column; gap:10px; margin-bottom:20px; }
+    .mode-btn {
+      display:flex; align-items:center; gap:12px;
+      padding:14px; border-radius:12px;
+      border:2px solid transparent;
+      background:rgba(255,255,255,.05);
+      color:#fff; cursor:pointer;
+      transition:all .2s; text-align:left;
+    }
+    .mode-btn:hover { background:rgba(255,255,255,.1); }
+    .mode-btn.active {
+      border-color:var(--accent);
+      background:rgba(76,175,80,.15);
+    }
+    .mode-icon { font-size:2rem; width:40px; text-align:center; flex-shrink:0; }
+    .mode-title { font-size:1rem; font-weight:700; display:block; }
+    .mode-desc { font-size:12px; color:#94a3b8; display:block; }
+    .color-row { display:flex; gap:8px; margin-bottom:20px; }
+    .color-btn {
+      flex:1; padding:12px;
+      border:2px solid rgba(255,255,255,.18);
+      background:rgba(255,255,255,.05);
+      color:#fff; border-radius:8px;
+      cursor:pointer; font-size:14px; font-family:inherit;
+      transition:all .25s; display:flex; align-items:center; justify-content:center; gap:6px;
+    }
+    .color-btn:hover { border-color:var(--accent); }
+    .color-btn.active { border-color:var(--accent); background:rgba(76,175,80,.18); }
+    .name-input {
+      width:100%; padding:12px 14px;
+      border:1px solid rgba(255,255,255,.18);
+      background:rgba(0,0,0,.3); color:#fff;
+      border-radius:8px; font-size:14px; font-family:inherit;
+      margin-bottom:12px;
+    }
+    .start-btn {
+      width:100%; padding:14px;
+      border:none;
+      background:linear-gradient(135deg,#4CAF50,#66BB6A);
+      color:#fff; font-size:16px; font-weight:700;
+      border-radius:12px; cursor:pointer; font-family:inherit;
+      transition:transform .2s, box-shadow .2s;
+      box-shadow:0 4px 16px rgba(76,175,80,.35);
+    }
+    .start-btn:hover { transform:translateY(-2px); box-shadow:0 6px 20px rgba(76,175,80,.5); }
+    .rules-box {
+      background:rgba(255,255,255,.03);
+      border:1px solid rgba(255,255,255,.1);
+      border-radius:10px; padding:16px;
+      margin-top:16px; font-size:12px; color:#94a3b8;
+    }
+    .rules-box h4 { color:#fff; margin-bottom:8px; font-size:13px; }
+    .rules-box ul { margin-left:16px; }
+    .rules-box li { margin-bottom:4px; }
+    .back-home { margin-top:20px; color:#64748b; text-decoration:none; font-size:14px; }
+    .back-home:hover { color:#94a3b8; }
+
+    /* ── GAME SCREEN ── */
+    #gameScreen { display:none; height:100dvh; flex-direction:column; overflow:hidden; }
+
+    .game-header {
+      display:flex; align-items:center; justify-content:space-between;
+      padding:10px 16px; flex-shrink:0;
+      background:rgba(0,0,0,.35);
+      border-bottom:1px solid rgba(255,255,255,.08);
+    }
+    .gh-back { color:#94a3b8; text-decoration:none; font-size:14px; padding:4px; }
+    .gh-title { font-weight:700; font-size:1.1rem; }
+    .gh-spacer { width:50px; }
+
+    .game-body {
+      flex:1; display:flex; flex-direction:column;
+      align-items:center; justify-content:center;
+      padding:10px; gap:10px;
+      min-height:0;
+    }
+
+    /* ── SCOREBOARD ── */
+    .scoreboard {
+      width:100%; max-width:600px;
+      display:flex; justify-content:space-between;
+      gap:10px; flex-shrink:0;
+    }
+    .player-score {
+      flex:1; padding:12px 16px;
+      background:rgba(255,255,255,.05);
+      border:2px solid transparent;
+      border-radius:12px;
+      text-align:center;
+    }
+    .player-score.active {
+      border-color:var(--pc);
+      background:rgba(255,255,255,.1);
+      box-shadow:0 0 15px var(--pc);
+    }
+    .player-name { font-size:14px; font-weight:600; }
+    .player-points { font-size:24px; font-weight:800; color:var(--pc); }
+    .coins-pocketed { font-size:11px; color:#94a3b8; margin-top:4px; }
+
+    /* ── CANVAS CONTAINER ── */
+    .canvas-container {
+      position:relative;
+      width:100%; max-width:600px;
+      aspect-ratio:1;
+      flex-shrink:1;
+    }
+    #gameCanvas {
+      width:100%; height:100%;
+      border-radius:12px;
+      box-shadow:0 8px 40px rgba(0,0,0,.6), 0 0 0 3px rgba(255,255,255,.08);
+      cursor:crosshair;
+    }
+
+    /* ── CONTROLS ── */
+    .controls {
+      width:100%; max-width:600px;
+      display:flex; align-items:center; justify-content:space-between;
+      gap:10px; flex-shrink:0;
+    }
+    .turn-indicator {
+      padding:10px 16px;
+      background:rgba(255,255,255,.05);
+      border-radius:8px;
+      font-size:13px;
+    }
+    .turn-indicator span { font-weight:700; }
+    .power-meter {
+      flex:1; max-width:150px;
+      height:8px; background:rgba(255,255,255,.1);
+      border-radius:4px; overflow:hidden;
+    }
+    .power-fill {
+      height:100%; width:0%;
+      background:linear-gradient(90deg,#4CAF50,#FFD600,#FF6F00);
+      transition:width .1s;
+    }
+    .btn-undo {
+      padding:10px 16px;
+      border:2px solid rgba(255,255,255,.2);
+      background:rgba(255,255,255,.05);
+      color:#fff; border-radius:8px;
+      cursor:pointer; font-size:13px;
+    }
+    .btn-undo:hover { border-color:rgba(255,255,255,.4); }
+
+    /* ── WIN MODAL ── */
+    .modal-bg {
+      position:fixed; inset:0;
+      background:rgba(0,0,0,.82);
+      display:none; align-items:center; justify-content:center;
+      z-index:500;
+    }
+    .modal-bg.open { display:flex; }
+    .modal-box {
+      background:linear-gradient(135deg,#1e293b,#0f172a);
+      border:2px solid #4CAF50;
+      border-radius:20px; padding:40px 36px;
+      text-align:center; max-width:320px; width:90%;
+      animation:modalPop .45s ease;
+    }
+    @keyframes modalPop { from{transform:scale(.8);opacity:0} to{transform:scale(1);opacity:1} }
+    .modal-emoji { font-size:4rem; margin-bottom:14px; }
+    .modal-title { font-size:1.8rem; font-weight:800; margin-bottom:6px; }
+    .modal-sub { color:#94a3b8; margin-bottom:22px; font-size:15px; }
+    .modal-btn {
+      padding:12px 28px;
+      border:none;
+      background:linear-gradient(135deg,#4CAF50,#66BB6A);
+      color:#fff; font-size:16px; font-weight:700;
+      border-radius:12px; cursor:pointer; font-family:inherit;
+      transition:transform .2s;
+      margin:4px;
+    }
+    .modal-btn:hover { transform:translateY(-2px); }
+
+    @media (max-width:480px) {
+      .canvas-container { max-width:100%; }
+      .player-score { padding:10px 12px; }
+      .player-points { font-size:20px; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- Loading -->
+<div id="loadingScreen">
+  <div class="load-icon">🎯</div>
+  <div class="load-text">Loading Carrom Board…</div>
+</div>
+
+<!-- Sound -->
+<button id="soundBtn" title="Toggle sound">🔊</button>
+
+<!-- ════ SETUP SCREEN ════ -->
+<div id="setupScreen">
+  <h1 class="setup-title">🎯 Carrom Board</h1>
+  <p class="setup-sub">Pocket coins, cover the queen, win the game!</p>
+  
+  <div class="setup-card">
+    <label class="setup-label">Select Game Mode</label>
+    <div class="mode-grid" id="modeGrid">
+      <button class="mode-btn active" data-mode="ai">
+        <span class="mode-icon">🤖</span>
+        <div>
+          <span class="mode-title">vs Computer</span>
+          <span class="mode-desc">Play against AI opponent</span>
+        </div>
+      </button>
+      <button class="mode-btn" data-mode="local">
+        <span class="mode-icon">👥</span>
+        <div>
+          <span class="mode-title">Pass & Play</span>
+          <span class="mode-desc">Play with friends on this device</span>
+        </div>
+      </button>
+    </div>
+
+    <label class="setup-label">Choose Your Color</label>
+    <div class="color-row" id="colorRow">
+      <button class="color-btn active" data-color="white">
+        ⚪ White
+      </button>
+      <button class="color-btn" data-color="black">
+        ⚫ Black
+      </button>
+    </div>
+
+    <div id="playerNames">
+      <input type="text" id="p1Name" class="name-input" placeholder="Player 1 Name" value="Player 1">
+      <input type="text" id="p2Name" class="name-input" placeholder="Player 2 Name" value="Computer" style="display:none;">
+    </div>
+
+    <button class="start-btn" id="startBtn">🎮 Start Game</button>
+
+    <div class="rules-box">
+      <h4>📜 How to Play</h4>
+      <ul>
+        <li>Pocket all your color coins (White/Black)</li>
+        <li>Queen (Red) must be covered - pocket another coin right after</li>
+        <li>Black/White coin = 1 point</li>
+        <li>Queen = 5 points (only if covered)</li>
+        <li>First to 29 points or pocket all coins wins</li>
+        <li>Drag striker to aim, pull back for power</li>
+      </ul>
+    </div>
+  </div>
+  
+  <a class="back-home" href="../../../index.html">← Back to Games</a>
+</div>
+
+<!-- ════ GAME SCREEN ════ -->
+<div id="gameScreen">
+  <header class="game-header">
+    <a class="gh-back" href="../../../index.html">← Back</a>
+    <div class="gh-title">🎯 Carrom Board</div>
+    <div class="gh-spacer"></div>
+  </header>
+
+  <div class="game-body">
+    <!-- Scoreboard -->
+    <div class="scoreboard">
+      <div class="player-score active" id="p1Score" style="--pc:#fff;">
+        <div class="player-name" id="p1NameDisplay">Player 1</div>
+        <div class="player-points" id="p1Points">0</div>
+        <div class="coins-pocketed" id="p1Coins">⚪: 0/9</div>
+      </div>
+      <div class="player-score" id="p2Score" style="--pc:#333;">
+        <div class="player-name" id="p2NameDisplay">Computer</div>
+        <div class="player-points" id="p2Points">0</div>
+        <div class="coins-pocketed" id="p2Coins">⚫: 0/9</div>
+      </div>
+    </div>
+
+    <!-- Canvas -->
+    <div class="canvas-container">
+      <canvas id="gameCanvas"></canvas>
+    </div>
+
+    <!-- Controls -->
+    <div class="controls">
+      <div class="turn-indicator">
+        Turn: <span id="turnName">Player 1</span>
+      </div>
+      <div class="power-meter" id="powerMeter">
+        <div class="power-fill" id="powerFill"></div>
+      </div>
+      <button class="btn-undo" id="resetStrikerBtn" style="display:none;">↺ Reset Striker</button>
+    </div>
+  </div>
+</div>
+
+<!-- Win Modal -->
+<div class="modal-bg" id="winModal">
+  <div class="modal-box">
+    <div class="modal-emoji">🏆</div>
+    <div class="modal-title" id="winTitle">Player 1 Wins!</div>
+    <div class="modal-sub" id="winSub">Score: 29 - 12</div>
+    <button class="modal-btn" id="playAgainBtn">🔄 Play Again</button>
+    <button class="modal-btn" id="homeBtn">🏠 Home</button>
+  </div>
+</div>
+
+<script src="../../assets/js/sound.js"></script>
+<script>
+// ═══════════════════════════════════════════════════
+//  CONFIG & CONSTANTS
+// ═══════════════════════════════════════════════════
+const BOARD_SIZE = 800;
+const POCKET_RADIUS = 35;
+const COIN_RADIUS = 18;
+const STRIKER_RADIUS = 26;
+const FRICTION = 0.985;
+const WALL_BOUNCE = 0.7;
+const MIN_VELOCITY = 0.1;
+const MAX_POWER = 25;
+
+const COLORS = {
+  board: '#d4a574',
+  boardDark: '#b8935f',
+  border: '#8b5a2b',
+  pocket: '#1a1a2e',
+  centerCircle: '#c49a6c',
+  arrow: '#fff',
+  striker: '#fff',
+  strikerLine: '#e53935',
+  white: '#fff',
+  black: '#1a1a1a',
+  queen: '#e53935'
+};
+
+// ═══════════════════════════════════════════════════
+//  STATE
+// ═══════════════════════════════════════════════════
+let G = {
+  canvas: null,
+  ctx: null,
+  width: 0,
+  height: 0,
+  scale: 1,
+  
+  // Game state
+  mode: 'ai', // 'ai' or 'local'
+  currentPlayer: 0,
+  gameOver: false,
+  
+  // Players
+  players: [
+    { name: 'Player 1', color: 'white', points: 0, coins: 0, queen: false },
+    { name: 'Computer', color: 'black', points: 0, coins: 0, queen: false }
+  ],
+  
+  // Physics objects
+  coins: [],
+  striker: null,
+  
+  // Input state
+  isDragging: false,
+  dragStart: { x: 0, y: 0 },
+  dragCurrent: { x: 0, y: 0 },
+  
+  // Animation
+  animating: false,
+  lastTime: 0,
+  
+  // Queen tracking
+  queenPocketed: false,
+  queenPocketedBy: null,
+  awaitingCover: false,
+  
+  // Striker placement
+  strikerPlaced: false
+};
+
+// ═══════════════════════════════════════════════════
+//  INITIALIZATION
+// ═══════════════════════════════════════════════════
+window.addEventListener('load', () => {
+  setTimeout(() => document.getElementById('loadingScreen').classList.add('hidden'), 500);
+  initSetup();
+  initSoundBtn();
+});
+
+function initSetup() {
+  // Mode selection
+  document.getElementById('modeGrid').addEventListener('click', e => {
+    const btn = e.target.closest('.mode-btn');
+    if (!btn) return;
+    document.querySelectorAll('.mode-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    G.mode = btn.dataset.mode;
+    updateSetupUI();
+  });
+
+  // Color selection
+  document.getElementById('colorRow').addEventListener('click', e => {
+    const btn = e.target.closest('.color-btn');
+    if (!btn) return;
+    document.querySelectorAll('.color-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    const p1IsWhite = btn.dataset.color === 'white';
+    G.players[0].color = p1IsWhite ? 'white' : 'black';
+    G.players[1].color = p1IsWhite ? 'black' : 'white';
+    updateSetupUI();
+  });
+
+  // Start button
+  document.getElementById('startBtn').addEventListener('click', startGame);
+  
+  // Play again
+  document.getElementById('playAgainBtn').addEventListener('click', () => {
+    document.getElementById('winModal').classList.remove('open');
+    resetGame();
+  });
+  
+  // Home button
+  document.getElementById('homeBtn').addEventListener('click', () => {
+    location.reload();
+  });
+  
+  // Reset striker button
+  document.getElementById('resetStrikerBtn').addEventListener('click', resetStrikerPosition);
+}
+
+function updateSetupUI() {
+  const p2Input = document.getElementById('p2Name');
+  if (G.mode === 'ai') {
+    p2Input.style.display = 'none';
+    p2Input.value = 'Computer';
+  } else {
+    p2Input.style.display = 'block';
+    p2Input.value = 'Player 2';
+  }
+  
+  // Update player colors based on selection
+  const p1IsWhite = document.querySelector('.color-btn.active')?.dataset.color === 'white';
+  G.players[0].color = p1IsWhite ? 'white' : 'black';
+  G.players[1].color = p1IsWhite ? 'black' : 'white';
+}
+
+// ═══════════════════════════════════════════════════
+//  GAME START
+// ═══════════════════════════════════════════════════
+function startGame() {
+  // Get player names
+  G.players[0].name = document.getElementById('p1Name').value.trim() || 'Player 1';
+  G.players[1].name = document.getElementById('p2Name').value.trim() || (G.mode === 'ai' ? 'Computer' : 'Player 2');
+  
+  // Reset game state
+  G.currentPlayer = 0;
+  G.gameOver = false;
+  G.players[0].points = G.players[1].points = 0;
+  G.players[0].coins = G.players[1].coins = 0;
+  G.players[0].queen = G.players[1].queen = false;
+  G.queenPocketed = false;
+  G.queenPocketedBy = null;
+  G.awaitingCover = false;
+  
+  // Setup canvas
+  G.canvas = document.getElementById('gameCanvas');
+  G.ctx = G.canvas.getContext('2d');
+  
+  // Set canvas size
+  resizeCanvas();
+  window.addEventListener('resize', resizeCanvas);
+  
+  // Initialize coins
+  initCoins();
+  
+  // Initialize striker
+  resetStrikerPosition();
+  
+  // Setup input handlers
+  setupInputHandlers();
+  
+  // Update UI
+  updateGameUI();
+  
+  // Show game screen
+  document.getElementById('setupScreen').style.display = 'none';
+  document.getElementById('gameScreen').style.display = 'flex';
+  
+  // Start game loop
+  requestAnimationFrame(gameLoop);
+  
+  trySound(() => SoundManager.playSuccess());
+}
+
+function resizeCanvas() {
+  const container = document.querySelector('.canvas-container');
+  const rect = container.getBoundingClientRect();
+  G.width = rect.width;
+  G.height = rect.height;
+  G.canvas.width = G.width;
+  G.canvas.height = G.height;
+  G.scale = G.width / BOARD_SIZE;
+}
+
+function initCoins() {
+  G.coins = [];
+  
+  const centerX = BOARD_SIZE / 2;
+  const centerY = BOARD_SIZE / 2;
+  
+  // Queen in center
+  G.coins.push({
+    x: centerX,
+    y: centerY,
+    vx: 0, vy: 0,
+    type: 'queen',
+    pocketed: false
+  });
+  
+  // Arrange coins in a circle around queen
+  const numWhite = 9;
+  const numBlack = 9;
+  const radius = COIN_RADIUS * 3.5;
+  
+  for (let i = 0; i < numWhite + numBlack; i++) {
+    const angle = (i * 2 * Math.PI) / (numWhite + numBlack) - Math.PI / 2;
+    const type = i % 2 === 0 ? 'white' : 'black';
+    G.coins.push({
+      x: centerX + Math.cos(angle) * radius,
+      y: centerY + Math.sin(angle) * radius,
+      vx: 0, vy: 0,
+      type: type,
+      pocketed: false
+    });
+  }
+}
+
+function resetStrikerPosition() {
+  // Striker starts at bottom for player 0, top for player 1
+  const isPlayer0 = G.currentPlayer === 0;
+  const y = isPlayer0 ? BOARD_SIZE - 70 : 70;
+  
+  G.striker = {
+    x: BOARD_SIZE / 2,
+    y: y,
+    vx: 0, vy: 0,
+    radius: STRIKER_RADIUS,
+    placed: false
+  };
+  G.strikerPlaced = false;
+  document.getElementById('resetStrikerBtn').style.display = 'none';
+}
+
+function resetGame() {
+  G.players[0].points = G.players[1].points = 0;
+  G.players[0].coins = G.players[1].coins = 0;
+  G.players[0].queen = G.players[1].queen = false;
+  G.currentPlayer = 0;
+  G.gameOver = false;
+  G.queenPocketed = false;
+  G.awaitingCover = false;
+  initCoins();
+  resetStrikerPosition();
+  updateGameUI();
+}
+
+// ═══════════════════════════════════════════════════
+//  INPUT HANDLERS
+// ═══════════════════════════════════════════════════
+function setupInputHandlers() {
+  const canvas = G.canvas;
+  
+  canvas.addEventListener('mousedown', onPointerDown);
+  canvas.addEventListener('mousemove', onPointerMove);
+  canvas.addEventListener('mouseup', onPointerUp);
+  canvas.addEventListener('touchstart', onTouchStart, { passive: false });
+  canvas.addEventListener('touchmove', onTouchMove, { passive: false });
+  canvas.addEventListener('touchend', onPointerUp);
+}
+
+function getCanvasPos(e) {
+  const rect = G.canvas.getBoundingClientRect();
+  const clientX = e.clientX || (e.touches && e.touches[0]?.clientX) || 0;
+  const clientY = e.clientY || (e.touches && e.touches[0]?.clientY) || 0;
+  return {
+    x: (clientX - rect.left) * (BOARD_SIZE / rect.width),
+    y: (clientY - rect.top) * (BOARD_SIZE / rect.height)
+  };
+}
+
+function onTouchStart(e) {
+  e.preventDefault();
+  const touch = e.touches[0];
+  onPointerDown({ clientX: touch.clientX, clientY: touch.clientY });
+}
+
+function onTouchMove(e) {
+  e.preventDefault();
+  const touch = e.touches[0];
+  onPointerMove({ clientX: touch.clientX, clientY: touch.clientY });
+}
+
+function onPointerDown(e) {
+  if (G.animating || G.gameOver) return;
+  
+  // AI's turn - don't allow input
+  if (G.mode === 'ai' && G.currentPlayer === 1) return;
+  
+  const pos = getCanvasPos(e);
+  const s = G.striker;
+  
+  // Check if clicking near striker
+  const dist = Math.hypot(pos.x - s.x, pos.y - s.y);
+  if (dist < s.radius * 2) {
+    G.isDragging = true;
+    G.dragStart = pos;
+    G.dragCurrent = pos;
+  }
+}
+
+function onPointerMove(e) {
+  if (!G.isDragging) return;
+  
+  const pos = getCanvasPos(e);
+  G.dragCurrent = pos;
+  
+  // Update power meter
+  const dx = G.dragStart.x - pos.x;
+  const dy = G.dragStart.y - pos.y;
+  const power = Math.min(Math.hypot(dx, dy) / 10, MAX_POWER);
+  const percent = (power / MAX_POWER) * 100;
+  document.getElementById('powerFill').style.width = percent + '%';
+}
+
+function onPointerUp(e) {
+  if (!G.isDragging) return;
+  
+  G.isDragging = false;
+  document.getElementById('powerFill').style.width = '0%';
+  
+  const dx = G.dragStart.x - G.dragCurrent.x;
+  const dy = G.dragStart.y - G.dragCurrent.y;
+  const power = Math.min(Math.hypot(dx, dy) / 10, MAX_POWER);
+  
+  if (power > 1) {
+    const angle = Math.atan2(dy, dx);
+    G.striker.vx = Math.cos(angle) * power;
+    G.striker.vy = Math.sin(angle) * power;
+    G.animating = true;
+    trySound(() => SoundManager.playClick());
+  }
+}
+
+// ═══════════════════════════════════════════════════
+//  PHYSICS & GAME LOOP
+// ═══════════════════════════════════════════════════
+function gameLoop(timestamp) {
+  update();
+  render();
+  requestAnimationFrame(gameLoop);
+}
+
+function update() {
+  if (!G.animating) return;
+  
+  let moving = false;
+  
+  // Update striker
+  if (updateObject(G.striker)) moving = true;
+  
+  // Update coins
+  for (const coin of G.coins) {
+    if (!coin.pocketed && updateObject(coin)) moving = true;
+  }
+  
+  // Check collisions
+  checkCollisions();
+  
+  // Check pockets
+  checkPockets();
+  
+  // If all stopped, end turn
+  if (!moving && G.animating) {
+    G.animating = false;
+    setTimeout(endTurn, 500);
+  }
+}
+
+function updateObject(obj) {
+  if (Math.abs(obj.vx) < MIN_VELOCITY && Math.abs(obj.vy) < MIN_VELOCITY) {
+    obj.vx = 0;
+    obj.vy = 0;
+    return false;
+  }
+  
+  // Apply friction
+  obj.vx *= FRICTION;
+  obj.vy *= FRICTION;
+  
+  // Update position
+  obj.x += obj.vx;
+  obj.y += obj.vy;
+  
+  // Wall collisions
+  const r = obj.radius || COIN_RADIUS;
+  const margin = 40;
+  
+  if (obj.x < margin + r) { obj.x = margin + r; obj.vx *= -WALL_BOUNCE; }
+  if (obj.x > BOARD_SIZE - margin - r) { obj.x = BOARD_SIZE - margin - r; obj.vx *= -WALL_BOUNCE; }
+  if (obj.y < margin + r) { obj.y = margin + r; obj.vy *= -WALL_BOUNCE; }
+  if (obj.y > BOARD_SIZE - margin - r) { obj.y = BOARD_SIZE - margin - r; obj.vy *= -WALL_BOUNCE; }
+  
+  return true;
+}
+
+function checkCollisions() {
+  const objects = [G.striker, ...G.coins.filter(c => !c.pocketed)];
+  
+  for (let i = 0; i < objects.length; i++) {
+    for (let j = i + 1; j < objects.length; j++) {
+      const a = objects[i];
+      const b = objects[j];
+      
+      const dx = b.x - a.x;
+      const dy = b.y - a.y;
+      const dist = Math.hypot(dx, dy);
+      const minDist = (a.radius || COIN_RADIUS) + (b.radius || COIN_RADIUS);
+      
+      if (dist < minDist) {
+        // Resolve overlap
+        const overlap = minDist - dist;
+        const nx = dx / dist;
+        const ny = dy / dist;
+        
+        a.x -= nx * overlap * 0.5;
+        a.y -= ny * overlap * 0.5;
+        b.x += nx * overlap * 0.5;
+        b.y += ny * overlap * 0.5;
+        
+        // Elastic collision
+        const dvx = b.vx - a.vx;
+        const dvy = b.vy - a.vy;
+        const dvAlongNormal = dvx * nx + dvy * ny;
+        
+        if (dvAlongNormal > 0) continue;
+        
+        const j = -(1 + 0.9) * dvAlongNormal / 2;
+        const impulseX = j * nx;
+        const impulseY = j * ny;
+        
+        a.vx -= impulseX;
+        a.vy -= impulseY;
+        b.vx += impulseX;
+        b.vy += impulseY;
+      }
+    }
+  }
+}
+
+function checkPockets() {
+  const pockets = [
+    { x: 40, y: 40 },
+    { x: BOARD_SIZE - 40, y: 40 },
+    { x: 40, y: BOARD_SIZE - 40 },
+    { x: BOARD_SIZE - 40, y: BOARD_SIZE - 40 }
+  ];
+  
+  // Check striker
+  const s = G.striker;
+  for (const p of pockets) {
+    if (Math.hypot(s.x - p.x, s.y - p.y) < POCKET_RADIUS) {
+      // Foul - striker pocketed
+      s.vx = 0;
+      s.vy = 0;
+      setTimeout(resetStrikerPosition, 100);
+      return;
+    }
+  }
+  
+  // Check coins
+  for (const coin of G.coins) {
+    if (coin.pocketed) continue;
+    
+    for (const p of pockets) {
+      if (Math.hypot(coin.x - p.x, coin.y - p.y) < POCKET_RADIUS - 5) {
+        coin.pocketed = true;
+        coin.vx = 0;
+        coin.vy = 0;
+        onCoinPocketed(coin);
+        break;
+      }
+    }
+  }
+}
+
+function onCoinPocketed(coin) {
+  const player = G.players[G.currentPlayer];
+  const opponent = G.players[1 - G.currentPlayer];
+  
+  if (coin.type === 'queen') {
+    G.queenPocketed = true;
+    G.queenPocketedBy = G.currentPlayer;
+    G.awaitingCover = true;
+    trySound(() => SoundManager.playLevelUp());
+  } else if (coin.type === player.color) {
+    player.coins++;
+    player.points++;
+    
+    // Check if queen was covered
+    if (G.awaitingCover && G.queenPocketedBy === G.currentPlayer) {
+      player.queen = true;
+      player.points += 5;
+      G.awaitingCover = false;
+      G.queenPocketed = false;
+    }
+    
+    trySound(() => SoundManager.playSuccess());
+  } else if (coin.type === opponent.color) {
+    // Opponent's coin - penalty or give to opponent
+    opponent.coins++;
+    opponent.points++;
+    trySound(() => SoundManager.playMove());
+  }
+  
+  updateGameUI();
+  checkWinCondition();
+}
+
+function endTurn() {
+  // Check if queen needs to be returned
+  if (G.awaitingCover && G.queenPocketedBy === G.currentPlayer) {
+    // Didn't cover queen - return it
+    G.coins.push({
+      x: BOARD_SIZE / 2 + (Math.random() - 0.5) * 50,
+      y: BOARD_SIZE / 2 + (Math.random() - 0.5) * 50,
+      vx: 0, vy: 0,
+      type: 'queen',
+      pocketed: false
+    });
+    G.queenPocketed = false;
+    G.awaitingCover = false;
+    setMsg('Queen not covered! Returned to center.');
+  }
+  
+  // Switch player
+  G.currentPlayer = 1 - G.currentPlayer;
+  updateGameUI();
+  
+  // Reset striker
+  resetStrikerPosition();
+  
+  // AI turn
+  if (G.mode === 'ai' && G.currentPlayer === 1 && !G.gameOver) {
+    setTimeout(aiTurn, 1000);
+  }
+}
+
+function checkWinCondition() {
+  const p1 = G.players[0];
+  const p2 = G.players[1];
+  
+  let winner = null;
+  
+  // Win by points (29+)
+  if (p1.points >= 29) winner = 0;
+  else if (p2.points >= 29) winner = 1;
+  // Win by pocketing all coins + queen covered
+  else if (p1.coins === 9 && p1.queen) winner = 0;
+  else if (p2.coins === 9 && p2.queen) winner = 1;
+  
+  if (winner !== null) {
+    G.gameOver = true;
+    showWinModal(winner);
+  }
+}
+
+function showWinModal(winner) {
+  const p = G.players[winner];
+  const other = G.players[1 - winner];
+  document.getElementById('winTitle').textContent = p.name + ' Wins!';
+  document.getElementById('winSub').textContent = `Score: ${p.points} - ${other.points}`;
+  document.getElementById('winTitle').style.color = p.color === 'white' ? '#fff' : '#333';
+  document.getElementById('winModal').classList.add('open');
+  trySound(() => SoundManager.playWin());
+}
+
+// ═══════════════════════════════════════════════════
+//  AI
+// ═══════════════════════════════════════════════════
+function aiTurn() {
+  if (G.gameOver) return;
+  
+  const s = G.striker;
+  const myColor = G.players[1].color;
+  
+  // Find valid target coins
+  let targets = G.coins.filter(c => !c.pocketed && c.type !== 'queen');
+  
+  // Prioritize own color, then queen if available
+  let target = null;
+  const myCoins = targets.filter(c => c.type === myColor);
+  const queen = G.coins.find(c => !c.pocketed && c.type === 'queen');
+  
+  if (myCoins.length > 0) {
+    // Try to hit own coin closest to pocket
+    let bestScore = -Infinity;
+    for (const coin of myCoins) {
+      const score = evaluateShot(coin);
+      if (score > bestScore) {
+        bestScore = score;
+        target = coin;
+      }
+    }
+  } else if (queen && !G.awaitingCover) {
+    // Try for queen
+    target = queen;
+  } else if (targets.length > 0) {
+    target = targets[Math.floor(Math.random() * targets.length)];
+  }
+  
+  if (target) {
+    // Calculate angle to target
+    const dx = target.x - s.x;
+    const dy = target.y - s.y;
+    const angle = Math.atan2(dy, dx);
+    
+    // Add some randomness to AI accuracy
+    const accuracy = 0.8 + Math.random() * 0.4;
+    const power = 10 + Math.random() * 8;
+    
+    s.vx = Math.cos(angle) * power * accuracy;
+    s.vy = Math.sin(angle) * power * accuracy;
+    
+    // Ensure striker is moving toward target
+    if (s.vy > 0) s.vy *= -1;
+    
+    G.animating = true;
+  }
+}
+
+function evaluateShot(coin) {
+  // Simple evaluation - prefer coins closer to pockets
+  const pockets = [
+    { x: 40, y: 40 },
+    { x: BOARD_SIZE - 40, y: 40 },
+    { x: 40, y: BOARD_SIZE - 40 },
+    { x: BOARD_SIZE - 40, y: BOARD_SIZE - 40 }
+  ];
+  
+  let minDist = Infinity;
+  for (const p of pockets) {
+    const dist = Math.hypot(coin.x - p.x, coin.y - p.y);
+    minDist = Math.min(minDist, dist);
+  }
+  
+  return 1000 - minDist;
+}
+
+// ═══════════════════════════════════════════════════
+//  RENDERING
+// ═══════════════════════════════════════════════════
+function render() {
+  const ctx = G.ctx;
+  const s = G.scale;
+  
+  // Clear
+  ctx.fillStyle = '#0f172a';
+  ctx.fillRect(0, 0, G.width, G.height);
+  
+  ctx.save();
+  ctx.scale(s, s);
+  
+  // Draw board
+  drawBoard(ctx);
+  
+  // Draw striker guide line
+  if (G.isDragging && !G.animating) {
+    drawAimGuide(ctx);
+  }
+  
+  // Draw coins
+  for (const coin of G.coins) {
+    if (!coin.pocketed) {
+      drawCoin(ctx, coin);
+    }
+  }
+  
+  // Draw striker
+  if (!G.animating || Math.abs(G.striker.vx) > 0.1 || Math.abs(G.striker.vy) > 0.1) {
+    drawStriker(ctx, G.striker);
+  }
+  
+  ctx.restore();
+}
+
+function drawBoard(ctx) {
+  const m = 40; // margin
+  
+  // Board background
+  ctx.fillStyle = COLORS.board;
+  ctx.fillRect(m, m, BOARD_SIZE - m * 2, BOARD_SIZE - m * 2);
+  
+  // Border
+  ctx.strokeStyle = COLORS.border;
+  ctx.lineWidth = 8;
+  ctx.strokeRect(m, m, BOARD_SIZE - m * 2, BOARD_SIZE - m * 2);
+  
+  // Inner border
+  ctx.strokeStyle = '#5d4037';
+  ctx.lineWidth = 3;
+  ctx.strokeRect(m + 15, m + 15, BOARD_SIZE - m * 2 - 30, BOARD_SIZE - m * 2 - 30);
+  
+  // Center circle
+  ctx.beginPath();
+  ctx.arc(BOARD_SIZE / 2, BOARD_SIZE / 2, 60, 0, Math.PI * 2);
+  ctx.strokeStyle = COLORS.centerCircle;
+  ctx.lineWidth = 3;
+  ctx.stroke();
+  
+  // Arrows pointing to pockets
+  drawArrow(ctx, BOARD_SIZE / 2, BOARD_SIZE / 2 - 40, -Math.PI / 2);
+  drawArrow(ctx, BOARD_SIZE / 2, BOARD_SIZE / 2 + 40, Math.PI / 2);
+  drawArrow(ctx, BOARD_SIZE / 2 - 40, BOARD_SIZE / 2, Math.PI);
+  drawArrow(ctx, BOARD_SIZE / 2 + 40, BOARD_SIZE / 2, 0);
+  
+  // Striker lines (base lines)
+  ctx.strokeStyle = '#5d4037';
+  ctx.lineWidth = 2;
+  ctx.setLineDash([10, 10]);
+  
+  // Top line
+  ctx.beginPath();
+  ctx.moveTo(m + 30, 70);
+  ctx.lineTo(BOARD_SIZE - m - 30, 70);
+  ctx.stroke();
+  
+  // Bottom line
+  ctx.beginPath();
+  ctx.moveTo(m + 30, BOARD_SIZE - 70);
+  ctx.lineTo(BOARD_SIZE - m - 30, BOARD_SIZE - 70);
+  ctx.stroke();
+  
+  ctx.setLineDash([]);
+  
+  // Pockets
+  const pockets = [
+    { x: 40, y: 40 },
+    { x: BOARD_SIZE - 40, y: 40 },
+    { x: 40, y: BOARD_SIZE - 40 },
+    { x: BOARD_SIZE - 40, y: BOARD_SIZE - 40 }
+  ];
+  
+  for (const p of pockets) {
+    ctx.beginPath();
+    ctx.arc(p.x, p.y, POCKET_RADIUS, 0, Math.PI * 2);
+    ctx.fillStyle = COLORS.pocket;
+    ctx.fill();
+    ctx.strokeStyle = '#333';
+    ctx.lineWidth = 3;
+    ctx.stroke();
+  }
+}
+
+function drawArrow(ctx, x, y, angle) {
+  ctx.save();
+  ctx.translate(x, y);
+  ctx.rotate(angle);
+  
+  ctx.beginPath();
+  ctx.moveTo(0, -15);
+  ctx.lineTo(-8, -5);
+  ctx.lineTo(8, -5);
+  ctx.closePath();
+  ctx.fillStyle = COLORS.arrow;
+  ctx.fill();
+  
+  ctx.restore();
+}
+
+function drawCoin(ctx, coin) {
+  ctx.beginPath();
+  ctx.arc(coin.x, coin.y, COIN_RADIUS, 0, Math.PI * 2);
+  
+  if (coin.type === 'white') {
+    ctx.fillStyle = COLORS.white;
+    ctx.fill();
+    ctx.strokeStyle = '#ccc';
+    ctx.lineWidth = 2;
+    ctx.stroke();
+  } else if (coin.type === 'black') {
+    ctx.fillStyle = COLORS.black;
+    ctx.fill();
+    ctx.strokeStyle = '#444';
+    ctx.lineWidth = 2;
+    ctx.stroke();
+  } else if (coin.type === 'queen') {
+    ctx.fillStyle = COLORS.queen;
+    ctx.fill();
+    ctx.strokeStyle = '#fff';
+    ctx.lineWidth = 2;
+    ctx.stroke();
+    
+    // Draw 'Q' on queen
+    ctx.fillStyle = '#fff';
+    ctx.font = 'bold 12px Poppins';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText('Q', coin.x, coin.y);
+  }
+  
+  // Highlight
+  ctx.beginPath();
+  ctx.arc(coin.x - 5, coin.y - 5, 4, 0, Math.PI * 2);
+  ctx.fillStyle = 'rgba(255,255,255,0.3)';
+  ctx.fill();
+}
+
+function drawStriker(ctx, striker) {
+  ctx.beginPath();
+  ctx.arc(striker.x, striker.y, striker.radius, 0, Math.PI * 2);
+  ctx.fillStyle = COLORS.striker;
+  ctx.fill();
+  
+  // Red outline
+  ctx.strokeStyle = COLORS.strikerLine;
+  ctx.lineWidth = 3;
+  ctx.stroke();
+  
+  // Inner highlight
+  ctx.beginPath();
+  ctx.arc(striker.x - 7, striker.y - 7, 6, 0, Math.PI * 2);
+  ctx.fillStyle = 'rgba(255,255,255,0.4)';
+  ctx.fill();
+}
+
+function drawAimGuide(ctx) {
+  const s = G.striker;
+  const dx = G.dragStart.x - G.dragCurrent.x;
+  const dy = G.dragStart.y - G.dragCurrent.y;
+  const power = Math.min(Math.hypot(dx, dy) / 10, MAX_POWER);
+  
+  if (power < 1) return;
+  
+  const angle = Math.atan2(dy, dx);
+  const guideLength = power * 15;
+  
+  ctx.beginPath();
+  ctx.moveTo(s.x, s.y);
+  ctx.lineTo(s.x + Math.cos(angle) * guideLength, s.y + Math.sin(angle) * guideLength);
+  ctx.strokeStyle = 'rgba(255, 255, 255, 0.5)';
+  ctx.lineWidth = 3;
+  ctx.setLineDash([10, 5]);
+  ctx.stroke();
+  ctx.setLineDash([]);
+  
+  // Power indicator circle
+  ctx.beginPath();
+  ctx.arc(s.x + Math.cos(angle) * guideLength, s.y + Math.sin(angle) * guideLength, 8, 0, Math.PI * 2);
+  ctx.fillStyle = `hsl(${120 - power * 5}, 100%, 50%)`;
+  ctx.fill();
+}
+
+// ═══════════════════════════════════════════════════
+//  UI UPDATES
+// ═══════════════════════════════════════════════════
+function updateGameUI() {
+  const p1 = G.players[0];
+  const p2 = G.players[1];
+  
+  // Names
+  document.getElementById('p1NameDisplay').textContent = p1.name;
+  document.getElementById('p2NameDisplay').textContent = p2.name;
+  
+  // Points
+  document.getElementById('p1Points').textContent = p1.points;
+  document.getElementById('p2Points').textContent = p2.points;
+  
+  // Coins pocketed
+  const p1Icon = p1.color === 'white' ? '⚪' : '⚫';
+  const p2Icon = p2.color === 'white' ? '⚪' : '⚫';
+  document.getElementById('p1Coins').textContent = `${p1Icon}: ${p1.coins}/9` + (p1.queen ? ' 👑' : '');
+  document.getElementById('p2Coins').textContent = `${p2Icon}: ${p2.coins}/9` + (p2.queen ? ' 👑' : '');
+  
+  // Active player highlighting
+  document.getElementById('p1Score').classList.toggle('active', G.currentPlayer === 0);
+  document.getElementById('p2Score').classList.toggle('active', G.currentPlayer === 1);
+  
+  // Update CSS variables for colors
+  document.getElementById('p1Score').style.setProperty('--pc', p1.color === 'white' ? '#fff' : '#333');
+  document.getElementById('p2Score').style.setProperty('--pc', p2.color === 'white' ? '#fff' : '#333');
+  document.getElementById('p1Points').style.color = p1.color === 'white' ? '#fff' : '#aaa';
+  document.getElementById('p2Points').style.color = p2.color === 'white' ? '#fff' : '#aaa';
+  
+  // Turn indicator
+  document.getElementById('turnName').textContent = G.players[G.currentPlayer].name;
+}
+
+function setMsg(msg) {
+  // Optional: show temporary message
+  console.log(msg);
+}
+
+// ═══════════════════════════════════════════════════
+//  SOUND
+// ═══════════════════════════════════════════════════
+function trySound(fn) {
+  try { if (typeof SoundManager !== 'undefined' && SoundManager.enabled) fn(); } catch(e) {}
+}
+
+function initSoundBtn() {
+  const btn = document.getElementById('soundBtn');
+  function update() {
+    try {
+      const on = typeof SoundManager !== 'undefined' ? SoundManager.enabled : true;
+      btn.textContent = on ? '🔊' : '🔇';
+      btn.classList.toggle('muted', !on);
+    } catch(e) {}
+  }
+  btn.addEventListener('click', () => {
+    try { SoundManager.toggle(); if (SoundManager.enabled) SoundManager.playClick(); } catch(e) {}
+    update();
+  });
+  update();
+}
+</script>
+</body>
+</html>

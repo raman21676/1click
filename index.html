@@ -515,6 +515,18 @@
             color: var(--primary-300);
         }
         
+        .status-new {
+            background: #FFD600;
+            color: #333;
+            font-weight: 700;
+            animation: pulse-badge 1.5s ease-in-out infinite;
+        }
+        
+        @keyframes pulse-badge {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+        
         /* ============================================
            FOOTER
            ============================================ */
@@ -730,6 +742,18 @@
                         <span>⏱️ 10-60 min</span>
                     </div>
                     <span class="game-status status-available">Play Now</span>
+                </a>
+
+                <!-- Carrom -->
+                <a href="./src/games/carrom/" class="game-card">
+                    <span class="game-icon">🎯</span>
+                    <h3>Carrom Board</h3>
+                    <p>Strike coins, pocket them all! Classic board game with physics.</p>
+                    <div class="game-meta">
+                        <span>👥 1-2 Players</span>
+                        <span>⏱️ 10-20 min</span>
+                    </div>
+                    <span class="game-status status-new">New!</span>
                 </a>
 
                 <!-- Snake & Ladder -->
