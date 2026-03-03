@@ -6,6 +6,75 @@
 
 ## 📋 Session History
 
+### Session 16: Snake & Ladder Game Development
+
+**Date:** 2026-03-03  
+**Time:** 13:00 - 14:00 IST  
+**Agent:** AI Agent  
+**Status:** ✅ Complete
+
+#### Summary
+
+Built complete Snake & Ladder game matching the reference image design. Features 10×10 grid with zigzag numbering, colorful cartoon snakes with eyes, detailed ladders, smooth token animations, and full 2-4 player support.
+
+#### Tasks Completed
+
+| # | Task | Description | Files |
+|---|------|-------------|-------|
+| 16.1 | Create game structure | Complete HTML file with CSS and JS | `snake-ladder/index.html` |
+| 16.2 | 10×10 Grid Board | 4-color pattern (green, yellow, blue, red) | `snake-ladder/index.html` |
+| 16.3 | Zigzag Numbering | 1-100 with correct layout (1 at bottom-left, 100 at top-left) | `snake-ladder/index.html` |
+| 16.4 | SVG Snakes | Cartoon snakes with eyes and curved paths | `snake-ladder/index.html` |
+| 16.5 | SVG Ladders | Detailed ladders with rungs | `snake-ladder/index.html` |
+| 16.6 | 3D Dice | Reused Ludo dice system with animations | `snake-ladder/index.html` |
+| 16.7 | Player Tokens | 2-4 players with colored tokens | `snake-ladder/index.html` |
+| 16.8 | Movement Animation | Smooth step-by-step token movement | `snake-ladder/index.html` |
+| 16.9 | Snake/Ladder Logic | Auto-slide on snake bite, auto-climb on ladder | `snake-ladder/index.html` |
+| 16.10 | Win Detection | Game over when reaching cell 100 | `snake-ladder/index.html` |
+| 16.11 | Setup Screen | Player count and name selection | `snake-ladder/index.html` |
+| 16.12 | Landing Page | Added Snake & Ladder card | `index.html` |
+
+#### Game Features
+
+**Board Design (matches reference image):**
+- 10×10 grid with 4 repeating colors
+- Zigzag cell numbering (bottom-left = 1, top-left = 100)
+- 7 snakes with cartoon style (curved paths + eyes)
+- 7 ladders with detailed rungs
+
+**Snakes:**
+- 83 → 60 (Green)
+- 92 → 72 (Blue)
+- 66 → 55 (Red)
+- 36 → 14 (Red)
+- 38 → 20 (Blue)
+- 31 → 10 (Green)
+- 99 → 41 (Green)
+
+**Ladders:**
+- 2 → 23
+- 5 → 36
+- 13 → 49
+- 24 → 44
+- 42 → 60
+- 53 → 74
+- 64 → 86
+
+**Gameplay:**
+- 2-4 players
+- Step-by-step token animation
+- Sound effects (move, ladder up, snake bite, win)
+- Player panels showing positions
+- Win modal with play again option
+
+#### Git Activity
+
+- New files: 1 (snake-ladder/index.html)
+- Modified files: 1 (index.html)
+- Total lines added: ~800
+
+---
+
 ### Session 15: Polish Phase - Sound Effects, Loading Screens & SEO
 
 **Date:** 2026-03-03  
