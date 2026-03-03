@@ -3,1273 +3,824 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <meta name="description" content="Play Snake and Ladder online for free! Classic board game with up to 4 players. Roll dice, climb ladders, avoid snakes!">
-  <meta name="keywords" content="snake and ladder, snakes and ladders, board game, dice game, family game, classic game">
-  <meta name="robots" content="index, follow">
+  <meta name="description" content="Play Snake and Ladder online for free! Classic board game with up to 4 players.">
   <meta name="theme-color" content="#0f172a">
   <link rel="canonical" href="https://1click.live/src/games/snake-ladder/">
-  <meta property="og:type" content="website">
-  <meta property="og:url" content="https://1click.live/src/games/snake-ladder/">
-  <meta property="og:title" content="Snake & Ladder - 1click Games">
-  <meta property="og:description" content="Play Snake and Ladder! Climb ladders, avoid snakes, reach 100!">
+  <title>Snake &amp; Ladder - 1click Games</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
-  <title>Snake & Ladder - 1click Games</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;800&display=swap" rel="stylesheet">
   <style>
-    * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-    
+    *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+
     :root {
-      --cell-green: #4CAF50;
-      --cell-yellow: #FFEB3B;
-      --cell-blue: #2196F3;
-      --cell-red: #F44336;
-      --cell-text: #333;
-      --snake-green: #66BB6A;
-      --snake-blue: #64B5F6;
-      --snake-red: #EF5350;
-      --ladder-color: #3E2723;
-      --bg-dark: #0f172a;
-      --panel-bg: #1e293b;
+      --bg: #0f172a;
+      --bg2: #1e293b;
+      --accent: #4CAF50;
     }
-    
-    body {
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-      background: linear-gradient(135deg, var(--bg-dark) 0%, #1a1a2e 100%);
-      min-height: 100vh;
+
+    html, body {
+      height: 100%;
+      font-family: 'Poppins', -apple-system, sans-serif;
+      background: linear-gradient(135deg, var(--bg) 0%, #1a1a2e 100%);
       color: #fff;
       overflow-x: hidden;
     }
-    
-    /* Loading Screen */
-    .loading-screen {
-      position: fixed;
-      inset: 0;
-      background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      z-index: 9999;
-      transition: opacity 0.5s ease, visibility 0.5s ease;
+
+    /* ── LOADING ── */
+    #loadingScreen {
+      position:fixed; inset:0;
+      background:var(--bg);
+      display:flex; flex-direction:column;
+      align-items:center; justify-content:center;
+      z-index:9999;
+      transition:opacity .5s, visibility .5s;
     }
-    .loading-screen.hidden {
-      opacity: 0;
-      visibility: hidden;
+    #loadingScreen.hidden { opacity:0; visibility:hidden; }
+    .load-icon { font-size:4rem; animation:pulse 1.4s ease-in-out infinite; }
+    @keyframes pulse { 0%,100%{transform:scale(1)} 50%{transform:scale(1.12)} }
+    .load-text { margin-top:1rem; color:#94a3b8; font-size:1.1rem; }
+
+    /* ── SOUND BTN ── */
+    #soundBtn {
+      position:fixed; bottom:20px; right:20px;
+      width:46px; height:46px; border-radius:50%;
+      background:linear-gradient(135deg,#14b8a6,#06b6d4);
+      border:none; cursor:pointer;
+      display:flex; align-items:center; justify-content:center;
+      font-size:1.3rem;
+      box-shadow:0 4px 14px rgba(20,184,166,.4);
+      transition:transform .2s;
+      z-index:1000;
     }
-    .loading-logo { font-size: 4rem; animation: pulse 1.5s ease-in-out infinite; }
-    @keyframes pulse {
-      0%, 100% { transform: scale(1); }
-      50% { transform: scale(1.1); }
-    }
-    .loading-text { margin-top: 1rem; color: #94a3b8; font-size: 1.2rem; }
-    
-    /* Sound Toggle */
-    .sound-toggle {
-      position: fixed;
-      bottom: 20px;
-      right: 20px;
-      width: 50px;
-      height: 50px;
-      border-radius: 50%;
-      background: linear-gradient(135deg, #14b8a6 0%, #06b6d4 100%);
-      border: none;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 1.5rem;
-      box-shadow: 0 4px 15px rgba(20, 184, 166, 0.4);
-      transition: all 0.3s ease;
-      z-index: 1000;
-    }
-    .sound-toggle:hover { transform: scale(1.1); }
-    .sound-toggle.muted {
-      background: linear-gradient(135deg, #64748b 0%, #475569 100%);
-    }
-    
-    /* Setup Screen */
-    .setup-screen {
-      min-height: 100vh;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      padding: 20px;
+    #soundBtn:hover { transform:scale(1.1); }
+    #soundBtn.muted { background:linear-gradient(135deg,#475569,#334155); }
+
+    /* ── SETUP ── */
+    #setupScreen {
+      min-height:100vh;
+      display:flex; flex-direction:column;
+      align-items:center; justify-content:center;
+      padding:24px;
     }
     .setup-title {
-      font-size: clamp(2rem, 8vw, 3.5rem);
-      font-weight: 800;
-      margin-bottom: 0.5rem;
-      background: linear-gradient(135deg, #4CAF50 0%, #FFEB3B 50%, #2196F3 100%);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      text-align: center;
+      font-size:clamp(2rem,8vw,3.2rem);
+      font-weight:800;
+      background:linear-gradient(135deg,#4CAF50,#FFEB3B,#2196F3);
+      -webkit-background-clip:text; -webkit-text-fill-color:transparent;
+      text-align:center; margin-bottom:.4rem;
     }
-    .setup-subtitle {
-      color: #94a3b8;
-      margin-bottom: 2rem;
-      text-align: center;
-    }
+    .setup-sub { color:#94a3b8; margin-bottom:2rem; text-align:center; }
     .setup-card {
-      background: rgba(255,255,255,0.05);
-      border: 1px solid rgba(255,255,255,0.1);
-      border-radius: 16px;
-      padding: 24px;
-      width: 100%;
-      max-width: 400px;
+      background:rgba(255,255,255,.05);
+      border:1px solid rgba(255,255,255,.1);
+      border-radius:16px; padding:24px;
+      width:100%; max-width:400px;
     }
-    .setup-label {
-      font-size: 14px;
-      color: #94a3b8;
-      margin-bottom: 12px;
-      display: block;
-    }
-    .player-count-selector {
-      display: flex;
-      gap: 8px;
-      margin-bottom: 20px;
-    }
+    .setup-label { font-size:13px; color:#94a3b8; margin-bottom:10px; display:block; }
+    .count-row { display:flex; gap:8px; margin-bottom:20px; }
     .count-btn {
-      flex: 1;
-      padding: 12px;
-      border: 2px solid rgba(255,255,255,0.2);
-      background: rgba(255,255,255,0.05);
-      color: #fff;
-      border-radius: 8px;
-      cursor: pointer;
-      transition: all 0.3s;
-      font-size: 1.2rem;
+      flex:1; padding:12px;
+      border:2px solid rgba(255,255,255,.18);
+      background:rgba(255,255,255,.05);
+      color:#fff; border-radius:8px;
+      cursor:pointer; font-size:1.1rem; font-family:inherit;
+      transition:all .25s;
     }
-    .count-btn:hover { border-color: #4CAF50; }
-    .count-btn.active {
-      border-color: #4CAF50;
-      background: rgba(76, 175, 80, 0.2);
+    .count-btn:hover { border-color:var(--accent); }
+    .count-btn.active { border-color:var(--accent); background:rgba(76,175,80,.18); }
+    .player-inputs { margin-bottom:20px; }
+    .input-row { display:flex; align-items:center; gap:10px; margin-bottom:10px; }
+    .color-dot { width:16px; height:16px; border-radius:50%; flex-shrink:0; }
+    .name-input {
+      flex:1; padding:10px 14px;
+      border:1px solid rgba(255,255,255,.18);
+      background:rgba(0,0,0,.3); color:#fff;
+      border-radius:8px; font-size:14px; font-family:inherit;
     }
-    .player-inputs {
-      margin-bottom: 20px;
-    }
-    .player-input-row {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      margin-bottom: 10px;
-    }
-    .player-color-dot {
-      width: 16px;
-      height: 16px;
-      border-radius: 50%;
-      flex-shrink: 0;
-    }
-    .player-input {
-      flex: 1;
-      padding: 10px 14px;
-      border: 1px solid rgba(255,255,255,0.2);
-      background: rgba(0,0,0,0.3);
-      color: #fff;
-      border-radius: 8px;
-      font-size: 14px;
-    }
-    .player-input::placeholder { color: #64748b; }
+    .name-input::placeholder { color:#64748b; }
     .start-btn {
-      width: 100%;
-      padding: 14px;
-      border: none;
-      background: linear-gradient(135deg, #4CAF50 0%, #66BB6A 100%);
-      color: #fff;
-      font-size: 16px;
-      font-weight: 600;
-      border-radius: 10px;
-      cursor: pointer;
-      transition: transform 0.2s;
+      width:100%; padding:14px;
+      border:none;
+      background:linear-gradient(135deg,#4CAF50,#66BB6A);
+      color:#fff; font-size:16px; font-weight:700;
+      border-radius:12px; cursor:pointer; font-family:inherit;
+      transition:transform .2s, box-shadow .2s;
+      box-shadow:0 4px 16px rgba(76,175,80,.35);
     }
-    .start-btn:hover { transform: translateY(-2px); }
-    .start-btn:active { transform: scale(0.98); }
-    
-    /* Game Screen */
-    .game-screen {
-      display: none;
-      min-height: 100vh;
-      flex-direction: column;
-    }
+    .start-btn:hover { transform:translateY(-2px); box-shadow:0 6px 20px rgba(76,175,80,.5); }
+    .start-btn:active { transform:scale(.98); }
+    .back-home { margin-top:20px; color:#64748b; text-decoration:none; font-size:14px; }
+    .back-home:hover { color:#94a3b8; }
+
+    /* ── GAME SCREEN ── */
+    #gameScreen { display:none; height:100dvh; flex-direction:column; overflow:hidden; }
+
     .game-header {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 12px 16px;
-      background: rgba(0,0,0,0.3);
-      border-bottom: 1px solid rgba(255,255,255,0.1);
+      display:flex; align-items:center; justify-content:space-between;
+      padding:10px 16px; flex-shrink:0;
+      background:rgba(0,0,0,.35);
+      border-bottom:1px solid rgba(255,255,255,.08);
     }
-    .back-btn {
-      color: #94a3b8;
-      text-decoration: none;
-      font-size: 14px;
+    .gh-back { color:#94a3b8; text-decoration:none; font-size:14px; padding:4px; }
+    .gh-title { font-weight:700; font-size:1.1rem; }
+    .gh-spacer { width:50px; }
+
+    .game-body {
+      flex:1; display:flex; flex-direction:column;
+      align-items:center; padding:8px 12px; gap:8px;
+      min-height:0;
     }
-    .header-title {
-      font-weight: 700;
-      font-size: 1.2rem;
+
+    /* ── TURN BANNER (thin) ── */
+    .turn-banner {
+      width:100%; max-width:520px; flex-shrink:0;
+      background:rgba(255,255,255,.06);
+      border:1px solid rgba(255,255,255,.1);
+      border-radius:10px; padding:8px 14px;
+      display:flex; align-items:center; justify-content:space-between;
     }
-    
-    .game-content {
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      padding: 16px;
-      gap: 16px;
+    .turn-name { font-size:.95rem; font-weight:700; }
+    .turn-msg  { font-size:11px; color:#94a3b8; }
+
+    /* ── CONTROLS ROW (Ludo-style) ── */
+    .controls-row {
+      width:100%; max-width:520px; flex-shrink:0;
+      display:flex; align-items:center; justify-content:space-between;
+      gap:8px; padding:0 2px;
     }
-    
-    /* Board Container */
-    .board-container {
-      position: relative;
-      width: 100%;
-      max-width: 500px;
-      aspect-ratio: 1;
-    }
-    
-    /* The Grid Board */
-    .game-board {
-      display: grid;
-      grid-template-columns: repeat(10, 1fr);
-      grid-template-rows: repeat(10, 1fr);
-      width: 100%;
-      height: 100%;
-      background: #333;
-      gap: 1px;
-      border: 3px solid #333;
-      border-radius: 4px;
-      overflow: hidden;
-    }
-    
-    .cell {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-weight: 700;
-      font-size: clamp(8px, 2.5vw, 14px);
-      color: var(--cell-text);
-      position: relative;
-    }
-    .cell.green { background: var(--cell-green); }
-    .cell.yellow { background: var(--cell-yellow); }
-    .cell.blue { background: var(--cell-blue); color: #fff; }
-    .cell.red { background: var(--cell-red); color: #fff; }
-    .cell.start { background: linear-gradient(135deg, #4CAF50, #81C784); }
-    .cell.end { background: linear-gradient(135deg, #FFD700, #FFA000); color: #333; }
-    
-    /* Cell number */
-    .cell-number {
-      position: absolute;
-      top: 2px;
-      left: 3px;
-      font-size: clamp(6px, 2vw, 11px);
-      opacity: 0.8;
-    }
-    
-    /* Snakes Layer */
-    .snakes-layer {
-      position: absolute;
-      inset: 0;
-      pointer-events: none;
-      z-index: 10;
-    }
-    
-    /* Ladders Layer */
-    .ladders-layer {
-      position: absolute;
-      inset: 0;
-      pointer-events: none;
-      z-index: 11;
-    }
-    
-    /* Player Tokens */
-    .tokens-layer {
-      position: absolute;
-      inset: 0;
-      pointer-events: none;
-      z-index: 20;
-    }
-    .token {
-      position: absolute;
-      width: 18%;
-      height: 18%;
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: clamp(10px, 3vw, 16px);
-      font-weight: 700;
-      border: 2px solid #fff;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.4);
-      transition: all 0.3s ease;
-      transform: translate(-50%, -50%);
-    }
-    .token.p1 { background: #E53935; }
-    .token.p2 { background: #1E88E5; }
-    .token.p3 { background: #43A047; }
-    .token.p4 { background: #FDD835; color: #333; }
-    
-    /* Dice Area */
-    .dice-area {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 12px;
-    }
-    
-    /* 3D Dice - Same style as Ludo */
+
+    /* ── DICE (Ludo-identical) ── */
+    .dice-area { display:flex; flex-direction:column; align-items:center; gap:6px; flex-shrink:0; }
     .dice-scene {
-      width: 72px;
-      height: 72px;
-      perspective: 600px;
-      perspective-origin: 50% 40%;
-      position: relative;
+      width:72px; height:72px;
+      perspective:600px; perspective-origin:50% 40%;
+      position:relative; z-index:1;
     }
     .dice-cube {
-      width: 72px;
-      height: 72px;
-      position: absolute;
-      transform-style: preserve-3d;
-      transform: rotateX(-25deg) rotateY(25deg);
-      will-change: transform;
+      width:72px; height:72px;
+      position:absolute;
+      transform-style:preserve-3d;
+      transform:rotateX(-25deg) rotateY(25deg);
+      will-change:transform;
     }
     .face {
-      position: absolute;
-      width: 72px;
-      height: 72px;
-      background: linear-gradient(145deg, #fffef8, #f5f5f0);
-      border-radius: 12px;
-      box-shadow: inset 0 2px 4px rgba(255,255,255,0.9), inset 0 -2px 3px rgba(0,0,0,0.06), 0 0 0 1px rgba(0,0,0,0.08);
-      backface-visibility: hidden;
-      display: flex;
-      align-items: center;
-      justify-content: center;
+      position:absolute; width:72px; height:72px;
+      background:linear-gradient(145deg,#fffef8,#f5f5f0);
+      border-radius:12px;
+      box-shadow:
+        inset 0 2px 4px rgba(255,255,255,.9),
+        inset 0 -2px 3px rgba(0,0,0,.06),
+        0 0 0 1px rgba(0,0,0,.08);
+      backface-visibility:hidden;
+      display:flex; align-items:center; justify-content:center;
     }
-    .face-1 { transform: rotateY(0deg) translateZ(36px); }
-    .face-2 { transform: rotateY(180deg) translateZ(36px); }
-    .face-3 { transform: rotateY(90deg) translateZ(36px); }
-    .face-4 { transform: rotateY(-90deg) translateZ(36px); }
-    .face-5 { transform: rotateX(90deg) translateZ(36px); }
-    .face-6 { transform: rotateX(-90deg) translateZ(36px); }
-    
+    /* Ludo face positioning — face-1..face-6 */
+    .face-1 { transform:rotateY(  0deg) translateZ(36px); }
+    .face-2 { transform:rotateY(180deg) translateZ(36px); }
+    .face-3 { transform:rotateY( 90deg) translateZ(36px); }
+    .face-4 { transform:rotateY(-90deg) translateZ(36px); }
+    .face-5 { transform:rotateX( 90deg) translateZ(36px); }
+    .face-6 { transform:rotateX(-90deg) translateZ(36px); }
     .dots {
-      display: grid;
-      grid-template-columns: 1fr 1fr 1fr;
-      grid-template-rows: 1fr 1fr 1fr;
-      width: 100%;
-      height: 100%;
-      padding: 13px;
-      gap: 6px;
+      display:grid;
+      grid-template-columns:1fr 1fr 1fr;
+      grid-template-rows:1fr 1fr 1fr;
+      width:100%; height:100%;
+      padding:13px; gap:6px;
     }
     .dot {
-      width: 11px;
-      height: 11px;
-      background: radial-gradient(circle at 35% 30%, #555, #111);
-      border-radius: 50%;
-      box-shadow: 0 1px 3px rgba(0,0,0,0.4), inset 0 -1px 1px rgba(0,0,0,0.2);
-      justify-self: center;
-      align-self: center;
+      width:11px; height:11px;
+      background:radial-gradient(circle at 35% 30%,#555,#111);
+      border-radius:50%;
+      box-shadow:0 1px 3px rgba(0,0,0,.4),inset 0 -1px 1px rgba(0,0,0,.2);
+      justify-self:center; align-self:center;
     }
-    .face-1 .dot:nth-child(1) { grid-area: 2 / 2; }
-    .face-2 .dot:nth-child(1) { grid-area: 1 / 1; }
-    .face-2 .dot:nth-child(2) { grid-area: 3 / 3; }
-    .face-3 .dot:nth-child(1) { grid-area: 1 / 1; }
-    .face-3 .dot:nth-child(2) { grid-area: 2 / 2; }
-    .face-3 .dot:nth-child(3) { grid-area: 3 / 3; }
-    .face-4 .dot:nth-child(1) { grid-area: 1 / 1; }
-    .face-4 .dot:nth-child(2) { grid-area: 1 / 3; }
-    .face-4 .dot:nth-child(3) { grid-area: 3 / 1; }
-    .face-4 .dot:nth-child(4) { grid-area: 3 / 3; }
-    .face-5 .dot:nth-child(1) { grid-area: 1 / 1; }
-    .face-5 .dot:nth-child(2) { grid-area: 1 / 3; }
-    .face-5 .dot:nth-child(3) { grid-area: 2 / 2; }
-    .face-5 .dot:nth-child(4) { grid-area: 3 / 1; }
-    .face-5 .dot:nth-child(5) { grid-area: 3 / 3; }
-    .face-6 .dots { grid-template-columns: 1fr 1fr; padding: 15px; gap: 8px; }
-    .face-6 .dot:nth-child(1) { grid-area: 1 / 1; }
-    .face-6 .dot:nth-child(2) { grid-area: 1 / 2; }
-    .face-6 .dot:nth-child(3) { grid-area: 2 / 1; }
-    .face-6 .dot:nth-child(4) { grid-area: 2 / 2; }
-    .face-6 .dot:nth-child(5) { grid-area: 3 / 1; }
-    .face-6 .dot:nth-child(6) { grid-area: 3 / 2; }
-    
-    .rolling-1 { animation: roll1 0.8s ease-out forwards; }
-    .rolling-2 { animation: roll2 0.8s ease-out forwards; }
-    .rolling-3 { animation: roll3 0.8s ease-out forwards; }
-    .rolling-4 { animation: roll4 0.8s ease-out forwards; }
-    .rolling-5 { animation: roll5 0.8s ease-out forwards; }
-    .rolling-6 { animation: roll6 0.8s ease-out forwards; }
-    
-    @keyframes roll1 { to { transform: rotateX(720deg) rotateY(720deg) rotateZ(0deg); } }
-    @keyframes roll2 { to { transform: rotateX(900deg) rotateY(720deg) rotateZ(0deg); } }
-    @keyframes roll3 { to { transform: rotateX(720deg) rotateY(810deg) rotateZ(0deg); } }
-    @keyframes roll4 { to { transform: rotateX(720deg) rotateY(630deg) rotateZ(0deg); } }
-    @keyframes roll5 { to { transform: rotateX(810deg) rotateY(720deg) rotateZ(0deg); } }
-    @keyframes roll6 { to { transform: rotateX(630deg) rotateY(720deg) rotateZ(0deg); } }
-    
-    .spin-btn {
-      padding: 12px 32px;
-      border: none;
-      background: linear-gradient(135deg, #4CAF50 0%, #66BB6A 100%);
-      color: #fff;
-      font-size: 16px;
-      font-weight: 600;
-      border-radius: 50px;
-      cursor: pointer;
-      transition: all 0.3s;
-      box-shadow: 0 4px 15px rgba(76, 175, 80, 0.4);
+    /* Ludo dot positions */
+    .face-1 .dot:nth-child(1){ grid-area:2/2; }
+    .face-2 .dot:nth-child(1){ grid-area:1/1; } .face-2 .dot:nth-child(2){ grid-area:3/3; }
+    .face-3 .dot:nth-child(1){ grid-area:1/1; } .face-3 .dot:nth-child(2){ grid-area:2/2; } .face-3 .dot:nth-child(3){ grid-area:3/3; }
+    .face-4 .dot:nth-child(1){ grid-area:1/1; } .face-4 .dot:nth-child(2){ grid-area:1/3; } .face-4 .dot:nth-child(3){ grid-area:3/1; } .face-4 .dot:nth-child(4){ grid-area:3/3; }
+    .face-5 .dot:nth-child(1){ grid-area:1/1; } .face-5 .dot:nth-child(2){ grid-area:1/3; } .face-5 .dot:nth-child(3){ grid-area:2/2; } .face-5 .dot:nth-child(4){ grid-area:3/1; } .face-5 .dot:nth-child(5){ grid-area:3/3; }
+    .face-6 .dot:nth-child(1){ grid-area:1/1; } .face-6 .dot:nth-child(2){ grid-area:1/3; } .face-6 .dot:nth-child(3){ grid-area:2/1; } .face-6 .dot:nth-child(4){ grid-area:2/3; } .face-6 .dot:nth-child(5){ grid-area:3/1; } .face-6 .dot:nth-child(6){ grid-area:3/3; }
+
+    /* Ludo-identical per-face roll animations */
+    @keyframes roll1 {
+      0%   { transform:rotateX(-25deg) rotateY(25deg); }
+      20%  { transform:rotateX(-200deg) rotateY(150deg) rotateZ(30deg); }
+      50%  { transform:rotateX(-520deg) rotateY(380deg) rotateZ(15deg); }
+      75%  { transform:rotateX(-710deg) rotateY(720deg) rotateZ(3deg); }
+      100% { transform:rotateX(-720deg) rotateY(720deg) rotateZ(0deg); }
     }
-    .spin-btn:hover { transform: translateY(-2px); }
-    .spin-btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
-    
-    /* Turn Info */
-    .turn-info {
-      text-align: center;
-      padding: 12px 20px;
-      background: rgba(255,255,255,0.05);
-      border-radius: 12px;
-      border: 1px solid rgba(255,255,255,0.1);
+    @keyframes roll2 {
+      0%   { transform:rotateX(-25deg) rotateY(25deg); }
+      20%  { transform:rotateX(-180deg) rotateY(200deg) rotateZ(-25deg); }
+      50%  { transform:rotateX(-480deg) rotateY(500deg) rotateZ(-10deg); }
+      75%  { transform:rotateX(-715deg) rotateY(898deg) rotateZ(-2deg); }
+      100% { transform:rotateX(-720deg) rotateY(900deg) rotateZ(0deg); }
     }
-    .turn-player {
-      font-size: 1.2rem;
-      font-weight: 700;
-      margin-bottom: 4px;
+    @keyframes roll3 {
+      0%   { transform:rotateX(-25deg) rotateY(25deg); }
+      20%  { transform:rotateX(-160deg) rotateY(130deg) rotateZ(20deg); }
+      50%  { transform:rotateX(-490deg) rotateY(430deg) rotateZ(8deg); }
+      75%  { transform:rotateX(-718deg) rotateY(628deg) rotateZ(1deg); }
+      100% { transform:rotateX(-720deg) rotateY(630deg) rotateZ(0deg); }
     }
-    .turn-status {
-      font-size: 14px;
-      color: #94a3b8;
+    @keyframes roll4 {
+      0%   { transform:rotateX(-25deg) rotateY(25deg); }
+      20%  { transform:rotateX(-200deg) rotateY(250deg) rotateZ(-20deg); }
+      50%  { transform:rotateX(-500deg) rotateY(540deg) rotateZ(-8deg); }
+      75%  { transform:rotateX(-718deg) rotateY(808deg) rotateZ(-1deg); }
+      100% { transform:rotateX(-720deg) rotateY(810deg) rotateZ(0deg); }
     }
-    
-    /* Player Panels */
+    @keyframes roll5 {
+      0%   { transform:rotateX(-25deg) rotateY(25deg); }
+      20%  { transform:rotateX(-250deg) rotateY(120deg) rotateZ(25deg); }
+      50%  { transform:rotateX(-610deg) rotateY(360deg) rotateZ(10deg); }
+      75%  { transform:rotateX(-806deg) rotateY(720deg) rotateZ(2deg); }
+      100% { transform:rotateX(-810deg) rotateY(720deg) rotateZ(0deg); }
+    }
+    @keyframes roll6 {
+      0%   { transform:rotateX(-25deg) rotateY(25deg); }
+      20%  { transform:rotateX(-170deg) rotateY(180deg) rotateZ(-30deg); }
+      50%  { transform:rotateX(-530deg) rotateY(480deg) rotateZ(-12deg); }
+      75%  { transform:rotateX(-628deg) rotateY(720deg) rotateZ(-2deg); }
+      100% { transform:rotateX(-630deg) rotateY(720deg) rotateZ(0deg); }
+    }
+    .dice-cube.rolling-1 { animation:roll1 0.85s cubic-bezier(.22,.61,.36,1) forwards; }
+    .dice-cube.rolling-2 { animation:roll2 0.85s cubic-bezier(.22,.61,.36,1) forwards; }
+    .dice-cube.rolling-3 { animation:roll3 0.85s cubic-bezier(.22,.61,.36,1) forwards; }
+    .dice-cube.rolling-4 { animation:roll4 0.85s cubic-bezier(.22,.61,.36,1) forwards; }
+    .dice-cube.rolling-5 { animation:roll5 0.85s cubic-bezier(.22,.61,.36,1) forwards; }
+    .dice-cube.rolling-6 { animation:roll6 0.85s cubic-bezier(.22,.61,.36,1) forwards; }
+    /* Wrapper bounce — simulates physical throw */
+    .dice-scene.rolling { animation:diceThrow 0.85s cubic-bezier(.22,.61,.36,1) forwards; }
+    @keyframes diceThrow {
+      0%   { transform:translateY(0)     scale(1.00); }
+      25%  { transform:translateY(-18px) scale(1.06); }
+      55%  { transform:translateY(-28px) scale(1.09); }
+      75%  { transform:translateY(-8px)  scale(1.03); }
+      88%  { transform:translateY(-2px)  scale(1.01); }
+      100% { transform:translateY(0)     scale(1.00); }
+    }
+
+    .roll-btn {
+      background:linear-gradient(135deg,#FF6F00,#FFD600);
+      border:none; border-radius:8px; color:#000;
+      font-size:clamp(12px,2.2vmin,14px); font-weight:800;
+      padding:9px 18px; cursor:pointer; transition:all .2s; font-family:inherit;
+      box-shadow:0 4px 12px rgba(255,111,0,.4);
+      margin-top:8px;
+    }
+    .roll-btn:hover:not(:disabled) { transform:translateY(-2px); }
+    .roll-btn:disabled { opacity:.35; cursor:not-allowed; }
+
+    /* ── BOARD (IMAGE) ── */
+    .board-wrap {
+      position:relative;
+      width:100%; max-width:520px;
+      aspect-ratio:1;
+      border-radius:8px;
+      overflow:hidden;
+      box-shadow:0 8px 40px rgba(0,0,0,.6), 0 0 0 3px rgba(255,255,255,.08);
+    }
+    .board-wrap img.board-img {
+      width:100%; height:100%;
+      object-fit:cover;
+      display:block;
+      border-radius:8px;
+    }
+    /* SVG overlay for tokens only */
+    #tokensSvg {
+      position:absolute; inset:0;
+      pointer-events:none;
+      z-index:20;
+    }
+
+    /* ── PLAYER PANELS ── */
     .player-panels {
-      display: flex;
-      gap: 8px;
-      justify-content: center;
-      flex-wrap: wrap;
+      display:flex; gap:4px; flex:1; flex-wrap:wrap;
     }
-    .player-panel {
-      padding: 8px 16px;
-      background: rgba(255,255,255,0.05);
-      border-radius: 8px;
-      border: 2px solid transparent;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      font-size: 14px;
+    .p-panel {
+      flex:1; display:flex; align-items:center; gap:6px;
+      padding:6px 10px;
+      background:rgba(255,255,255,.05);
+      border:2px solid transparent;
+      border-radius:8px; font-size:12px;
+      transition:all .3s; text-align:center;
     }
-    .player-panel.active {
-      border-color: var(--pc);
-      background: rgba(255,255,255,0.1);
-      box-shadow: 0 0 10px var(--pc);
+    .p-panel.active {
+      border-color:var(--pc);
+      background:rgba(255,255,255,.12);
+      box-shadow:0 0 10px var(--pc);
     }
-    .panel-dot {
-      width: 12px;
-      height: 12px;
-      border-radius: 50%;
-      background: var(--pc);
+    .p-dot { width:10px; height:10px; border-radius:50%; background:var(--pc); flex-shrink:0; }
+
+    /* ── WIN MODAL ── */
+    .modal-bg {
+      position:fixed; inset:0;
+      background:rgba(0,0,0,.82);
+      display:none; align-items:center; justify-content:center;
+      z-index:500;
     }
-    
-    /* Win Modal */
-    .win-modal {
-      position: fixed;
-      inset: 0;
-      background: rgba(0,0,0,0.8);
-      display: none;
-      align-items: center;
-      justify-content: center;
-      z-index: 100;
+    .modal-bg.open { display:flex; }
+    .modal-box {
+      background:linear-gradient(135deg,#1e293b,#0f172a);
+      border:2px solid #4CAF50;
+      border-radius:20px; padding:40px 36px;
+      text-align:center; max-width:300px; width:90%;
+      animation:modalPop .45s ease;
     }
-    .win-modal.active { display: flex; }
-    .win-content {
-      background: linear-gradient(135deg, #1e293b, #0f172a);
-      border: 2px solid #4CAF50;
-      border-radius: 20px;
-      padding: 40px;
-      text-align: center;
-      max-width: 320px;
-      animation: popIn 0.5s ease;
+    @keyframes modalPop { from{transform:scale(.8);opacity:0} to{transform:scale(1);opacity:1} }
+    .modal-emoji { font-size:4rem; margin-bottom:14px; }
+    .modal-title { font-size:1.9rem; font-weight:800; margin-bottom:6px; }
+    .modal-sub { color:#94a3b8; margin-bottom:22px; font-size:15px; }
+    .modal-btn {
+      padding:12px 28px;
+      border:none;
+      background:linear-gradient(135deg,#4CAF50,#66BB6A);
+      color:#fff; font-size:16px; font-weight:700;
+      border-radius:12px; cursor:pointer; font-family:inherit;
+      transition:transform .2s;
     }
-    @keyframes popIn {
-      from { transform: scale(0.8); opacity: 0; }
-      to { transform: scale(1); opacity: 1; }
-    }
-    .win-emoji { font-size: 4rem; margin-bottom: 16px; }
-    .win-title { font-size: 1.8rem; font-weight: 700; margin-bottom: 8px; }
-    .win-subtitle { color: #94a3b8; margin-bottom: 24px; }
-    .play-again-btn {
-      padding: 12px 24px;
-      border: none;
-      background: linear-gradient(135deg, #4CAF50 0%, #66BB6A 100%);
-      color: #fff;
-      font-size: 16px;
-      font-weight: 600;
-      border-radius: 10px;
-      cursor: pointer;
-    }
-    
-    /* Snake Animation */
-    @keyframes snakeSlither {
-      0%, 100% { transform: translateX(0); }
-      50% { transform: translateX(3px); }
-    }
-    
-    @media (max-width: 400px) {
-      .game-content { padding: 10px; }
-      .cell { font-size: 8px; }
-      .cell-number { font-size: 6px; }
+    .modal-btn:hover { transform:translateY(-2px); }
+
+    @media (max-width:420px) {
+      .game-body { padding:6px; gap:6px; }
     }
   </style>
 </head>
 <body>
-  <!-- Loading Screen -->
-  <div id="loadingScreen" class="loading-screen">
-    <div class="loading-logo">🐍</div>
-    <div class="loading-text">Loading Snake & Ladder...</div>
-  </div>
-  
-  <!-- Sound Toggle -->
-  <button id="soundToggle" class="sound-toggle" title="Toggle Sound">🔊</button>
 
-  <!-- SETUP SCREEN -->
-  <div id="setupScreen" class="setup-screen">
-    <h1 class="setup-title">🐍 Snake & Ladder 🪜</h1>
-    <p class="setup-subtitle">Climb ladders, avoid snakes, reach 100!</p>
-    
-    <div class="setup-card">
-      <label class="setup-label">Number of Players</label>
-      <div class="player-count-selector">
-        <button class="count-btn active" data-count="2">2</button>
-        <button class="count-btn" data-count="3">3</button>
-        <button class="count-btn" data-count="4">4</button>
-      </div>
-      
-      <label class="setup-label">Player Names</label>
-      <div class="player-inputs" id="playerInputs">
-        <div class="player-input-row">
-          <div class="player-color-dot" style="background: #E53935"></div>
-          <input type="text" class="player-input" data-player="0" placeholder="Player 1" value="Player 1">
-        </div>
-        <div class="player-input-row">
-          <div class="player-color-dot" style="background: #1E88E5"></div>
-          <input type="text" class="player-input" data-player="1" placeholder="Player 2" value="Player 2">
-        </div>
-        <div class="player-input-row" style="display:none">
-          <div class="player-color-dot" style="background: #43A047"></div>
-          <input type="text" class="player-input" data-player="2" placeholder="Player 3" value="Player 3">
-        </div>
-        <div class="player-input-row" style="display:none">
-          <div class="player-color-dot" style="background: #FDD835"></div>
-          <input type="text" class="player-input" data-player="3" placeholder="Player 4" value="Player 4">
-        </div>
-      </div>
-      
-      <button class="start-btn" id="startBtn">🎮 Start Game</button>
+<!-- Loading -->
+<div id="loadingScreen">
+  <div class="load-icon">🐍</div>
+  <div class="load-text">Loading Snake &amp; Ladder…</div>
+</div>
+
+<!-- Sound -->
+<button id="soundBtn" title="Toggle sound">🔊</button>
+
+<!-- ════ SETUP SCREEN ════ -->
+<div id="setupScreen">
+  <h1 class="setup-title">🐍 Snake &amp; Ladder 🪜</h1>
+  <p class="setup-sub">Climb ladders, dodge snakes, reach 100!</p>
+  <div class="setup-card">
+    <label class="setup-label">Number of Players</label>
+    <div class="count-row" id="countRow">
+      <button class="count-btn active" data-n="2">2</button>
+      <button class="count-btn" data-n="3">3</button>
+      <button class="count-btn" data-n="4">4</button>
     </div>
-    
-    <a href="../../../index.html" style="margin-top: 20px; color: #64748b; text-decoration: none;">← Back to Games</a>
+    <label class="setup-label">Player Names</label>
+    <div class="player-inputs" id="playerInputs">
+      <div class="input-row">
+        <div class="color-dot" style="background:#E53935"></div>
+        <input class="name-input" data-pi="0" placeholder="Player 1" value="Player 1">
+      </div>
+      <div class="input-row">
+        <div class="color-dot" style="background:#1E88E5"></div>
+        <input class="name-input" data-pi="1" placeholder="Player 2" value="Player 2">
+      </div>
+      <div class="input-row" style="display:none">
+        <div class="color-dot" style="background:#43A047"></div>
+        <input class="name-input" data-pi="2" placeholder="Player 3" value="Player 3">
+      </div>
+      <div class="input-row" style="display:none">
+        <div class="color-dot" style="background:#FDD835"></div>
+        <input class="name-input" data-pi="3" placeholder="Player 4" value="Player 4">
+      </div>
+    </div>
+    <button class="start-btn" id="startBtn">🎮 Start Game</button>
   </div>
+  <a class="back-home" href="../../../index.html">← Back to Games</a>
+</div>
 
-  <!-- GAME SCREEN -->
-  <div id="gameScreen" class="game-screen">
-    <header class="game-header">
-      <a href="../../../index.html" class="back-btn">← Back</a>
-      <div class="header-title">🐍 Snake & Ladder</div>
-      <div style="width: 50px;"></div>
-    </header>
-    
-    <div class="game-content">
-      <!-- Turn Info -->
-      <div class="turn-info">
-        <div class="turn-player" id="turnPlayer">Player 1's Turn</div>
-        <div class="turn-status" id="turnStatus">Roll the dice!</div>
+<!-- ════ GAME SCREEN ════ -->
+<div id="gameScreen">
+  <header class="game-header">
+    <a class="gh-back" href="../../../index.html">← Back</a>
+    <div class="gh-title">🐍 Snake &amp; Ladder</div>
+    <div class="gh-spacer"></div>
+  </header>
+
+  <div class="game-body">
+
+    <!-- Turn Banner (top) -->
+    <div class="turn-banner">
+      <div>
+        <div class="turn-name" id="turnName">Player 1's Turn</div>
+        <div class="turn-msg"  id="turnMsg">Roll the dice!</div>
       </div>
-      
-      <!-- Board -->
-      <div class="board-container">
-        <div class="game-board" id="gameBoard"></div>
-        <!-- SVG Layers for Snakes and Ladders -->
-        <svg class="snakes-layer" id="snakesLayer" viewBox="0 0 100 100" preserveAspectRatio="none"></svg>
-        <svg class="ladders-layer" id="laddersLayer" viewBox="0 0 100 100" preserveAspectRatio="none"></svg>
-        <!-- Tokens Layer -->
-        <div class="tokens-layer" id="tokensLayer"></div>
-      </div>
-      
-      <!-- Player Panels -->
+    </div>
+
+    <!-- Board: image + SVG token overlay -->
+    <div class="board-wrap">
+      <img class="board-img" src="assets/board.png" alt="Snake and Ladder Board">
+      <svg id="tokensSvg" viewBox="0 0 100 100" preserveAspectRatio="none"></svg>
+    </div>
+
+    <!-- Controls row (Ludo-style): player panels + dice -->
+    <div class="controls-row">
+      <!-- Player panels -->
       <div class="player-panels" id="playerPanels"></div>
-      
-      <!-- Dice -->
+
+      <!-- 3D Dice -->
       <div class="dice-area">
         <div class="dice-scene" id="diceScene">
           <div class="dice-cube" id="diceCube">
+            <!-- Face 1: center dot -->
             <div class="face face-1"><div class="dots"><div class="dot"></div></div></div>
+            <!-- Face 2: top-left + bottom-right -->
             <div class="face face-2"><div class="dots"><div class="dot"></div><div class="dot"></div></div></div>
+            <!-- Face 3: diagonal -->
             <div class="face face-3"><div class="dots"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div></div>
+            <!-- Face 4: four corners -->
             <div class="face face-4"><div class="dots"><div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div></div></div>
+            <!-- Face 5: four corners + center -->
             <div class="face face-5"><div class="dots"><div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div></div></div>
+            <!-- Face 6: two columns of three -->
             <div class="face face-6"><div class="dots"><div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div></div></div>
           </div>
         </div>
-        <button class="spin-btn" id="spinBtn">🎲 ROLL</button>
+        <button class="roll-btn" id="rollBtn">🎲 ROLL</button>
       </div>
     </div>
-  </div>
-  
-  <!-- Win Modal -->
-  <div class="win-modal" id="winModal">
-    <div class="win-content">
-      <div class="win-emoji">🏆</div>
-      <div class="win-title" id="winTitle">Player 1 Wins!</div>
-      <div class="win-subtitle">Congratulations!</div>
-      <button class="play-again-btn" id="playAgainBtn">🔄 Play Again</button>
-    </div>
-  </div>
 
-  <script src="../../assets/js/sound.js"></script>
-  <script>
-    // ============================================
-    // GAME CONFIGURATION
-    // ============================================
-    const BOARD_SIZE = 10;
-    const TOTAL_CELLS = 100;
-    
-    // Color pattern: green, yellow, blue, red (repeating)
-    const CELL_COLORS = ['green', 'yellow', 'blue', 'red'];
-    
-    // Snakes (head -> tail) - Based on the reference image
-    // FIXED: Removed conflicts with ladders
-    const SNAKES = {
-      83: 59,   // Green snake top left (was 60, conflicted with ladder)
-      92: 72,   // Blue snake top right
-      66: 55,   // Red snake middle
-      36: 14,   // Red snake left middle
-      38: 20,   // Blue/yellow snake left
-      31: 10,   // Green snake bottom right
-      99: 41,   // Long green snake
-    };
-    
-    // Ladders (bottom -> top)
-    const LADDERS = {
-      2: 23,    // Ladder 1
-      5: 35,    // Ladder 2 (was 36, conflicted with snake head)
-      13: 49,   // Ladder 3
-      24: 44,   // Ladder 4
-      42: 61,   // Ladder 5 (was 60, conflicted with snake tail)
-      53: 74,   // Ladder 6
-      64: 86,   // Ladder 7
-    };
-    
-    // Player colors
-    const PLAYER_COLORS = ['#E53935', '#1E88E5', '#43A047', '#FDD835'];
-    
-    // ============================================
-    // GAME STATE
-    // ============================================
-    let state = {
-      players: [],
-      playerCount: 2,
-      positions: [0, 0, 0, 0], // 0 = start (before 1)
-      currentPlayer: 0,
-      isRolling: false,
-      gameOver: false
-    };
-    
-    let currentAngle = 0;
-    
-    // ============================================
-    // INITIALIZATION
-    // ============================================
-    window.addEventListener('load', () => {
-      setTimeout(() => {
-        document.getElementById('loadingScreen').classList.add('hidden');
-      }, 500);
-      
-      initSoundToggle();
-      initSetup();
-      buildBoard();
-      drawSnakes();
-      drawLadders();
+  </div>
+</div>
+
+<!-- Win Modal -->
+<div class="modal-bg" id="winModal">
+  <div class="modal-box">
+    <div class="modal-emoji">🏆</div>
+    <div class="modal-title" id="winTitle">Player 1 Wins!</div>
+    <div class="modal-sub">Congratulations! 🎉</div>
+    <button class="modal-btn" id="playAgainBtn">🔄 Play Again</button>
+  </div>
+</div>
+
+<script src="../../assets/js/sound.js"></script>
+<script>
+// ═══════════════════════════════════════════════════
+//  CONFIG
+// ═══════════════════════════════════════════════════
+const PLAYER_COLORS = ['#E53935','#1E88E5','#43A047','#FDD835'];
+const PLAYER_TXT    = ['#fff',   '#fff',   '#fff',   '#222'  ];
+
+// Snakes: head → tail
+const SNAKES = { 99:41, 92:72, 83:59, 66:55, 36:14, 38:20, 31:10 };
+
+// Ladders: bottom → top
+const LADDERS = { 2:23, 5:35, 13:49, 24:44, 42:61, 53:74, 64:86 };
+
+// Dice final transforms (front=1, right=2, top=3, bottom=4, left=5, back=6)
+const DICE_FINAL = {
+  1:'rotateX(0deg) rotateY(0deg)',
+  2:'rotateX(0deg) rotateY(-90deg)',
+  3:'rotateX(-90deg) rotateY(0deg)',
+  4:'rotateX(90deg) rotateY(0deg)',
+  5:'rotateX(0deg) rotateY(90deg)',
+  6:'rotateX(0deg) rotateY(180deg)',
+};
+
+// ═══════════════════════════════════════════════════
+//  STATE
+// ═══════════════════════════════════════════════════
+let G = {
+  players: [],
+  count: 2,
+  positions: [0,0,0,0],
+  current: 0,
+  busy: false,
+  over: false,
+};
+
+// ═══════════════════════════════════════════════════
+//  COORDINATE HELPER
+// ═══════════════════════════════════════════════════
+// The board image is a perfect 10×10 grid.
+// We map cell number → center in SVG viewBox 0 0 100 100.
+// Board image layout (matching generated image & reference):
+//   Top row: 100,99,98,...,91  (left→right)
+//   Row 2:    81,82,83,...,90  (left→right)
+//   Row 3:    80,79,78,...,71  (left→right)
+//   ...zigzag...
+//   Bottom row: 1,2,3,...,10   (left→right)
+function cellCenter(num) {
+  // gridRow: 0 = top row (100..91), 9 = bottom row (1..10)
+  const gridRow = Math.floor((100 - num) / 10);
+  const posInRow = (100 - num) % 10; // 0 = leftmost number in this row (from top)
+
+  let col;
+  if (gridRow % 2 === 0) {
+    // Even rows (0,2,4,6,8): numbers go RIGHT→LEFT top side, 100,99,...91
+    // posInRow 0 → col 0 (leftmost)
+    col = posInRow;
+  } else {
+    // Odd rows (1,3,5,7,9): numbers go LEFT→RIGHT, 81,82,...90
+    // posInRow 0 → col 9 (rightmost)
+    col = 9 - posInRow;
+  }
+
+  return {
+    x: col * 10 + 5,
+    y: gridRow * 10 + 5,
+  };
+}
+
+// ═══════════════════════════════════════════════════
+//  BOOT
+// ═══════════════════════════════════════════════════
+window.addEventListener('load', () => {
+  setTimeout(() => document.getElementById('loadingScreen').classList.add('hidden'), 500);
+  initSetup();
+  initSoundBtn();
+});
+
+// ═══════════════════════════════════════════════════
+//  SETUP
+// ═══════════════════════════════════════════════════
+function initSetup() {
+  document.getElementById('countRow').addEventListener('click', e => {
+    const btn = e.target.closest('.count-btn');
+    if (!btn) return;
+    document.querySelectorAll('.count-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    G.count = parseInt(btn.dataset.n);
+    refreshInputRows();
+  });
+  document.getElementById('startBtn').addEventListener('click', startGame);
+  document.getElementById('rollBtn').addEventListener('click', onRoll);
+  document.getElementById('playAgainBtn').addEventListener('click', () => {
+    document.getElementById('winModal').classList.remove('open');
+    document.getElementById('gameScreen').style.display = 'none';
+    document.getElementById('setupScreen').style.display = 'flex';
+  });
+}
+
+function refreshInputRows() {
+  document.querySelectorAll('#playerInputs .input-row').forEach((r, i) => {
+    r.style.display = i < G.count ? 'flex' : 'none';
+  });
+}
+
+// ═══════════════════════════════════════════════════
+//  START GAME
+// ═══════════════════════════════════════════════════
+function startGame() {
+  const inputs = document.querySelectorAll('#playerInputs .name-input');
+  G.players = [];
+  for (let i = 0; i < G.count; i++) {
+    G.players.push({
+      name: inputs[i].value.trim() || `Player ${i+1}`,
+      color: PLAYER_COLORS[i],
+      text:  PLAYER_TXT[i],
     });
-    
-    function initSoundToggle() {
-      const btn = document.getElementById('soundToggle');
-      function update() {
-        btn.textContent = SoundManager.enabled ? '🔊' : '🔇';
-        btn.classList.toggle('muted', !SoundManager.enabled);
-      }
-      btn.addEventListener('click', () => {
-        SoundManager.toggle();
-        update();
-        if (SoundManager.enabled) SoundManager.playClick();
-      });
-      update();
-    }
-    
-    function initSetup() {
-      // Player count selector
-      document.querySelectorAll('.count-btn').forEach(btn => {
-        btn.addEventListener('click', () => {
-          document.querySelectorAll('.count-btn').forEach(b => b.classList.remove('active'));
-          btn.classList.add('active');
-          state.playerCount = parseInt(btn.dataset.count);
-          updatePlayerInputs();
-        });
-      });
-      
-      // Start button
-      document.getElementById('startBtn').addEventListener('click', startGame);
-      
-      // Roll button
-      document.getElementById('spinBtn').addEventListener('click', rollDice);
-      
-      // Play again
-      document.getElementById('playAgainBtn').addEventListener('click', () => {
-        document.getElementById('winModal').classList.remove('active');
-        showSetupScreen();
-      });
-    }
-    
-    function updatePlayerInputs() {
-      const rows = document.querySelectorAll('.player-input-row');
-      rows.forEach((row, i) => {
-        row.style.display = i < state.playerCount ? 'flex' : 'none';
-      });
-    }
-    
-    function showSetupScreen() {
-      document.getElementById('gameScreen').style.display = 'none';
-      document.getElementById('setupScreen').style.display = 'flex';
-      state.gameOver = false;
-    }
-    
-    // ============================================
-    // BUILD BOARD
-    // ============================================
-    function buildBoard() {
-      const board = document.getElementById('gameBoard');
-      board.innerHTML = '';
-      
-      // Build cells in CSS grid order (top to bottom)
-      // But numbers go: 100 at top-left, zigzag down to 1 at bottom-left
-      // Grid row 0 (top): 100, 99, 98, 97, 96, 95, 94, 93, 92, 91 (left to right)
-      // Grid row 1: 81, 82, 83, 84, 85, 86, 87, 88, 89, 90 (right to left)
-      // Grid row 2: 80, 79, 78, 77, 76, 75, 74, 73, 72, 71 (left to right)
-      // etc.
-      
-      for (let gridRow = 0; gridRow < BOARD_SIZE; gridRow++) {
-        for (let col = 0; col < BOARD_SIZE; col++) {
-          const cell = document.createElement('div');
-          cell.className = 'cell';
-          
-          // Calculate cell number based on grid position
-          // Top row (gridRow 0) = 91-100
-          // Bottom row (gridRow 9) = 1-10
-          let cellNum;
-          
-          if (gridRow % 2 === 0) {
-            // Even rows (0, 2, 4, 6, 8): numbers go left to right, decreasing
-            cellNum = 100 - (gridRow * 10) - col;
-          } else {
-            // Odd rows (1, 3, 5, 7, 9): numbers go right to left, decreasing
-            cellNum = 100 - (gridRow * 10) - (9 - col);
-          }
-          
-          // Color based on visual position (not grid position)
-          // This creates the 4-color repeating pattern
-          const visualRow = 9 - gridRow;
-          const colorIndex = (visualRow * 10 + col) % 4;
-          let colorClass = CELL_COLORS[colorIndex];
-          
-          // Special cells
-          if (cellNum === 1) colorClass = 'start';
-          if (cellNum === 100) colorClass = 'end';
-          
-          cell.classList.add(colorClass);
-          cell.dataset.number = cellNum;
-          
-          // Cell number
-          const numEl = document.createElement('span');
-          numEl.className = 'cell-number';
-          numEl.textContent = cellNum;
-          cell.appendChild(numEl);
-          
-          board.appendChild(cell);
-        }
-      }
-    }
-    
-    // ============================================
-    // DRAW SNAKES (SVG) - Cartoon Style
-    // ============================================
-    function drawSnakes() {
-      const svg = document.getElementById('snakesLayer');
-      svg.innerHTML = '';
-      
-      // Snake definitions with custom paths for each snake
-      // Format: [headCell, tailCell, color, stripeColor, pathType]
-      const snakeDefs = [
-        { head: 83, tail: 59, color: '#4CAF50', stripe: '#81C784', path: 'curvy-down-left' },
-        { head: 92, tail: 72, color: '#2196F3', stripe: '#64B5F6', path: 'straight-down' },
-        { head: 66, tail: 55, color: '#F44336', stripe: '#EF5350', path: 'short-curve' },
-        { head: 36, tail: 14, color: '#F44336', stripe: '#EF5350', path: 'long-zigzag' },
-        { head: 38, tail: 20, color: '#2196F3', stripe: '#BBDEFB', path: 'wave-down' },
-        { head: 31, tail: 10, color: '#4CAF50', stripe: '#A5D6A7', path: 's-curve-long' },
-        { head: 99, tail: 41, color: '#4CAF50', stripe: '#81C784', path: 'very-long' },
-      ];
-      
-      snakeDefs.forEach(snake => {
-        const headPos = getCellCenter(snake.head);
-        const tailPos = getCellCenter(snake.tail);
-        
-        // Create snake body path based on type
-        const path = createSnakePath(headPos, tailPos, snake.path);
-        
-        // Draw main body (thicker)
-        const bodyPath = document.createElementNS('http://www.w3.org/2000/svg', 'path');
-        bodyPath.setAttribute('d', path);
-        bodyPath.setAttribute('stroke', snake.color);
-        bodyPath.setAttribute('stroke-width', '5');
-        bodyPath.setAttribute('fill', 'none');
-        bodyPath.setAttribute('stroke-linecap', 'round');
-        svg.appendChild(bodyPath);
-        
-        // Draw stripe (thinner, in middle)
-        const stripePath = document.createElementNS('http://www.w3.org/2000/svg', 'path');
-        stripePath.setAttribute('d', path);
-        stripePath.setAttribute('stroke', snake.stripe);
-        stripePath.setAttribute('stroke-width', '2');
-        stripePath.setAttribute('fill', 'none');
-        stripePath.setAttribute('stroke-linecap', 'round');
-        stripePath.setAttribute('stroke-dasharray', '4,3');
-        svg.appendChild(stripePath);
-        
-        // Draw snake head (larger, ellipse)
-        const headGroup = document.createElementNS('http://www.w3.org/2000/svg', 'g');
-        
-        // Head ellipse
-        const headEllipse = document.createElementNS('http://www.w3.org/2000/svg', 'ellipse');
-        headEllipse.setAttribute('cx', headPos.x);
-        headEllipse.setAttribute('cy', headPos.y);
-        headEllipse.setAttribute('rx', '4');
-        headEllipse.setAttribute('ry', '3.5');
-        headEllipse.setAttribute('fill', snake.color);
-        svg.appendChild(headEllipse);
-        
-        // Eyes
-        const eyeOffset = 1.5;
-        const eye1 = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
-        eye1.setAttribute('cx', headPos.x - eyeOffset);
-        eye1.setAttribute('cy', headPos.y - 1);
-        eye1.setAttribute('r', '1.2');
-        eye1.setAttribute('fill', 'white');
-        svg.appendChild(eye1);
-        
-        const pupil1 = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
-        pupil1.setAttribute('cx', headPos.x - eyeOffset);
-        pupil1.setAttribute('cy', headPos.y - 1);
-        pupil1.setAttribute('r', '0.5');
-        pupil1.setAttribute('fill', 'black');
-        svg.appendChild(pupil1);
-        
-        const eye2 = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
-        eye2.setAttribute('cx', headPos.x + eyeOffset);
-        eye2.setAttribute('cy', headPos.y - 1);
-        eye2.setAttribute('r', '1.2');
-        eye2.setAttribute('fill', 'white');
-        svg.appendChild(eye2);
-        
-        const pupil2 = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
-        pupil2.setAttribute('cx', headPos.x + eyeOffset);
-        pupil2.setAttribute('cy', headPos.y - 1);
-        pupil2.setAttribute('r', '0.5');
-        pupil2.setAttribute('fill', 'black');
-        svg.appendChild(pupil2);
-        
-        // Tongue (small red line sticking out)
-        const tongue = document.createElementNS('http://www.w3.org/2000/svg', 'line');
-        tongue.setAttribute('x1', headPos.x);
-        tongue.setAttribute('y1', headPos.y + 2);
-        tongue.setAttribute('x2', headPos.x);
-        tongue.setAttribute('y2', headPos.y + 5);
-        tongue.setAttribute('stroke', '#F44336');
-        tongue.setAttribute('stroke-width', '1.5');
-        svg.appendChild(tongue);
-      });
-    }
-    
-    // Helper to create different snake path shapes
-    function createSnakePath(head, tail, type) {
-      const dx = tail.x - head.x;
-      const dy = tail.y - head.y;
-      
-      switch(type) {
-        case 'curvy-down-left':
-          // Snake 83->60: curves left then down
-          const cp1x = head.x - 10;
-          const cp1y = head.y + 5;
-          const cp2x = tail.x - 8;
-          const cp2y = tail.y - 5;
-          return `M ${head.x} ${head.y} C ${cp1x} ${cp1y}, ${cp2x} ${cp2y}, ${tail.x} ${tail.y}`;
-          
-        case 'straight-down':
-          // Snake 92->72: mostly straight down with slight curve
-          const midX = (head.x + tail.x) / 2 + 3;
-          const midY = (head.y + tail.y) / 2;
-          return `M ${head.x} ${head.y} Q ${midX} ${midY} ${tail.x} ${tail.y}`;
-          
-        case 'short-curve':
-          // Snake 66->55: short curve
-          const scMidX = (head.x + tail.x) / 2 + 5;
-          const scMidY = (head.y + tail.y) / 2;
-          return `M ${head.x} ${head.y} Q ${scMidX} ${scMidY} ${tail.x} ${tail.y}`;
-          
-        case 'long-zigzag':
-          // Snake 36->14: long S-curve
-          const z1x = head.x + 8;
-          const z1y = head.y + 8;
-          const z2x = tail.x - 8;
-          const z2y = tail.y - 8;
-          return `M ${head.x} ${head.y} C ${z1x} ${z1y}, ${z2x} ${z2y}, ${tail.x} ${tail.y}`;
-          
-        case 'wave-down':
-          // Snake 38->20: wave pattern
-          const w1x = head.x - 5;
-          const w1y = head.y + 5;
-          const w2x = tail.x + 5;
-          const w2y = tail.y - 5;
-          return `M ${head.x} ${head.y} C ${w1x} ${w1y}, ${w2x} ${w2y}, ${tail.x} ${tail.y}`;
-          
-        case 's-curve-long':
-          // Snake 31->10: long S-curve
-          const s1x = head.x + 6;
-          const s1y = head.y + 6;
-          const s2x = tail.x - 6;
-          const s2y = tail.y - 6;
-          return `M ${head.x} ${head.y} C ${s1x} ${s1y}, ${s2x} ${s2y}, ${tail.x} ${tail.y}`;
-          
-        case 'very-long':
-          // Snake 99->41: very long snake with multiple curves
-          const v1x = head.x - 8;
-          const v1y = head.y + 15;
-          const v2x = tail.x + 8;
-          const v2y = tail.y - 10;
-          return `M ${head.x} ${head.y} C ${v1x} ${v1y}, ${v2x} ${v2y}, ${tail.x} ${tail.y}`;
-          
-        default:
-          // Simple quadratic curve
-          const midx = (head.x + tail.x) / 2;
-          const midy = (head.y + tail.y) / 2;
-          return `M ${head.x} ${head.y} Q ${midx} ${midy} ${tail.x} ${tail.y}`;
-      }
-    }
-    
-    // ============================================
-    // DRAW LADDERS (SVG)
-    // ============================================
-    function drawLadders() {
-      const svg = document.getElementById('laddersLayer');
-      svg.innerHTML = '';
-      
-      Object.entries(LADDERS).forEach(([bottom, top]) => {
-        const bottomPos = getCellCenter(parseInt(bottom));
-        const topPos = getCellCenter(top);
-        
-        // Ladder width
-        const width = 4;
-        
-        // Calculate angle
-        const angle = Math.atan2(topPos.y - bottomPos.y, topPos.x - bottomPos.x);
-        const perpAngle = angle + Math.PI / 2;
-        
-        const dx = Math.cos(perpAngle) * width / 2;
-        const dy = Math.sin(perpAngle) * width / 2;
-        
-        // Two sides of ladder
-        const leftSide = document.createElementNS('http://www.w3.org/2000/svg', 'line');
-        leftSide.setAttribute('x1', bottomPos.x - dx);
-        leftSide.setAttribute('y1', bottomPos.y - dy);
-        leftSide.setAttribute('x2', topPos.x - dx);
-        leftSide.setAttribute('y2', topPos.y - dy);
-        leftSide.setAttribute('stroke', '#3E2723');
-        leftSide.setAttribute('stroke-width', '2');
-        leftSide.setAttribute('stroke-linecap', 'round');
-        svg.appendChild(leftSide);
-        
-        const rightSide = document.createElementNS('http://www.w3.org/2000/svg', 'line');
-        rightSide.setAttribute('x1', bottomPos.x + dx);
-        rightSide.setAttribute('y1', bottomPos.y + dy);
-        rightSide.setAttribute('x2', topPos.x + dx);
-        rightSide.setAttribute('y2', topPos.y + dy);
-        rightSide.setAttribute('stroke', '#3E2723');
-        rightSide.setAttribute('stroke-width', '2');
-        rightSide.setAttribute('stroke-linecap', 'round');
-        svg.appendChild(rightSide);
-        
-        // Rungs (steps)
-        const steps = 5;
-        for (let i = 1; i < steps; i++) {
-          const t = i / steps;
-          const x1 = bottomPos.x - dx + (topPos.x - bottomPos.x) * t;
-          const y1 = bottomPos.y - dy + (topPos.y - bottomPos.y) * t;
-          const x2 = bottomPos.x + dx + (topPos.x - bottomPos.x) * t;
-          const y2 = bottomPos.y + dy + (topPos.y - bottomPos.y) * t;
-          
-          const rung = document.createElementNS('http://www.w3.org/2000/svg', 'line');
-          rung.setAttribute('x1', x1);
-          rung.setAttribute('y1', y1);
-          rung.setAttribute('x2', x2);
-          rung.setAttribute('y2', y2);
-          rung.setAttribute('stroke', '#3E2723');
-          rung.setAttribute('stroke-width', '1.5');
-          rung.setAttribute('stroke-linecap', 'round');
-          svg.appendChild(rung);
-        }
-      });
-    }
-    
-    // ============================================
-    // HELPER FUNCTIONS
-    // ============================================
-    function getCellCenter(cellNum) {
-      // Find grid position from cell number
-      // 100 is at grid row 0, col 0
-      // 91 is at grid row 0, col 9
-      // 81 is at grid row 1, col 0
-      // 1 is at grid row 9, col 0
-      
-      const gridRow = Math.floor((100 - cellNum) / 10);
-      let col;
-      
-      if (gridRow % 2 === 0) {
-        // Even rows: 100, 99, 98... (left to right in number, so col decreases)
-        col = 100 - cellNum - (gridRow * 10);
-      } else {
-        // Odd rows: 81, 82, 83... (right to left in number, so col increases)
-        col = 9 - (100 - cellNum - (gridRow * 10));
-      }
-      
-      // Convert to percentage (center of cell)
-      return {
-        x: col * 10 + 5,  // 5% is center of 10% cell
-        y: gridRow * 10 + 5
-      };
-    }
-    
-    // ============================================
-    // GAME LOGIC
-    // ============================================
-    function startGame() {
-      // Get player names
-      const inputs = document.querySelectorAll('.player-input');
-      state.players = [];
-      for (let i = 0; i < state.playerCount; i++) {
-        state.players.push({
-          name: inputs[i].value || `Player ${i + 1}`,
-          color: PLAYER_COLORS[i]
-        });
-      }
-      
-      // Reset state
-      state.positions = [0, 0, 0, 0];
-      state.currentPlayer = 0;
-      state.gameOver = false;
-      
-      // Show game screen
-      document.getElementById('setupScreen').style.display = 'none';
-      document.getElementById('gameScreen').style.display = 'flex';
-      
-      updateUI();
-      renderTokens();
-      
-      if (SoundManager.enabled) SoundManager.playSuccess();
-    }
-    
-    function rollDice() {
-      if (state.isRolling || state.gameOver) return;
-      
-      state.isRolling = true;
-      document.getElementById('spinBtn').disabled = true;
-      
-      const diceValue = Math.floor(Math.random() * 6) + 1;
-      const diceCube = document.getElementById('diceCube');
-      
-      // Animate dice
-      diceCube.className = 'dice-cube rolling-' + diceValue;
-      
-      if (SoundManager.enabled) SoundManager.playDiceRoll();
-      
+  }
+  G.positions = [0, 0, 0, 0];
+  G.current = 0;
+  G.busy = false;
+  G.over = false;
+
+  document.getElementById('setupScreen').style.display = 'none';
+  document.getElementById('gameScreen').style.display = 'flex';
+
+  renderUI();
+  renderTokens();
+  trySound(() => SoundManager.playSuccess());
+}
+
+// Ludo-identical dice final transforms
+const DICE_FINAL = {
+  1: 'rotateX(-720deg) rotateY(720deg)',
+  2: 'rotateX(-720deg) rotateY(900deg)',
+  3: 'rotateX(-720deg) rotateY(630deg)',
+  4: 'rotateX(-720deg) rotateY(810deg)',
+  5: 'rotateX(-810deg) rotateY(720deg)',
+  6: 'rotateX(-630deg) rotateY(720deg)',
+};
+
+function onRoll() {
+  if (G.busy || G.over) return;
+  G.busy = true;
+  document.getElementById('rollBtn').disabled = true;
+
+  const val   = Math.floor(Math.random() * 6) + 1;
+  const cube  = document.getElementById('diceCube');
+  const scene = document.getElementById('diceScene');
+
+  // Reset cleanly (Ludo pattern)
+  cube.className = 'dice-cube';
+  cube.style.transform = '';
+  scene.classList.remove('rolling');
+  void cube.offsetWidth; // force reflow
+
+  cube.classList.add('rolling-' + val);
+  scene.classList.add('rolling');
+  trySound(() => SoundManager.playDiceRoll());
+
+  setTimeout(() => {
+    cube.style.transform = DICE_FINAL[val];
+    cube.classList.remove('rolling-' + val);
+    scene.classList.remove('rolling');
+    handleMove(G.current, val);
+  }, 850);
+}
+
+// ═══════════════════════════════════════════════════
+//  GAME LOGIC
+// ═══════════════════════════════════════════════════
+function handleMove(pi, steps) {
+  const cur = G.positions[pi];
+  const raw = cur + steps;
+
+  if (raw > 100) {
+    const bounce = 100 - (raw - 100);
+    setMsg(`Need exactly ${100 - cur} to win!`);
+    animSteps(pi, cur, bounce, () => endTurn());
+    return;
+  }
+
+  animSteps(pi, cur, raw, () => {
+    if (SNAKES[raw] !== undefined) {
+      setMsg('🐍 Oh no! Snake bite!');
+      trySound(() => SoundManager.playLose());
       setTimeout(() => {
-        diceCube.style.transform = DICE_FINAL[diceValue];
-        diceCube.classList.remove('rolling-' + diceValue);
-        
-        movePlayer(state.currentPlayer, diceValue);
-        
-        state.isRolling = false;
-        document.getElementById('spinBtn').disabled = false;
-      }, 800);
-    }
-    
-    const DICE_FINAL = {
-      1: 'rotateX(0deg) rotateY(0deg)',
-      2: 'rotateX(180deg) rotateY(0deg)',
-      3: 'rotateX(0deg) rotateY(-90deg)',
-      4: 'rotateX(0deg) rotateY(90deg)',
-      5: 'rotateX(-90deg) rotateY(0deg)',
-      6: 'rotateX(90deg) rotateY(0deg)'
-    };
-    
-    function movePlayer(playerIdx, steps) {
-      const player = state.players[playerIdx];
-      let currentPos = state.positions[playerIdx];
-      let newPos = currentPos + steps;
-      
-      // Cap at 100
-      if (newPos > 100) {
-        document.getElementById('turnStatus').textContent = `Need ${100 - currentPos} to win!`;
-        nextTurn();
-        return;
-      }
-      
-      // Animate movement step by step
-      animateSteps(playerIdx, currentPos, newPos, () => {
-        // Check for snake or ladder
-        if (SNAKES[newPos]) {
-          // Landed on snake head - slide down
-          if (SoundManager.enabled) SoundManager.playLose();
-          document.getElementById('turnStatus').textContent = `🐍 Oh no! Snake bite!`;
-          
-          setTimeout(() => {
-            state.positions[playerIdx] = SNAKES[newPos];
-            renderTokens();
-            nextTurn();
-          }, 1000);
-        } else if (LADDERS[newPos]) {
-          // Landed on ladder bottom - climb up
-          if (SoundManager.enabled) SoundManager.playLevelUp();
-          document.getElementById('turnStatus').textContent = `🪜 Yay! Ladder!`;
-          
-          setTimeout(() => {
-            state.positions[playerIdx] = LADDERS[newPos];
-            renderTokens();
-            nextTurn();
-          }, 1000);
-        } else {
-          // Normal move
-          if (SoundManager.enabled) SoundManager.playMove();
-          
-          // Check win
-          if (newPos === 100) {
-            winGame(playerIdx);
-          } else {
-            nextTurn();
-          }
-        }
-      });
-    }
-    
-    function animateSteps(playerIdx, from, to, callback) {
-      let current = from;
-      
-      function step() {
-        current++;
-        state.positions[playerIdx] = current;
+        G.positions[pi] = SNAKES[raw];
         renderTokens();
-        
-        if (current < to) {
-          setTimeout(step, 150);
-        } else {
-          callback();
-        }
-      }
-      
-      if (from < to) {
-        step();
-      } else {
-        callback();
-      }
+        setTimeout(endTurn, 500);
+      }, 700);
+    } else if (LADDERS[raw] !== undefined) {
+      setMsg('🪜 Ladder! Climb up!');
+      trySound(() => SoundManager.playLevelUp());
+      setTimeout(() => {
+        G.positions[pi] = LADDERS[raw];
+        renderTokens();
+        setTimeout(endTurn, 500);
+      }, 700);
+    } else if (raw === 100) {
+      trySound(() => SoundManager.playWin());
+      showWin(pi);
+    } else {
+      trySound(() => SoundManager.playMove());
+      endTurn();
     }
-    
-    function nextTurn() {
-      if (state.gameOver) return;
-      
-      state.currentPlayer = (state.currentPlayer + 1) % state.playerCount;
-      updateUI();
-      
-      // Reset dice
-      document.getElementById('diceCube').style.transform = 'rotateX(-25deg) rotateY(25deg)';
-    }
-    
-    function winGame(playerIdx) {
-      state.gameOver = true;
-      const player = state.players[playerIdx];
-      
-      document.getElementById('winTitle').textContent = `${player.name} Wins!`;
-      document.getElementById('winTitle').style.color = player.color;
-      document.getElementById('winModal').classList.add('active');
-      
-      if (SoundManager.enabled) SoundManager.playWin();
-    }
-    
-    // ============================================
-    // UI UPDATES
-    // ============================================
-    function updateUI() {
-      const player = state.players[state.currentPlayer];
-      
-      document.getElementById('turnPlayer').textContent = `${player.name}'s Turn`;
-      document.getElementById('turnPlayer').style.color = player.color;
-      document.getElementById('turnStatus').textContent = 'Roll the dice!';
-      
-      // Update player panels
-      const panelsContainer = document.getElementById('playerPanels');
-      panelsContainer.innerHTML = '';
-      
-      state.players.forEach((p, i) => {
-        const panel = document.createElement('div');
-        panel.className = 'player-panel' + (i === state.currentPlayer ? ' active' : '');
-        panel.style.setProperty('--pc', p.color);
-        
-        const pos = state.positions[i];
-        panel.innerHTML = `
-          <div class="panel-dot"></div>
-          <span>${p.name} (${pos})</span>
-        `;
-        
-        panelsContainer.appendChild(panel);
-      });
-    }
-    
-    function renderTokens() {
-      const layer = document.getElementById('tokensLayer');
-      layer.innerHTML = '';
-      
-      // Group tokens by position to avoid overlap
-      const posGroups = {};
-      
-      state.players.forEach((player, i) => {
-        const pos = state.positions[i];
-        if (pos === 0) return; // Not on board yet
-        
-        if (!posGroups[pos]) posGroups[pos] = [];
-        posGroups[pos].push(i);
-      });
-      
-      // Render tokens
-      Object.entries(posGroups).forEach(([pos, players]) => {
-        const center = getCellCenter(parseInt(pos));
-        
-        players.forEach((playerIdx, i) => {
-          const token = document.createElement('div');
-          token.className = 'token p' + (playerIdx + 1);
-          
-          // Offset multiple tokens on same cell
-          const offset = players.length > 1 ? (i - (players.length - 1) / 2) * 8 : 0;
-          
-          token.style.left = `calc(${center.x}% + ${offset}px)`;
-          token.style.top = `${center.y}%`;
-          token.textContent = playerIdx + 1;
-          
-          layer.appendChild(token);
-        });
-      });
-    }
-  </script>
+  });
+}
+
+function animSteps(pi, from, to, done) {
+  if (from === to) { done(); return; }
+  let cur = from;
+  const dir = from < to ? 1 : -1;
+  function tick() {
+    cur += dir;
+    G.positions[pi] = cur;
+    renderTokens();
+    if (cur !== to) setTimeout(tick, 180);
+    else done();
+  }
+  tick();
+}
+
+function endTurn() {
+  if (G.over) return;
+  G.current = (G.current + 1) % G.count;
+  G.busy = false;
+  document.getElementById('rollBtn').disabled = false;
+  // Reset dice to neutral position (Ludo style)
+  const cube = document.getElementById('diceCube');
+  cube.className = 'dice-cube';
+  cube.style.transform = 'rotateX(-25deg) rotateY(25deg)';
+  renderUI();
+}
+
+function showWin(pi) {
+  G.over = true;
+  const p = G.players[pi];
+  const t = document.getElementById('winTitle');
+  t.textContent = `${p.name} Wins!`;
+  t.style.color = p.color;
+  document.getElementById('winModal').classList.add('open');
+}
+
+// ═══════════════════════════════════════════════════
+//  UI
+// ═══════════════════════════════════════════════════
+function renderUI() {
+  const p = G.players[G.current];
+  const nameEl = document.getElementById('turnName');
+  nameEl.textContent = `${p.name}'s Turn`;
+  nameEl.style.color = p.color;
+  setMsg('Roll the dice!');
+  renderPanels();
+}
+
+function setMsg(msg) {
+  document.getElementById('turnMsg').textContent = msg;
+}
+
+function renderPanels() {
+  const cont = document.getElementById('playerPanels');
+  cont.innerHTML = '';
+  G.players.forEach((p, i) => {
+    const d = document.createElement('div');
+    d.className = 'p-panel' + (i === G.current ? ' active' : '');
+    d.style.setProperty('--pc', p.color);
+    const pos = G.positions[i];
+    d.innerHTML = `<div class="p-dot"></div><span>${p.name} <b>(${pos || '-'})</b></span>`;
+    cont.appendChild(d);
+  });
+}
+
+// ═══════════════════════════════════════════════════
+//  TOKEN RENDERING
+// ═══════════════════════════════════════════════════
+function svgEl(tag) {
+  return document.createElementNS('http://www.w3.org/2000/svg', tag);
+}
+
+function renderTokens() {
+  const svg = document.getElementById('tokensSvg');
+  svg.innerHTML = '';
+
+  // Group by cell
+  const groups = {};
+  G.players.forEach((p, i) => {
+    const pos = G.positions[i];
+    if (pos <= 0) return;
+    if (!groups[pos]) groups[pos] = [];
+    groups[pos].push(i);
+  });
+
+  Object.entries(groups).forEach(([pos, pis]) => {
+    const c = cellCenter(parseInt(pos));
+    const n = pis.length;
+
+    pis.forEach((pi, k) => {
+      const p = G.players[pi];
+      const r = n > 2 ? 2.6 : 3.2;
+
+      // Offset tokens that share a cell
+      let ox = 0, oy = 0;
+      if (n === 2) { ox = (k === 0 ? -2.5 : 2.5); }
+      else if (n === 3) { ox = (k - 1) * 3; oy = k === 1 ? -1 : 1; }
+      else if (n === 4) { ox = (k % 2 === 0 ? -2.5 : 2.5); oy = k < 2 ? -2 : 2; }
+
+      const cx = c.x + ox;
+      const cy = c.y + oy;
+
+      // Shadow
+      const sh = svgEl('circle');
+      sh.setAttribute('cx', cx + .5); sh.setAttribute('cy', cy + .7);
+      sh.setAttribute('r', r); sh.setAttribute('fill', 'rgba(0,0,0,.4)');
+      svg.appendChild(sh);
+
+      // Body
+      const circ = svgEl('circle');
+      circ.setAttribute('cx', cx); circ.setAttribute('cy', cy);
+      circ.setAttribute('r', r);
+      circ.setAttribute('fill', p.color);
+      circ.setAttribute('stroke', 'white');
+      circ.setAttribute('stroke-width', '1.2');
+      svg.appendChild(circ);
+
+      // Number label
+      const txt = svgEl('text');
+      txt.setAttribute('x', cx); txt.setAttribute('y', cy + r * 0.4);
+      txt.setAttribute('text-anchor', 'middle');
+      txt.setAttribute('font-size', r * 1.0);
+      txt.setAttribute('font-weight', '800');
+      txt.setAttribute('font-family', 'Poppins,sans-serif');
+      txt.setAttribute('fill', p.text);
+      txt.textContent = pi + 1;
+      svg.appendChild(txt);
+    });
+  });
+
+  renderPanels();
+}
+
+// ═══════════════════════════════════════════════════
+//  SOUND
+// ═══════════════════════════════════════════════════
+function trySound(fn) {
+  try { if (typeof SoundManager !== 'undefined' && SoundManager.enabled) fn(); } catch(e) {}
+}
+function initSoundBtn() {
+  const btn = document.getElementById('soundBtn');
+  function update() {
+    try {
+      const on = typeof SoundManager !== 'undefined' ? SoundManager.enabled : true;
+      btn.textContent = on ? '🔊' : '🔇';
+      btn.classList.toggle('muted', !on);
+    } catch(e) {}
+  }
+  btn.addEventListener('click', () => {
+    try { SoundManager.toggle(); if (SoundManager.enabled) SoundManager.playClick(); } catch(e) {}
+    update();
+  });
+  update();
+}
+</script>
 </body>
 </html>
