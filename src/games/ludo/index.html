@@ -2511,14 +2511,23 @@ function initSetup() {
     });
   });
 
-  document.getElementById('startBtn').addEventListener('click', () => {
-    if (G.gameMode === 'local') {
+  // Start buttons for different modes
+  const startAiBtn = document.getElementById('startAiBtn');
+  const startLocalBtn = document.getElementById('startLocalBtn');
+  
+  if (startAiBtn) {
+    startAiBtn.addEventListener('click', () => {
+      G.gameMode = 'ai';
       startGame();
-    } else {
-      // Online mode - show alert for now
-      alert('Online multiplayer coming soon! Please use Pass & Play mode.');
-    }
-  });
+    });
+  }
+  
+  if (startLocalBtn) {
+    startLocalBtn.addEventListener('click', () => {
+      G.gameMode = 'local';
+      startGame();
+    });
+  }
 }
 
 // Mode selection (AI vs Pass & Play vs Online)
