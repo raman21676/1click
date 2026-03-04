@@ -466,6 +466,8 @@ body {
   margin: 0;
   overflow: hidden;
   line-height: 1;
+  /* Ensure pieces don't overflow */
+  contain: layout style;
 }
 
 .square.light { background: var(--sq-light); }
@@ -534,6 +536,14 @@ body {
   /* Prevent any layout shift */
   flex-shrink: 0;
   flex-grow: 0;
+  /* Normalize emoji sizes across platforms */
+  font-family: 'Segoe UI Emoji', 'Apple Color Emoji', 'Noto Color Emoji', sans-serif;
+  font-variant-emoji: emoji;
+  /* Ensure consistent sizing */
+  width: 100%;
+  height: 100%;
+  max-width: 100%;
+  max-height: 100%;
 }
 
 @media (max-height: 700px) {
