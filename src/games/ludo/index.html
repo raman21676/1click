@@ -2484,7 +2484,6 @@ function initSetup() {
   G.roomId = null;
   G.roomPassword = null;
   
-  renderSetupRows();
   initModeSelection();
   initOnlineMultiplayer();
   initOfflineDetection();
@@ -2495,7 +2494,6 @@ function initSetup() {
       G.playerCount = parseInt(btn.dataset.n);
       document.querySelectorAll('.count-btn').forEach(b => b.classList.remove('active'));
       btn.classList.add('active');
-      renderSetupRows();
     });
   });
 
@@ -2510,7 +2508,6 @@ function initSetup() {
       // Update UI
       document.querySelectorAll('.color-btn').forEach(b => b.classList.remove('active'));
       btn.classList.add('active');
-      renderSetupRows();
     });
   });
 
