@@ -80,7 +80,7 @@
   background: linear-gradient(135deg, #64748b 0%, #475569 100%);
 }
 
-/* ═══ CONNECTION STATUS & LOADING OVERLAY ═══════════════════ */
+/* --- CONNECTION STATUS & LOADING OVERLAY ------------------- */
 .connection-status {
   display: flex;
   align-items: center;
@@ -1197,10 +1197,10 @@ html,body{height:100%;font-family:'Segoe UI',Arial,sans-serif;
 </div>
 
 <script>
-// ════════════════════════════════════════════════════
-// ════════════════════════════════════════════════════
+// ----------------------------------------------------
+// ----------------------------------------------------
 // SECURITY UTILS
-// ════════════════════════════════════════════════════
+// ----------------------------------------------------
 function escapeHtml(text) {
   if (text === null || text === undefined) return '';
   const div = document.createElement('div');
@@ -1212,7 +1212,7 @@ function escapeAttr(text) {
   return String(text).replace(/["&<>]/g, (c) => ({'"':&quot;,'&':&amp;,'<':&lt;,'>':&gt;}[c]));
 }
 // CONSTANTS
-// ════════════════════════════════════════════════════
+// ----------------------------------------------------
 
 const DEBUG = true; // Set to false to disable debug logging
 
@@ -1269,9 +1269,9 @@ Object.entries(HOME_RUN).forEach(([p,cells]) => {
   cells.forEach(([r,c],i) => { RC_TO_HR[`${r}-${c}`] = {player:p, hrIdx:i}; });
 });
 
-// ════════════════════════════════════════════════════
+// ----------------------------------------------------
 // GAME STATE
-// ════════════════════════════════════════════════════
+// ----------------------------------------------------
 
 let G = {
   playerCount: 3,
@@ -1294,9 +1294,9 @@ let G = {
 
 let cdInterval = null;
 
-// ════════════════════════════════════════════════════
+// ----------------------------------------------------
 // BOARD BUILDING
-// ════════════════════════════════════════════════════
+// ----------------------------------------------------
 
 function buildBoard() {
   const board = document.getElementById('ludoBoard');
@@ -1475,9 +1475,9 @@ function applyCenterCell(cell, r, c) {
   if (lr===1&&lc===1) cell.textContent='🏠';
 }
 
-// ════════════════════════════════════════════════════
+// ----------------------------------------------------
 // TOKEN RENDERING
-// ════════════════════════════════════════════════════
+// ----------------------------------------------------
 
 // Token cache to avoid unnecessary DOM updates
 const tokenCache = new Map();
@@ -1657,9 +1657,9 @@ function getCellForPosImproved(player, pos, idx) {
   return getCellForPos(player, pos);
 }
 
-// ════════════════════════════════════════════════════
+// ----------------------------------------------------
 // DICE
-// ════════════════════════════════════════════════════
+// ----------------------------------------------------
 
 // Dice face rotations to show each number
 const FACE_ROTATIONS = {
@@ -1772,9 +1772,9 @@ function performRoll() {
   }, 850);
 }
 
-// ════════════════════════════════════════════════════
+// ----------------------------------------------------
 // GAME LOGIC
-// ════════════════════════════════════════════════════
+// ----------------------------------------------------
 
 function curPlayer() { return G.active[G.curIdx]; }
 function isAI()      { return G.ptypes[curPlayer()] === 'ai'; }
@@ -1839,9 +1839,9 @@ function afterRollInternal(player, dice, allowAutoActions = true) {
   }
 }
 
-// ════════════════════════════════════════════════════
+// ----------------------------------------------------
 // SMART AI STRATEGY
-// ════════════════════════════════════════════════════
+// ----------------------------------------------------
 
 // Check if a position is safe (has star)
 function isSafeCell(pos) {
@@ -2121,9 +2121,9 @@ function nextTurn() {
   if (isAI()) setTimeout(() => performRoll(), 900);
 }
 
-// ════════════════════════════════════════════════════
+// ----------------------------------------------------
 // ELIMINATION COUNTDOWN
-// ════════════════════════════════════════════════════
+// ----------------------------------------------------
 
 function startEliminationCountdown(player) {
   if (G.eliminated.has(player)) return;
@@ -2165,9 +2165,9 @@ document.addEventListener('keydown', e => {
   }
 });
 
-// ════════════════════════════════════════════════════
+// ----------------------------------------------------
 // ONLINE MODE AUTO-TURN SYSTEM (10 seconds, 5 lives)
-// ════════════════════════════════════════════════════
+// ----------------------------------------------------
 
 const AUTO_TURN_SECONDS = 10;
 const MAX_LIVES = 5;
@@ -2316,12 +2316,12 @@ function performAutoTurn(player) {
   }, 500);
 }
 
-// ════════════════════════════════════════════════════
+// ----------------------------------------------------
 // Throttling variables for UI updates
 let uiUpdatePending = false;
 let lastUIState = "";
 // UI UPDATES
-// ════════════════════════════════════════════════════
+// ----------------------------------------------------
 
 function updateUI() {
   // Throttle UI updates to prevent performance issues during animations
@@ -2455,9 +2455,9 @@ function getPlayerDisplayName(player) {
   return G.playerNames[player] || cap(player);
 }
 
-// ════════════════════════════════════════════════════
+// ----------------------------------------------------
 // GAME END
-// ════════════════════════════════════════════════════
+// ----------------------------------------------------
 
 function endGame(winner) {
   G.winner = winner;
@@ -2472,9 +2472,9 @@ function endGame(winner) {
   document.getElementById('winModal').classList.add('active');
 }
 
-// ════════════════════════════════════════════════════
+// ----------------------------------------------------
 // SETUP
-// ════════════════════════════════════════════════════
+// ----------------------------------------------------
 
 function initSetup() {
   console.log("[DEBUG] initSetup started");
@@ -2564,9 +2564,9 @@ function initModeSelection() {
 }
 
 // Online multiplayer room logic
-// ════════════════════════════════════════════════════
+// ----------------------------------------------------
 // ONLINE MULTIPLAYER WITH PEERJS (Simple 6-Digit Code)
-// ════════════════════════════════════════════════════
+// ----------------------------------------------------
 
 let peer = null;
 let peerConnection = null; // For 2-player mode
@@ -2579,7 +2579,7 @@ let myPeerId = null; // This player's peer ID
 let connectionRetryCount = 0;
 const MAX_RETRIES = 3;
 
-/* ═══ CONNECTION STATUS & OFFLINE DETECTION ═══════════════════ */
+/* --- CONNECTION STATUS & OFFLINE DETECTION ------------------- */
 
 function updateConnectionStatus(status, text) {
   const indicator = document.getElementById('connectionStatus');
@@ -2913,9 +2913,9 @@ function generateSixDigitCode() {
   return Math.floor(100000 + Math.random() * 900000).toString();
 }
 
-// ════════════════════════════════════════════════════
+// ----------------------------------------------------
 // HOST FUNCTIONS
-// ════════════════════════════════════════════════════
+// ----------------------------------------------------
 
 function createRoom() {
   cleanupPeer();
@@ -3053,9 +3053,9 @@ function startOnlineGame() {
   });
 }
 
-// ════════════════════════════════════════════════════
+// ----------------------------------------------------
 // GUEST FUNCTIONS
-// ════════════════════════════════════════════════════
+// ----------------------------------------------------
 
 function joinRoom() {
   const code = document.getElementById('joinRoomCodeInput').value.trim().toUpperCase().replace(/[^A-Z0-9]/g, '');
@@ -3102,9 +3102,9 @@ function joinRoom() {
   });
 }
 
-// ════════════════════════════════════════════════════
+// ----------------------------------------------------
 // CONNECTION HANDLING
-// ════════════════════════════════════════════════════
+// ----------------------------------------------------
 
 function setupConnection(conn) {
   // Show connecting status
@@ -3474,9 +3474,9 @@ function startGame() {
   if (isAI()) setTimeout(() => performRoll(), 900);
 }
 
-// ════════════════════════════════════════════════════
+// ----------------------------------------------------
 // EVENT LISTENERS
-// ════════════════════════════════════════════════════
+// ----------------------------------------------------
 
 document.getElementById('diceScene').addEventListener('click', e => {
   e.preventDefault();
@@ -3507,9 +3507,9 @@ document.getElementById('menuBtn').addEventListener('click', () => {
   if (cdInterval) { clearInterval(cdInterval); cdInterval=null; }
 });
 
-// ════════════════════════════════════════════════════
+// ----------------------------------------------------
 // INIT
-// ════════════════════════════════════════════════════
+// ----------------------------------------------------
 console.log("[DEBUG] Calling initSetup");
 window.onerror = function(msg, url, line) { console.error("[JS ERROR] " + msg + " at line " + line); };
 initSetup();
