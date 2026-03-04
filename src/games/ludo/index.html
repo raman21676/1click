@@ -964,6 +964,10 @@ html,body{height:100%;font-family:'Segoe UI',Arial,sans-serif;
       <button class="count-btn" data-n="3">3</button>
       <button class="count-btn" data-n="4">4</button>
     </div>
+    <label class="setup-label">Your Name</label>
+    <div class="name-input-wrap" style="margin-bottom:20px">
+      <input type="text" id="aiPlayerName" class="name-input" placeholder="Enter your name" value="You" maxlength="12" style="width:100%;padding:12px 16px;border-radius:9px;border:1px solid rgba(255,255,255,.2);background:rgba(0,0,0,.25);color:#fff;font-size:15px;outline:none;transition:all .2s">
+    </div>
     <label class="setup-label">Your Color</label>
     <div class="color-select" id="aiColorSelect" style="display:flex;gap:8px;margin-bottom:20px">
       <button class="color-btn active" data-color="red" style="flex:1;padding:10px;border:2px solid #E53935;background:rgba(229,57,53,.2);border-radius:8px;color:#fff;cursor:pointer">🔴 Red</button>
@@ -2776,6 +2780,11 @@ function initSetup() {
   if (startAiBtn) {
     startAiBtn.addEventListener('click', () => {
       G.gameMode = 'ai';
+      // Get player name from input
+      const nameInput = document.getElementById('aiPlayerName');
+      if (nameInput && nameInput.value.trim()) {
+        G.playerNames[G.humanColor] = nameInput.value.trim().substring(0, 12);
+      }
       startGame();
     });
   }
@@ -2783,6 +2792,14 @@ function initSetup() {
   if (startLocalBtn) {
     startLocalBtn.addEventListener('click', () => {
       G.gameMode = 'local';
+      // Get player names from inputs
+      const inputs = document.querySelectorAll('#localPlayerInputs .name-input');
+      const colors = ['red', 'green', 'yellow', 'blue'];
+      inputs.forEach((input, idx) => {
+        if (input.value.trim()) {
+          G.playerNames[colors[idx]] = input.value.trim().substring(0, 12);
+        }
+      });
       startGame();
     });
   }
@@ -3875,7 +3892,7 @@ setTimeout(verifyBoard, 1000);
   
   const soundToggle = document.getElementById('soundToggle');
   function updateSoundIcon() {
-    soundToggle.textContent = SoundManager.enabled ? '(sound)' : '(mute)';
+    soundToggle.textContent = SoundManager.enabled ? '🔊' : '🔇';
     soundToggle.classList.toggle('muted', !SoundManager.enabled);
   }
   soundToggle.addEventListener('click', () => {
