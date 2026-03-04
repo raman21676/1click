@@ -1208,8 +1208,8 @@ function escapeHtml(text) {
   return div.innerHTML;
 }
 function escapeAttr(text) {
-  if (text === null || text === undefined) return ';
-  return String(text).replace(/["&<>]/g, (c) => ({'"':&quot;,'&':&amp;,'<':&lt;,'>':&gt;}[c]));
+  if (text === null || text === undefined) return '';
+  return String(text).replace(/["&<>]/g, (c) => ({'"':'&quot;','&':'&amp;','<':'&lt;','>':'&gt;'}[c]));
 }
 // CONSTANTS
 // ----------------------------------------------------
