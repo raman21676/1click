@@ -34,7 +34,7 @@ html{overflow-y:auto}
 .mode-btn{display:flex;align-items:center;gap:14px;padding:14px 16px;border-radius:14px;border:2px solid rgba(255,255,255,.08);background:rgba(255,255,255,.04);color:#fff;cursor:pointer;transition:all .2s;text-align:left;font-family:inherit}
 .mode-btn:hover{background:rgba(255,255,255,.08)}
 .mode-btn.sel{border-color:var(--green);background:rgba(34,197,94,.12)}
-.mode-ic{font-size:2rem;width:44px;text-align:center;flex-shrink:0}
+.mode-ic{font-size:2rem;width:44px;height:44px;text-align:center;flex-shrink:0;object-fit:contain}
 .mode-title{font-size:.95rem;font-weight:700;display:block}
 .mode-desc{font-size:.75rem;color:var(--muted);display:block}
 .diff-row,.color-row{display:flex;gap:8px;margin-bottom:22px}
@@ -168,7 +168,7 @@ html{overflow-y:auto}
   <div class="s-card">
     <span class="s-label">Game Mode</span>
     <div class="mode-grid">
-      <button class="mode-btn sel" data-mode="ai"><span class="mode-ic">🤖</span><div><span class="mode-title">vs Computer</span><span class="mode-desc">Challenge the AI opponent</span></div></button>
+      <button class="mode-btn sel" data-mode="ai"><img src="assets/AI-Bot.png" class="mode-ic" alt="AI"><div><span class="mode-title">vs Computer</span><span class="mode-desc">Challenge the AI opponent</span></div></button>
       <button class="mode-btn" data-mode="local"><span class="mode-ic">👥</span><div><span class="mode-title">Pass &amp; Play</span><span class="mode-desc">2 players on same device</span></div></button>
       <button class="mode-btn" data-mode="online"><span class="mode-ic">🌐</span><div><span class="mode-title">Online Multiplayer</span><span class="mode-desc">Play with friends online</span></div></button>
     </div>

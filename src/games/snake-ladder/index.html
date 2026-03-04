@@ -129,7 +129,7 @@
       border-color:var(--accent);
       background:rgba(76,175,80,.15);
     }
-    .mode-icon { font-size:2rem; width:40px; text-align:center; flex-shrink:0; }
+    .mode-icon { font-size:2rem; width:40px; height:40px; text-align:center; flex-shrink:0; object-fit:contain; }
     .mode-title { font-size:1rem; font-weight:700; display:block; }
     .mode-desc { font-size:12px; color:#94a3b8; display:block; }
 
@@ -471,7 +471,7 @@
     <label class="setup-label">Select Game Mode</label>
     <div class="mode-grid" id="modeGrid">
       <button class="mode-btn active" data-mode="ai">
-        <span class="mode-icon">🤖</span>
+        <img src="assets/AI-Bot.png" class="mode-icon" alt="AI">
         <div>
           <span class="mode-title">vs Computer</span>
           <span class="mode-desc">Play against AI opponent</span>
