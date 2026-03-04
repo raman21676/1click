@@ -692,24 +692,23 @@ html,body{height:100%;font-family:'Segoe UI',Arial,sans-serif;
 
 /* ─── SETUP SCREEN ────────────────────────────── */
 .setup-screen{position:fixed;inset:0;
-  background:radial-gradient(ellipse at center,#283593,#0d1b6e);
+  background:linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
   display:flex;flex-direction:column;align-items:center;
   justify-content:center;padding:20px;z-index:100;overflow-y:auto}
 .setup-screen.hidden{display:none}
 .setup-title h1{font-size:clamp(28px,6vmin,40px);font-weight:900;text-align:center;
   background:linear-gradient(135deg,#FFD700,#FF8F00);
   -webkit-background-clip:text;-webkit-text-fill-color:transparent}
-.setup-card{background:rgba(255,255,255,.08);border-radius:14px;
-  padding:18px;width:100%;max-width:380px;
-  border:1px solid rgba(255,255,255,.15);margin:10px 0}
-.setup-card h3{color:rgba(255,255,255,.5);font-size:11px;
-  text-transform:uppercase;letter-spacing:.1em;margin-bottom:10px}
+.setup-card{background:rgba(255,255,255,.05);border-radius:16px;
+  padding:24px;width:100%;max-width:420px;
+  border:1px solid rgba(255,255,255,.1);margin-bottom:16px}
+.setup-label{font-size:13px;color:#94a3b8;margin-bottom:10px;display:block}
 .player-count{display:flex;gap:8px;margin-bottom:14px}
 .count-btn{flex:1;padding:11px;border-radius:9px;
   border:1px solid rgba(255,255,255,.2);background:transparent;
   color:rgba(255,255,255,.6);font-weight:700;cursor:pointer;transition:all .2s}
-.count-btn.active{background:linear-gradient(135deg,#FF6F00,#FFD600);
-  color:#000;border-color:transparent}
+.count-btn.active{background:#4CAF50;
+  color:#fff;border-color:transparent}
 
 /* Color selection buttons */
 .color-select{display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap}
@@ -732,20 +731,20 @@ html,body{height:100%;font-family:'Segoe UI',Arial,sans-serif;
 .name-input::placeholder{color:rgba(255,255,255,.4)}
 
 /* Game Mode Selection */
-.mode-buttons{display:flex;flex-direction:column;gap:10px;margin-bottom:14px}
+.mode-grid{display:flex;flex-direction:column;gap:10px;margin-bottom:14px}
 .mode-btn{
-  display:flex;flex-direction:column;align-items:center;justify-content:center;
-  gap:4px;padding:16px;border-radius:12px;border:2px solid rgba(255,255,255,.15);
-  background:rgba(0,0,0,.15);cursor:pointer;transition:all .2s;
-  text-align:center;position:relative}
-.mode-btn:hover{background:rgba(255,255,255,.05);border-color:rgba(255,255,255,.25)}
+  display:flex;flex-direction:row;align-items:center;
+  gap:12px;padding:14px 16px;border-radius:12px;border:2px solid rgba(255,255,255,.1);
+  background:rgba(255,255,255,.05);cursor:pointer;transition:all .2s;
+  text-align:left;position:relative;width:100%}
+.mode-btn:hover{background:rgba(255,255,255,.08);border-color:rgba(255,255,255,.2)}
 .mode-btn.active{
-  background:linear-gradient(135deg,rgba(255,111,0,.2),rgba(255,214,0,.15));
-  border-color:#FF6F00;box-shadow:0 0 20px rgba(255,111,0,.2)}
-.mode-icon{font-size:28px;margin-bottom:2px}
-.mode-title{font-size:15px;font-weight:700;color:#fff}
-.mode-desc{font-size:11px;color:rgba(255,255,255,.5)}
-.mode-btn.active .mode-desc{color:rgba(255,255,255,.7)}
+  background:rgba(76,175,80,.15);
+  border-color:#4CAF50;box-shadow:0 0 15px rgba(76,175,80,.3)}
+.mode-btn .mode-icon{font-size:24px;width:40px;height:40px;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,.2);border-radius:10px}
+.mode-btn .mode-title{font-size:15px;font-weight:700;color:#fff;display:block}
+.mode-btn .mode-desc{font-size:12px;color:rgba(255,255,255,.5);display:block;margin-top:2px}
+.mode-btn.active .mode-desc{color:rgba(255,255,255,.8)}
 
 /* Online Multiplayer */
 .online-options{display:flex;flex-direction:column;gap:10px;margin-bottom:14px}
@@ -890,8 +889,8 @@ html,body{height:100%;font-family:'Segoe UI',Arial,sans-serif;
   
   <!-- MODE SELECTION -->
   <div id="modeSelection" class="setup-card">
-    <label class="setup-label" style="font-size:13px;color:#94a3b8;margin-bottom:10px;display:block">Select Game Mode</label>
-    <div class="mode-grid" style="display:flex;flex-direction:column;gap:10px">
+    <label class="setup-label">Select Game Mode</label>
+    <div class="mode-grid">
       <button class="mode-btn active" data-mode="ai">
         <span class="mode-icon">🤖</span>
         <div>
@@ -918,20 +917,20 @@ html,body{height:100%;font-family:'Segoe UI',Arial,sans-serif;
   
   <!-- AI SETTINGS -->
   <div id="aiSettings" class="setup-card">
-    <label class="setup-label" style="font-size:13px;color:#94a3b8;margin-bottom:10px;display:block">Number of Players</label>
+    <label class="setup-label">Number of Players</label>
     <div class="count-row" style="display:flex;gap:8px;margin-bottom:20px">
       <button class="count-btn active" data-n="2">2</button>
       <button class="count-btn" data-n="3">3</button>
       <button class="count-btn" data-n="4">4</button>
     </div>
-    <label class="setup-label" style="font-size:13px;color:#94a3b8;margin-bottom:10px;display:block">Your Color</label>
+    <label class="setup-label">Your Color</label>
     <div class="color-select" id="aiColorSelect" style="display:flex;gap:8px;margin-bottom:20px">
       <button class="color-btn active" data-color="red" style="flex:1;padding:10px;border:2px solid #E53935;background:rgba(229,57,53,.2);border-radius:8px;color:#fff;cursor:pointer">🔴 Red</button>
       <button class="color-btn" data-color="green" style="flex:1;padding:10px;border:2px solid rgba(255,255,255,.2);background:rgba(67,160,71,.2);border-radius:8px;color:#fff;cursor:pointer">🟢 Green</button>
       <button class="color-btn" data-color="yellow" style="flex:1;padding:10px;border:2px solid rgba(255,255,255,.2);background:rgba(253,216,53,.2);border-radius:8px;color:#fff;cursor:pointer">🟡 Yellow</button>
       <button class="color-btn" data-color="blue" style="flex:1;padding:10px;border:2px solid rgba(255,255,255,.2);background:rgba(30,136,229,.2);border-radius:8px;color:#fff;cursor:pointer">🔵 Blue</button>
     </div>
-    <button class="start-btn" id="startAiBtn" style="width:100%;padding:14px;background:linear-gradient(135deg,#E53935,#FDD835);border:none;border-radius:10px;color:#fff;font-size:1.1rem;font-weight:600;cursor:pointer">🎮 Start Game</button>
+    <button class="start-btn" id="startAiBtn">🎮 Start Game</button>
   </div>
   
   <!-- LOCAL (PASS & PLAY) SETTINGS -->
