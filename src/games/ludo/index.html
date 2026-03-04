@@ -394,6 +394,8 @@ html,body{height:100%;font-family:'Segoe UI',Arial,sans-serif;
 .player-panel.active{border-color:var(--pc);
   background:rgba(255,255,255,.15);box-shadow:0 0 10px var(--pc)}
 .player-panel.elim{opacity:.3;filter:grayscale(.8)}
+.player-panel.finished{background:linear-gradient(135deg,rgba(255,215,0,.2),rgba(255,111,0,.2));border-color:var(--gold);animation:finishedPulse 2s ease-in-out infinite}
+@keyframes finishedPulse{0%,100%{box-shadow:0 0 5px rgba(255,215,0,.3)}50%{box-shadow:0 0 15px rgba(255,215,0,.6)}}
 .panel-name{font-size:clamp(8px,1.7vmin,12px);font-weight:700;
   display:flex;align-items:center;justify-content:center;gap:3px}
 .panel-dot{width:8px;height:8px;border-radius:50%;
@@ -417,6 +419,13 @@ html,body{height:100%;font-family:'Segoe UI',Arial,sans-serif;
 }
 .panel-lives .heart.lost {
   opacity: 0.3;
+}
+.panel-rank {
+  font-size: clamp(10px, 2vmin, 14px);
+  font-weight: 800;
+  color: var(--gold);
+  margin-top: 2px;
+  text-shadow: 0 0 5px rgba(255,215,0,0.5);
 }
 
 /* Auto-turn countdown overlay */
@@ -824,6 +833,37 @@ html,body{height:100%;font-family:'Segoe UI',Arial,sans-serif;
   font-weight:700;cursor:pointer;font-size:14px;transition:all .2s}
 .win-btn.primary{background:linear-gradient(135deg,#FF6F00,#FFD600);color:#000}
 .win-btn.sec{background:rgba(255,255,255,.15);color:#fff}
+.win-rankings{margin:15px 0;padding:10px;background:rgba(0,0,0,.3);border-radius:10px;text-align:left}
+.win-rankings-title{font-size:12px;color:rgba(255,255,255,.6);margin-bottom:8px;text-align:center}
+.win-ranking-item{display:flex;align-items:center;gap:8px;padding:5px 0;font-size:14px}
+.win-ranking-pos{width:24px;height:24px;border-radius:50%;background:var(--gold);color:#000;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:12px}
+.win-ranking-pos.silver{background:#C0C0C0}
+.win-ranking-pos.bronze{background:#CD7F32}
+.win-ranking-name{flex:1}
+.win-ranking-emoji{font-size:16px}
+
+/* --- CELEBRATION MODAL ------------------------- */
+.celebration-modal{position:fixed;inset:0;background:rgba(0,0,0,.85);
+  display:none;align-items:center;justify-content:center;z-index:250}
+.celebration-modal.active{display:flex}
+.celebration-content{background:linear-gradient(135deg,#1a237e 0%,#0d1b6e 100%);border-radius:24px;padding:40px 50px;
+  text-align:center;border:3px solid var(--gold);position:relative;z-index:2;
+  box-shadow:0 0 60px rgba(255,215,0,.4),0 0 100px rgba(255,215,0,.2);animation:celebrationPop 0.5s ease-out}
+@keyframes celebrationPop{0%{transform:scale(0.5);opacity:0}70%{transform:scale(1.05)}100%{transform:scale(1);opacity:1}}
+.celebration-stars{font-size:clamp(28px,6vmin,48px);margin-bottom:10px;animation:starsPulse 1.5s ease-in-out infinite}
+@keyframes starsPulse{0%,100%{transform:scale(1)}50%{transform:scale(1.1)}}
+.celebration-emoji{font-size:clamp(60px,12vmin,90px);margin-bottom:15px;animation:emojiBounce 1s ease-in-out infinite}
+@keyframes emojiBounce{0%,100%{transform:translateY(0)}50%{transform:translateY(-15px)}}
+.celebration-title{font-size:clamp(24px,6vmin,36px);font-weight:900;margin-bottom:8px;color:#fff;text-shadow:0 2px 10px rgba(0,0,0,.5)}
+.celebration-sub{color:rgba(255,255,255,.7);margin-bottom:15px;font-size:clamp(14px,3vmin,18px)}
+.celebration-rank{font-size:clamp(32px,8vmin,48px);font-weight:900;color:var(--gold);margin-bottom:25px;text-shadow:0 0 20px rgba(255,215,0,.6);animation:rankGlow 2s ease-in-out infinite}
+@keyframes rankGlow{0%,100%{text-shadow:0 0 20px rgba(255,215,0,.6)}50%{text-shadow:0 0 40px rgba(255,215,0,1),0 0 60px rgba(255,215,0,.5)}}
+.celebration-buttons{display:flex;gap:12px;justify-content:center}
+.celebration-btn{padding:15px 35px;border-radius:12px;border:none;font-weight:700;cursor:pointer;font-size:16px;transition:all .2s;animation:btnPulse 2s ease-in-out infinite}
+.celebration-btn.primary{background:linear-gradient(135deg,#00C853,#FFD600);color:#000;box-shadow:0 4px 20px rgba(0,200,83,.4)}
+.celebration-btn:hover{transform:translateY(-3px);box-shadow:0 8px 30px rgba(0,200,83,.6)}
+@keyframes btnPulse{0%,100%{box-shadow:0 4px 20px rgba(0,200,83,.4)}50%{box-shadow:0 4px 30px rgba(0,200,83,.8),0 0 60px rgba(255,214,0,.3)}}
+#confettiCanvas{position:absolute;inset:0;pointer-events:none;z-index:1}
 
 /* --- COUNTDOWN OVERLAY ------------------------- */
 .cd-overlay{position:absolute;inset:0;background:rgba(0,0,0,.82);
@@ -1190,11 +1230,28 @@ html,body{height:100%;font-family:'Segoe UI',Arial,sans-serif;
     <div class="win-emoji" id="winEmoji">🏆</div>
     <div class="win-title" id="winTitle">Red Wins!</div>
     <div class="win-sub" id="winSub">Congratulations!</div>
+    <div class="win-rankings" id="winRankings"></div>
     <div class="win-btns">
       <button class="win-btn primary" id="playAgainBtn">Play Again</button>
       <button class="win-btn sec" id="menuBtn">Menu</button>
     </div>
   </div>
+</div>
+
+<!-- CELEBRATION MODAL (for when a player finishes) -->
+<div class="celebration-modal" id="celebrationModal">
+  <div class="celebration-content">
+    <div class="celebration-stars">✨🌟✨</div>
+    <div class="celebration-emoji" id="celebrationEmoji">🎉</div>
+    <div class="celebration-title" id="celebrationTitle">Player Finished!</div>
+    <div class="celebration-sub" id="celebrationSub">All 4 tokens home!</div>
+    <div class="celebration-rank" id="celebrationRank">1st Place</div>
+    <div class="celebration-buttons">
+      <button class="celebration-btn primary" id="continueGameBtn">Continue Game</button>
+    </div>
+  </div>
+  <!-- Confetti canvas -->
+  <canvas id="confettiCanvas"></canvas>
 </div>
 
 <script>
@@ -1284,6 +1341,8 @@ let G = {
   diceVal: null,
   phase: 'roll', // 'roll'|'move'|'anim'
   eliminated: new Set(),
+  finished: new Set(), // Players who finished all 4 tokens
+  rankings: [], // Order of finish: ['red', 'green', ...]
   winner: null,
   playerNames: {red:'You',green:'AI 1',yellow:'AI 2',blue:'AI 3'}, // Default names
   playerEmojis: {}, // {red:'(boy)', green:'(girl)', ...}
@@ -2031,11 +2090,14 @@ async function moveToken(player, idx) {
     sendToPeer({ type: 'move', player: player, tokenIdx: idx, newPos: newPos, captured: captured });
   }
 
-  // Win check
+  // Win check - player finished all 4 tokens
   if (newPos === 57) {
     const done = G.tokens[player].filter(p => p === 57).length;
     addLog(`${getPlayerDisplayName(player)} token ${idx+1} home! (${done}/4)`);
-    if (done === 4) { endGame(player); return; }
+    if (done === 4) { 
+      handlePlayerFinished(player);
+      return; 
+    }
   }
 
   if (G.diceVal === 6) {
@@ -2104,7 +2166,7 @@ function nextTurn() {
   G.curIdx = (G.curIdx + 1) % G.active.length;
   G.diceVal = null;
   G.phase   = 'roll';
-  if (G.eliminated.has(curPlayer())) { nextTurn(); return; }
+  if (G.eliminated.has(curPlayer()) || G.finished.has(curPlayer())) { nextTurn(); return; }
   
   // Broadcast turn change in online mode
   if (G.isOnline) {
@@ -2410,24 +2472,41 @@ function updatePlayerPanels() {
   container.innerHTML = '';
 
   G.active.forEach(p => {
-    const isActive  = p === curPlayer() && !G.eliminated.has(p);
+    const isActive  = p === curPlayer() && !G.eliminated.has(p) && !G.finished.has(p);
     const isElim    = G.eliminated.has(p);
+    const isFinished = G.finished.has(p);
     const panel     = document.createElement('div');
-    panel.className = `player-panel${isActive?' active':''}${isElim?' elim':''}`;
+    panel.className = `player-panel${isActive?' active':''}${isElim?' elim':''}${isFinished?' finished':''}`;
     panel.style.setProperty('--pc', COLORS[p].panel);
 
     const dotsHTML = G.tokens[p]
       .map(pos => `<div class="ptd${pos<57?' on':''}"></div>`)
       .join('');
     const displayName = G.playerNames[p] || cap(p);
-    const emoji = G.playerEmojis[p] || '(person)';
+    let emoji = G.playerEmojis[p] || '(person)';
+    
+    // Show trophy/medal for finished players
+    if (isFinished) {
+      const rank = G.rankings.indexOf(p) + 1;
+      if (rank === 1) emoji = '🏆';
+      else if (rank === 2) emoji = '🥈';
+      else if (rank === 3) emoji = '🥉';
+      else emoji = '✅';
+    }
     
     // Show lives in online mode
     let livesHTML = '';
-    if (G.isOnline && !isElim) {
+    if (G.isOnline && !isElim && !isFinished) {
       const lives = G.lives[p] || 0;
       const hearts = '(heart)'.repeat(lives) + '(black heart)'.repeat(MAX_LIVES - lives);
       livesHTML = `<div class="panel-lives">${hearts}</div>`;
+    }
+    
+    // Show rank for finished players
+    let rankHTML = '';
+    if (isFinished) {
+      const rank = G.rankings.indexOf(p) + 1;
+      rankHTML = `<div class="panel-rank">#${rank}</div>`;
     }
 
     panel.innerHTML = `
@@ -2435,7 +2514,7 @@ function updatePlayerPanels() {
         <div class="panel-dot"></div>${displayName}${emoji}
       </div>
       <div class="panel-tkns">${dotsHTML}</div>
-      ${livesHTML}
+      ${livesHTML}${rankHTML}
     `;
     container.appendChild(panel);
   });
@@ -2470,7 +2549,185 @@ function endGame(winner) {
   document.getElementById('winTitle').style.color  = COLORS[winner].main;
   document.getElementById('winSub').textContent    = G.ptypes[winner]==='ai'
     ? 'The AI wins this round!' : 'Congratulations! You won!';
+  
+  // Show rankings
+  showFinalRankings();
+  
   document.getElementById('winModal').classList.add('active');
+}
+
+// Show final rankings in the win modal
+function showFinalRankings() {
+  const container = document.getElementById('winRankings');
+  if (!container || G.rankings.length === 0) {
+    if (container) container.innerHTML = '';
+    return;
+  }
+  
+  let html = '<div class="win-rankings-title">Final Rankings</div>';
+  G.rankings.forEach((player, idx) => {
+    const rank = idx + 1;
+    const posClass = rank === 1 ? '' : (rank === 2 ? 'silver' : (rank === 3 ? 'bronze : ''));
+    const medal = rank === 1 ? '🥇' : (rank === 2 ? '🥈' : (rank === 3 ? '🥉' : `#${rank}`));
+    const name = G.playerNames[player] || cap(player);
+    const emoji = G.playerEmojis[player] || '';
+    html += `
+      <div class="win-ranking-item">
+        <div class="win-ranking-pos ${posClass}">${rank}</div>
+        <div class="win-ranking-name">${name}</div>
+        <div class="win-ranking-emoji">${emoji}</div>
+      </div>
+    `;
+  });
+  container.innerHTML = html;
+}
+
+// Handle when a player finishes all 4 tokens
+function handlePlayerFinished(player) {
+  // Mark as finished
+  G.finished.add(player);
+  G.rankings.push(player);
+  
+  const rank = G.rankings.length;
+  const rankText = rank === 1 ? '1st Place' : (rank === 2 ? '2nd Place' : (rank === 3 ? '3rd Place' : `${rank}th Place`));
+  const emojis = ['🎉', '🏆', '👑', '⭐', '🌟', '🎊'];
+  
+  // Show celebration modal
+  const modal = document.getElementById('celebrationModal');
+  const title = document.getElementById('celebrationTitle');
+  const rankEl = document.getElementById('celebrationRank');
+  const emojiEl = document.getElementById('celebrationEmoji');
+  
+  title.textContent = `${G.playerNames[player] || cap(player)} Finished!`;
+  title.style.color = COLORS[player].main;
+  rankEl.textContent = rankText;
+  emojiEl.textContent = emojis[Math.floor(Math.random() * emojis.length)];
+  
+  modal.classList.add('active');
+  
+  // Start confetti
+  startConfetti();
+  
+  // Log
+  addLog(`🎉 ${getPlayerDisplayName(player)} FINISHED! ${rankText}`);
+  
+  // Update player panel to show finished status
+  updatePlayerPanels();
+  
+  // Check if game should end (only 1 player left or all finished)
+  const remaining = G.active.filter(p => !G.finished.has(p) && !G.eliminated.has(p));
+  
+  if (remaining.length <= 1) {
+    // Game over - last player is the last place
+    if (remaining.length === 1) {
+      G.rankings.push(remaining[0]);
+      G.finished.add(remaining[0]);
+    }
+    // Change continue button to show results
+    document.getElementById('continueGameBtn').textContent = 'Show Final Results';
+    document.getElementById('continueGameBtn').onclick = () => {
+      stopConfetti();
+      document.getElementById('celebrationModal').classList.remove('active');
+      endGame(G.rankings[0]); // Winner is first in rankings
+    };
+  } else {
+    // Continue game
+    document.getElementById('continueGameBtn').textContent = 'Continue Game';
+    document.getElementById('continueGameBtn').onclick = () => {
+      stopConfetti();
+      document.getElementById('celebrationModal').classList.remove('active');
+      continueGameAfterFinish();
+    };
+  }
+}
+
+// Continue game after a player finishes
+function continueGameAfterFinish() {
+  // Move to next player who is not finished or eliminated
+  G.curIdx = (G.curIdx + 1) % G.active.length;
+  while (G.eliminated.has(curPlayer()) || G.finished.has(curPlayer())) {
+    G.curIdx = (G.curIdx + 1) % G.active.length;
+  }
+  
+  G.diceVal = null;
+  G.phase = 'roll';
+  updateUI();
+  renderTokens();
+  
+  // If it's AI's turn, auto-play
+  if (isAI()) setTimeout(() => performRoll(), 900);
+}
+
+// Confetti animation
+let confettiAnim = null;
+let confettiCtx = null;
+let confettiParticles = [];
+
+function startConfetti() {
+  const canvas = document.getElementById('confettiCanvas');
+  if (!canvas) return;
+  
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
+  confettiCtx = canvas.getContext('2d');
+  confettiParticles = [];
+  
+  // Create particles
+  const colors = ['#FFD700', '#FF6F00', '#00C853', '#2979FF', '#FF1744', '#E040FB'];
+  for (let i = 0; i < 150; i++) {
+    confettiParticles.push({
+      x: Math.random() * canvas.width,
+      y: Math.random() * canvas.height - canvas.height,
+      size: Math.random() * 10 + 5,
+      color: colors[Math.floor(Math.random() * colors.length)],
+      speed: Math.random() * 3 + 2,
+      angle: Math.random() * Math.PI * 2,
+      spin: Math.random() * 0.2 - 0.1,
+      wobble: Math.random() * 2
+    });
+  }
+  
+  animateConfetti();
+}
+
+function animateConfetti() {
+  if (!confettiCtx) return;
+  const canvas = document.getElementById('confettiCanvas');
+  
+  confettiCtx.clearRect(0, 0, canvas.width, canvas.height);
+  
+  confettiParticles.forEach(p => {
+    p.y += p.speed;
+    p.angle += p.spin;
+    p.x += Math.sin(p.y * 0.01 + p.wobble) * 2;
+    
+    if (p.y > canvas.height) {
+      p.y = -20;
+      p.x = Math.random() * canvas.width;
+    }
+    
+    confettiCtx.save();
+    confettiCtx.translate(p.x, p.y);
+    confettiCtx.rotate(p.angle);
+    confettiCtx.fillStyle = p.color;
+    confettiCtx.fillRect(-p.size/2, -p.size/2, p.size, p.size);
+    confettiCtx.restore();
+  });
+  
+  confettiAnim = requestAnimationFrame(animateConfetti);
+}
+
+function stopConfetti() {
+  if (confettiAnim) {
+    cancelAnimationFrame(confettiAnim);
+    confettiAnim = null;
+  }
+  if (confettiCtx) {
+    const canvas = document.getElementById('confettiCanvas');
+    if (canvas) confettiCtx.clearRect(0, 0, canvas.width, canvas.height);
+    confettiCtx = null;
+  }
+  confettiParticles = [];
 }
 
 // ----------------------------------------------------
@@ -3445,6 +3702,8 @@ function startGame() {
   G.diceVal     = null;
   G.phase       = 'roll';
   G.eliminated  = new Set();
+  G.finished    = new Set();
+  G.rankings    = [];
   G.winner      = null;
   if (cdInterval) { clearInterval(cdInterval); cdInterval=null; }
   
@@ -3505,10 +3764,14 @@ document.getElementById('rollBtn').addEventListener('click', e => {
 });
 document.getElementById('playAgainBtn').addEventListener('click', () => {
   document.getElementById('winModal').classList.remove('active');
+  document.getElementById('celebrationModal').classList.remove('active');
+  stopConfetti();
   startGame();
 });
 document.getElementById('menuBtn').addEventListener('click', () => {
   document.getElementById('winModal').classList.remove('active');
+  document.getElementById('celebrationModal').classList.remove('active');
+  stopConfetti();
   document.getElementById('gameScreen').style.display = 'none';
   document.getElementById('setupScreen').classList.remove('hidden');
   if (cdInterval) { clearInterval(cdInterval); cdInterval=null; }
