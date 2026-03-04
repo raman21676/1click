@@ -618,108 +618,15 @@
         <span id="themeIcon">🌙</span>
     </button>
 
-    <!-- Hero Section -->
-    <section class="hero">
-        <div class="hero-content">
-            <div class="hero-badge">
-                🚀 Now Live
-            </div>
-            <h1>1<span>click</span></h1>
-            <p>Free online mini games that load instantly. No downloads, no waiting, just pure fun!</p>
-            <div class="hero-buttons">
-                <a href="#games" class="btn btn-primary">
-                    🎮 Play Now
-                </a>
-                <a href="https://github.com/Raman21676/1click" target="_blank" class="btn btn-secondary">
-                    ⭐ Star on GitHub
-                </a>
-            </div>
-            <div class="hero-stats">
-                <div class="stat">
-                    <span class="stat-value">8+</span>
-                    <span class="stat-label">Games</span>
-                </div>
-                <div class="stat">
-                    <span class="stat-value">100%</span>
-                    <span class="stat-label">Free</span>
-                </div>
-                <div class="stat">
-                    <span class="stat-value">⚡</span>
-                    <span class="stat-label">Instant</span>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- Games Section -->
-    <section class="games-section" id="games">
+        <!-- Games Section -->
+    <section class="games-section" id="games" style="padding-top: 2rem;">
         <div class="container">
             <div class="section-header">
-                <h2>Choose Your Game</h2>
-                <p>All games run in your browser. No installation needed!</p>
+                <h2>🎮 Choose Your Game</h2>
+                <p>Free mini games that load instantly. No downloads needed!</p>
             </div>
             
             <div class="games-grid">
-                <!-- Tic-Tac-Toe -->
-                <a href="./src/games/tictactoe/" class="game-card" style="text-decoration: none; color: inherit;">
-                    <span class="game-icon">❌</span>
-                    <h3>Tic-Tac-Toe</h3>
-                    <p>Classic X and O game. Play with friends or against AI.</p>
-                    <div class="game-meta">
-                        <span>👥 1-2 Players</span>
-                        <span>⏱️ 1-5 min</span>
-                    </div>
-                    <span class="game-status status-available">Play Now</span>
-                </a>
-
-                <!-- Snake -->
-                <a href="./src/games/snake/" class="game-card" style="text-decoration: none; color: inherit;">
-                    <span class="game-icon">🐍</span>
-                    <h3>Snake</h3>
-                    <p>The classic arcade game. Eat food, grow longer, don't crash!</p>
-                    <div class="game-meta">
-                        <span>👤 1 Player</span>
-                        <span>⏱️ Endless</span>
-                    </div>
-                    <span class="game-status status-available">Play Now</span>
-                </a>
-
-                <!-- Sudoku -->
-                <a href="./src/games/sudoku/" class="game-card" style="text-decoration: none; color: inherit;">
-                    <span class="game-icon">🔢</span>
-                    <h3>Sudoku</h3>
-                    <p>Number puzzle game with 4 board sizes. Fill the grid with logic!</p>
-                    <div class="game-meta">
-                        <span>👤 1 Player</span>
-                        <span>⏱️ 5-30 min</span>
-                    </div>
-                    <span class="game-status status-available">Play Now</span>
-                </a>
-
-                <!-- Baagchal -->
-                <a href="./src/games/baagchal/" class="game-card" style="text-decoration: none; color: inherit;">
-                    <span class="game-icon">🐅</span>
-                    <h3>Baagchal</h3>
-                    <p>Traditional Nepali game. 4 Tigers vs 20 Goats strategy battle!</p>
-                    <div class="game-meta">
-                        <span>👥 2 Players</span>
-                        <span>⏱️ 10-20 min</span>
-                    </div>
-                    <span class="game-status status-available">Play Now</span>
-                </a>
-
-                <!-- Truth or Dare -->
-                <a href="./src/games/truth-or-dare/" class="game-card" style="text-decoration:none;color:inherit;">
-                    <span class="game-icon">🍾</span>
-                    <h3>Truth or Dare</h3>
-                    <p>Spin the bottle party game. Enter names & dare each other!</p>
-                    <div class="game-meta">
-                        <span>👥 2-8 Players</span>
-                        <span>⏱️ Party Time</span>
-                    </div>
-                    <span class="game-status status-available">Play Now</span>
-                </a>
-
                 <!-- Ludo -->
                 <a href="./src/games/ludo/" class="game-card" style="text-decoration:none;color:inherit;">
                     <span class="game-icon">🎲</span>
@@ -728,6 +635,18 @@
                     <div class="game-meta">
                         <span>👥 1-4 Players</span>
                         <span>⏱️ 20-40 min</span>
+                    </div>
+                    <span class="game-status status-available">Play Now</span>
+                </a>
+
+                <!-- Snake & Ladder -->
+                <a href="./src/games/snake-ladder/" class="game-card" style="text-decoration:none;color:inherit;">
+                    <span class="game-icon">🪜</span>
+                    <h3>Snake & Ladder</h3>
+                    <p>Climb ladders, avoid snakes. A game of luck and fun!</p>
+                    <div class="game-meta">
+                        <span>👥 2-4 Players</span>
+                        <span>⏱️ 15-30 min</span>
                     </div>
                     <span class="game-status status-available">Play Now</span>
                 </a>
@@ -744,8 +663,20 @@
                     <span class="game-status status-available">Play Now</span>
                 </a>
 
-                <!-- Carrom -->
-                <a href="./src/games/carrom/" class="game-card">
+                <!-- Baagchal -->
+                <a href="./src/games/baagchal/" class="game-card" style="text-decoration:none;color:inherit;">
+                    <span class="game-icon">🐅</span>
+                    <h3>Baagchal</h3>
+                    <p>Traditional Nepali game. 4 Tigers vs 20 Goats strategy battle!</p>
+                    <div class="game-meta">
+                        <span>👥 2 Players</span>
+                        <span>⏱️ 10-20 min</span>
+                    </div>
+                    <span class="game-status status-available">Play Now</span>
+                </a>
+
+                <!-- Carrom Board -->
+                <a href="./src/games/carrom/" class="game-card" style="text-decoration:none;color:inherit;">
                     <span class="game-icon">🎯</span>
                     <h3>Carrom Board</h3>
                     <p>Strike coins, pocket them all! Classic board game with physics.</p>
@@ -756,14 +687,50 @@
                     <span class="game-status status-new">New!</span>
                 </a>
 
-                <!-- Snake & Ladder -->
-                <a href="src/games/snake-ladder/index.html" class="game-card">
-                    <span class="game-icon">🪜</span>
-                    <h3>Snake & Ladder</h3>
-                    <p>Climb ladders, avoid snakes. A game of luck and fun!</p>
+                <!-- Sudoku -->
+                <a href="./src/games/sudoku/" class="game-card" style="text-decoration:none;color:inherit;">
+                    <span class="game-icon">🔢</span>
+                    <h3>Sudoku</h3>
+                    <p>Number puzzle game with 4 board sizes. Fill the grid with logic!</p>
                     <div class="game-meta">
-                        <span>👥 2-4 Players</span>
-                        <span>⏱️ 15-30 min</span>
+                        <span>👤 1 Player</span>
+                        <span>⏱️ 5-30 min</span>
+                    </div>
+                    <span class="game-status status-available">Play Now</span>
+                </a>
+
+                <!-- Snake -->
+                <a href="./src/games/snake/" class="game-card" style="text-decoration:none;color:inherit;">
+                    <span class="game-icon">🐍</span>
+                    <h3>Snake</h3>
+                    <p>The classic arcade game. Eat food, grow longer, don't crash!</p>
+                    <div class="game-meta">
+                        <span>👤 1 Player</span>
+                        <span>⏱️ Endless</span>
+                    </div>
+                    <span class="game-status status-available">Play Now</span>
+                </a>
+
+                <!-- Truth or Dare -->
+                <a href="./src/games/truth-or-dare/" class="game-card" style="text-decoration:none;color:inherit;">
+                    <span class="game-icon">🍾</span>
+                    <h3>Truth or Dare</h3>
+                    <p>Spin the bottle party game. Enter names & dare each other!</p>
+                    <div class="game-meta">
+                        <span>👥 2-8 Players</span>
+                        <span>⏱️ Party Time</span>
+                    </div>
+                    <span class="game-status status-available">Play Now</span>
+                </a>
+
+                <!-- Tic-Tac-Toe -->
+                <a href="./src/games/tictactoe/" class="game-card" style="text-decoration:none;color:inherit;">
+                    <span class="game-icon">❌</span>
+                    <h3>Tic-Tac-Toe</h3>
+                    <p>Classic X and O game. Play with friends or against AI.</p>
+                    <div class="game-meta">
+                        <span>👥 1-2 Players</span>
+                        <span>⏱️ 1-5 min</span>
                     </div>
                     <span class="game-status status-available">Play Now</span>
                 </a>
@@ -771,8 +738,9 @@
         </div>
     </section>
 
-    <!-- Footer -->
-    <footer>
+    <section class="games-section" id="games">
+        <div class="container">
+            <footer>
         <p>© 2026 1click Games. All rights reserved.</p>
         <div class="footer-links">
             <a href="https://github.com/Raman21676/1click" target="_blank">GitHub</a>
