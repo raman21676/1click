@@ -881,51 +881,87 @@ html,body{height:100%;font-family:'Segoe UI',Arial,sans-serif;
   <div class="loading-logo">🎲</div>
   <div class="loading-text">Loading Ludo...</div>
 </div>
-<button id="soundToggle" class="sound-toggle" title="Toggle Sound">🔊</button>
+<button id="soundToggle" class="sound-toggle" title="Toggle Sound" style="position:fixed;top:70px;right:20px;z-index:1000;">🔊</button>
 
 <!-- SETUP SCREEN -->
 <div class="setup-screen" id="setupScreen">
-  <div class="setup-title" style="margin-bottom:16px">
-    <div style="font-size:clamp(44px,9vmin,64px);margin-bottom:4px">🎲</div>
-    <h1>LUDO</h1>
-    <p style="color:rgba(255,255,255,.5);margin-top:6px;font-size:14px">Classic Board Game</p>
-  </div>
+  <h1 class="setup-title" style="font-size:clamp(2rem,8vw,3.2rem);font-weight:800;background:linear-gradient(135deg,#E53935,#FDD835,#43A047,#1E88E5);-webkit-background-clip:text;-webkit-text-fill-color:transparent;text-align:center;margin-bottom:.4rem">🎲 Ludo 🎲</h1>
+  <p style="color:#94a3b8;margin-bottom:2rem;text-align:center">Roll dice, move tokens, capture opponents!</p>
   
   <!-- MODE SELECTION -->
   <div id="modeSelection" class="setup-card">
-    <h3>Choose Game Mode</h3>
-    <div class="mode-buttons">
-      <button class="mode-btn active" data-mode="local">
+    <label class="setup-label" style="font-size:13px;color:#94a3b8;margin-bottom:10px;display:block">Select Game Mode</label>
+    <div class="mode-grid" style="display:flex;flex-direction:column;gap:10px">
+      <button class="mode-btn active" data-mode="ai">
+        <span class="mode-icon">🤖</span>
+        <div>
+          <span class="mode-title">vs Computer</span>
+          <span class="mode-desc">Play against AI opponent</span>
+        </div>
+      </button>
+      <button class="mode-btn" data-mode="local">
         <span class="mode-icon">👥</span>
-        <span class="mode-title">Pass & Play</span>
-        <span class="mode-desc">Play on this device with friends</span>
+        <div>
+          <span class="mode-title">Pass & Play</span>
+          <span class="mode-desc">Play with friends on this device</span>
+        </div>
       </button>
       <button class="mode-btn" data-mode="online">
         <span class="mode-icon">🌐</span>
-        <span class="mode-title">Online Multiplayer</span>
-        <span class="mode-desc">Create or join a room</span>
+        <div>
+          <span class="mode-title">Online Multiplayer</span>
+          <span class="mode-desc">Play with friends remotely</span>
+        </div>
       </button>
     </div>
   </div>
   
+  <!-- AI SETTINGS -->
+  <div id="aiSettings" class="setup-card">
+    <label class="setup-label" style="font-size:13px;color:#94a3b8;margin-bottom:10px;display:block">Number of Players</label>
+    <div class="count-row" style="display:flex;gap:8px;margin-bottom:20px">
+      <button class="count-btn active" data-n="2">2</button>
+      <button class="count-btn" data-n="3">3</button>
+      <button class="count-btn" data-n="4">4</button>
+    </div>
+    <label class="setup-label" style="font-size:13px;color:#94a3b8;margin-bottom:10px;display:block">Your Color</label>
+    <div class="color-select" id="aiColorSelect" style="display:flex;gap:8px;margin-bottom:20px">
+      <button class="color-btn active" data-color="red" style="flex:1;padding:10px;border:2px solid #E53935;background:rgba(229,57,53,.2);border-radius:8px;color:#fff;cursor:pointer">🔴 Red</button>
+      <button class="color-btn" data-color="green" style="flex:1;padding:10px;border:2px solid rgba(255,255,255,.2);background:rgba(67,160,71,.2);border-radius:8px;color:#fff;cursor:pointer">🟢 Green</button>
+      <button class="color-btn" data-color="yellow" style="flex:1;padding:10px;border:2px solid rgba(255,255,255,.2);background:rgba(253,216,53,.2);border-radius:8px;color:#fff;cursor:pointer">🟡 Yellow</button>
+      <button class="color-btn" data-color="blue" style="flex:1;padding:10px;border:2px solid rgba(255,255,255,.2);background:rgba(30,136,229,.2);border-radius:8px;color:#fff;cursor:pointer">🔵 Blue</button>
+    </div>
+    <button class="start-btn" id="startAiBtn" style="width:100%;padding:14px;background:linear-gradient(135deg,#E53935,#FDD835);border:none;border-radius:10px;color:#fff;font-size:1.1rem;font-weight:600;cursor:pointer">🎮 Start Game</button>
+  </div>
+  
   <!-- LOCAL (PASS & PLAY) SETTINGS -->
-  <div id="localSettings" class="setup-card">
-    <h3>Number of Players</h3>
-    <div class="player-count">
-      <button class="count-btn" data-n="2">2 Players</button>
-      <button class="count-btn active" data-n="3">3 Players</button>
-      <button class="count-btn" data-n="4">4 Players</button>
+  <div id="localSettings" class="setup-card" style="display:none">
+    <label class="setup-label" style="font-size:13px;color:#94a3b8;margin-bottom:10px;display:block">Number of Players</label>
+    <div class="count-row" style="display:flex;gap:8px;margin-bottom:20px">
+      <button class="count-btn" data-n="2">2</button>
+      <button class="count-btn active" data-n="3">3</button>
+      <button class="count-btn" data-n="4">4</button>
     </div>
-    <h3>Choose Your Color</h3>
-    <div class="color-select" id="colorSelect">
-      <button class="color-btn active" data-color="red" style="--c:#E53935">🔴 Red</button>
-      <button class="color-btn" data-color="green" style="--c:#43A047">🟢 Green</button>
-      <button class="color-btn" data-color="yellow" style="--c:#FDD835">🟡 Yellow</button>
-      <button class="color-btn" data-color="blue" style="--c:#1E88E5">🔵 Blue</button>
+    <label class="setup-label" style="font-size:13px;color:#94a3b8;margin-bottom:10px;display:block">Player Names</label>
+    <div class="player-inputs" id="localPlayerInputs" style="margin-bottom:20px">
+      <div class="input-row" style="display:flex;align-items:center;gap:10px;margin-bottom:10px">
+        <div style="width:16px;height:16px;border-radius:50%;background:#E53935;flex-shrink:0"></div>
+        <input class="name-input" data-pi="0" placeholder="Player 1" value="Player 1" style="flex:1;padding:10px 14px;border:1px solid rgba(255,255,255,.18);background:rgba(0,0,0,.3);color:#fff;border-radius:8px;font-size:14px">
+      </div>
+      <div class="input-row" style="display:flex;align-items:center;gap:10px;margin-bottom:10px">
+        <div style="width:16px;height:16px;border-radius:50%;background:#43A047;flex-shrink:0"></div>
+        <input class="name-input" data-pi="1" placeholder="Player 2" value="Player 2" style="flex:1;padding:10px 14px;border:1px solid rgba(255,255,255,.18);background:rgba(0,0,0,.3);color:#fff;border-radius:8px;font-size:14px">
+      </div>
+      <div class="input-row" style="display:flex;align-items:center;gap:10px;margin-bottom:10px">
+        <div style="width:16px;height:16px;border-radius:50%;background:#FDD835;flex-shrink:0"></div>
+        <input class="name-input" data-pi="2" placeholder="Player 3" value="Player 3" style="flex:1;padding:10px 14px;border:1px solid rgba(255,255,255,.18);background:rgba(0,0,0,.3);color:#fff;border-radius:8px;font-size:14px">
+      </div>
+      <div class="input-row" style="display:none;align-items:center;gap:10px;margin-bottom:10px">
+        <div style="width:16px;height:16px;border-radius:50%;background:#1E88E5;flex-shrink:0"></div>
+        <input class="name-input" data-pi="3" placeholder="Player 4" value="Player 4" style="flex:1;padding:10px 14px;border:1px solid rgba(255,255,255,.18);background:rgba(0,0,0,.3);color:#fff;border-radius:8px;font-size:14px">
+      </div>
     </div>
-    <h3>Player Settings</h3>
-    <p style="color:rgba(255,255,255,.5);font-size:12px;margin-bottom:10px">Click buttons to toggle Human/AI for each player</p>
-    <div id="pcRows"></div>
+    <button class="start-btn" id="startLocalBtn" style="width:100%;padding:14px;background:linear-gradient(135deg,#E53935,#FDD835);border:none;border-radius:10px;color:#fff;font-size:1.1rem;font-weight:600;cursor:pointer">🎮 Start Game</button>
   </div>
   
   <!-- ONLINE MULTIPLAYER SETTINGS -->
@@ -1014,7 +1050,6 @@ html,body{height:100%;font-family:'Segoe UI',Arial,sans-serif;
     </div>
   </div>
   
-  <button class="start-btn" id="startBtn">▶ Start Game</button>
 </div>
 
 <!-- Loading Overlay -->
@@ -2490,12 +2525,12 @@ function initSetup() {
   });
 }
 
-// Mode selection (Pass & Play vs Online)
+// Mode selection (AI vs Pass & Play vs Online)
 function initModeSelection() {
   const modeBtns = document.querySelectorAll('.mode-btn');
+  const aiSettings = document.getElementById('aiSettings');
   const localSettings = document.getElementById('localSettings');
   const onlineSettings = document.getElementById('onlineSettings');
-  const startBtn = document.getElementById('startBtn');
   
   modeBtns.forEach(btn => {
     btn.addEventListener('click', () => {
@@ -2506,19 +2541,27 @@ function initModeSelection() {
       modeBtns.forEach(b => b.classList.remove('active'));
       btn.classList.add('active');
       
-      if (mode === 'local') {
-        localSettings.style.display = 'block';
-        onlineSettings.style.display = 'none';
-        startBtn.textContent = '▶ Start Game';
-        startBtn.style.display = 'block';
-      } else {
-        localSettings.style.display = 'none';
-        onlineSettings.style.display = 'block';
-        startBtn.style.display = 'none'; // Hide start button for online mode
+      // Hide all settings first
+      if (aiSettings) aiSettings.style.display = 'none';
+      if (localSettings) localSettings.style.display = 'none';
+      if (onlineSettings) onlineSettings.style.display = 'none';
+      
+      if (mode === 'ai') {
+        if (aiSettings) aiSettings.style.display = 'block';
+      } else if (mode === 'local') {
+        if (localSettings) localSettings.style.display = 'block';
+      } else if (mode === 'online') {
+        if (onlineSettings) onlineSettings.style.display = 'block';
         showOnlineMenu();
       }
     });
   });
+  
+  // Initialize player count buttons for AI mode
+  initAiPlayerCount();
+  
+  // Initialize color selection for AI mode
+  initAiColorSelect();
 }
 
 // Online multiplayer room logic
@@ -2636,6 +2679,122 @@ document.addEventListener('DOMContentLoaded', () => {
       connectionRetryCount = MAX_RETRIES; // Stop retries
     });
   }
+});
+
+// AI Mode Player Count Selection
+function initAiPlayerCount() {
+  document.querySelectorAll('#aiSettings .count-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      G.numPlayers = parseInt(btn.dataset.n);
+      document.querySelectorAll('#aiSettings .count-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+    });
+  });
+}
+
+// AI Mode Color Selection
+function initAiColorSelect() {
+  document.querySelectorAll('#aiColorSelect .color-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      G.playerColor = btn.dataset.color;
+      document.querySelectorAll('#aiColorSelect .color-btn').forEach(b => {
+        b.classList.remove('active');
+        b.style.borderColor = 'rgba(255,255,255,.2)';
+      });
+      btn.classList.add('active');
+      btn.style.borderColor = '#E53935';
+    });
+  });
+  // Default to 2 players and red color
+  G.numPlayers = 2;
+  G.playerColor = 'red';
+}
+
+// Local Mode Player Count Selection
+function initLocalPlayerCount() {
+  document.querySelectorAll('#localSettings .count-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      G.numPlayers = parseInt(btn.dataset.n);
+      document.querySelectorAll('#localSettings .count-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      
+      // Show/hide player 3 and 4 inputs
+      const inputs = document.querySelectorAll('#localPlayerInputs .input-row');
+      inputs[2].style.display = G.numPlayers >= 3 ? 'flex' : 'none';
+      inputs[3].style.display = G.numPlayers >= 4 ? 'flex' : 'none';
+    });
+  });
+  
+  // Initialize with 3 players
+  G.numPlayers = 3;
+}
+
+// AI Start Button
+document.addEventListener('DOMContentLoaded', () => {
+  const startAiBtn = document.getElementById('startAiBtn');
+  if (startAiBtn) {
+    startAiBtn.addEventListener('click', () => {
+      // Set up AI game with player vs AI
+      G.players = [];
+      const colors = ['red', 'green', 'yellow', 'blue'];
+      const playerColorIndex = colors.indexOf(G.playerColor);
+      
+      // Add human player first
+      G.players.push({
+        color: G.playerColor,
+        name: 'You',
+        type: 'human',
+        tokens: [0, 0, 0, 0],
+        finished: false
+      });
+      
+      // Add AI players
+      let aiCount = 1;
+      for (let i = 0; i < colors.length; i++) {
+        if (G.players.length >= G.numPlayers) break;
+        if (i !== playerColorIndex) {
+          G.players.push({
+            color: colors[i],
+            name: `AI ${aiCount}`,
+            type: 'ai',
+            tokens: [0, 0, 0, 0],
+            finished: false
+          });
+          aiCount++;
+        }
+      }
+      
+      G.currentPlayer = 0;
+      startGame();
+    });
+  }
+  
+  // Local Start Button
+  const startLocalBtn = document.getElementById('startLocalBtn');
+  if (startLocalBtn) {
+    startLocalBtn.addEventListener('click', () => {
+      // Get player names from inputs
+      const inputs = document.querySelectorAll('#localPlayerInputs .name-input');
+      G.players = [];
+      const colors = ['red', 'green', 'yellow', 'blue'];
+      
+      for (let i = 0; i < G.numPlayers; i++) {
+        G.players.push({
+          color: colors[i],
+          name: inputs[i].value || `Player ${i + 1}`,
+          type: 'human',
+          tokens: [0, 0, 0, 0],
+          finished: false
+        });
+      }
+      
+      G.currentPlayer = 0;
+      startGame();
+    });
+  }
+  
+  // Initialize local player count
+  initLocalPlayerCount();
 });
 
 function initOnlineMultiplayer() {
