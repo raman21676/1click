@@ -16,7 +16,8 @@
   --green:#22c55e;--red:#ef4444;--gold:#f59e0b;
   --ui:#1e293b;--ui2:#334155;--text:#f1f5f9;--muted:#94a3b8;
 }
-html,body{height:100%;font-family:'Poppins',sans-serif;background:var(--bg-grad),var(--bg);background-attachment:fixed;color:var(--text);overflow:hidden;user-select:none}
+html,body{height:100%;font-family:'Poppins',sans-serif;background:var(--bg-grad),var(--bg);background-attachment:fixed;color:var(--text);overflow-x:hidden;user-select:none}
+html{overflow-y:auto}
 /* LOADING */
 #loading{position:fixed;inset:0;background:var(--bg);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:9999;transition:opacity .5s,visibility .5s}
 #loading.out{opacity:0;visibility:hidden}
@@ -95,11 +96,70 @@ html,body{height:100%;font-family:'Poppins',sans-serif;background:var(--bg-grad)
 .m-btn:hover{transform:translateY(-2px)}
 .m-btn.sec{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.2)}
 @media(max-width:480px){.c-wrap{max-width:100vmin}.controls{flex-wrap:wrap}.msg-pill{max-width:140px}}
+
+/* ══════════════════════════════════════════════════
+   UX ENHANCEMENTS - Connection Status, Loading, Offline
+   ══════════════════════════════════════════════════ */
+
+/* Connection Status */
+.connection-status { display: flex; align-items: center; gap: 6px; padding: 6px 12px; background: rgba(0,0,0,0.4); border-radius: 20px; font-size: 12px; transition: all 0.3s; }
+.connection-status.connected { background: rgba(76, 175, 80, 0.2); color: #4CAF50; }
+.connection-status.disconnected { background: rgba(244, 67, 54, 0.2); color: #f44336; }
+.connection-status.connecting { background: rgba(255, 152, 0, 0.2); color: #FF9800; }
+.conn-dot { width: 8px; height: 8px; border-radius: 50%; animation: pulse-dot 2s ease-in-out infinite; }
+.connection-status.connected .conn-dot { background: #4CAF50; animation: none; }
+.connection-status.disconnected .conn-dot { background: #f44336; animation: none; }
+.connection-status.connecting .conn-dot { background: #FF9800; }
+@keyframes pulse-dot { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
+
+/* Loading Overlay */
+.loading-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.9); display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 10000; opacity: 0; visibility: hidden; transition: opacity 0.3s; }
+.loading-overlay.active { opacity: 1; visibility: visible; }
+.loading-overlay .spinner { width: 50px; height: 50px; border: 4px solid rgba(255,255,255,0.2); border-top-color: #fff; border-radius: 50%; animation: spin-load 1s linear infinite; }
+@keyframes spin-load { to { transform: rotate(360deg); } }
+.loading-overlay .loading-text { margin-top: 20px; font-size: 1.1rem; font-weight: 600; color: #fff; }
+.loading-overlay .loading-subtext { margin-top: 8px; font-size: 0.85rem; color: var(--muted); }
+.loading-overlay .cancel-btn { margin-top: 24px; padding: 10px 24px; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); color: #fff; border-radius: 8px; cursor: pointer; font-family: inherit; font-size: 0.9rem; transition: all 0.2s; }
+.loading-overlay .cancel-btn:hover { background: rgba(255,255,255,0.2); }
+
+/* Offline Banner */
+.offline-banner { position: fixed; top: 0; left: 0; right: 0; background: #f44336; color: #fff; text-align: center; padding: 10px; font-size: 13px; z-index: 10001; transform: translateY(-100%); transition: transform 0.3s; }
+.offline-banner.show { transform: translateY(0); }
+
+/* Room Code Display with Copy Button */
+.room-code-display { display: flex; align-items: center; justify-content: center; gap: 12px; margin: 16px 0; padding: 16px; background: rgba(0,0,0,0.3); border-radius: 12px; border: 2px dashed rgba(34,197,94,0.5); }
+.room-code-label { font-size: 0.75rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.1em; }
+.room-code-value { font-size: 1.5rem; font-weight: 800; color: #22c55e; letter-spacing: 4px; font-family: monospace; }
+.copy-btn { padding: 8px 14px; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); border-radius: 8px; color: #fff; cursor: pointer; font-size: 0.8rem; transition: all 0.2s; display: flex; align-items: center; gap: 6px; }
+.copy-btn:hover { background: rgba(255,255,255,0.2); }
+.copy-btn.copied { background: rgba(34,197,94,0.3); border-color: #22c55e; color: #22c55e; }
+
+/* Error Message Toast */
+.error-toast { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%) translateY(100px); background: rgba(244,67,54,0.95); color: #fff; padding: 12px 24px; border-radius: 10px; font-size: 0.9rem; z-index: 10002; opacity: 0; transition: all 0.3s; max-width: 90%; text-align: center; }
+.error-toast.show { transform: translateX(-50%) translateY(0); opacity: 1; }
+.error-toast.info { background: rgba(33,150,243,0.95); }
+.error-toast.success { background: rgba(76,175,80,0.95); }
 </style>
 </head>
 <body>
 
 <div id="loading"><div class="load-disc"></div><p class="load-txt">Loading Carrom Board…</p></div>
+
+<!-- OFFLINE BANNER -->
+<div id="offlineBanner" class="offline-banner">
+  ⚠️ You are offline. Please check your internet connection.
+</div>
+
+<!-- LOADING OVERLAY -->
+<div id="loadingOverlay" class="loading-overlay">
+  <div class="spinner"></div>
+  <div class="loading-text" id="loadingText">Connecting...</div>
+  <div class="loading-subtext" id="loadingSubtext"></div>
+  <button class="cancel-btn" id="cancelBtn" style="display:none">Cancel</button>
+</div>
+
+<!-- ERROR TOAST -->
+<div id="errorToast" class="error-toast"></div>
 
 <!-- SETUP -->
 <div id="setup">
@@ -141,6 +201,16 @@ html,body{height:100%;font-family:'Poppins',sans-serif;background:var(--bg-grad)
       <span class="s-label">Create Room</span>
       <p style="color:var(--muted);font-size:.85rem;margin-bottom:16px">Create a room and invite a friend to join</p>
       <button class="start-btn" id="createRoomBtn" style="background:linear-gradient(135deg,#22c55e,#16a34a);margin-bottom:24px">➕ Create Room</button>
+      <!-- Room Code Display (shown after creation) -->
+      <div id="roomCodeDisplay" class="room-code-display" style="display:none">
+        <div>
+          <div class="room-code-label">Room Code</div>
+          <div class="room-code-value" id="roomCodeValue"></div>
+        </div>
+        <button class="copy-btn" id="copyRoomCode" title="Copy to clipboard">
+          📋 Copy
+        </button>
+      </div>
     </div>
     <div id="onlineJoin" style="border-top:1px solid rgba(255,255,255,.1);padding-top:24px">
       <span class="s-label">Join Room</span>
@@ -158,6 +228,11 @@ html,body{height:100%;font-family:'Poppins',sans-serif;background:var(--bg-grad)
   <header class="g-hdr">
     <a class="g-back" href="../../../index.html">← Back</a>
     <div class="g-title">🎯 Carrom Board</div>
+    <!-- Connection Status Indicator -->
+    <div id="connectionStatus" class="connection-status" style="display:none">
+      <span class="conn-dot"></span>
+      <span id="connectionText">Disconnected</span>
+    </div>
     <div style="font-size:.75rem;color:var(--muted);cursor:pointer" id="menuBtn">⚙ Menu</div>
   </header>
   <div class="g-body">
@@ -258,6 +333,9 @@ const G = {
   energy:100, maxEnergy:100, energyRegen:15 // Energy system
 };
 
+// Cached board canvas for performance optimization
+let cachedBoardCanvas = null;
+let boardCacheValid = false;
 // ══════════════════════════════════════════════════
 // SETUP UI
 // ══════════════════════════════════════════════════
@@ -716,9 +794,16 @@ function predictTrajectory(sx,sy,angle,maxBounces) {
 // ══════════════════════════════════════════════════
 // RENDER
 // ══════════════════════════════════════════════════
+let lastPhysicsTime = 0;
+const PHYSICS_INTERVAL = 1000 / 60; // 60fps physics
+
 function loop() {
   G.rafId=requestAnimationFrame(loop);
-  if(!G.paused) stepPhysics();
+  const now = performance.now();
+  if(!G.paused && now - lastPhysicsTime > PHYSICS_INTERVAL) {
+    stepPhysics();
+    lastPhysicsTime = now;
+  }
   render();
 }
 
@@ -727,7 +812,9 @@ function render() {
   ctx.clearRect(0,0,G.W,G.H);
   ctx.save();
   ctx.scale(sc,sc);
-  drawBoard(ctx);
+  // Use cached board for better performance
+  if(!cachedBoardCanvas) cacheBoard();
+  ctx.drawImage(cachedBoardCanvas,0,0);
   // Draw trajectory only in aim phase
   if((G.phase==='aim'||G.phase==='place')&&G.cur===0&&!G.over) {
     const maxB= G.aiming?2:1;
@@ -743,7 +830,15 @@ function render() {
   ctx.restore();
 }
 
-function drawBoard(ctx) {
+function cacheBoard() {
+  cachedBoardCanvas = document.createElement('canvas');
+  cachedBoardCanvas.width = BS;
+  cachedBoardCanvas.height = BS;
+  const ctx = cachedBoardCanvas.getContext('2d');
+  drawStaticBoard(ctx);
+}
+
+function drawStaticBoard(ctx) {
   const m=BM, s=BS-BM*2;
   
   // ══════════════════════════════════════════════════
@@ -1286,7 +1381,171 @@ function roundRect(ctx,x,y,w,h,r) {
 function clamp(v,lo,hi){return Math.max(lo,Math.min(hi,v));}
 
 // ══════════════════════════════════════════════════
-// ONLINE MULTIPLAYER (PeerJS)
+// UX ENHANCEMENTS - Connection Status, Loading, Offline Detection
+// ══════════════════════════════════════════════════
+
+let connectionTimeout = null;
+let reconnectAttempts = 0;
+let maxReconnectAttempts = 5;
+let cancelConnectionFlag = false;
+
+// Update connection status indicator
+function updateConnectionStatus(status, text) {
+  const statusEl = document.getElementById('connectionStatus');
+  const textEl = document.getElementById('connectionText');
+  
+  if (!isOnline) {
+    statusEl.style.display = 'none';
+    return;
+  }
+  
+  statusEl.style.display = 'flex';
+  statusEl.className = 'connection-status ' + status;
+  textEl.textContent = text || status.charAt(0).toUpperCase() + status.slice(1);
+}
+
+// Show loading overlay
+function showLoading(text, subtext, showCancel) {
+  const overlay = document.getElementById('loadingOverlay');
+  const textEl = document.getElementById('loadingText');
+  const subtextEl = document.getElementById('loadingSubtext');
+  const cancelBtn = document.getElementById('cancelBtn');
+  
+  textEl.textContent = text || 'Connecting...';
+  subtextEl.textContent = subtext || '';
+  cancelBtn.style.display = showCancel ? 'block' : 'none';
+  
+  overlay.classList.add('active');
+  
+  // Set connection timeout
+  if (connectionTimeout) clearTimeout(connectionTimeout);
+  connectionTimeout = setTimeout(() => {
+    if (overlay.classList.contains('active')) {
+      hideLoading();
+      showError('Connection timed out. Please try again.', 'error');
+      cleanupPeerConnection();
+    }
+  }, 30000); // 30 second timeout
+}
+
+// Hide loading overlay
+function hideLoading() {
+  const overlay = document.getElementById('loadingOverlay');
+  overlay.classList.remove('active');
+  if (connectionTimeout) {
+    clearTimeout(connectionTimeout);
+    connectionTimeout = null;
+  }
+}
+
+// Show error toast
+function showError(message, type = 'error') {
+  const toast = document.getElementById('errorToast');
+  toast.textContent = message;
+  toast.className = 'error-toast ' + type;
+  toast.classList.add('show');
+  
+  setTimeout(() => {
+    toast.classList.remove('show');
+  }, 5000);
+}
+
+// Initialize offline detection
+function initOfflineDetection() {
+  const banner = document.getElementById('offlineBanner');
+  
+  function updateOnlineStatus() {
+    if (navigator.onLine) {
+      banner.classList.remove('show');
+      // Attempt reconnection if we were in an online game
+      if (isOnline && !conn || (conn && !conn.open)) {
+        attemptReconnection();
+      }
+    } else {
+      banner.classList.add('show');
+      showError('You are offline. Game may not function properly.', 'info');
+    }
+  }
+  
+  window.addEventListener('online', updateOnlineStatus);
+  window.addEventListener('offline', updateOnlineStatus);
+  
+  // Initial check
+  updateOnlineStatus();
+}
+
+// Attempt reconnection
+function attemptReconnection() {
+  if (!isOnline || reconnectAttempts >= maxReconnectAttempts) {
+    showError('Unable to reconnect. Please restart the game.', 'error');
+    return;
+  }
+  
+  reconnectAttempts++;
+  showLoading('Reconnecting...', `Attempt ${reconnectAttempts}/${maxReconnectAttempts}`, true);
+  
+  // Try to reconnect
+  setTimeout(() => {
+    if (roomCode) {
+      if (isHost) {
+        initPeerJS(roomCode, true);
+      } else {
+        initPeerJS(roomCode, false);
+      }
+    }
+  }, 2000);
+}
+
+// Cleanup peer connection
+function cleanupPeerConnection() {
+  if (conn) {
+    conn.close();
+    conn = null;
+  }
+  if (peer) {
+    peer.destroy();
+    peer = null;
+  }
+  isOnline = false;
+  isHost = false;
+  hideLoading();
+  updateConnectionStatus('disconnected', 'Disconnected');
+}
+
+// Copy room code to clipboard
+function copyRoomCode() {
+  const code = document.getElementById('roomCodeValue').textContent;
+  if (!code) return;
+  
+  navigator.clipboard.writeText(code).then(() => {
+    const btn = document.getElementById('copyRoomCode');
+    btn.classList.add('copied');
+    btn.textContent = '✓ Copied!';
+    setTimeout(() => {
+      btn.classList.remove('copied');
+      btn.textContent = '📋 Copy';
+    }, 2000);
+  }).catch(() => {
+    // Fallback for browsers without clipboard API
+    const textarea = document.createElement('textarea');
+    textarea.value = code;
+    document.body.appendChild(textarea);
+    textarea.select();
+    document.execCommand('copy');
+    document.body.removeChild(textarea);
+    
+    const btn = document.getElementById('copyRoomCode');
+    btn.classList.add('copied');
+    btn.textContent = '✓ Copied!';
+    setTimeout(() => {
+      btn.classList.remove('copied');
+      btn.textContent = '📋 Copy';
+    }, 2000);
+  });
+}
+
+// ══════════════════════════════════════════════════
+// ONLINE MULTIPLAYER (PeerJS) - ENHANCED
 // ══════════════════════════════════════════════════
 let peer=null,conn=null,isOnline=false,isHost=false,roomCode='',myPlayerIdx=0;
 
@@ -1296,7 +1555,18 @@ function initOnlineSetup(){
   document.getElementById('backFromOnline').onclick=()=>{
     document.getElementById('onlineSetup').style.display='none';
     document.getElementById('setup').style.display='flex';
-    if(peer){peer.destroy();peer=null;conn=null;}
+    cleanupPeerConnection();
+  };
+  
+  // Copy room code button
+  document.getElementById('copyRoomCode').onclick = copyRoomCode;
+  
+  // Cancel button for loading overlay
+  document.getElementById('cancelBtn').onclick = () => {
+    cancelConnectionFlag = true;
+    cleanupPeerConnection();
+    hideLoading();
+    document.getElementById('onlineStatus').innerHTML = '<span style="color:#f59e0b">Connection cancelled</span>';
   };
 }
 
@@ -1305,44 +1575,125 @@ function showOnlineSetup(){
   document.getElementById('onlineSetup').style.display='flex';
   document.getElementById('onlineStatus').textContent='';
   document.getElementById('roomCodeInput').value='';
+  document.getElementById('roomCodeDisplay').style.display = 'none';
+  document.getElementById('createRoomBtn').style.display = 'block';
   initOnlineSetup();
 }
 
 function createRoom(){
+  if (!navigator.onLine) {
+    showError('You are offline. Please check your internet connection.', 'error');
+    return;
+  }
+  
   roomCode=Math.floor(100000+Math.random()*900000).toString();
-  document.getElementById('onlineStatus').innerHTML='<span style="color:#22c55e">Room <b>'+roomCode+'</b> created! Waiting for opponent...</span>';
+  
+  // Show room code display with copy button
+  document.getElementById('roomCodeValue').textContent = roomCode;
+  document.getElementById('roomCodeDisplay').style.display = 'flex';
+  document.getElementById('createRoomBtn').style.display = 'none';
+  
+  document.getElementById('onlineStatus').innerHTML='<span style="color:#22c55e">Room created! Waiting for opponent...</span>';
+  
+  showLoading('Creating room...', 'Waiting for opponent to join', true);
   initPeerJS(roomCode,true);
 }
 
 function joinRoom(){
+  if (!navigator.onLine) {
+    showError('You are offline. Please check your internet connection.', 'error');
+    return;
+  }
+  
   const code=document.getElementById('roomCodeInput').value.trim().toUpperCase();
-  if(code.length!==6){document.getElementById('onlineStatus').innerHTML='<span style="color:#ef4444">Enter valid 6-digit code</span>';return;}
+  if(code.length!==6){
+    showError('Please enter a valid 6-digit room code', 'error');
+    return;
+  }
   roomCode=code;
-  document.getElementById('onlineStatus').textContent='Connecting...';
+  
+  showLoading('Joining room...', `Connecting to room ${roomCode}`, true);
   initPeerJS(roomCode,false);
 }
 
 function initPeerJS(code,isH){
   isHost=isH;isOnline=true;myPlayerIdx=isHost?0:1;
+  cancelConnectionFlag = false;
+  
   const myId='carrom-'+code+'-'+(isHost?'host':'guest')+'-'+Date.now();
-  peer=new Peer(myId,{host:'0.peerjs.com',port:443,secure:true,debug:1});
+  
+  try {
+    peer=new Peer(myId,{host:'0.peerjs.com',port:443,secure:true,debug:1});
+  } catch(e) {
+    hideLoading();
+    showError('Failed to initialize connection. Please try again.', 'error');
+    return;
+  }
   
   peer.on('open',(id)=>{
     console.log('Peer open:',id);
+    updateConnectionStatus('connecting', 'Connecting...');
+    
     if(!isHost){
       const hostId='carrom-'+code+'-host';
-      conn=peer.connect(hostId);
-      setupConnection();
+      try {
+        conn=peer.connect(hostId, { reliable: true });
+        setupConnection();
+      } catch(e) {
+        hideLoading();
+        showError('Room not found. Please check the room code.', 'error');
+        cleanupPeerConnection();
+      }
     }
   });
   
-  peer.on('connection',(c)=>{conn=c;setupConnection();});
-  peer.on('error',(e)=>{document.getElementById('onlineStatus').innerHTML='<span style="color:#ef4444">Error: '+e.message+'</span>';});
+  peer.on('connection',(c)=>{
+    if (cancelConnectionFlag) return;
+    conn=c;
+    setupConnection();
+  });
+  
+  peer.on('error',(e)=>{
+    console.error('Peer error:', e);
+    hideLoading();
+    
+    let errorMsg = 'Connection error: ' + e.message;
+    if (e.type === 'peer-unavailable') {
+      errorMsg = 'Room not found. Please check the room code and try again.';
+    } else if (e.type === 'network' || e.type === 'disconnected') {
+      errorMsg = 'Network error. Please check your internet connection.';
+    } else if (e.type === 'unavailable-id') {
+      errorMsg = 'Connection ID unavailable. Please try again.';
+    } else if (e.type === 'socket-error') {
+      errorMsg = 'Server connection failed. Please try again later.';
+    }
+    
+    showError(errorMsg, 'error');
+    document.getElementById('onlineStatus').innerHTML = `<span style="color:#ef4444">${errorMsg}</span>`;
+    
+    // Attempt reconnection for certain errors
+    if ((e.type === 'network' || e.type === 'disconnected') && reconnectAttempts < maxReconnectAttempts) {
+      attemptReconnection();
+    } else {
+      cleanupPeerConnection();
+    }
+  });
+  
+  peer.on('disconnected', () => {
+    updateConnectionStatus('disconnected', 'Disconnected');
+    showError('Connection lost. Attempting to reconnect...', 'info');
+    attemptReconnection();
+  });
 }
 
 function setupConnection(){
+  if (!conn) return;
+  
   conn.on('open',()=>{
     console.log('Connection open');
+    hideLoading();
+    reconnectAttempts = 0; // Reset reconnection counter on successful connection
+    updateConnectionStatus('connected', 'Connected');
     document.getElementById('onlineStatus').innerHTML='<span style="color:#22c55e">Connected! Starting game...</span>';
     if(isHost){
       // Host starts game after short delay
@@ -1351,77 +1702,126 @@ function setupConnection(){
   });
   
   conn.on('data',(d)=>handlePeerData(d));
-  conn.on('close',()=>{showMsg('Opponent disconnected');isOnline=false;});
-  conn.on('error',(e)=>console.error('Conn error:',e));
+  
+  conn.on('close',()=>{
+    updateConnectionStatus('disconnected', 'Disconnected');
+    showMsg('Opponent disconnected');
+    showError('Opponent disconnected from the game', 'error');
+    isOnline=false;
+  });
+  
+  conn.on('error',(e)=>{
+    console.error('Conn error:',e);
+    showError('Connection error occurred', 'error');
+    updateConnectionStatus('disconnected', 'Error');
+  });
 }
 
 function startOnlineGame(){
-  mode='local';// Use local mode for online (both human controlled)
-  diff='medium';myColor='white';
-  p[0].name=isHost?'You':'Opponent';
-  p[1].name=isHost?'Opponent':'You';
-  p[0].col='white';p[1].col='black';
-  p[0].idx=0;p[1].idx=1;
+  // Show connection status in game header
+  document.getElementById('connectionStatus').style.display = 'flex';
+  updateConnectionStatus('connected', 'Connected');
+  
+  G.pNames[0]=isHost?(document.getElementById('n1').value.trim()||'You'):'Opponent';
+  G.pNames[1]=isHost?'Opponent':(document.getElementById('n1').value.trim()||'You');
+  G.pColors[0]='white';
+  G.pColors[1]='black';
   
   document.getElementById('onlineSetup').style.display='none';
   document.getElementById('game').style.display='flex';
-  resizeCanvas();resetGame();render();
+  G.cv = document.getElementById('cv');
+  G.ctx = G.cv.getContext('2d');
+  window.addEventListener('resize', resizeCanvas);
+  resizeCanvas();
+  resetGame();
+  setupInput();
   
   // Send start to peer
-  if(conn)conn.send({type:'start',names:[p[0].name,p[1].name],cols:[p[0].col,p[1].col]});
+  if(conn)conn.send({type:'start',names:G.pNames,cols:G.pColors});
 }
 
 function handlePeerData(d){
   console.log('Peer data:',d);
   switch(d.type){
     case 'start':
-      p[0].name=d.names[0];p[1].name=d.names[1];
-      p[0].col=d.cols[0];p[1].col=d.cols[1];
+      G.pNames[0]=d.names[0];
+      G.pNames[1]=d.names[1];
+      G.pColors[0]=d.cols[0];
+      G.pColors[1]=d.cols[1];
+      
+      // Show connection status in game header
+      document.getElementById('connectionStatus').style.display = 'flex';
+      updateConnectionStatus('connected', 'Connected');
+      
       document.getElementById('onlineSetup').style.display='none';
       document.getElementById('game').style.display='flex';
-      resizeCanvas();resetGame();render();
+      G.cv = document.getElementById('cv');
+      G.ctx = G.cv.getContext('2d');
+      window.addEventListener('resize', resizeCanvas);
+      resizeCanvas();
+      resetGame();
+      setupInput();
       break;
     case 'move':
       // Apply remote move - striker shot data
-      striker.x=d.striker.x;striker.y=d.striker.y;
-      striker.vx=d.striker.vx;striker.vy=d.striker.vy;
+      G.striker.x=d.striker.x;
+      G.striker.y=d.striker.y;
+      G.striker.vx=d.striker.vx;
+      G.striker.vy=d.striker.vy;
       // Sync coins state
-      coins.forEach((c,i)=>{if(d.coins[i]){c.x=d.coins[i].x;c.y=d.coins[i].y;c.pocketed=d.coins[i].pocketed;c.on=d.coins[i].on;}});
-      moving=true;queenReturned=d.queenReturned;
+      d.coins.forEach((c,i)=>{
+        if(G.coins[i]){
+          G.coins[i].x=c.x;
+          G.coins[i].y=c.y;
+          G.coins[i].in=c.in;
+        }
+      });
+      G.phase='moving';
+      if(d.queenReturned){
+        returnQueen();
+      }
       // Sync game state
-      p[0].pts=d.scores[0];p[1].pts=d.scores[1];
-      p[0].pocketed=d.pocketed[0];p[1].pocketed=d.pocketed[1];
-      turn=d.turn;turnNumber=d.turnNumber;
-      updateUI();render();
-      requestAnimationFrame(loop);
+      G.pts=d.scores;
+      G.coinsIn=d.pocketed;
+      G.cur=d.turn;
+      G.turn=d.turnNumber;
+      updateUI();
       break;
     case 'coinSync':
       // Sync coins after pocket/score change
-      coins.forEach((c,i)=>{if(d.coins[i]){c.x=d.coins[i].x;c.y=d.coins[i].y;c.pocketed=d.coins[i].pocketed;c.on=d.coins[i].on;}});
-      p[0].pts=d.scores[0];p[1].pts=d.scores[1];
-      p[0].pocketed=d.pocketed[0];p[1].pocketed=d.pocketed[1];
-      updateUI();render();
+      d.coins.forEach((c,i)=>{
+        if(G.coins[i]){
+          G.coins[i].x=c.x;
+          G.coins[i].y=c.y;
+          G.coins[i].in=c.in;
+        }
+      });
+      G.pts=d.scores;
+      G.coinsIn=d.pocketed;
+      updateUI();
       break;
   }
 }
 
 function sendMoveToPeer(){
   if(!conn||!isOnline)return;
-  const coinData=coins.map(c=>({x:c.x,y:c.y,pocketed:c.pocketed,on:c.on}));
+  const coinData=G.coins.map(c=>({x:c.x,y:c.y,in:c.in}));
   conn.send({
     type:'move',
-    striker:{x:striker.x,y:striker.y,vx:striker.vx,vy:striker.vy},
+    striker:{x:G.striker.x,y:G.striker.y,vx:G.striker.vx,vy:G.striker.vy},
     coins:coinData,
-    scores:[p[0].pts,p[1].pts],
-    pocketed:[p[0].pocketed,p[1].pocketed],
-    turn:turn,turnNumber:turnNumber,queenReturned:queenReturned
+    scores:[G.pts[0],G.pts[1]],
+    pocketed:[G.coinsIn[0],G.coinsIn[1]],
+    turn:G.cur,
+    turnNumber:G.turn,
+    queenReturned:G.awaitCover&&G.queenHolder!==G.cur
   });
 }
 
 function sendCoinSync(){
   if(!conn||!isOnline)return;
-  const coinData=coins.map(c=>({x:c.x,y:c.y,pocketed:c.pocketed,on:c.on}));
-  conn.send({type:'coinSync',coins:coinData,scores:[p[0].pts,p[1].pts],pocketed:[p[0].pocketed,p[1].pocketed]});
+  const coinData=G.coins.map(c=>({x:c.x,y:c.y,in:c.in}));
+  conn.send({type:'coinSync',coins:coinData,scores:[G.pts[0],G.pts[1]],pocketed:[G.coinsIn[0],G.coinsIn[1]]});
 }
 
 // ══════════════════════════════════════════════════
@@ -1434,6 +1834,7 @@ window.addEventListener('load',()=>{
   document.getElementById('diffRow').style.display='flex';
   document.getElementById('diffLabel').style.display='block';
   initOnlineSetup();
+  initOfflineDetection();
 });
 </script>
 <script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js"></script>

@@ -411,10 +411,42 @@
     }
     .modal-btn:hover { transform:translateY(-2px); }
 
+    /* Connection Status */
+    .connection-status { display: flex; align-items: center; gap: 6px; padding: 6px 12px; background: rgba(0,0,0,0.4); border-radius: 20px; font-size: 12px; }
+    .connection-status.connected { background: rgba(76, 175, 80, 0.2); color: #4CAF50; }
+    .connection-status.disconnected { background: rgba(244, 67, 54, 0.2); color: #f44336; }
+    .connection-status.connecting { background: rgba(255, 152, 0, 0.2); color: #FF9800; }
+    .conn-dot { width: 8px; height: 8px; border-radius: 50%; animation: pulse-dot 2s ease-in-out infinite; }
+    @keyframes pulse-dot { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
+
+    /* Loading Overlay */
+    .loading-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.9); display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 10000; opacity: 0; visibility: hidden; transition: opacity 0.3s; }
+    .loading-overlay.active { opacity: 1; visibility: visible; }
+    .loading-overlay .spinner { width: 50px; height: 50px; border: 4px solid rgba(255,255,255,0.2); border-top-color: #fff; border-radius: 50%; animation: spin 1s linear infinite; margin-bottom: 20px; }
+    .loading-overlay .loading-text { font-size: 18px; font-weight: 600; margin-bottom: 8px; }
+    .loading-overlay .loading-subtext { font-size: 14px; color: #94a3b8; margin-bottom: 20px; }
+    .loading-overlay .cancel-btn { padding: 10px 24px; border: 2px solid rgba(255,255,255,0.3); background: transparent; color: #fff; border-radius: 8px; cursor: pointer; font-family: inherit; transition: all 0.2s; }
+    .loading-overlay .cancel-btn:hover { background: rgba(255,255,255,0.1); border-color: rgba(255,255,255,0.5); }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* Offline Banner */
+    .offline-banner { position: fixed; top: 0; left: 0; right: 0; background: #f44336; color: #fff; text-align: center; padding: 10px; font-size: 13px; z-index: 10001; transform: translateY(-100%); transition: transform 0.3s; }
+    .offline-banner.show { transform: translateY(0); }
+
+    /* Copy Button */
+    .copy-btn { padding: 8px 16px; border: none; background: rgba(255,255,255,0.1); color: #fff; border-radius: 8px; cursor: pointer; font-family: inherit; font-size: 13px; display: flex; align-items: center; gap: 6px; transition: all 0.2s; margin-top: 10px; }
+    .copy-btn:hover { background: rgba(255,255,255,0.2); }
+    .copy-btn.copied { background: rgba(76, 175, 80, 0.3); color: #4CAF50; }
+
+    /* Error Toast */
+    .error-toast { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%) translateY(100px); background: #f44336; color: #fff; padding: 12px 24px; border-radius: 8px; font-size: 14px; z-index: 10002; opacity: 0; transition: all 0.3s; }
+    .error-toast.show { transform: translateX(-50%) translateY(0); opacity: 1; }
+
     @media (max-width:420px) {
       .game-body { padding:6px; gap:6px; }
       .room-code-display { font-size:32px; letter-spacing:4px; }
       .room-input { font-size:28px; letter-spacing:8px; }
+      .connection-status { font-size: 11px; padding: 4px 8px; }
     }
   </style>
 </head>
@@ -523,6 +555,11 @@
       <div id="createRoomForm">
         <label class="setup-label">Your Room Code</label>
         <div class="room-code-display" id="roomCodeDisplay">------</div>
+        <div style="display: flex; justify-content: center; margin: 8px 0;">
+          <button class="copy-btn" id="copyRoomCodeBtn" title="Copy room code to clipboard">
+            📋 Copy Code
+          </button>
+        </div>
         <p style="color:#94a3b8; font-size:13px; text-align:center; margin:8px 0;">Share this 6-digit code with your friend!</p>
         <div class="status-row">
           <span class="status-dot" id="hostStatusDot"></span>
@@ -562,7 +599,10 @@
   <header class="game-header">
     <a class="gh-back" href="../../../index.html">← Back</a>
     <div class="gh-title">🐍 Snake &amp; Ladder</div>
-    <div class="gh-spacer"></div>
+    <div class="connection-status disconnected" id="connectionStatus">
+      <span class="conn-dot"></span>
+      <span id="connectionStatusText">Disconnected</span>
+    </div>
   </header>
 
   <div class="game-body">
@@ -607,10 +647,35 @@
   </div>
 </div>
 
+<!-- Loading Overlay -->
+<div class="loading-overlay" id="loadingOverlay">
+  <div class="spinner"></div>
+  <div class="loading-text" id="loadingText">Connecting...</div>
+  <div class="loading-subtext" id="loadingSubtext"></div>
+  <button class="cancel-btn" id="loadingCancelBtn" style="display: none;">Cancel</button>
+</div>
+
+<!-- Offline Banner -->
+<div class="offline-banner" id="offlineBanner">
+  ⚠️ You are offline. Check your internet connection.
+</div>
+
+<!-- Error Toast -->
+<div class="error-toast" id="errorToast"></div>
+
 <script src="https://unpkg.com/peerjs@1.5.2/dist/peerjs.min.js"></script>
 <script src="../../assets/js/sound.js"></script>
 <script>
 // ═══════════════════════════════════════════════════
+// ═══════════════════════════════════════════════════════════════
+//  SECURITY UTILS
+// ═══════════════════════════════════════════════════════════════
+function escapeHtml(text) {
+  if (text === null || text === undefined) return '';
+  const div = document.createElement('div');
+  div.textContent = String(text);
+  return div.innerHTML;
+}
 //  CONFIG
 // ═══════════════════════════════════════════════════
 const PLAYER_COLORS = ['#E53935','#1E88E5','#43A047','#FDD835'];
@@ -650,6 +715,13 @@ let G = {
 let peer = null;
 let connection = null;
 
+// UX State
+let connectionState = 'disconnected';
+let reconnectAttempts = 0;
+let maxReconnectAttempts = 5;
+let reconnectTimeout = null;
+let loadingCancelCallback = null;
+
 // ═══════════════════════════════════════════════════
 //  COORDINATE HELPER
 // ═══════════════════════════════════════════════════
@@ -672,6 +744,8 @@ window.addEventListener('load', () => {
   setTimeout(() => document.getElementById('loadingScreen').classList.add('hidden'), 500);
   initSetup();
   initSoundBtn();
+  initOfflineDetection();
+  updateConnectionStatus('disconnected', 'Offline');
 });
 
 // ═══════════════════════════════════════════════════
@@ -725,6 +799,18 @@ function initSetup() {
   document.getElementById('generateRoomBtn').addEventListener('click', createRoom);
   document.getElementById('startOnlineBtn').addEventListener('click', startOnlineGame);
   document.getElementById('joinRoomFinalBtn').addEventListener('click', joinRoom);
+  
+  // Copy room code button
+  document.getElementById('copyRoomCodeBtn').addEventListener('click', copyRoomCode);
+  
+  // Loading cancel button
+  document.getElementById('loadingCancelBtn').addEventListener('click', () => {
+    hideLoading();
+    if (loadingCancelCallback) {
+      loadingCancelCallback();
+      loadingCancelCallback = null;
+    }
+  });
 }
 
 function updateModeDisplay() {
@@ -752,11 +838,13 @@ function showOnlineMenu() {
 function showCreateRoom() {
   document.getElementById('onlineMenu').style.display = 'none';
   document.getElementById('createRoomForm').style.display = 'block';
+  updateConnectionStatus('disconnected', 'Ready');
 }
 
 function showJoinRoom() {
   document.getElementById('onlineMenu').style.display = 'none';
   document.getElementById('joinRoomForm').style.display = 'block';
+  updateConnectionStatus('disconnected', 'Ready');
 }
 
 function generateRoomCode() {
@@ -767,38 +855,75 @@ function createRoom() {
   cleanupPeer();
   G.isHost = true;
   G.roomCode = generateRoomCode();
+  reconnectAttempts = 0;
   
   document.getElementById('hostStatusText').textContent = 'Creating room...';
   document.getElementById('hostStatusDot').style.background = '#FFA500';
+  
+  updateConnectionStatus('connecting', 'Creating room...');
+  showLoading('Creating room...', 'Please wait while we set up your game room', true);
+  loadingCancelCallback = cleanupPeer;
   
   peer = new Peer(G.roomCode, {
     debug: 2,
     config: { iceServers: [{ urls: 'stun:stun.l.google.com:19302' }] }
   });
   
+  // Set connection timeout
+  const connectionTimeout = setTimeout(() => {
+    if (connectionState === 'connecting') {
+      hideLoading();
+      showError('Connection timeout. Please check your internet and try again.');
+      cleanupPeer();
+      document.getElementById('hostStatusText').textContent = 'Connection timeout. Try again.';
+      document.getElementById('hostStatusDot').style.background = '#f44336';
+    }
+  }, 15000);
+  
   peer.on('open', id => {
+    clearTimeout(connectionTimeout);
+    hideLoading();
     document.getElementById('roomCodeDisplay').textContent = id;
     document.getElementById('hostStatusText').textContent = 'Room ready! Waiting for players...';
     document.getElementById('hostStatusDot').style.background = '#4CAF50';
     document.getElementById('generateRoomBtn').style.display = 'none';
     document.getElementById('startOnlineBtn').style.display = 'inline-block';
+    updateConnectionStatus('connected', 'Room Ready');
   });
   
   peer.on('connection', conn => {
     connection = conn;
     setupConnection(conn);
     document.getElementById('hostStatusText').textContent = 'Player connected! Ready to start.';
+    updateConnectionStatus('connected', 'Player Connected');
+    showError('🎉 Player joined! You can start the game.', 3000);
   });
   
   peer.on('error', err => {
+    clearTimeout(connectionTimeout);
     console.error('[PeerJS] Error:', err);
+    hideLoading();
+    
+    let errorMsg = 'Connection error: ' + err.message;
+    
     if (err.type === 'unavailable-id') {
+      // Room code already in use, generate a new one
+      showError('Room code in use, generating new code...', 3000);
       G.roomCode = generateRoomCode();
-      createRoom();
-    } else {
-      document.getElementById('hostStatusText').textContent = 'Error: ' + err.message;
-      document.getElementById('hostStatusDot').style.background = '#f44336';
+      setTimeout(() => createRoom(), 1000);
+      return;
+    } else if (err.type === 'network') {
+      errorMsg = 'Network error. Please check your internet connection.';
+    } else if (err.type === 'server-error') {
+      errorMsg = 'Server error. Please try again later.';
+    } else if (err.type === 'peer-unavailable') {
+      errorMsg = 'Could not connect to room. Please check the room code.';
     }
+    
+    showError(errorMsg);
+    document.getElementById('hostStatusText').textContent = errorMsg;
+    document.getElementById('hostStatusDot').style.background = '#f44336';
+    updateConnectionStatus('disconnected', 'Error');
   });
 }
 
@@ -806,38 +931,87 @@ function joinRoom() {
   cleanupPeer();
   G.isHost = false;
   G.roomCode = document.getElementById('joinRoomInput').value.trim().toUpperCase();
+  reconnectAttempts = 0;
   
   if (G.roomCode.length !== 6) {
     document.getElementById('guestStatusText').textContent = 'Please enter a 6-digit code';
     document.getElementById('guestStatusDot').style.background = '#f44336';
+    showError('Please enter a valid 6-digit room code');
     return;
   }
   
   document.getElementById('guestStatusText').textContent = 'Connecting...';
   document.getElementById('guestStatusDot').style.background = '#FFA500';
   
+  updateConnectionStatus('connecting', 'Joining room...');
+  showLoading('Connecting to room...', `Joining room: ${G.roomCode}`, true);
+  loadingCancelCallback = cleanupPeer;
+  
   peer = new Peer({
     debug: 2,
     config: { iceServers: [{ urls: 'stun:stun.l.google.com:19302' }] }
   });
   
+  // Set connection timeout
+  const connectionTimeout = setTimeout(() => {
+    if (connectionState === 'connecting') {
+      hideLoading();
+      showError('Connection timeout. Room may not exist or host is offline.');
+      cleanupPeer();
+      document.getElementById('guestStatusText').textContent = 'Connection timeout. Try again.';
+      document.getElementById('guestStatusDot').style.background = '#f44336';
+    }
+  }, 15000);
+  
   peer.on('open', () => {
     connection = peer.connect(G.roomCode);
     setupConnection(connection);
+    
+    // Set peer connection timeout
+    setTimeout(() => {
+      if (connection && !connection.open) {
+        hideLoading();
+        showError('Room not found. Please check the room code and try again.');
+        cleanupPeer();
+        document.getElementById('guestStatusText').textContent = 'Room not found';
+        document.getElementById('guestStatusDot').style.background = '#f44336';
+      }
+    }, 10000);
   });
   
   peer.on('error', err => {
+    clearTimeout(connectionTimeout);
     console.error('[PeerJS] Error:', err);
-    document.getElementById('guestStatusText').textContent = 'Connection failed';
+    hideLoading();
+    
+    let errorMsg = 'Connection failed';
+    
+    if (err.type === 'peer-unavailable') {
+      errorMsg = 'Room not found. Please check the room code.';
+    } else if (err.type === 'network') {
+      errorMsg = 'Network error. Please check your internet connection.';
+    } else if (err.type === 'server-error') {
+      errorMsg = 'Server error. Please try again later.';
+    } else if (err.type === 'invalid-id') {
+      errorMsg = 'Invalid room code format.';
+    }
+    
+    showError(errorMsg);
+    document.getElementById('guestStatusText').textContent = errorMsg;
     document.getElementById('guestStatusDot').style.background = '#f44336';
+    updateConnectionStatus('disconnected', 'Error');
   });
 }
 
 function setupConnection(conn) {
   conn.on('open', () => {
+    hideLoading();
+    reconnectAttempts = 0; // Reset on successful connection
+    
     if (!G.isHost) {
       document.getElementById('guestStatusText').textContent = 'Connected! Waiting for host...';
       document.getElementById('guestStatusDot').style.background = '#4CAF50';
+      updateConnectionStatus('connected', 'Connected');
       // Send handshake
       const name = document.getElementById('guestNameInput').value.trim() || 'Player 2';
       conn.send({ type: 'handshake', name: name, playerIndex: 1 });
@@ -847,13 +1021,26 @@ function setupConnection(conn) {
   conn.on('data', handlePeerData);
   
   conn.on('close', () => {
+    updateConnectionStatus('disconnected', 'Disconnected');
     if (!G.over) {
       setMsg('⚠️ Opponent disconnected');
+      showError('Connection lost. Opponent has left the game.');
+    }
+    
+    // Try to reconnect if we're still in game
+    if (G.isOnline && !G.over && navigator.onLine) {
+      setTimeout(() => {
+        if (!connection || !connection.open) {
+          attemptReconnection();
+        }
+      }, 3000);
     }
   });
   
   conn.on('error', err => {
     console.error('[PeerJS] Connection error:', err);
+    updateConnectionStatus('disconnected', 'Error');
+    showError('Connection error: ' + err.message);
   });
 }
 
@@ -926,6 +1113,147 @@ function cleanupPeer() {
   G.isHost = false;
   G.isOnline = false;
   G.roomCode = null;
+  connectionState = 'disconnected';
+  updateConnectionStatus('disconnected', 'Disconnected');
+  
+  // Clear reconnect timeout
+  if (reconnectTimeout) {
+    clearTimeout(reconnectTimeout);
+    reconnectTimeout = null;
+  }
+  reconnectAttempts = 0;
+}
+
+// ═══════════════════════════════════════════════════
+//  CONNECTION STATUS & LOADING OVERLAY
+// ═══════════════════════════════════════════════════
+function updateConnectionStatus(status, text) {
+  const el = document.getElementById('connectionStatus');
+  const textEl = document.getElementById('connectionStatusText');
+  const dotEl = el.querySelector('.conn-dot');
+  
+  connectionState = status;
+  
+  // Remove all status classes
+  el.classList.remove('connected', 'disconnected', 'connecting');
+  dotEl.style.animation = 'none';
+  
+  // Add appropriate class
+  el.classList.add(status);
+  
+  if (text) {
+    textEl.textContent = text;
+  } else {
+    switch (status) {
+      case 'connected': textEl.textContent = 'Connected'; break;
+      case 'connecting': textEl.textContent = 'Connecting...'; break;
+      case 'disconnected': textEl.textContent = 'Disconnected'; break;
+    }
+  }
+  
+  // Add pulsing animation for connecting state
+  if (status === 'connecting') {
+    dotEl.style.animation = 'pulse-dot 1.5s ease-in-out infinite';
+  }
+}
+
+function showLoading(text, subtext, showCancel) {
+  const overlay = document.getElementById('loadingOverlay');
+  const textEl = document.getElementById('loadingText');
+  const subtextEl = document.getElementById('loadingSubtext');
+  const cancelBtn = document.getElementById('loadingCancelBtn');
+  
+  if (text) textEl.textContent = text;
+  if (subtext) subtextEl.textContent = subtext;
+  else subtextEl.textContent = '';
+  
+  cancelBtn.style.display = showCancel ? 'inline-block' : 'none';
+  
+  overlay.classList.add('active');
+}
+
+function hideLoading() {
+  const overlay = document.getElementById('loadingOverlay');
+  overlay.classList.remove('active');
+}
+
+function showError(message, duration = 4000) {
+  const toast = document.getElementById('errorToast');
+  toast.textContent = message;
+  toast.classList.add('show');
+  
+  setTimeout(() => {
+    toast.classList.remove('show');
+  }, duration);
+}
+
+// ═══════════════════════════════════════════════════
+//  OFFLINE DETECTION
+// ═══════════════════════════════════════════════════
+function initOfflineDetection() {
+  const banner = document.getElementById('offlineBanner');
+  
+  function updateOnlineStatus() {
+    if (navigator.onLine) {
+      banner.classList.remove('show');
+      // Attempt reconnection if we were disconnected
+      if (connectionState === 'disconnected' && G.roomCode && !G.isOnline) {
+        attemptReconnection();
+      }
+    } else {
+      banner.classList.add('show');
+      showError('You are offline. Check your internet connection.');
+    }
+  }
+  
+  window.addEventListener('online', updateOnlineStatus);
+  window.addEventListener('offline', updateOnlineStatus);
+  
+  // Initial check
+  updateOnlineStatus();
+}
+
+function attemptReconnection() {
+  if (reconnectAttempts >= maxReconnectAttempts) {
+    showError('Failed to reconnect after multiple attempts. Please try again.');
+    hideLoading();
+    return;
+  }
+  
+  reconnectAttempts++;
+  showLoading('Reconnecting...', `Attempt ${reconnectAttempts} of ${maxReconnectAttempts}`, true);
+  
+  // Try to reconnect based on current role
+  if (G.isHost) {
+    createRoom();
+  } else if (G.roomCode) {
+    joinRoom();
+  }
+}
+
+// ═══════════════════════════════════════════════════
+//  ROOM CODE COPY
+// ═══════════════════════════════════════════════════
+function copyRoomCode() {
+  const code = document.getElementById('roomCodeDisplay').textContent;
+  if (code === '------') {
+    showError('Generate a room code first!');
+    return;
+  }
+  
+  navigator.clipboard.writeText(code).then(() => {
+    const btn = document.getElementById('copyRoomCodeBtn');
+    const originalText = btn.innerHTML;
+    btn.innerHTML = '✅ Copied!';
+    btn.classList.add('copied');
+    
+    setTimeout(() => {
+      btn.innerHTML = originalText;
+      btn.classList.remove('copied');
+    }, 2000);
+  }).catch(err => {
+    showError('Failed to copy. Please select and copy manually.');
+  });
 }
 
 function startOnlineGame() {
@@ -1205,7 +1533,7 @@ function renderPanels() {
     d.className = 'p-panel' + (i === G.current ? ' active' : '');
     d.style.setProperty('--pc', p.color);
     const pos = G.positions[i];
-    d.innerHTML = `<div class="p-dot"></div><span>${p.name} <b>(${pos || '-'})</b></span>`;
+    d.innerHTML = `<div class="p-dot"></div><span>${escapeHtml(p.name)} <b>(${pos || '-'})</b></span>`;
     cont.appendChild(d);
   });
 }

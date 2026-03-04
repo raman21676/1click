@@ -72,6 +72,126 @@
 .sound-toggle.muted {
   background: linear-gradient(135deg, #64748b 0%, #475569 100%);
 }
+
+/* ═══ CONNECTION STATUS & LOADING OVERLAY ═══════════════════ */
+.connection-status {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  background: rgba(0,0,0,0.4);
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 600;
+  transition: all 0.3s ease;
+}
+.connection-status.connected {
+  background: rgba(76, 175, 80, 0.2);
+  color: #4CAF50;
+}
+.connection-status.disconnected {
+  background: rgba(244, 67, 54, 0.2);
+  color: #f44336;
+}
+.connection-status.connecting {
+  background: rgba(255, 152, 0, 0.2);
+  color: #FF9800;
+}
+.conn-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: currentColor;
+  animation: pulse-dot 2s ease-in-out infinite;
+}
+.connection-status.connected .conn-dot {
+  animation: none;
+  background: #4CAF50;
+}
+.connection-status.disconnected .conn-dot {
+  animation: none;
+  background: #f44336;
+}
+@keyframes pulse-dot {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.5; transform: scale(1.2); }
+}
+
+/* Loading Overlay */
+.loading-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(13, 27, 110, 0.95);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  z-index: 10000;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.3s ease, visibility 0.3s ease;
+}
+.loading-overlay.active {
+  opacity: 1;
+  visibility: visible;
+}
+.loading-overlay .spinner {
+  width: 50px;
+  height: 50px;
+  border: 4px solid rgba(255,215,0,0.2);
+  border-top-color: #FFD700;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+.loading-overlay .loading-text {
+  margin-top: 16px;
+  color: #90CAF9;
+  font-size: 14px;
+  font-weight: 500;
+}
+.loading-overlay .loading-subtext {
+  margin-top: 8px;
+  color: rgba(255,255,255,0.5);
+  font-size: 12px;
+}
+.loading-overlay .cancel-btn {
+  margin-top: 20px;
+  padding: 10px 24px;
+  background: rgba(255,255,255,0.1);
+  border: 1px solid rgba(255,255,255,0.2);
+  border-radius: 8px;
+  color: #fff;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+.loading-overlay .cancel-btn:hover {
+  background: rgba(255,255,255,0.2);
+}
+
+/* Offline Banner */
+.offline-banner {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  background: #f44336;
+  color: #fff;
+  text-align: center;
+  padding: 10px;
+  font-size: 13px;
+  font-weight: 600;
+  z-index: 10001;
+  transform: translateY(-100%);
+  transition: transform 0.3s ease;
+}
+.offline-banner.show {
+  transform: translateY(0);
+}
+
 *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 html,body{height:100%;font-family:'Segoe UI',Arial,sans-serif;
   background:radial-gradient(ellipse at center,#283593 0%,#1a237e 50%,#0d1b6e 100%);
@@ -858,13 +978,30 @@ html,body{height:100%;font-family:'Segoe UI',Arial,sans-serif;
   <button class="start-btn" id="startBtn">▶ Start Game</button>
 </div>
 
+<!-- Loading Overlay -->
+<div id="loadingOverlay" class="loading-overlay">
+  <div class="spinner"></div>
+  <div class="loading-text" id="loadingText">Connecting...</div>
+  <div class="loading-subtext" id="loadingSubtext">Please wait while we establish connection</div>
+  <button class="cancel-btn" id="cancelConnectionBtn" style="display:none">Cancel</button>
+</div>
+
+<!-- Offline Banner -->
+<div id="offlineBanner" class="offline-banner">
+  ⚠️ You are offline. Please check your internet connection.
+</div>
+
 <!-- GAME SCREEN -->
 <div class="game-wrapper" id="gameScreen" style="display:none">
 
   <header class="game-header">
     <a href="../../../index.html" class="back-btn">← Back</a>
     <div class="header-title">🎲 LUDO</div>
-    <div style="width:50px"></div>
+    <!-- Connection Status Indicator -->
+    <div id="connectionStatus" class="connection-status" style="display:none">
+      <span class="conn-dot"></span>
+      <span class="conn-text">Connected</span>
+    </div>
   </header>
 
   <!-- Board -->
@@ -988,6 +1125,19 @@ html,body{height:100%;font-family:'Segoe UI',Arial,sans-serif;
 
 <script>
 // ════════════════════════════════════════════════════
+// ════════════════════════════════════════════════════
+// SECURITY UTILS
+// ════════════════════════════════════════════════════
+function escapeHtml(text) {
+  if (text === null || text === undefined) return '';
+  const div = document.createElement('div');
+  div.textContent = String(text);
+  return div.innerHTML;
+}
+function escapeAttr(text) {
+  if (text === null || text === undefined) return ';
+  return String(text).replace(/["&<>]/g, (c) => ({'"':&quot;,'&':&amp;,'<':&lt;,'>':&gt;}[c]));
+}
 // CONSTANTS
 // ════════════════════════════════════════════════════
 
@@ -1256,36 +1406,69 @@ function applyCenterCell(cell, r, c) {
 // TOKEN RENDERING
 // ════════════════════════════════════════════════════
 
-function renderTokens() {
-  // Remove existing tokens
-  document.querySelectorAll('.tok').forEach(t => t.remove());
+// Token cache to avoid unnecessary DOM updates
+const tokenCache = new Map();
+let renderTokensPending = false;
 
-  G.active.forEach(player => {
-    if (G.eliminated.has(player)) return;
-    G.tokens[player].forEach((pos, idx) => {
-      placeTokenIndexed(player, idx, pos);
-    });
+function renderTokens() {
+  // Throttle renders to avoid performance issues
+  if (renderTokensPending) return;
+  renderTokensPending = true;
+  
+  requestAnimationFrame(() => {
+    renderTokensPending = false;
+    _doRenderTokens();
   });
 }
 
-function placeTokenIndexed(player, idx, pos) {
+function _doRenderTokens() {
+  // Build current state map
+  const currentState = new Map();
+  G.active.forEach(player => {
+    if (G.eliminated.has(player)) return;
+    G.tokens[player].forEach((pos, idx) => {
+      currentState.set(`${player}-${idx}`, { player, idx, pos });
+    });
+  });
+  
+  // Remove tokens that no longer exist or have moved
+  tokenCache.forEach((tokenEl, key) => {
+    const current = currentState.get(key);
+    if (!current || tokenEl.dataset.pos !== String(current.pos)) {
+      tokenEl.remove();
+      tokenCache.delete(key);
+    }
+  });
+  
+  // Add/update tokens
+  currentState.forEach(({ player, idx, pos }, key) => {
+    const existing = tokenCache.get(key);
+    if (existing && existing.dataset.pos === String(pos)) {
+      // Token hasn't moved, skip
+      return;
+    }
+    
+    // Create or move token
+    placeTokenIndexed(player, idx, pos, key);
+  });
+}
+
+function placeTokenIndexed(player, idx, pos, cacheKey) {
   const token = createTokenEl(player, idx, pos);
-  const cell  = getCellForPosImproved(player, pos, idx);
-  if (!cell) {
-    console.log(`[DEBUG] No cell found for ${player}[${idx}] pos=${pos}`);
-    return;
-  }
+  const cell = getCellForPosImproved(player, pos, idx);
+  if (!cell) return;
 
   // Count existing tokens on cell for stacking
   const tokensOnCell = cell.querySelectorAll('.tok').length;
   cell.appendChild(token);
+  tokenCache.set(cacheKey, token);
 
   // Offset stacked tokens
   if (tokensOnCell > 0) {
     const offsets = [[0,0],[2,2],[-2,2],[2,-2],[-2,-2]];
     const off = offsets[Math.min(tokensOnCell, 4)];
     token.style.left = `calc(50% + ${off[0]}px - 50%)`;
-    token.style.top  = `calc(50% + ${off[1]}px - 50%)`;
+    token.style.top = `calc(50% + ${off[1]}px - 50%)`;
   }
 }
 
@@ -1306,36 +1489,7 @@ function getCellForPos(player, pos) {
   // Main path
   const local = pos;
   const globalIdx = (ENTRY[player] + local - 1) % 52;
-  const cell = document.querySelector(`[data-gpos="${globalIdx}"]`);
-  
-  // DEBUG: Visual flash and console log
-  if (pos === 1) {
-    const [row, col] = PATH[globalIdx];
-    console.log(`%c[TOKEN DEBUG] ${player.toUpperCase()} entering at pos=1`, 'color:red;font-size:14px;font-weight:bold');
-    console.log(`  Calculation: ENTRY[${player}]=${ENTRY[player]}, local=${local}`);
-    console.log(`  globalIdx = (${ENTRY[player]} + ${local} - 1) % 52 = ${globalIdx}`);
-    console.log(`  PATH[${globalIdx}] = [${row},${col}] (row ${row}, col ${col})`);
-    console.log(`  Expected cell ID: C${row}-${col}`);
-    console.log(`  Found cell: ${cell?cell.id:'NOT FOUND'}`);
-    console.log(`  Found cell data-gpos: ${cell?cell.dataset.gpos:'N/A'}`);
-    
-    // List all cells with this gpos
-    const allWithGpos = document.querySelectorAll(`[data-gpos="${globalIdx}"]`);
-    console.log(`  All cells with gpos=${globalIdx}:`, Array.from(allWithGpos).map(c => c.id));
-    
-    // Check the expected cell directly
-    const expectedCell = document.getElementById(`C${row}-${col}`);
-    console.log(`  Direct lookup C${row}-${col}:`, expectedCell ? `found (gpos=${expectedCell.dataset.gpos})` : 'NOT FOUND');
-    
-    // Flash the cell in player color
-    if (cell) {
-      const color = COLORS[player].main;
-      cell.style.boxShadow = `inset 0 0 0 4px ${color}, 0 0 20px ${color}`;
-      setTimeout(() => { cell.style.boxShadow = ''; }, 4000);
-    }
-  }
-  
-  return cell;
+  return document.querySelector(`[data-gpos="${globalIdx}"]`);
 }
 
 function homeSlotCell(player, idx) {
@@ -2090,10 +2244,29 @@ function performAutoTurn(player) {
 }
 
 // ════════════════════════════════════════════════════
+// Throttling variables for UI updates
+let uiUpdatePending = false;
+let lastUIState = "";
 // UI UPDATES
 // ════════════════════════════════════════════════════
 
 function updateUI() {
+  // Throttle UI updates to prevent performance issues during animations
+  if (uiUpdatePending) return;
+  
+  const player = curPlayer();
+  const stateKey = `${player}-${G.phase}-${G.currentRoll || 0}`;
+  if (stateKey === lastUIState) return; // Skip if nothing changed
+  lastUIState = stateKey;
+  
+  uiUpdatePending = true;
+  requestAnimationFrame(() => {
+    uiUpdatePending = false;
+    _updateUIImpl();
+  });
+}
+
+function _updateUIImpl() {
   const player = curPlayer();
   const color  = COLORS[player].main;
   const displayName = G.playerNames[player] || cap(player);
@@ -2241,6 +2414,7 @@ function initSetup() {
   renderSetupRows();
   initModeSelection();
   initOnlineMultiplayer();
+  initOfflineDetection();
 
   // Player count buttons
   document.querySelectorAll('.count-btn').forEach(btn => {
@@ -2321,6 +2495,109 @@ let peerColors = new Map(); // Maps peer connection to assigned color (for host 
 let roomCode = null;
 let connectedPlayers = 0;
 let myPeerId = null; // This player's peer ID
+let connectionRetryCount = 0;
+const MAX_RETRIES = 3;
+
+/* ═══ CONNECTION STATUS & OFFLINE DETECTION ═══════════════════ */
+
+function updateConnectionStatus(status, text) {
+  const indicator = document.getElementById('connectionStatus');
+  if (!indicator) return;
+  
+  indicator.style.display = G.isOnline ? 'flex' : 'none';
+  indicator.className = 'connection-status ' + status;
+  indicator.querySelector('.conn-text').textContent = text || status;
+}
+
+function showLoading(text, subtext, showCancel = false) {
+  const overlay = document.getElementById('loadingOverlay');
+  const textEl = document.getElementById('loadingText');
+  const subtextEl = document.getElementById('loadingSubtext');
+  const cancelBtn = document.getElementById('cancelConnectionBtn');
+  
+  if (textEl) textEl.textContent = text || 'Connecting...';
+  if (subtextEl) subtextEl.textContent = subtext || '';
+  if (cancelBtn) cancelBtn.style.display = showCancel ? 'block' : 'none';
+  if (overlay) overlay.classList.add('active');
+}
+
+function hideLoading() {
+  const overlay = document.getElementById('loadingOverlay');
+  if (overlay) overlay.classList.remove('active');
+}
+
+// Offline detection
+function initOfflineDetection() {
+  const banner = document.getElementById('offlineBanner');
+  
+  function updateOnlineStatus() {
+    if (navigator.onLine) {
+      banner.classList.remove('show');
+      // Try to reconnect if we were in an online game
+      if (G.isOnline && !isConnected()) {
+        updateConnectionStatus('connecting', 'Reconnecting...');
+        attemptReconnection();
+      }
+    } else {
+      banner.classList.add('show');
+      updateConnectionStatus('disconnected', 'Offline');
+    }
+  }
+  
+  window.addEventListener('online', updateOnlineStatus);
+  window.addEventListener('offline', updateOnlineStatus);
+  
+  // Initial check
+  updateOnlineStatus();
+}
+
+function isConnected() {
+  if (peerConnection?.open) return true;
+  if (peerConnections.some(c => c.open)) return true;
+  return false;
+}
+
+function attemptReconnection() {
+  if (connectionRetryCount >= MAX_RETRIES) {
+    updateConnectionStatus('disconnected', 'Connection Failed');
+    hideLoading();
+    if (confirm('Connection lost. Would you like to return to the main menu?')) {
+      cleanupPeer();
+      showSetup();
+    }
+    return;
+  }
+  
+  connectionRetryCount++;
+  showLoading(
+    `Reconnecting... (${connectionRetryCount}/${MAX_RETRIES})`,
+    'Attempting to restore connection',
+    true
+  );
+  
+  // Retry after delay
+  setTimeout(() => {
+    if (isConnected()) {
+      hideLoading();
+      connectionRetryCount = 0;
+      updateConnectionStatus('connected', 'Connected');
+    } else if (connectionRetryCount < MAX_RETRIES) {
+      attemptReconnection();
+    }
+  }, 3000);
+}
+
+// Cancel connection button
+document.addEventListener('DOMContentLoaded', () => {
+  const cancelBtn = document.getElementById('cancelConnectionBtn');
+  if (cancelBtn) {
+    cancelBtn.addEventListener('click', () => {
+      hideLoading();
+      cleanupPeer();
+      connectionRetryCount = MAX_RETRIES; // Stop retries
+    });
+  }
+});
 
 function initOnlineMultiplayer() {
   // Online player count selection
@@ -2449,6 +2726,7 @@ function createRoom() {
   roomCode = generateSixDigitCode();
   const maxPlayers = G.onlinePlayerCount || 2;
   
+  showLoading('Creating room...', 'Setting up peer-to-peer connection for ' + maxPlayers + ' players', true);
   document.getElementById('hostStatusText').textContent = '🔄 Creating room for ' + maxPlayers + ' players...';
   
   // Create Peer with 6-digit code as ID
@@ -2459,10 +2737,25 @@ function createRoom() {
   
   peer.on('open', (id) => {
     console.log('[PeerJS] Host created with ID:', id);
+    hideLoading();
     document.getElementById('roomCodeDisplay').textContent = id;
     document.getElementById('copyRoomCodeBtn').style.display = 'inline-block';
     document.getElementById('generateRoomCodeBtn').style.display = 'none';
     document.getElementById('hostStatusText').textContent = `✅ Room ready! (${connectedPlayers}/${maxPlayers}) Share: ${id}`;
+    updateConnectionStatus('connected', 'Room Ready');
+  });
+  
+  peer.on('error', (err) => {
+    console.error('[PeerJS] Host error:', err);
+    hideLoading();
+    document.getElementById('hostStatusText').textContent = '❌ Error: ' + err.message;
+    updateConnectionStatus('disconnected', 'Error');
+    
+    // If room already exists, generate new code
+    if (err.type === 'unavailable-id') {
+      document.getElementById('hostStatusText').textContent = '🔄 Room exists, generating new code...';
+      setTimeout(createRoom, 1000);
+    }
   });
   
   peer.on('connection', (conn) => {
@@ -2568,7 +2861,7 @@ function startOnlineGame() {
 // ════════════════════════════════════════════════════
 
 function joinRoom() {
-  const code = document.getElementById('joinRoomCodeInput').value.trim();
+  const code = document.getElementById('joinRoomCodeInput').value.trim().toUpperCase().replace(/[^A-Z0-9]/g, '');
   const guestName = document.getElementById('guestNameInput').value.trim();
   
   if (!code || code.length !== 6 || !/^\d{6}$/.test(code)) {
@@ -2578,14 +2871,16 @@ function joinRoom() {
   
   // Store guest name for later use in handshake
   if (guestName) {
-    G.guestName = guestName;
+    G.guestName = escapeHtml(guestName.substring(0, 12));
   }
   
   cleanupPeer();
   isHost = false;
   roomCode = code;
   
+  showLoading('Joining room...', 'Connecting to host: ' + code, true);
   document.getElementById('guestStatusText').textContent = '🔗 Connecting...';
+  updateConnectionStatus('connecting', 'Connecting...');
   
   // Create peer and connect to host
   peer = new Peer({
@@ -2601,8 +2896,11 @@ function joinRoom() {
   
   peer.on('error', (err) => {
     console.error('[PeerJS] Guest error:', err);
+    hideLoading();
+    updateConnectionStatus('disconnected', 'Error');
     let msg = 'Connection failed';
-    if (err.type === 'peer-unavailable') msg = 'Room not found';
+    if (err.type === 'peer-unavailable') msg = 'Room not found - check the code and try again';
+    if (err.type === 'network') msg = 'Network error - check your connection';
     document.getElementById('guestStatusText').textContent = '❌ ' + msg;
   });
 }
@@ -2612,8 +2910,15 @@ function joinRoom() {
 // ════════════════════════════════════════════════════
 
 function setupConnection(conn) {
+  // Show connecting status
+  if (!isHost) {
+    showLoading('Connecting to room...', 'Establishing peer-to-peer connection', true);
+  }
+  
   conn.on('open', () => {
     console.log('[PeerJS] Connected!');
+    hideLoading();
+    connectionRetryCount = 0; // Reset retry count on successful connection
     
     if (isHost) {
       document.getElementById('hostStatusText').textContent = '🎮 Opponent connected!';
@@ -2624,8 +2929,10 @@ function setupConnection(conn) {
       document.getElementById('guestStatus').querySelector('.status-dot').style.background = '#4CAF50';
     }
     
+    // Update connection status indicator
+    updateConnectionStatus('connected', 'Connected');
+    
     // Send handshake
-    // Use guest name if available (for guests joining), otherwise use default
     let displayName = G.playerNames[G.humanColor];
     if (!isHost && G.guestName) {
       displayName = G.guestName;
@@ -2644,19 +2951,33 @@ function setupConnection(conn) {
   conn.on('close', () => {
     console.log('[PeerJS] Connection closed');
     addLog('⚠️ Opponent disconnected');
+    updateConnectionStatus('disconnected', 'Disconnected');
+    
+    // Attempt reconnection if game is still ongoing
+    if (G.isOnline && document.getElementById('gameScreen').style.display === 'flex') {
+      attemptReconnection();
+    }
   });
   
   conn.on('error', (err) => {
     console.error('[PeerJS] Connection error:', err);
+    hideLoading();
+    updateConnectionStatus('disconnected', 'Error');
+    
+    if (!isHost) {
+      document.getElementById('guestStatusText').textContent = '❌ Connection error: ' + err.message;
+    }
   });
   
   // Timeout if not connected
   setTimeout(() => {
     if (!conn.open) {
+      hideLoading();
       if (isHost) {
         document.getElementById('hostStatusText').textContent = '⏳ Waiting for opponent...';
       } else {
-        document.getElementById('guestStatusText').textContent = '❌ Could not connect';
+        document.getElementById('guestStatusText').textContent = '❌ Could not connect - Room not found or host offline';
+        updateConnectionStatus('disconnected', 'Failed');
       }
     }
   }, 10000);
@@ -2796,7 +3117,7 @@ function renderSetupRows() {
           <div class="player-name-input-wrap" style="display:flex;gap:6px;align-items:center;margin-top:4px;">
             <span style="font-size:12px;color:rgba(255,255,255,.6)">Name:</span>
             <input type="text" class="player-name-input" data-player="${p}" 
-              value="${G.playerNames[p] || 'You'}" 
+              value="${escapeAttr(G.playerNames[p]) || 'You'}" 
               placeholder="Enter name" maxlength="12"
               style="flex:1;background:rgba(0,0,0,.3);border:1px solid rgba(255,255,255,.2);
                      border-radius:6px;padding:6px 10px;color:#fff;font-size:13px;
@@ -2810,7 +3131,7 @@ function renderSetupRows() {
         nameInput = `
           <div class="player-name-display" style="display:flex;gap:6px;align-items:center;margin-top:4px;">
             <span style="font-size:12px;color:rgba(255,255,255,.6)">Name:</span>
-            <span style="font-size:13px;color:rgba(255,255,255,.8);font-style:italic;">${G.playerNames[p] || getRandomAIName()}</span>
+            <span style="font-size:13px;color:rgba(255,255,255,.8);font-style:italic;">${escapeHtml(G.playerNames[p]) || getRandomAIName()}</span>
           </div>
         `;
       }

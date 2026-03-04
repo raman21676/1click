@@ -419,6 +419,42 @@
             }
         }
         
+        /* Connection Status */
+        .connection-status { display: flex; align-items: center; gap: 6px; padding: 6px 12px; background: rgba(0,0,0,0.4); border-radius: 20px; font-size: 12px; }
+        .connection-status.connected { background: rgba(76, 175, 80, 0.2); color: #4CAF50; }
+        .connection-status.disconnected { background: rgba(244, 67, 54, 0.2); color: #f44336; }
+        .connection-status.connecting { background: rgba(255, 152, 0, 0.2); color: #FF9800; }
+        .conn-dot { width: 8px; height: 8px; border-radius: 50%; animation: pulse-dot 2s ease-in-out infinite; }
+        .connection-status.connected .conn-dot { background: #4CAF50; animation: none; }
+        .connection-status.disconnected .conn-dot { background: #f44336; animation: none; }
+        .connection-status.connecting .conn-dot { background: #FF9800; }
+        @keyframes pulse-dot { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
+
+        /* Loading Overlay */
+        .loading-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.9); display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 10000; opacity: 0; visibility: hidden; transition: opacity 0.3s; }
+        .loading-overlay.active { opacity: 1; visibility: visible; }
+        .loading-overlay .spinner { width: 50px; height: 50px; border: 4px solid rgba(255,255,255,0.2); border-top-color: #fff; border-radius: 50%; animation: spin 1s linear infinite; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        .loading-overlay .loading-text { margin-top: 1rem; color: #fff; font-size: 1.2rem; font-weight: 600; }
+        .loading-overlay .loading-subtext { margin-top: 0.5rem; color: #94a3b8; font-size: 0.9rem; }
+        .loading-overlay .cancel-btn { margin-top: 1.5rem; padding: 0.6rem 1.5rem; border: none; border-radius: 8px; background: var(--border); color: var(--text); font-size: 0.9rem; cursor: pointer; transition: all 0.2s; }
+        .loading-overlay .cancel-btn:hover { background: #64748b; }
+
+        /* Offline Banner */
+        .offline-banner { position: fixed; top: 0; left: 0; right: 0; background: #f44336; color: #fff; text-align: center; padding: 10px; font-size: 13px; z-index: 10001; transform: translateY(-100%); transition: transform 0.3s; }
+        .offline-banner.show { transform: translateY(0); }
+
+        /* Room Code with Copy Button */
+        .room-code-display { display: flex; align-items: center; gap: 10px; justify-content: center; margin-top: 0.5rem; }
+        .room-code-display strong { font-size: 1.5rem; letter-spacing: 3px; background: rgba(34, 197, 94, 0.2); padding: 8px 16px; border-radius: 8px; color: #22c55e; }
+        .copy-btn { padding: 8px 12px; border: none; border-radius: 6px; background: var(--border); color: var(--text); cursor: pointer; font-size: 0.85rem; transition: all 0.2s; display: flex; align-items: center; gap: 5px; }
+        .copy-btn:hover { background: var(--primary); }
+        .copy-btn.copied { background: #22c55e; color: white; }
+
+        /* Error Toast */
+        .error-toast { position: fixed; bottom: 80px; left: 50%; transform: translateX(-50%) translateY(100px); background: #f44336; color: #fff; padding: 12px 24px; border-radius: 8px; font-size: 0.9rem; z-index: 10002; opacity: 0; transition: all 0.3s; max-width: 90%; text-align: center; }
+        .error-toast.show { transform: translateX(-50%) translateY(0); opacity: 1; }
+
         /* Controls */
         .game-controls {
             display: flex;
@@ -544,7 +580,10 @@
         <header class="header">
             <a href="../../../index.html" class="back-btn">← Back</a>
             <h1 class="title">बाघचाल</h1>
-            <div style="width: 50px;"></div>
+            <div class="connection-status disconnected" id="connection-status">
+                <span class="conn-dot"></span>
+                <span class="conn-text">Disconnected</span>
+            </div>
         </header>
 
         <!-- Menu Screen -->
@@ -683,6 +722,22 @@
             </div>
         </div>
 
+        <!-- Loading Overlay -->
+        <div class="loading-overlay" id="loading-overlay">
+            <div class="spinner"></div>
+            <div class="loading-text" id="loading-text">Connecting...</div>
+            <div class="loading-subtext" id="loading-subtext"></div>
+            <button class="cancel-btn" id="loading-cancel-btn" style="display:none;">Cancel</button>
+        </div>
+
+        <!-- Offline Banner -->
+        <div class="offline-banner" id="offline-banner">
+            ⚠️ You are offline. Please check your internet connection.
+        </div>
+
+        <!-- Error Toast -->
+        <div class="error-toast" id="error-toast"></div>
+
         <!-- Game Over Modal -->
         <div id="game-over-modal" class="modal hidden">
             <div class="modal-content">
@@ -773,6 +828,9 @@ class BaagchalGame {
     
     init() {
         this.setupMenu();
+        this.setupOnline();
+        // Ensure menu is shown on startup
+        this.showMenu();
     }
     
     setupMenu() {
@@ -1758,10 +1816,6 @@ class BaagchalGame {
             phaseEl.innerHTML = `Phase: <span>Movement</span> (${this.goatsCaptured} captured)`;
         }
     }
-}
-
-new BaagchalGame();
-    }
     
     // Online Multiplayer
     setupOnline() {
@@ -1789,22 +1843,61 @@ new BaagchalGame();
     createRoom() {
         const roomCode = Math.floor(100000 + Math.random() * 900000).toString();
         document.getElementById('online-status').innerHTML = 
-            `<span style="color:#22c55e;">Room created! Code: <strong style="font-size:1.3rem;letter-spacing:2px;">${roomCode}</strong></span>`;
+            `<span style="color:#22c55e;">Room created! Code:</span>
+            <div class="room-code-display">
+                <strong id="room-code-text">${roomCode}</strong>
+                <button class="copy-btn" id="copy-room-code" title="Copy room code">
+                    📋 Copy
+                </button>
+            </div>
+            <p style="color:var(--text-muted);font-size:0.8rem;margin-top:0.5rem;">Share this code with your friend to join</p>`;
+        
+        // Setup copy button
+        document.getElementById('copy-room-code').addEventListener('click', () => {
+            this.copyRoomCode(roomCode);
+        });
         
         // Initialize PeerJS as host
         this.initPeerJS(roomCode, true);
     }
     
+    copyRoomCode(code) {
+        navigator.clipboard.writeText(code).then(() => {
+            const copyBtn = document.getElementById('copy-room-code');
+            copyBtn.innerHTML = '✓ Copied!';
+            copyBtn.classList.add('copied');
+            setTimeout(() => {
+                copyBtn.innerHTML = '📋 Copy';
+                copyBtn.classList.remove('copied');
+            }, 2000);
+        }).catch(err => {
+            console.error('Failed to copy:', err);
+            // Fallback for older browsers
+            const textArea = document.createElement('textarea');
+            textArea.value = code;
+            document.body.appendChild(textArea);
+            textArea.select();
+            document.execCommand('copy');
+            document.body.removeChild(textArea);
+            const copyBtn = document.getElementById('copy-room-code');
+            copyBtn.innerHTML = '✓ Copied!';
+            copyBtn.classList.add('copied');
+            setTimeout(() => {
+                copyBtn.innerHTML = '📋 Copy';
+                copyBtn.classList.remove('copied');
+            }, 2000);
+        });
+    }
+    
     joinRoom() {
-        const roomCode = document.getElementById('room-code-input').value.trim().toUpperCase();
+        const roomCode = document.getElementById('room-code-input').value.trim().toUpperCase().replace(/[^A-Z0-9]/g, '');
         if (roomCode.length !== 6) {
-            document.getElementById('online-status').innerHTML = 
-                `<span style="color:#ef4444;">Please enter a valid 6-digit room code</span>`;
+            this.showErrorToast('Please enter a valid 6-digit room code');
             return;
         }
         
-        document.getElementById('online-status').innerHTML = 
-            `<span style="color:#3b82f6;">Connecting...</span>`;
+        // Show loading overlay
+        this.showLoading('Joining Room...', `Connecting to room ${roomCode}`, true);
         
         // Initialize PeerJS as guest
         this.initPeerJS(roomCode, false);
@@ -1816,8 +1909,26 @@ new BaagchalGame();
         this.roomCode = roomCode;
         this.onlineSide = isHost ? 'G' : 'T'; // Host plays Goat, Guest plays Tiger
         
+        // Update connection status
+        this.updateConnectionStatus('connecting', isHost ? 'Creating room...' : 'Connecting...');
+        
+        // Show loading for host too
+        if (isHost) {
+            this.showLoading('Creating Room...', 'Setting up peer connection', true);
+        }
+        
         // Generate unique peer ID
         const peerId = `baagchal-${roomCode}-${isHost ? 'host' : 'guest'}-${Date.now()}`;
+        
+        // Set connection timeout
+        this.connectionTimeout = setTimeout(() => {
+            if (!this.conn || !this.conn.open) {
+                this.hideLoading();
+                this.showErrorToast('Connection timeout. Please try again.');
+                this.updateConnectionStatus('disconnected', 'Connection failed');
+                this.cleanupPeer();
+            }
+        }, 30000); // 30 second timeout
         
         this.peer = new Peer(peerId, {
             host: '0.peerjs.com',
@@ -1828,13 +1939,16 @@ new BaagchalGame();
         
         this.peer.on('open', (id) => {
             console.log('PeerJS connected:', id);
+            this.updateConnectionStatus('connecting', isHost ? 'Waiting for opponent...' : 'Finding room...');
+            
             if (isHost) {
                 document.getElementById('online-status').innerHTML = 
                     `<span style="color:#22c55e;">Room ${roomCode} created! Waiting for opponent...</span>`;
+                this.updateLoadingText('Waiting for opponent...', 'Share the room code with your friend');
             } else {
                 // Connect to host
                 const hostId = `baagchal-${roomCode}-host`;
-                this.conn = this.peer.connect(hostId);
+                this.conn = this.peer.connect(hostId, { reliable: true });
                 this.setupConnection();
             }
         });
@@ -1846,14 +1960,55 @@ new BaagchalGame();
         
         this.peer.on('error', (err) => {
             console.error('PeerJS error:', err);
+            this.hideLoading();
+            clearTimeout(this.connectionTimeout);
+            
+            let errorMsg = 'Connection error';
+            if (err.type === 'peer-unavailable') {
+                errorMsg = 'Room not found. Please check the room code.';
+            } else if (err.type === 'network') {
+                errorMsg = 'Network error. Please check your internet connection.';
+            } else if (err.type === 'webrtc') {
+                errorMsg = 'WebRTC connection failed. Please try again.';
+            } else if (err.message) {
+                errorMsg = err.message;
+            }
+            
+            this.showErrorToast(errorMsg);
+            this.updateConnectionStatus('disconnected', 'Connection error');
             document.getElementById('online-status').innerHTML = 
-                `<span style="color:#ef4444;">Connection error: ${err.message}</span>`;
+                `<span style="color:#ef4444;">${errorMsg}</span>`;
         });
+        
+        this.peer.on('disconnected', () => {
+            console.log('PeerJS disconnected');
+            this.updateConnectionStatus('disconnected', 'Disconnected');
+            this.hideLoading();
+        });
+    }
+    
+    cleanupPeer() {
+        if (this.connectionTimeout) {
+            clearTimeout(this.connectionTimeout);
+            this.connectionTimeout = null;
+        }
+        if (this.conn) {
+            this.conn.close();
+            this.conn = null;
+        }
+        if (this.peer) {
+            this.peer.destroy();
+            this.peer = null;
+        }
+        this.isOnline = false;
     }
     
     setupConnection() {
         this.conn.on('open', () => {
             console.log('PeerJS connection opened');
+            clearTimeout(this.connectionTimeout);
+            this.hideLoading();
+            this.updateConnectionStatus('connected', 'Connected');
             document.getElementById('online-status').innerHTML = 
                 `<span style="color:#22c55e;">Connected! Starting game...</span>`;
             
@@ -1868,8 +2023,16 @@ new BaagchalGame();
         });
         
         this.conn.on('close', () => {
+            this.updateConnectionStatus('disconnected', 'Disconnected');
+            this.showErrorToast('Opponent disconnected');
             document.getElementById('online-status').innerHTML = 
                 `<span style="color:#ef4444;">Opponent disconnected</span>`;
+        });
+        
+        this.conn.on('error', (err) => {
+            console.error('Connection error:', err);
+            this.showErrorToast('Connection error occurred');
+            this.updateConnectionStatus('disconnected', 'Connection error');
         });
     }
     
@@ -1880,6 +2043,9 @@ new BaagchalGame();
         document.getElementById('online-setup').style.display = 'none';
         document.getElementById('game-screen').style.display = 'flex';
         this.render();
+        
+        // Initialize offline detection once game starts
+        this.initOfflineDetection();
         
         // Send start signal to opponent
         if (this.conn) {
@@ -1934,36 +2100,147 @@ new BaagchalGame();
             });
         }
     }
-    
-    // Override endTurn for online
-    endTurn() {
-        if (this.isOnline) {
-            this.sendMoveToPeer();
-        }
-        this.render();
-    }
-    
-    // Override handleCellClick for online
-    handleCellClick(index) {
-        if (this.winner) return;
-        if (this.isOnline && this.turn !== this.playerSide) return; // Not my turn
-        if (this.isOnline && this.turn !== this.onlineSide) return; // Wrong side
-        
-        // ... rest of original logic handled by existing code ...
-        // Call parent's logic and then send move
-        const originalEndTurn = this.endTurn.bind(this);
-        this.endTurn = () => {
-            if (this.isOnline) {
-                this.sendMoveToPeer();
-            }
-            this.render();
-        };
-    }
 }
 
 const game = new BaagchalGame();
-game.setupOnline();
-    </script>
+
+// ============================================
+// UX ENHANCEMENT FUNCTIONS
+// ============================================
+
+function updateConnectionStatus(status, text) {
+    const statusEl = document.getElementById('connection-status');
+    const dotEl = statusEl.querySelector('.conn-dot');
+    const textEl = statusEl.querySelector('.conn-text');
+    
+    // Remove all status classes
+    statusEl.classList.remove('connected', 'disconnected', 'connecting');
+    
+    // Add new status class
+    statusEl.classList.add(status);
+    
+    // Update text
+    if (text) {
+        textEl.textContent = text;
+    } else {
+        switch(status) {
+            case 'connected':
+                textEl.textContent = 'Connected';
+                break;
+            case 'disconnected':
+                textEl.textContent = 'Disconnected';
+                break;
+            case 'connecting':
+                textEl.textContent = 'Connecting...';
+                break;
+        }
+    }
+}
+
+function showLoading(text, subtext, showCancel) {
+    const overlay = document.getElementById('loading-overlay');
+    const textEl = document.getElementById('loading-text');
+    const subtextEl = document.getElementById('loading-subtext');
+    const cancelBtn = document.getElementById('loading-cancel-btn');
+    
+    if (text) textEl.textContent = text;
+    if (subtext) subtextEl.textContent = subtext;
+    subtextEl.style.display = subtext ? 'block' : 'none';
+    cancelBtn.style.display = showCancel ? 'block' : 'none';
+    
+    overlay.classList.add('active');
+}
+
+function updateLoadingText(text, subtext) {
+    const textEl = document.getElementById('loading-text');
+    const subtextEl = document.getElementById('loading-subtext');
+    
+    if (text) textEl.textContent = text;
+    if (subtext) subtextEl.textContent = subtext;
+}
+
+function hideLoading() {
+    const overlay = document.getElementById('loading-overlay');
+    overlay.classList.remove('active');
+}
+
+function showErrorToast(message) {
+    const toast = document.getElementById('error-toast');
+    toast.textContent = message;
+    toast.classList.add('show');
+    
+    // Hide after 4 seconds
+    setTimeout(() => {
+        toast.classList.remove('show');
+    }, 4000);
+}
+
+function initOfflineDetection() {
+    const offlineBanner = document.getElementById('offline-banner');
+    
+    function updateOnlineStatus() {
+        if (navigator.onLine) {
+            offlineBanner.classList.remove('show');
+            // Attempt reconnection if we were in an online game
+            if (game.isOnline && game.conn && !game.conn.open) {
+                attemptReconnection();
+            }
+        } else {
+            offlineBanner.classList.add('show');
+            updateConnectionStatus('disconnected', 'Offline');
+        }
+    }
+    
+    window.addEventListener('online', updateOnlineStatus);
+    window.addEventListener('offline', updateOnlineStatus);
+    
+    // Check initial status
+    if (!navigator.onLine) {
+        offlineBanner.classList.add('show');
+    }
+}
+
+function attemptReconnection() {
+    if (!game.isOnline || !game.roomCode) return;
+    
+    showLoading('Reconnecting...', 'Attempting to restore connection', true);
+    updateConnectionStatus('connecting', 'Reconnecting...');
+    
+    // Close existing connection
+    if (game.conn) {
+        game.conn.close();
+    }
+    
+    // Re-initialize PeerJS with same room code
+    setTimeout(() => {
+        game.initPeerJS(game.roomCode, game.isHost);
+    }, 1000);
+}
+
+// Setup cancel button
+document.getElementById('loading-cancel-btn').addEventListener('click', () => {
+    hideLoading();
+    if (game.connectionTimeout) {
+        clearTimeout(game.connectionTimeout);
+        game.connectionTimeout = null;
+    }
+    if (game.peer) {
+        game.cleanupPeer();
+    }
+    updateConnectionStatus('disconnected', 'Cancelled');
+});
+
+// Expose functions to game instance for internal use
+game.updateConnectionStatus = updateConnectionStatus;
+game.showLoading = showLoading;
+game.hideLoading = hideLoading;
+game.updateLoadingText = updateLoadingText;
+game.showErrorToast = showErrorToast;
+game.initOfflineDetection = initOfflineDetection;
+
+// Initialize offline detection on page load
+initOfflineDetection();
+</script>
     <script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js"></script>
     <script src="../../assets/js/sound.js"></script>
     <script>

@@ -898,21 +898,29 @@
             return arr;
         }
         
+        getBoxDimensions() {
+            // Return [rows, cols] for each board size
+            const dims = { 6: [2, 3], 9: [3, 3], 12: [3, 4], 16: [4, 4] };
+            return dims[this.size] || [Math.floor(Math.sqrt(this.size)), Math.ceil(Math.sqrt(this.size))];
+        }
+        
         isValid(board, pos, num) {
             const row = Math.floor(pos / this.size);
             const col = pos % this.size;
             
+            // Check row and column
             for (let i = 0; i < this.size; i++) {
                 if (board[row * this.size + i] === num) return false;
                 if (board[i * this.size + col] === num) return false;
             }
             
-            const boxRow = Math.floor(row / Math.sqrt(this.size)) * Math.sqrt(this.size);
-            const boxCol = Math.floor(col / Math.sqrt(this.size)) * Math.sqrt(this.size);
-            const boxSize = Math.sqrt(this.size);
+            // Check box
+            const [boxRows, boxCols] = this.getBoxDimensions();
+            const boxRow = Math.floor(row / boxRows) * boxRows;
+            const boxCol = Math.floor(col / boxCols) * boxCols;
             
-            for (let i = 0; i < boxSize; i++) {
-                for (let j = 0; j < boxSize; j++) {
+            for (let i = 0; i < boxRows; i++) {
+                for (let j = 0; j < boxCols; j++) {
                     if (board[(boxRow + i) * this.size + (boxCol + j)] === num) return false;
                 }
             }

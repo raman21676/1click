@@ -544,20 +544,35 @@ class SnakeGame {
         document.getElementById('game-over-overlay').classList.add('hidden');
         document.getElementById('pause-overlay').classList.add('hidden');
 
-        if (this.gameLoop) clearInterval(this.gameLoop);
-        this.gameLoop = setInterval(() => this.update(), this.currentSpeed);
+        // Use requestAnimationFrame for smoother animation
+        if (this.gameLoop) cancelAnimationFrame(this.gameLoop);
+        this.lastUpdateTime = 0;
+        this.gameLoop = requestAnimationFrame((t) => this.gameLoopFn(t));
     }
 
     togglePause() {
         if (!this.gameRunning) return;
         this.gamePaused = !this.gamePaused;
         if (this.gamePaused) {
-            clearInterval(this.gameLoop);
+            cancelAnimationFrame(this.gameLoop);
             document.getElementById('pause-overlay').classList.remove('hidden');
         } else {
             document.getElementById('pause-overlay').classList.add('hidden');
-            this.gameLoop = setInterval(() => this.update(), this.currentSpeed);
+            this.lastUpdateTime = 0;
+            this.gameLoop = requestAnimationFrame((t) => this.gameLoopFn(t));
         }
+    }
+    
+    gameLoopFn(timestamp) {
+        if (!this.gameRunning || this.gamePaused) return;
+        
+        const elapsed = timestamp - this.lastUpdateTime;
+        if (elapsed > this.currentSpeed) {
+            this.update();
+            this.lastUpdateTime = timestamp;
+        }
+        
+        this.gameLoop = requestAnimationFrame((t) => this.gameLoopFn(t));
     }
 
     update() {
@@ -591,8 +606,7 @@ class SnakeGame {
     increaseSpeed() {
         const minSpeeds = { easy: 140, medium: 60, hard: 35 };
         this.currentSpeed = Math.max(minSpeeds[this.difficulty], Math.floor(this.currentSpeed * 0.93));
-        clearInterval(this.gameLoop);
-        this.gameLoop = setInterval(() => this.update(), this.currentSpeed);
+        // Speed is automatically applied in gameLoopFn
     }
 
     randomFood() {
@@ -610,55 +624,60 @@ class SnakeGame {
         const { ctx, canvas, cellSize } = this;
         const G = cellSize;
 
+        // Clear canvas efficiently
         ctx.fillStyle = this.colors.bg;
         ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-        // Grid
-        ctx.strokeStyle = this.colors.grid;
-        ctx.lineWidth = 0.5;
-        for (let i = 0; i <= this.tileCount; i++) {
-            const p = i * G;
-            ctx.beginPath(); ctx.moveTo(p, 0); ctx.lineTo(p, canvas.height); ctx.stroke();
-            ctx.beginPath(); ctx.moveTo(0, p); ctx.lineTo(canvas.width, p); ctx.stroke();
+        // Draw grid only if not drawn to offscreen canvas yet
+        if (!this.gridCanvas) {
+            this.gridCanvas = document.createElement('canvas');
+            this.gridCanvas.width = canvas.width;
+            this.gridCanvas.height = canvas.height;
+            const gctx = this.gridCanvas.getContext('2d');
+            gctx.strokeStyle = this.colors.grid;
+            gctx.lineWidth = 0.5;
+            for (let i = 0; i <= this.tileCount; i++) {
+                const p = i * G;
+                gctx.beginPath(); gctx.moveTo(p, 0); gctx.lineTo(p, canvas.height); gctx.stroke();
+                gctx.beginPath(); gctx.moveTo(0, p); gctx.lineTo(canvas.width, p); gctx.stroke();
+            }
         }
+        ctx.drawImage(this.gridCanvas, 0, 0);
 
-        // Food
+        // Food (without expensive shadow)
         ctx.fillStyle = this.colors.food;
-        ctx.shadowColor = this.colors.food;
-        ctx.shadowBlur = 8;
         const inset = Math.max(2, G * 0.18);
         ctx.fillRect(this.food.x * G + inset, this.food.y * G + inset, G - inset * 2, G - inset * 2);
-        ctx.shadowBlur = 0;
 
-        // Snake
-        this.snake.forEach((seg, index) => {
+        // Snake - batch draw operations
+        ctx.fillStyle = this.colors.snake;
+        const snakeLen = this.snake.length;
+        for (let i = snakeLen - 1; i >= 0; i--) {
+            const seg = this.snake[i];
             const x = seg.x * G;
             const y = seg.y * G;
-            if (index === 0) {
+            if (i === 0) {
                 // Head
                 ctx.fillStyle = this.colors.snakeHead;
                 ctx.fillRect(x + 1, y + 1, G - 2, G - 2);
                 // Eyes
-                const ep = Math.max(2, G * 0.15);
-                const es = Math.max(2, G * 0.18);
                 ctx.fillStyle = '#000';
+                const es = Math.max(2, G * 0.18);
                 if      (this.dx === 1)  { ctx.fillRect(x + G*0.6, y + G*0.2, es, es); ctx.fillRect(x + G*0.6, y + G*0.6, es, es); }
-                else if (this.dx === -1) { ctx.fillRect(x + ep,    y + G*0.2, es, es); ctx.fillRect(x + ep,    y + G*0.6, es, es); }
-                else if (this.dy === -1) { ctx.fillRect(x + G*0.2, y + ep,    es, es); ctx.fillRect(x + G*0.6, y + ep,    es, es); }
+                else if (this.dx === -1) { ctx.fillRect(x + G*0.15, y + G*0.2, es, es); ctx.fillRect(x + G*0.15, y + G*0.6, es, es); }
+                else if (this.dy === -1) { ctx.fillRect(x + G*0.2, y + G*0.15, es, es); ctx.fillRect(x + G*0.6, y + G*0.15, es, es); }
                 else                     { ctx.fillRect(x + G*0.2, y + G*0.6, es, es); ctx.fillRect(x + G*0.6, y + G*0.6, es, es); }
-            } else {
                 ctx.fillStyle = this.colors.snake;
+            } else {
+                // Body - simplified drawing
                 ctx.fillRect(x + 2, y + 2, G - 4, G - 4);
-                ctx.fillStyle = '#3eca6d';
-                const inner = Math.max(2, G * 0.25);
-                ctx.fillRect(x + inner * 1.5, y + inner * 1.5, G - inner * 3, G - inner * 3);
             }
-        });
+        }
     }
 
     gameOver() {
         this.gameRunning = false;
-        clearInterval(this.gameLoop);
+        cancelAnimationFrame(this.gameLoop);
         const hs = Storage.get('snake-high-score') || 0;
         if (this.score > hs) Storage.set('snake-high-score', this.score);
         document.getElementById('final-score').textContent = this.score;
