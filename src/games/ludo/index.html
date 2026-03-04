@@ -2567,7 +2567,7 @@ function showFinalRankings() {
   let html = '<div class="win-rankings-title">Final Rankings</div>';
   G.rankings.forEach((player, idx) => {
     const rank = idx + 1;
-    const posClass = rank === 1 ? '' : (rank === 2 ? 'silver' : (rank === 3 ? 'bronze : ''));
+    const posClass = rank === 1 ? '' : (rank === 2 ? 'silver' : (rank === 3 ? 'bronze' : ''));
     const medal = rank === 1 ? '🥇' : (rank === 2 ? '🥈' : (rank === 3 ? '🥉' : `#${rank}`));
     const name = G.playerNames[player] || cap(player);
     const emoji = G.playerEmojis[player] || '';
