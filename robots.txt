@@ -1,12 +1,45 @@
 User-agent: *
 Allow: /
 
-# Sitemap location
+# Main sitemap
 Sitemap: https://1click.live/sitemap.xml
 
-# Crawl rate
-Crawl-delay: 1
+# Allow all search engines to crawl everything
+Disallow:
 
-# Disallow patterns (if any in future)
-# Disallow: /private/
-# Disallow: /admin/
+# Crawl rate optimization
+Crawl-delay: 0.5
+
+# Specific bot optimizations
+User-agent: Googlebot
+Allow: /
+Crawl-delay: 0.3
+
+User-agent: Googlebot-Image
+Allow: /
+
+User-agent: Bingbot
+Allow: /
+Crawl-delay: 0.5
+
+User-agent: DuckDuckBot
+Allow: /
+
+User-agent: Slurp (Yahoo)
+Allow: /
+
+User-agent: Baiduspider
+Allow: /
+
+User-agent: YandexBot
+Allow: /
+
+# Block bad bots
+User-agent: MJ12bot
+Disallow: /
+
+User-agent: AhrefsBot
+Disallow: /
+
+User-agent: SemrushBot
+Disallow: /
