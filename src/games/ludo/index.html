@@ -560,32 +560,32 @@ html,body{height:100%;font-family:'Segoe UI',Arial,sans-serif;
   align-self: center;
 }
 
-/* Face 1 — center only */
+/* Face 1 -- center only */
 .face-1 .dot:nth-child(1) { grid-area: 2 / 2; }
 
-/* Face 2 — top-left, bottom-right diagonal */
+/* Face 2 -- top-left, bottom-right diagonal */
 .face-2 .dot:nth-child(1) { grid-area: 1 / 1; }
 .face-2 .dot:nth-child(2) { grid-area: 3 / 3; }
 
-/* Face 3 — main diagonal */
+/* Face 3 -- main diagonal */
 .face-3 .dot:nth-child(1) { grid-area: 1 / 1; }
 .face-3 .dot:nth-child(2) { grid-area: 2 / 2; }
 .face-3 .dot:nth-child(3) { grid-area: 3 / 3; }
 
-/* Face 4 — four corners */
+/* Face 4 -- four corners */
 .face-4 .dot:nth-child(1) { grid-area: 1 / 1; }
 .face-4 .dot:nth-child(2) { grid-area: 1 / 3; }
 .face-4 .dot:nth-child(3) { grid-area: 3 / 1; }
 .face-4 .dot:nth-child(4) { grid-area: 3 / 3; }
 
-/* Face 5 — four corners + center */
+/* Face 5 -- four corners + center */
 .face-5 .dot:nth-child(1) { grid-area: 1 / 1; }
 .face-5 .dot:nth-child(2) { grid-area: 1 / 3; }
 .face-5 .dot:nth-child(3) { grid-area: 2 / 2; }
 .face-5 .dot:nth-child(4) { grid-area: 3 / 1; }
 .face-5 .dot:nth-child(5) { grid-area: 3 / 3; }
 
-/* Face 6 — two columns of three */
+/* Face 6 -- two columns of three */
 .face-6 .dot:nth-child(1) { grid-area: 1 / 1; }
 .face-6 .dot:nth-child(2) { grid-area: 1 / 3; }
 .face-6 .dot:nth-child(3) { grid-area: 2 / 1; }
@@ -656,7 +656,7 @@ html,body{height:100%;font-family:'Segoe UI',Arial,sans-serif;
 .dice-cube.rolling-5 { animation: roll5 0.85s cubic-bezier(0.22, 0.61, 0.36, 1) forwards; }
 .dice-cube.rolling-6 { animation: roll6 0.85s cubic-bezier(0.22, 0.61, 0.36, 1) forwards; }
 
-/* Wrapper bounce — simulates physical throw */
+/* Wrapper bounce -- simulates physical throw */
 .dice-scene.rolling {
   animation: diceThrow 0.85s cubic-bezier(0.22, 0.61, 0.36, 1) forwards;
 }
@@ -976,7 +976,7 @@ html,body{height:100%;font-family:'Segoe UI',Arial,sans-serif;
         <button class="count-btn" data-n="3">3 Players</button>
         <button class="count-btn" data-n="4">4 Players</button>
       </div>
-      <p id="multiPlayerNote" style="color:#FFA726;font-size:11px;margin-top:6px;display:none">⚠️ 3-4 players: Host must share code with all players</p>
+      <p id="multiPlayerNote" style="color:#FFA726;font-size:11px;margin-top:6px;display:none">(!)️ 3-4 players: Host must share code with all players</p>
       
       <div class="online-options" style="margin-top:16px">
         <button class="online-btn" id="createRoomBtn">
@@ -1061,7 +1061,7 @@ html,body{height:100%;font-family:'Segoe UI',Arial,sans-serif;
 
 <!-- Offline Banner -->
 <div id="offlineBanner" class="offline-banner">
-  ⚠️ You are offline. Please check your internet connection.
+  (!)️ You are offline. Please check your internet connection.
 </div>
 
 <!-- GAME SCREEN -->
@@ -1093,10 +1093,10 @@ html,body{height:100%;font-family:'Segoe UI',Arial,sans-serif;
       <!-- Auto-turn countdown overlay (online mode only) -->
       <div class="auto-turn-overlay" id="autoTurnOverlay">
         <div class="auto-turn-box">
-          <div class="auto-turn-title">⏰ Time's Up!</div>
+          <div class="auto-turn-title">(alarm) Time's Up!</div>
           <div class="auto-turn-player" id="autoTurnPlayer">Player</div>
           <div class="auto-turn-lives">
-            Lives left: <span class="lives-hearts" id="autoTurnLives">❤️❤️❤️❤️❤️</span>
+            Lives left: <span class="lives-hearts" id="autoTurnLives">(heart)️(heart)️(heart)️(heart)️(heart)️</span>
           </div>
           <div class="auto-turn-countdown" id="autoTurnCountdown">10</div>
           <div class="auto-turn-progress">
@@ -1702,7 +1702,7 @@ function rollDice() {
     const myPlayer = G.humanColor;
     
     if (currentPlayer !== myPlayer) {
-      addLog(`⏳ It's ${G.playerNames[currentPlayer] || currentPlayer}'s turn! Wait...`);
+      addLog(`(waiting) It's ${G.playerNames[currentPlayer] || currentPlayer}'s turn! Wait...`);
       return;
     }
   }
@@ -1710,7 +1710,7 @@ function rollDice() {
   performRoll();
 }
 
-// Final resting transforms — cube sits here after each roll lands.
+// Final resting transforms -- cube sits here after each roll lands.
 const DICE_FINAL = {
   1: 'rotateX(-720deg) rotateY(720deg)  rotateZ(0deg)',
   2: 'rotateX(-720deg) rotateY(900deg)  rotateZ(0deg)',
@@ -1727,7 +1727,7 @@ function performRoll() {
   
   // In online mode, only current player can roll
   if (G.isOnline && curPlayer() !== G.humanColor) {
-    addLog('⏳ Wait for your turn!');
+    addLog('(waiting) Wait for your turn!');
     return;
   }
   
@@ -1757,7 +1757,7 @@ function performRoll() {
   // 2. Force a reflow
   void diceCube.offsetWidth;
   
-  // 3. Add the rolling class — animation fires
+  // 3. Add the rolling class -- animation fires
   diceCube.classList.add('rolling-' + G.diceVal);
   diceScene.classList.add('rolling');
   
@@ -1986,7 +1986,7 @@ function handleTokenClick(player, idx) {
   
   // In online mode, only current player can move
   if (G.isOnline && player !== curPlayer()) {
-    addLog('⏳ Wait for your turn!');
+    addLog('(waiting) Wait for your turn!');
     return;
   }
   
@@ -2134,7 +2134,7 @@ function startEliminationCountdown(player) {
   overlay.classList.add('active');
   num.textContent  = secs;
   fill.style.width = '100%';
-  addLog(`⚠️ ${getPlayerDisplayName(player)} inactive! Eliminating in 30s...`);
+  addLog(`(!)️ ${getPlayerDisplayName(player)} inactive! Eliminating in 30s...`);
   cdInterval = setInterval(() => {
     secs--;
     num.textContent  = secs;
@@ -2150,7 +2150,7 @@ function startEliminationCountdown(player) {
 function eliminatePlayer(player) {
   G.eliminated.add(player);
   G.tokens[player] = [57,57,57,57];
-  addLog(`❌ ${getPlayerDisplayName(player)} was eliminated!`);
+  addLog(`(X) ${getPlayerDisplayName(player)} was eliminated!`);
   updatePlayerPanels();
   renderTokens();
   const rem = G.active.filter(p => !G.eliminated.has(p));
@@ -2241,7 +2241,7 @@ function updateAutoTurnOverlay(player) {
   playerName.textContent = getPlayerDisplayName(player);
   
   const lives = G.lives[player] || 0;
-  livesEl.textContent = '❤️'.repeat(lives) + '🖤'.repeat(MAX_LIVES - lives);
+  livesEl.textContent = '(heart)️'.repeat(lives) + '(black heart)'.repeat(MAX_LIVES - lives);
   
   countdownEl.textContent = G.autoTurnCountdown;
   progressBar.style.width = (G.autoTurnCountdown / AUTO_TURN_SECONDS * 100) + '%';
@@ -2261,11 +2261,11 @@ function performAutoTurn(player) {
   G.lives[player] = (G.lives[player] || MAX_LIVES) - 1;
   const remainingLives = G.lives[player];
   
-  addLog(`⏰ ${getPlayerDisplayName(player)} didn't respond! Auto-playing... (Lives: ${remainingLives}/${MAX_LIVES})`);
+  addLog(`(alarm) ${getPlayerDisplayName(player)} didn't respond! Auto-playing... (Lives: ${remainingLives}/${MAX_LIVES})`);
   
   // If no lives left, eliminate the player
   if (remainingLives <= 0) {
-    addLog(`❌ ${getPlayerDisplayName(player)} ran out of lives and was eliminated!`);
+    addLog(`(X) ${getPlayerDisplayName(player)} ran out of lives and was eliminated!`);
     eliminatePlayer(player);
     return;
   }
@@ -2351,7 +2351,7 @@ function _updateUIImpl() {
       document.getElementById('turnText').textContent = '🎲 YOUR TURN!';
       document.getElementById('turnText').style.color = '#4CAF50'; // Green for your turn
     } else {
-      document.getElementById('turnText').textContent = `⏳ ${displayName}'s Turn`;
+      document.getElementById('turnText').textContent = `(waiting) ${displayName}'s Turn`;
       document.getElementById('turnText').style.color = color;
     }
   } else {
@@ -2361,7 +2361,7 @@ function _updateUIImpl() {
 
   if (G.phase==='roll') {
     if (G.isOnline && curPlayer() !== G.humanColor) {
-      document.getElementById('turnSub').textContent = '⏳ Wait for opponent...';
+      document.getElementById('turnSub').textContent = '(waiting) Wait for opponent...';
     } else {
       document.getElementById('turnSub').innerHTML = isAI() ? '<img src="assets/ai-bot.png" class="ai-bot-icon" alt="AI"> AI is thinking...' : '🎲 Click Roll!';
     }
@@ -2425,7 +2425,7 @@ function updatePlayerPanels() {
     let livesHTML = '';
     if (G.isOnline && !isElim) {
       const lives = G.lives[p] || 0;
-      const hearts = '❤️'.repeat(lives) + '🖤'.repeat(MAX_LIVES - lives);
+      const hearts = '(heart)️'.repeat(lives) + '(black heart)'.repeat(MAX_LIVES - lives);
       livesHTML = `<div class="panel-lives">${hearts}</div>`;
     }
 
@@ -2945,7 +2945,7 @@ function createRoom() {
   peer.on('error', (err) => {
     console.error('[PeerJS] Host error:', err);
     hideLoading();
-    document.getElementById('hostStatusText').textContent = '❌ Error: ' + err.message;
+    document.getElementById('hostStatusText').textContent = '(X) Error: ' + err.message;
     updateConnectionStatus('disconnected', 'Error');
     
     // If room already exists, generate new code
@@ -2987,7 +2987,7 @@ function createRoom() {
     if (err.type === 'unavailable-id') {
       createRoom();
     } else {
-      document.getElementById('hostStatusText').textContent = '❌ Error: ' + err.message;
+      document.getElementById('hostStatusText').textContent = '(X) Error: ' + err.message;
     }
   });
 }
@@ -3098,7 +3098,7 @@ function joinRoom() {
     let msg = 'Connection failed';
     if (err.type === 'peer-unavailable') msg = 'Room not found - check the code and try again';
     if (err.type === 'network') msg = 'Network error - check your connection';
-    document.getElementById('guestStatusText').textContent = '❌ ' + msg;
+    document.getElementById('guestStatusText').textContent = '(X) ' + msg;
   });
 }
 
@@ -3147,7 +3147,7 @@ function setupConnection(conn) {
   
   conn.on('close', () => {
     console.log('[PeerJS] Connection closed');
-    addLog('⚠️ Opponent disconnected');
+    addLog('(!)️ Opponent disconnected');
     updateConnectionStatus('disconnected', 'Disconnected');
     
     // Attempt reconnection if game is still ongoing
@@ -3162,7 +3162,7 @@ function setupConnection(conn) {
     updateConnectionStatus('disconnected', 'Error');
     
     if (!isHost) {
-      document.getElementById('guestStatusText').textContent = '❌ Connection error: ' + err.message;
+      document.getElementById('guestStatusText').textContent = '(X) Connection error: ' + err.message;
     }
   });
   
@@ -3171,9 +3171,9 @@ function setupConnection(conn) {
     if (!conn.open) {
       hideLoading();
       if (isHost) {
-        document.getElementById('hostStatusText').textContent = '⏳ Waiting for opponent...';
+        document.getElementById('hostStatusText').textContent = '(waiting) Waiting for opponent...';
       } else {
-        document.getElementById('guestStatusText').textContent = '❌ Could not connect - Room not found or host offline';
+        document.getElementById('guestStatusText').textContent = '(X) Could not connect - Room not found or host offline';
         updateConnectionStatus('disconnected', 'Failed');
       }
     }
@@ -3294,7 +3294,7 @@ function renderSetupRows() {
     row.style.gap = '8px';
     
     // For active players, show toggle buttons to switch between Human and AI
-    // For inactive players, show "—"
+    // For inactive players, show "--"
     let typeControl = '';
     let nameInput = '';
     
@@ -3333,7 +3333,7 @@ function renderSetupRows() {
         `;
       }
     } else {
-      typeControl = '<div class="rc-types"><span style="color:#666">—</span></div>';
+      typeControl = '<div class="rc-types"><span style="color:#666">--</span></div>';
     }
     
     // Build row content
@@ -3482,7 +3482,7 @@ document.getElementById('diceScene').addEventListener('click', e => {
   e.preventDefault();
   // Enforce turn validation in online mode
   if (G.isOnline && curPlayer() !== G.humanColor) {
-    addLog('⏳ Wait for your turn!');
+    addLog('(waiting) Wait for your turn!');
     return;
   }
   rollDice();
@@ -3491,7 +3491,7 @@ document.getElementById('rollBtn').addEventListener('click', e => {
   e.preventDefault();
   // Enforce turn validation in online mode
   if (G.isOnline && curPlayer() !== G.humanColor) {
-    addLog('⏳ Wait for your turn!');
+    addLog('(waiting) Wait for your turn!');
     return;
   }
   rollDice();
