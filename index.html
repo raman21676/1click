@@ -222,6 +222,36 @@
             transform: scale(0.95);
         }
         
+        /* GitHub Star Button */
+        .github-star {
+            position: fixed;
+            top: 1.5rem;
+            right: 5.5rem;
+            z-index: 1000;
+            background: var(--bg-secondary);
+            border: 2px solid var(--border-color);
+            border-radius: 50%;
+            width: 48px;
+            height: 48px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-decoration: none;
+            font-size: 1.25rem;
+            transition: all var(--transition-base);
+            box-shadow: var(--shadow-md);
+        }
+        
+        .github-star:hover {
+            transform: scale(1.1);
+            border-color: #f59e0b;
+            box-shadow: 0 0 20px rgba(245, 158, 11, 0.4);
+        }
+        
+        .github-star:active {
+            transform: scale(0.95);
+        }
+        
         /* ============================================
            HERO SECTION
            ============================================ */
@@ -588,6 +618,14 @@
                 height: 40px;
                 font-size: 1.25rem;
             }
+            
+            .github-star {
+                top: 1rem;
+                right: 4rem;
+                width: 40px;
+                height: 40px;
+                font-size: 1rem;
+            }
         }
         
         /* Reduced motion */
@@ -617,6 +655,11 @@
     <button class="theme-toggle" id="themeToggle" aria-label="Toggle theme">
         <span id="themeIcon">🌙</span>
     </button>
+    
+    <!-- GitHub Star Button -->
+    <a href="https://github.com/Raman21676/1click" target="_blank" class="github-star" aria-label="Star on GitHub" title="Star on GitHub">
+        ⭐
+    </a>
 
         <!-- Games Section -->
     <section class="games-section" id="games" style="padding-top: 2rem;">
@@ -657,7 +700,7 @@
                     <h3>Chess</h3>
                     <p>The ultimate strategy game. Play against AI — Easy, Medium, or Hard!</p>
                     <div class="game-meta">
-                        <span>👤 1 Player</span>
+                        <span>👥 1-2 Players</span>
                         <span>⏱️ 10-60 min</span>
                     </div>
                     <span class="game-status status-available">Play Now</span>
