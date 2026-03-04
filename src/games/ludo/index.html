@@ -204,7 +204,7 @@ html,body{height:100%;font-family:'Segoe UI',Arial,sans-serif;
   background:radial-gradient(ellipse at center,#283593 0%,#1a237e 50%,#0d1b6e 100%);
   color:#fff;overflow:hidden}
 
-/* ─── LAYOUT ─────────────────────────────────── */
+/* --- LAYOUT ----------------------------------- */
 .game-wrapper{height:100dvh;display:flex;flex-direction:column;
   align-items:center;padding:6px;gap:6px}
 .game-header{width:100%;display:flex;align-items:center;
@@ -214,13 +214,13 @@ html,body{height:100%;font-family:'Segoe UI',Arial,sans-serif;
   background:linear-gradient(135deg,#FFD700,#FF8F00);
   -webkit-background-clip:text;-webkit-text-fill-color:transparent}
 
-/* ─── BOARD AREA ──────────────────────────────── */
+/* --- BOARD AREA -------------------------------- */
 .board-area{flex:1;display:flex;align-items:center;
   justify-content:center;width:100%;min-height:0}
 .board-wrapper{position:relative;
   width:min(84vmin,480px);height:min(84vmin,480px)}
 
-/* 15×15 grid */
+/* 15x15 grid */
 .ludo-board{width:100%;height:100%;
   display:grid;grid-template-columns:repeat(15,1fr);
   grid-template-rows:repeat(15,1fr);
@@ -229,7 +229,7 @@ html,body{height:100%;font-family:'Segoe UI',Arial,sans-serif;
              0 0 50px rgba(255,215,0,.15);
   background:#fff;overflow:hidden}
 
-/* ─── CELL BASE ───────────────────────────────── */
+/* --- CELL BASE --------------------------------- */
 .bc{position:relative;display:flex;align-items:center;
   justify-content:center;overflow:visible}
 
@@ -315,7 +315,7 @@ html,body{height:100%;font-family:'Segoe UI',Arial,sans-serif;
 .hrB{background:#BBDEFB;border:.5px solid #ccc}
 
 /* Safe star - default */
-.safe::after{content:'★';font-size:clamp(10px,2.2vmin,18px);
+.safe::after{content:'*';font-size:clamp(10px,2.2vmin,18px);
   color:var(--gold);text-shadow:0 0 6px rgba(255,215,0,.6);
   position:absolute;pointer-events:none;z-index:1}
 
@@ -326,13 +326,13 @@ html,body{height:100%;font-family:'Segoe UI',Arial,sans-serif;
 .safe-blue::after{color:var(--blue);text-shadow:0 0 6px rgba(30,136,229,.6)}
 
 /* Entry arrows */
-.eR::before{content:'→';color:var(--red);font-size:clamp(6px,1.3vmin,11px);
+.eR::before{content:'->';color:var(--red);font-size:clamp(6px,1.3vmin,11px);
   position:absolute;font-weight:700;z-index:2}
-.eG::before{content:'↓';color:var(--green);font-size:clamp(6px,1.3vmin,11px);
+.eG::before{content:'v';color:var(--green);font-size:clamp(6px,1.3vmin,11px);
   position:absolute;font-weight:700;z-index:2}
-.eY::before{content:'←';color:var(--yellow);font-size:clamp(6px,1.3vmin,11px);
+.eY::before{content:'<-';color:var(--yellow);font-size:clamp(6px,1.3vmin,11px);
   position:absolute;font-weight:700;z-index:2}
-.eB::before{content:'↑';color:var(--blue);font-size:clamp(6px,1.3vmin,11px);
+.eB::before{content:'^';color:var(--blue);font-size:clamp(6px,1.3vmin,11px);
   position:absolute;font-weight:700;z-index:2}
 
 /* Debug: Entry cells have colored backgrounds */
@@ -343,16 +343,16 @@ html,body{height:100%;font-family:'Segoe UI',Arial,sans-serif;
 
 /* Center cells */
 /* Center corners */
-.cTL{background:linear-gradient(135deg,var(--red) 50%,transparent 50%)}    /* top-left → Red */
-.cTR{background:linear-gradient(225deg,var(--green) 50%,transparent 50%)}  /* top-right → Green */
-.cBR{background:linear-gradient(315deg,var(--yellow) 50%,transparent 50%)} /* bottom-right → Yellow */
+.cTL{background:linear-gradient(135deg,var(--red) 50%,transparent 50%)}    /* top-left -> Red */
+.cTR{background:linear-gradient(225deg,var(--green) 50%,transparent 50%)}  /* top-right -> Green */
+.cBR{background:linear-gradient(315deg,var(--yellow) 50%,transparent 50%)} /* bottom-right -> Yellow */
 .cBL{background:linear-gradient(45deg,var(--blue) 50%,transparent 50%)}
 .cC{background:#fff;display:flex;align-items:center;
   justify-content:center;font-size:clamp(8px,2vmin,16px)}
 /* Center strips - rotated one step anticlockwise */
-.cT{background:linear-gradient(180deg,var(--green),transparent)}  /* top → Green */
-.cRi{background:linear-gradient(270deg,var(--yellow),transparent)}/* right → Yellow */
-.cBo{background:linear-gradient(0deg,var(--blue),transparent)}    /* bottom → Blue */
+.cT{background:linear-gradient(180deg,var(--green),transparent)}  /* top -> Green */
+.cRi{background:linear-gradient(270deg,var(--yellow),transparent)}/* right -> Yellow */
+.cBo{background:linear-gradient(0deg,var(--blue),transparent)}    /* bottom -> Blue */
 .cL{background:linear-gradient(90deg,var(--red),transparent)}
 
 /* Movable highlight */
@@ -361,7 +361,7 @@ html,body{height:100%;font-family:'Segoe UI',Arial,sans-serif;
   0%,100%{box-shadow:inset 0 0 0 2px gold}
   50%{box-shadow:inset 0 0 0 2.5px orange;background:rgba(255,215,0,.18)}}
 
-/* ─── TOKENS ──────────────────────────────────── */
+/* --- TOKENS ------------------------------------ */
 .tok{position:absolute;border-radius:50%;
   border:2px solid rgba(255,255,255,.9);
   display:flex;align-items:center;justify-content:center;
@@ -380,7 +380,7 @@ html,body{height:100%;font-family:'Segoe UI',Arial,sans-serif;
 @keyframes tokBounce{0%,100%{transform:translateY(0)}50%{transform:translateY(-3px)}}
 .tok.selected{transform:scale(1.3);box-shadow:0 0 0 3px #fff,0 0 8px rgba(255,255,255,.7)}
 
-/* ─── CONTROLS ROW ────────────────────────────── */
+/* --- CONTROLS ROW ------------------------------ */
 .controls-row{width:100%;max-width:500px;display:flex;
   align-items:center;justify-content:space-between;
   gap:6px;padding:0 2px;flex-shrink:0}
@@ -495,7 +495,7 @@ html,body{height:100%;font-family:'Segoe UI',Arial,sans-serif;
 .ai-bot-icon{width:18px;height:18px;vertical-align:middle;margin-right:4px}
 .ai-bot-icon-small{width:14px;height:14px;vertical-align:middle}
 
-/* ── DICE SCENE ─────────────────────────────────────────── */
+/* -- DICE SCENE ------------------------------------------- */
 .dice-scene {
   width: 72px;
   height: 72px;
@@ -515,7 +515,7 @@ html,body{height:100%;font-family:'Segoe UI',Arial,sans-serif;
   /* NO filter here - it breaks 3D! */
 }
 
-/* ── FACES ──────────────────────────────────────────────── */
+/* -- FACES ------------------------------------------------ */
 .face {
   position: absolute;
   width: 72px;
@@ -539,7 +539,7 @@ html,body{height:100%;font-family:'Segoe UI',Arial,sans-serif;
 .face-4 { transform: rotateY(-90deg) translateZ(36px); }
 .face-5 { transform: rotateX(90deg)  translateZ(36px); }
 .face-6 { transform: rotateX(-90deg) translateZ(36px); }
-/* ── DOT GRID ───────────────────────────────────────────── */
+/* -- DOT GRID --------------------------------------------- */
 .dots {
   display: grid;
   grid-template-columns: 1fr 1fr 1fr;
@@ -599,7 +599,7 @@ html,body{height:100%;font-family:'Segoe UI',Arial,sans-serif;
 .dice.yellow .dot{ background: radial-gradient(circle at 35% 30%, #ffdd44, var(--yellow)); }
 .dice.blue .dot{ background: radial-gradient(circle at 35% 30%, #66aaff, var(--blue)); }
 
-/* ── ROLL ANIMATIONS ────────────────────────────────────── */
+/* -- ROLL ANIMATIONS -------------------------------------- */
 @keyframes roll1 {
   0%   { transform: rotateX(-25deg) rotateY(25deg); }
   20%  { transform: rotateX(-200deg) rotateY(150deg) rotateZ(30deg); }
@@ -685,12 +685,12 @@ html,body{height:100%;font-family:'Segoe UI',Arial,sans-serif;
 /* Dice area layout */
 .dice-area{display:flex;flex-direction:column;align-items:center;gap:8px}
 
-/* ─── TURN AREA ───────────────────────────────── */
+/* --- TURN AREA --------------------------------- */
 .turn-area{text-align:center;flex:1;min-width:0}
 .turn-text{font-size:clamp(10px,2.1vmin,14px);font-weight:700;white-space:nowrap}
 .turn-sub{font-size:clamp(8px,1.4vmin,11px);opacity:.6;margin-top:2px}
 
-/* ─── SETUP SCREEN ────────────────────────────── */
+/* --- SETUP SCREEN ------------------------------ */
 .setup-screen{position:fixed;inset:0;
   background:linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
   display:flex;flex-direction:column;align-items:center;
@@ -808,7 +808,7 @@ html,body{height:100%;font-family:'Segoe UI',Arial,sans-serif;
   transition:all .2s;box-shadow:0 4px 16px rgba(0,200,83,.35)}
 .start-btn:hover{transform:translateY(-2px);box-shadow:0 6px 20px rgba(0,200,83,.5)}
 
-/* ─── WIN MODAL ───────────────────────────────── */
+/* --- WIN MODAL --------------------------------- */
 .win-modal{position:fixed;inset:0;background:rgba(0,0,0,.9);
   display:none;align-items:center;justify-content:center;z-index:200}
 .win-modal.active{display:flex}
@@ -824,7 +824,7 @@ html,body{height:100%;font-family:'Segoe UI',Arial,sans-serif;
 .win-btn.primary{background:linear-gradient(135deg,#FF6F00,#FFD600);color:#000}
 .win-btn.sec{background:rgba(255,255,255,.15);color:#fff}
 
-/* ─── COUNTDOWN OVERLAY ───────────────────────── */
+/* --- COUNTDOWN OVERLAY ------------------------- */
 .cd-overlay{position:absolute;inset:0;background:rgba(0,0,0,.82);
   border-radius:6px;display:none;flex-direction:column;
   align-items:center;justify-content:center;z-index:50}
@@ -838,7 +838,7 @@ html,body{height:100%;font-family:'Segoe UI',Arial,sans-serif;
 .cd-fill{height:100%;background:linear-gradient(90deg,#EF5350,#FF6F00);
   border-radius:3px;transition:width 1s linear}
 
-/* ─── GAME LOG (hidden but functional) ─────────── */
+/* --- GAME LOG (hidden but functional) ----------- */
 .game-log{display:none}
 </style>
 <script src="https://unpkg.com/peerjs@1.5.2/dist/peerjs.min.js"></script>
@@ -1068,7 +1068,7 @@ html,body{height:100%;font-family:'Segoe UI',Arial,sans-serif;
 <div class="game-wrapper" id="gameScreen" style="display:none">
 
   <header class="game-header">
-    <a href="../../../index.html" class="back-btn">← Back</a>
+    <a href="../../../index.html" class="back-btn"><- Back</a>
     <div class="header-title">🎲 LUDO</div>
     <!-- Connection Status Indicator -->
     <div id="connectionStatus" class="connection-status" style="display:none">
@@ -1224,7 +1224,7 @@ const COLORS = {
   blue:   {main:'#1E88E5',light:'#90CAF9',panel:'#1E88E5'}
 };
 
-// 52 global path positions: [row, col] (0-indexed, 15×15 grid)
+// 52 global path positions: [row, col] (0-indexed, 15x15 grid)
 const PATH = [
   // Global 0-4: Red arm going right
   [6,1],[6,2],[6,3],[6,4],[6,5],
@@ -1259,12 +1259,12 @@ const HOME_RUN = {
   blue:   [[12,7],[11,7],[10,7],[9,7]]
 };
 
-// Reverse lookup: "r-c" → global index
+// Reverse lookup: "r-c" -> global index
 const RC_TO_GLOBAL = {};
 PATH.forEach(([r,c],i) => { RC_TO_GLOBAL[`${r}-${c}`] = i; });
 
 // Reverse lookup for home run
-const RC_TO_HR = {}; // "r-c" → {player, hrIdx}
+const RC_TO_HR = {}; // "r-c" -> {player, hrIdx}
 Object.entries(HOME_RUN).forEach(([p,cells]) => {
   cells.forEach(([r,c],i) => { RC_TO_HR[`${r}-${c}`] = {player:p, hrIdx:i}; });
 });
@@ -1364,7 +1364,7 @@ function cellInfo(r, c) {
   if (r>8&&c<6) return {type:'home',p:'blue'};    // bottom-left: BLUE 🔵
   if (r>8&&c>8) return {type:'home',p:'yellow'};  // bottom-right: YELLOW 🟡
 
-  // Center 3×3
+  // Center 3x3
   if (r>=6&&r<=8&&c>=6&&c<=8) return {type:'center'};
 
   // Home run strips - first cell of each arm excluded (extra step fix)
@@ -1464,7 +1464,7 @@ function isInnerPanel(r, c, p) {
 }
 
 function applyCenterCell(cell, r, c) {
-  // Map 3×3 center (rows 6-8, cols 6-8)
+  // Map 3x3 center (rows 6-8, cols 6-8)
   const lr = r-6, lc = c-6; // 0-2, 0-2
   const map = [
     ['cTL','cT','cTR'],
@@ -1902,7 +1902,7 @@ function scoreMove(player, tokenIdx, diceValue) {
   
   const newGlobalIdx = (ENTRY[player] + newPos - 1) % 52;
   
-  // ── PRIORITY 1: Bring token out of home on a 6 ──────────────────
+  // -- PRIORITY 1: Bring token out of home on a 6 ------------------
   if (isHome && diceValue === 6) {
     score += 1000;
     // Extra bonus if we have multiple tokens stuck at home
@@ -1910,34 +1910,34 @@ function scoreMove(player, tokenIdx, diceValue) {
     score += tokensAtHome * 200;
   }
   
-  // ── PRIORITY 2: Win the game ────────────────────────────────────
+  // -- PRIORITY 2: Win the game ------------------------------------
   if (newPos === 57) {
     score += 5000;
   }
   
-  // ── PRIORITY 3: Capture an opponent token ───────────────────────
+  // -- PRIORITY 3: Capture an opponent token -----------------------
   const victim = canCaptureAtPos(player, newPos, newGlobalIdx);
   if (victim) {
     score += 800;
     score += victim.pos * 5; // More valuable if victim was far along
   }
   
-  // ── PRIORITY 4: Reach a SAFE cell ───────────────────────────────
+  // -- PRIORITY 4: Reach a SAFE cell -------------------------------
   if (isSafeCell(newGlobalIdx)) {
     score += 300;
   }
   
-  // ── PRIORITY 5: Escape danger ───────────────────────────────────
+  // -- PRIORITY 5: Escape danger -----------------------------------
   if (isThreatenedAtPos(pos, player)) {
     score += 400;
   }
   
-  // ── PRIORITY 6: Don't move into danger ──────────────────────────
+  // -- PRIORITY 6: Don't move into danger --------------------------
   if (isThreatenedAtPos(newPos, player)) {
     score -= 500;
   }
   
-  // ── PRIORITY 7: Spread tokens (anti-single-focus) ───────────────
+  // -- PRIORITY 7: Spread tokens (anti-single-focus) ---------------
   const activeTokens = G.tokens[player].filter(p => p > 0 && p < 57);
   if (activeTokens.length > 1 && pos > 0) {
     const avgPos = activeTokens.reduce((s, p) => s + p, 0) / activeTokens.length;
@@ -1945,7 +1945,7 @@ function scoreMove(player, tokenIdx, diceValue) {
     if (spread > 15) score -= spread * 10; // Penalize moving token that's far ahead
   }
   
-  // ── PRIORITY 8: General forward progress ────────────────────────
+  // -- PRIORITY 8: General forward progress ------------------------
   if (pos > 0) {
     score += diceValue * 3;
   }
