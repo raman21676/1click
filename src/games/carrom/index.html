@@ -725,7 +725,7 @@ function shoot(pos){
 
 // Striker positioning and shooting
 // 1. Click ON striker and drag left/right = positioning
-// 2. Click BEHIND striker (below for P1, above for P2) and drag = aiming
+// 2. Click ANYWHERE ELSE and drag = aiming (pull back to shoot)
 let isPositioning=false
 let dragStartPos=null
 let dragStartX=null
@@ -738,19 +738,11 @@ canvas.addEventListener("mousedown",e=>{
   const dist=Math.sqrt(dx*dx+dy*dy)
   
   // Check if clicking on striker (for positioning left-right)
-  if(dist<striker.r*2.5){
+  if(dist<striker.r*3){
     isPositioning=true
     dragStartX=pos.x
-  }
-  // Check if clicking behind striker (for aiming)
-  // For Player 1 (bottom): click below striker
-  // For Player 2 (top): click above striker
-  else if(turn===1&&pos.y>striker.y+striker.r){
-    // Player 1: clicked below striker
-    isAiming=true
-    dragStartPos=pos
-  }else if(turn===2&&pos.y<striker.y-striker.r){
-    // Player 2: clicked above striker
+  }else{
+    // Clicked elsewhere - start aiming
     isAiming=true
     dragStartPos=pos
   }
@@ -789,13 +781,10 @@ canvas.addEventListener("touchstart",e=>{
   const dy=pos.y-striker.y
   const dist=Math.sqrt(dx*dx+dy*dy)
   
-  if(dist<striker.r*2.5){
+  if(dist<striker.r*3){
     isPositioning=true
     dragStartX=pos.x
-  }else if(turn===1&&pos.y>striker.y+striker.r){
-    isAiming=true
-    dragStartPos=pos
-  }else if(turn===2&&pos.y<striker.y-striker.r){
+  }else{
     isAiming=true
     dragStartPos=pos
   }
