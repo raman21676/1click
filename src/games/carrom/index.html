@@ -249,7 +249,7 @@ const ctx=canvas.getContext("2d")
 
 // Board constants
 const W=700,H=700
-const BOARD_MARGIN=65  // Keep coins/striker well inside wooden frame
+const BOARD_MARGIN=85  // Keep coins/striker well inside wooden frame (increased)
 const PLAY_MIN=BOARD_MARGIN
 const PLAY_MAX=W-BOARD_MARGIN
 const FRICTION=0.985
@@ -362,21 +362,26 @@ class Disk{
     if(Math.abs(this.vy)<0.05)this.vy=0
     
     // Wall collisions - keep inside wooden frame
-    if(this.x<PLAY_MIN+this.r){
-      this.x=PLAY_MIN+this.r
-      this.vx*=-WALL_BOUNCE
+    const minX=PLAY_MIN+this.r
+    const maxX=PLAY_MAX-this.r
+    const minY=PLAY_MIN+this.r
+    const maxY=PLAY_MAX-this.r
+    
+    if(this.x<minX){
+      this.x=minX
+      this.vx=Math.abs(this.vx)*WALL_BOUNCE
     }
-    if(this.x>PLAY_MAX-this.r){
-      this.x=PLAY_MAX-this.r
-      this.vx*=-WALL_BOUNCE
+    if(this.x>maxX){
+      this.x=maxX
+      this.vx=-Math.abs(this.vx)*WALL_BOUNCE
     }
-    if(this.y<PLAY_MIN+this.r){
-      this.y=PLAY_MIN+this.r
-      this.vy*=-WALL_BOUNCE
+    if(this.y<minY){
+      this.y=minY
+      this.vy=Math.abs(this.vy)*WALL_BOUNCE
     }
-    if(this.y>PLAY_MAX-this.r){
-      this.y=PLAY_MAX-this.r
-      this.vy*=-WALL_BOUNCE
+    if(this.y>maxY){
+      this.y=maxY
+      this.vy=-Math.abs(this.vy)*WALL_BOUNCE
     }
   }
   
