@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
-<meta name="description" content="Play Carrom online FREE! 🎯 Strike coins, cover the Queen. Realistic physics. 1-2 players. No download!">
+<meta name="description" content="Play Carrom online FREE! Strike coins, cover the Queen. Realistic physics. 1-2 players. No download!">
 <title>Carrom Online Free | Play Carrom Board Game - 1click</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;800;900&display=swap" rel="stylesheet">
@@ -12,1753 +12,313 @@
 :root{
   --bg:#0a0e1a;
   --bg-grad:radial-gradient(ellipse at 30% 20%,#1a1f3a 0%,#0a0e1a 50%,#050810 100%);
-  --wood1:#c8933a;--wood2:#a0722a;--wood3:#7a5420;
   --green:#22c55e;--red:#ef4444;--gold:#f59e0b;
   --ui:#1e293b;--ui2:#334155;--text:#f1f5f9;--muted:#94a3b8;
 }
 html,body{height:100%;font-family:'Poppins',sans-serif;background:var(--bg-grad),var(--bg);background-attachment:fixed;color:var(--text);overflow-x:hidden;user-select:none}
-html{overflow-y:auto}
-/* LOADING */
-#loading{position:fixed;inset:0;background:var(--bg);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:9999;transition:opacity .5s,visibility .5s}
-#loading.out{opacity:0;visibility:hidden}
-.load-disc{width:72px;height:72px;border-radius:50%;background:radial-gradient(circle at 35% 35%,#fff 0%,#e0e0e0 40%,#aaa 100%);box-shadow:0 4px 20px rgba(0,0,0,.5);animation:spin 1.2s linear infinite}
-@keyframes spin{to{transform:rotate(360deg)}}
-.load-txt{margin-top:20px;color:var(--muted);font-size:1rem;letter-spacing:.05em}
+
 /* SETUP */
 #setup{min-height:100dvh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px}
-.s-title{font-size:clamp(2rem,8vw,3rem);font-weight:900;background:linear-gradient(135deg,#f59e0b,#ef4444,#f59e0b);-webkit-background-clip:text;-webkit-text-fill-color:transparent;text-align:center;letter-spacing:-.02em}
+.s-title{font-size:clamp(2rem,8vw,3rem);font-weight:900;background:linear-gradient(135deg,#f59e0b,#ef4444,#f59e0b);-webkit-background-clip:text;-webkit-text-fill-color:transparent;text-align:center}
 .s-sub{color:var(--muted);margin:.5rem 0 2rem;text-align:center;font-size:.9rem}
 .s-card{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.1);border-radius:20px;padding:28px;width:100%;max-width:420px;backdrop-filter:blur(10px)}
-.s-label{font-size:12px;font-weight:700;color:var(--muted);letter-spacing:.08em;text-transform:uppercase;margin-bottom:10px;display:block}
 .mode-grid{display:flex;flex-direction:column;gap:10px;margin-bottom:22px}
 .mode-btn{display:flex;align-items:center;gap:14px;padding:14px 16px;border-radius:14px;border:2px solid rgba(255,255,255,.08);background:rgba(255,255,255,.04);color:#fff;cursor:pointer;transition:all .2s;text-align:left;font-family:inherit}
 .mode-btn:hover{background:rgba(255,255,255,.08)}
 .mode-btn.sel{border-color:var(--green);background:rgba(34,197,94,.12)}
-.mode-ic{font-size:2rem;width:44px;height:44px;text-align:center;flex-shrink:0;object-fit:contain}
-.mode-title{font-size:.95rem;font-weight:700;display:block}
-.mode-desc{font-size:.75rem;color:var(--muted);display:block}
-.diff-row,.color-row{display:flex;gap:8px;margin-bottom:22px}
-.pill{flex:1;padding:11px 8px;border:2px solid rgba(255,255,255,.1);background:rgba(255,255,255,.04);color:#fff;border-radius:10px;cursor:pointer;font-family:inherit;font-size:.8rem;font-weight:600;transition:all .2s;text-align:center}
-.pill:hover{border-color:rgba(255,255,255,.3)}
-.pill.sel{border-color:var(--green);background:rgba(34,197,94,.15)}
-.name-row{display:flex;flex-direction:column;gap:10px;margin-bottom:22px}
-.name-in{width:100%;padding:12px 14px;border:1px solid rgba(255,255,255,.15);background:rgba(0,0,0,.3);color:#fff;border-radius:10px;font-size:.9rem;font-family:inherit;transition:border-color .2s}
-.name-in:focus{outline:none;border-color:var(--green)}
-.start-btn{width:100%;padding:16px;border:none;background:linear-gradient(135deg,#22c55e,#16a34a);color:#fff;font-size:1rem;font-weight:800;border-radius:14px;cursor:pointer;font-family:inherit;transition:all .2s;box-shadow:0 4px 20px rgba(34,197,94,.3);letter-spacing:.03em}
-.start-btn:hover{transform:translateY(-2px);box-shadow:0 8px 28px rgba(34,197,94,.45)}
-.back-a{display:block;margin-top:18px;text-align:center;color:var(--muted);text-decoration:none;font-size:.85rem}
-.back-a:hover{color:#fff}
+.start-btn{width:100%;padding:16px;border:none;background:linear-gradient(135deg,#22c55e,#16a34a);color:#fff;font-size:1rem;font-weight:800;border-radius:14px;cursor:pointer;font-family:inherit}
+
 /* GAME */
 #game{display:none;height:100dvh;flex-direction:column;overflow:hidden}
-.g-hdr{display:flex;align-items:center;justify-content:space-between;padding:10px 16px;background:rgba(0,0,0,.4);border-bottom:1px solid rgba(255,255,255,.07);flex-shrink:0;gap:8px}
-.g-back{color:var(--muted);text-decoration:none;font-size:.85rem;padding:4px 8px;border-radius:6px;white-space:nowrap}
-.g-back:hover{color:#fff}
+.g-hdr{display:flex;align-items:center;justify-content:space-between;padding:10px 16px;background:rgba(0,0,0,.4);border-bottom:1px solid rgba(255,255,255,.07);flex-shrink:0}
+.g-back{color:var(--muted);text-decoration:none;font-size:.85rem}
 .g-title{font-weight:800;font-size:1rem;text-align:center;flex:1;background:linear-gradient(90deg,#f59e0b,#ef4444);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
 .g-body{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:8px;gap:8px;min-height:0}
+
 /* SCOREBOARD */
 .scoreboard{width:100%;max-width:580px;display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:8px;flex-shrink:0}
-.p-card{padding:10px 14px;background:linear-gradient(145deg,rgba(255,255,255,.08),rgba(255,255,255,.02));border:1px solid rgba(255,255,255,.1);border-radius:14px;transition:all .3s;position:relative;overflow:hidden;box-shadow:0 4px 12px rgba(0,0,0,0.3),inset 0 1px 0 rgba(255,255,255,.1)}
-.p-card::before{content:'';position:absolute;inset:0;opacity:0;transition:opacity .3s}
-.p-card.my::before{background:linear-gradient(135deg,var(--pc,.5),transparent);opacity:.15}
-.p-card.active{border-color:var(--pc,#888);box-shadow:0 0 20px var(--pc,#888),0 4px 16px rgba(0,0,0,0.4);transform:translateY(-2px)}
-.p-name{font-size:.78rem;font-weight:600;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.p-card{padding:10px 14px;background:linear-gradient(145deg,rgba(255,255,255,.08),rgba(255,255,255,.02));border:1px solid rgba(255,255,255,.1);border-radius:14px}
+.p-name{font-size:.78rem;font-weight:600;color:var(--muted)}
 .p-pts{font-size:1.4rem;font-weight:900;color:var(--pc,#fff);line-height:1}
-.p-coins{font-size:.72rem;color:var(--muted);margin-top:2px}
 .vs-badge{text-align:center;font-size:.7rem;font-weight:700;color:var(--muted);background:rgba(255,255,255,.05);border-radius:8px;padding:6px 8px}
-/* CANVAS - Responsive Square Board */
-.c-wrap{position:relative;width:100%;max-width:min(85vmin,700px);aspect-ratio:1;flex-shrink:1;min-height:0;border-radius:12px;box-shadow:0 20px 60px rgba(0,0,0,0.8),0 0 0 1px rgba(255,255,255,0.05);overflow:hidden;margin:0 auto;background:url("./assets/board.png");background-size:cover;background-position:center}
-#cv{width:100%;height:100%;cursor:crosshair;display:block;border-radius:12px}
+
+/* CANVAS */
+.c-wrap{position:relative;width:100%;max-width:min(85vmin,700px);aspect-ratio:1;flex-shrink:1;min-height:0;border-radius:12px;box-shadow:0 20px 60px rgba(0,0,0,0.8);overflow:hidden;margin:0 auto;background:url("./assets/carromboard.png");background-size:cover;background-position:center}
+#cv{width:100%;height:100%;cursor:crosshair;display:block}
+
 /* CONTROLS */
 .controls{width:100%;max-width:580px;display:flex;align-items:center;gap:10px;flex-shrink:0}
-.turn-pill{padding:8px 14px;border-radius:10px;font-size:.8rem;background:rgba(255,255,255,.06);white-space:nowrap;flex-shrink:0}
-.turn-pill b{color:var(--green)}
-.power-wrap{flex:1;display:flex;align-items:center;gap:8px}
-.power-lbl{font-size:.7rem;color:var(--muted);flex-shrink:0}
-.power-track{flex:1;height:10px;background:rgba(255,255,255,.08);border-radius:6px;overflow:hidden;position:relative;cursor:pointer}
-.power-fill{height:100%;width:0%;background:linear-gradient(90deg,#22c55e,#f59e0b,#ef4444);border-radius:6px;transition:width .08s}
-.energy-wrap{flex:1;display:flex;align-items:center;gap:8px;max-width:120px}
-.energy-lbl{font-size:.7rem;color:var(--muted);flex-shrink:0}
-.energy-track{flex:1;height:10px;background:rgba(255,255,255,.08);border-radius:6px;overflow:hidden;position:relative}
-.energy-fill{height:100%;width:100%;background:linear-gradient(90deg,#3b82f6,#8b5cf6);border-radius:6px;transition:width .3s}
-.energy-fill.low{width:0%;background:linear-gradient(90deg,#ef4444,#dc2626)}
-.msg-pill{padding:8px 14px;border-radius:10px;font-size:.78rem;background:rgba(245,158,11,.12);color:var(--gold);border:1px solid rgba(245,158,11,.25);display:none;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:200px;flex-shrink:0}
-.msg-pill.show{display:block}
-/* MODAL */
-.overlay{position:fixed;inset:0;background:rgba(0,0,0,.85);display:none;align-items:center;justify-content:center;z-index:500;backdrop-filter:blur(4px)}
-.overlay.open{display:flex}
-.modal{background:linear-gradient(145deg,#1e293b,#0f172a);border:2px solid #f59e0b;border-radius:24px;padding:40px 36px;text-align:center;max-width:340px;width:90%;animation:popIn .4s ease}
-@keyframes popIn{from{transform:scale(.8);opacity:0}to{transform:scale(1);opacity:1}}
-.m-emoji{font-size:4rem;margin-bottom:12px}
-.m-title{font-size:1.8rem;font-weight:900;margin-bottom:4px}
-.m-sub{color:var(--muted);margin-bottom:24px;font-size:.9rem}
-.m-btns{display:flex;gap:10px;justify-content:center;flex-wrap:wrap}
-.m-btn{padding:12px 24px;border:none;background:linear-gradient(135deg,#22c55e,#16a34a);color:#fff;font-size:.95rem;font-weight:700;border-radius:12px;cursor:pointer;font-family:inherit;transition:all .2s}
-.m-btn:hover{transform:translateY(-2px)}
-.m-btn.sec{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.2)}
-@media(max-width:768px){.c-wrap{max-width:95vmin}.controls{flex-wrap:wrap}.msg-pill{max-width:140px}}
-@media(max-width:480px){.c-wrap{max-width:98vmin}.controls{flex-wrap:wrap}.msg-pill{max-width:140px}}
-
-/* ══════════════════════════════════════════════════
-   UX ENHANCEMENTS - Connection Status, Loading, Offline
-   ══════════════════════════════════════════════════ */
-
-/* Connection Status */
-.connection-status { display: flex; align-items: center; gap: 6px; padding: 6px 12px; background: rgba(0,0,0,0.4); border-radius: 20px; font-size: 12px; transition: all 0.3s; }
-.connection-status.connected { background: rgba(76, 175, 80, 0.2); color: #4CAF50; }
-.connection-status.disconnected { background: rgba(244, 67, 54, 0.2); color: #f44336; }
-.connection-status.connecting { background: rgba(255, 152, 0, 0.2); color: #FF9800; }
-.conn-dot { width: 8px; height: 8px; border-radius: 50%; animation: pulse-dot 2s ease-in-out infinite; }
-.connection-status.connected .conn-dot { background: #4CAF50; animation: none; }
-.connection-status.disconnected .conn-dot { background: #f44336; animation: none; }
-.connection-status.connecting .conn-dot { background: #FF9800; }
-@keyframes pulse-dot { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
-
-/* Loading Overlay */
-.loading-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.9); display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 10000; opacity: 0; visibility: hidden; transition: opacity 0.3s; }
-.loading-overlay.active { opacity: 1; visibility: visible; }
-.loading-overlay .spinner { width: 50px; height: 50px; border: 4px solid rgba(255,255,255,0.2); border-top-color: #fff; border-radius: 50%; animation: spin-load 1s linear infinite; }
-@keyframes spin-load { to { transform: rotate(360deg); } }
-.loading-overlay .loading-text { margin-top: 20px; font-size: 1.1rem; font-weight: 600; color: #fff; }
-.loading-overlay .loading-subtext { margin-top: 8px; font-size: 0.85rem; color: var(--muted); }
-.loading-overlay .cancel-btn { margin-top: 24px; padding: 10px 24px; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); color: #fff; border-radius: 8px; cursor: pointer; font-family: inherit; font-size: 0.9rem; transition: all 0.2s; }
-.loading-overlay .cancel-btn:hover { background: rgba(255,255,255,0.2); }
-
-/* Offline Banner */
-.offline-banner { position: fixed; top: 0; left: 0; right: 0; background: #f44336; color: #fff; text-align: center; padding: 10px; font-size: 13px; z-index: 10001; transform: translateY(-100%); transition: transform 0.3s; }
-.offline-banner.show { transform: translateY(0); }
-
-/* Room Code Display with Copy Button */
-.room-code-display { display: flex; align-items: center; justify-content: center; gap: 12px; margin: 16px 0; padding: 16px; background: rgba(0,0,0,0.3); border-radius: 12px; border: 2px dashed rgba(34,197,94,0.5); }
-.room-code-label { font-size: 0.75rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.1em; }
-.room-code-value { font-size: 1.5rem; font-weight: 800; color: #22c55e; letter-spacing: 4px; font-family: monospace; }
-.copy-btn { padding: 8px 14px; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); border-radius: 8px; color: #fff; cursor: pointer; font-size: 0.8rem; transition: all 0.2s; display: flex; align-items: center; gap: 6px; }
-.copy-btn:hover { background: rgba(255,255,255,0.2); }
-.copy-btn.copied { background: rgba(34,197,94,0.3); border-color: #22c55e; color: #22c55e; }
-
-/* Error Message Toast */
-.error-toast { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%) translateY(100px); background: rgba(244,67,54,0.95); color: #fff; padding: 12px 24px; border-radius: 10px; font-size: 0.9rem; z-index: 10002; opacity: 0; transition: all 0.3s; max-width: 90%; text-align: center; }
-.error-toast.show { transform: translateX(-50%) translateY(0); opacity: 1; }
-.error-toast.info { background: rgba(33,150,243,0.95); }
-.error-toast.success { background: rgba(76,175,80,0.95); }
+.turn-pill{padding:8px 14px;border-radius:10px;font-size:.8rem;background:rgba(255,255,255,.06)}
 </style>
-<meta name="keywords" content="carrom, carrom board, carrom game, carrom online, carom, karam board, carrom multiplayer, strike coins, carrom coins, queen carrom, carrom board game, carrom game online, play carrom, carrom free, carrom 2 player, carrom vs computer, carrom ai, indian carrom, online carrom board">
-<script type="application/ld+json">
-{
-  "@context": "https://schema.org",
-  "@type": "VideoGame",
-  "name": "Carrom Board Online",
-  "description": "Play Carrom online FREE! Strike coins, cover the Queen. Realistic physics. 1-2 players.",
-  "genre": ["Sports", "Board Game", "Indian Traditional", "Pool"],
-  "gamePlatform": "Web Browser",
-  "applicationCategory": "Game",
-  "numberOfPlayers": {
-    "@type": "QuantitativeValue",
-    "minValue": 1,
-    "maxValue": 2
-  },
-  "playMode": ["SinglePlayer", "MultiPlayer"],
-  "offers": {
-    "@type": "Offer",
-    "price": "0",
-    "priceCurrency": "USD"
-  },
-  "publisher": {
-    "@type": "Organization",
-    "name": "1click Games"
-  },
-  "url": "https://1click.live/src/games/carrom/"
-}
-</script>
 </head>
 <body>
 
-<div id="loading"><div class="load-disc"></div><p class="load-txt">Loading Carrom Board…</p></div>
-
-<!-- OFFLINE BANNER -->
-<div id="offlineBanner" class="offline-banner">
-  ⚠️ You are offline. Please check your internet connection.
-</div>
-
-<!-- LOADING OVERLAY -->
-<div id="loadingOverlay" class="loading-overlay">
-  <div class="spinner"></div>
-  <div class="loading-text" id="loadingText">Connecting...</div>
-  <div class="loading-subtext" id="loadingSubtext"></div>
-  <button class="cancel-btn" id="cancelBtn" style="display:none">Cancel</button>
-</div>
-
-<!-- ERROR TOAST -->
-<div id="errorToast" class="error-toast"></div>
-
 <!-- SETUP -->
 <div id="setup">
-  <h1 class="s-title">🎯 Carrom Board</h1>
-  <p class="s-sub">Pocket your coins, cover the Queen, claim victory!</p>
+  <h1 class="s-title">Carrom Board</h1>
+  <p class="s-sub">Strike coins, pocket the Queen!</p>
   <div class="s-card">
-    <span class="s-label">Game Mode</span>
     <div class="mode-grid">
-      <button class="mode-btn sel" data-mode="ai"><img src="assets/AI-Bot.png" class="mode-ic" alt="AI"><div><span class="mode-title">vs Computer</span><span class="mode-desc">Challenge the AI opponent</span></div></button>
-      <button class="mode-btn" data-mode="local"><span class="mode-ic">👥</span><div><span class="mode-title">Pass &amp; Play</span><span class="mode-desc">2 players on same device</span></div></button>
-      <button class="mode-btn" data-mode="online"><span class="mode-ic">🌐</span><div><span class="mode-title">Online Multiplayer</span><span class="mode-desc">Play with friends online</span></div></button>
+      <button class="mode-btn sel" data-mode="pass"><span>👥</span><div><b>Pass & Play</b><br><small>2 players on same device</small></div></button>
+      <button class="mode-btn" data-mode="ai"><span>🤖</span><div><b>vs Computer</b><br><small>Play against AI</small></div></button>
     </div>
-    <span class="s-label" id="diffLabel">AI Difficulty</span>
-    <div class="diff-row" id="diffRow">
-      <button class="pill" data-diff="easy">😊 Easy</button>
-      <button class="pill sel" data-diff="medium">⚡ Medium</button>
-      <button class="pill" data-diff="hard">💀 Hard</button>
-    </div>
-    <span class="s-label">Your Coin Color</span>
-    <div class="color-row">
-      <button class="pill sel" data-col="white">⚪ White</button>
-      <button class="pill" data-col="black">⚫ Black</button>
-    </div>
-    <div class="name-row">
-      <input class="name-in" id="n1" type="text" placeholder="Your name" value="Player 1" maxlength="18">
-      <input class="name-in" id="n2" type="text" placeholder="Opponent name" value="Player 2" maxlength="18" style="display:none">
-    </div>
-    <button class="start-btn" id="startBtn">🏆 Start Game</button>
-  </div>
-  <a class="back-a" href="../../../index.html">← Back to All Games</a>
-</div>
-
-<!-- ONLINE SETUP -->
-<div id="onlineSetup" style="display:none;min-height:100dvh;flex-direction:column;align-items:center;justify-content:center;padding:24px">
-  <h1 class="s-title">🌐 Online Multiplayer</h1>
-  <p class="s-sub">Play Carrom with friends online</p>
-  <div class="s-card">
-    <div id="onlineCreate">
-      <span class="s-label">Create Room</span>
-      <p style="color:var(--muted);font-size:.85rem;margin-bottom:16px">Create a room and invite a friend to join</p>
-      <button class="start-btn" id="createRoomBtn" style="background:linear-gradient(135deg,#22c55e,#16a34a);margin-bottom:24px">➕ Create Room</button>
-      <!-- Room Code Display (shown after creation) -->
-      <div id="roomCodeDisplay" class="room-code-display" style="display:none">
-        <div>
-          <div class="room-code-label">Room Code</div>
-          <div class="room-code-value" id="roomCodeValue"></div>
-        </div>
-        <button class="copy-btn" id="copyRoomCode" title="Copy to clipboard">
-          📋 Copy
-        </button>
-      </div>
-    </div>
-    <div id="onlineJoin" style="border-top:1px solid rgba(255,255,255,.1);padding-top:24px">
-      <span class="s-label">Join Room</span>
-      <p style="color:var(--muted);font-size:.85rem;margin-bottom:16px">Enter the 6-digit room code</p>
-      <input type="text" id="roomCodeInput" maxlength="6" placeholder="ROOM CODE" style="width:100%;padding:16px;font-size:1.3rem;text-align:center;border-radius:12px;border:2px solid rgba(255,255,255,.2);background:rgba(0,0,0,.3);color:#fff;text-transform:uppercase;letter-spacing:6px;margin-bottom:16px;font-family:inherit;font-weight:700">
-      <button class="start-btn" id="joinRoomBtn" style="background:linear-gradient(135deg,#3b82f6,#2563eb)">🔗 Join Room</button>
-    </div>
-    <div id="onlineStatus" style="margin-top:20px;text-align:center;color:var(--muted);font-size:.9rem;min-height:1.5rem"></div>
-    <button class="back-a" id="backFromOnline" style="margin-top:20px;display:block;text-align:center;background:none;border:none;color:var(--muted);cursor:pointer;font-family:inherit">← Back</button>
+    <input id="p1name" type="text" placeholder="Player 1" value="Player 1" style="width:100%;padding:12px;margin-bottom:10px;background:rgba(0,0,0,.3);border:1px solid rgba(255,255,255,.2);color:#fff;border-radius:10px;font-family:inherit">
+    <input id="p2name" type="text" placeholder="Player 2" value="Player 2" style="width:100%;padding:12px;margin-bottom:22px;background:rgba(0,0,0,.3);border:1px solid rgba(255,255,255,.2);color:#fff;border-radius:10px;font-family:inherit">
+    <button class="start-btn" onclick="startGame()">Start Game</button>
   </div>
 </div>
 
 <!-- GAME -->
 <div id="game">
   <header class="g-hdr">
-    <a class="g-back" href="../../../index.html">← Back</a>
-    <div class="g-title">🎯 Carrom Board</div>
-    <!-- Connection Status Indicator -->
-    <div id="connectionStatus" class="connection-status" style="display:none">
-      <span class="conn-dot"></span>
-      <span id="connectionText">Disconnected</span>
-    </div>
-    <div style="font-size:.75rem;color:var(--muted);cursor:pointer" id="menuBtn">⚙ Menu</div>
+    <a class="g-back" href="../../../index.html">Back</a>
+    <div class="g-title">Carrom Board</div>
+    <div style="font-size:.75rem;color:var(--muted);cursor:pointer" onclick="location.reload()">Menu</div>
   </header>
   <div class="g-body">
     <div class="scoreboard">
-      <div class="p-card" id="p0card" style="--pc:#e2e8f0"><div class="p-name" id="p0name">Player 1</div><div class="p-pts" id="p0pts">0</div><div class="p-coins" id="p0coins">⚪ 0/9</div></div>
-      <div class="vs-badge" id="vsBox">VS<br><span id="roundLbl" style="font-size:.6rem;color:var(--gold)">Turn 1</span></div>
-      <div class="p-card" id="p1card" style="--pc:#1a1a1a"><div class="p-name" id="p1name">Computer</div><div class="p-pts" id="p1pts">0</div><div class="p-coins" id="p1coins">⚫ 0/9</div></div>
+      <div class="p-card" style="--pc:#fff"><div class="p-name" id="n1">Player 1</div><div class="p-pts" id="s1">0</div></div>
+      <div class="vs-badge">VS<br><span id="turnLabel">Turn 1</span></div>
+      <div class="p-card" style="--pc:#aaa"><div class="p-name" id="n2">Player 2</div><div class="p-pts" id="s2">0</div></div>
     </div>
     <div class="c-wrap"><canvas id="cv"></canvas></div>
     <div class="controls">
-      <div class="turn-pill">Turn: <b id="turnName">Player 1</b></div>
-      <div class="energy-wrap">
-        <span class="energy-lbl">⚡<span id="energyVal">100</span>%</span>
-        <div class="energy-track" id="enTrack"><div class="energy-fill" id="enFill"></div></div>
-      </div>
-      <div class="power-wrap">
-        <span class="power-lbl">Power</span>
-        <div class="power-track" id="pwTrack"><div class="power-fill" id="pwFill"></div></div>
-      </div>
-      <div class="msg-pill" id="msgPill"></div>
-    </div>
-  </div>
-</div>
-
-<!-- WIN MODAL -->
-<div class="overlay" id="winOverlay">
-  <div class="modal">
-    <div class="m-emoji" id="wEmoji">🏆</div>
-    <div class="m-title" id="wTitle">Player Wins!</div>
-    <div class="m-sub" id="wSub">Final Score</div>
-    <div class="m-btns">
-      <button class="m-btn" id="btnAgain">🔄 Play Again</button>
-      <button class="m-btn sec" id="btnHome">🏠 Menu</button>
-    </div>
-  </div>
-</div>
-
-<!-- MENU MODAL -->
-<div class="overlay" id="menuOverlay">
-  <div class="modal" style="max-width:280px">
-    <div class="m-emoji">⏸</div>
-    <div class="m-title" style="font-size:1.2rem">Paused</div>
-    <div class="m-btns" style="margin-top:20px;flex-direction:column">
-      <button class="m-btn" id="btnResume">▶ Resume</button>
-      <button class="m-btn sec" id="btnRestart">🔄 Restart</button>
-      <button class="m-btn sec" id="btnQuit">🏠 Main Menu</button>
+      <div class="turn-pill">Turn: <b id="turnDisplay">Player 1</b></div>
     </div>
   </div>
 </div>
 
 <script>
-// ══════════════════════════════════════════════════
-// CONSTANTS
-// ══════════════════════════════════════════════════
-const BS = 800;          // Board Size (logical px)
-const BM = 40;           // Board Margin (reduced for cropped board)
-const PR = 24;           // Pocket Radius (scaled with new coin size)
-const CR = 14;           // Coin Radius (smaller to fit in center circle)
-const SR = 20;           // Striker Radius (proportional to coins)
-const FRICTION = 0.983;
-const WALL_DMP = 0.72;
-const MIN_V = 0.08;
-const MAX_PWR = 28;
-const LINE_W = BS - BM*2;
-const LANE_Y0 = BS - BM - 75;   // player 0 lane Y (bottom - between black baselines)
-const LANE_Y1 = BM + 75;        // player 1 lane Y (top - between black baselines)
-const LANE_X_MIN = BS/2 - 110;  // wider strike lane
-const LANE_X_MAX = BS/2 + 110;
-// Pocket positions - adjusted to match the new board image corners
-// The pockets in the new image are slightly inset from the edges
-const POCKETS = [
-  {x:BM+10, y:BM+10}, {x:BS-BM-10, y:BM+10},
-  {x:BM+10, y:BS-BM-10}, {x:BS-BM-10, y:BS-BM-10}
-];
+const canvas=document.getElementById("cv")
+const ctx=canvas.getContext("2d")
 
-// ══════════════════════════════════════════════════
-// STATE
-// ══════════════════════════════════════════════════
-const G = {
-  cv:null, ctx:null, W:0, H:0, scale:1,
-  mode:'ai', diff:'medium',
-  pNames:['Player 1','Computer'],
-  pColors:['white','black'],
-  pts:[0,0], coinsIn:[0,0],
-  queenHolder:-1,  // who pocketed queen this turn
-  awaitCover:false,
-  queenOnBoard:true,
-  cur:0, turn:1,
-  phase:'place',   // place | aim | moving | ai
-  coins:[], striker:null,
-  strikerX: BS/2,
-  dragging:false, dragX:0, dragY:0,
-  aimAngle:0, aimPower:0,
-  aiming:false,
-  rafId:null,
-  over:false,
-  paused:false,
-  msg:'', msgTimer:0,
-  aiTimer:null,
-  energy:100, maxEnergy:100, energyRegen:15 // Energy system
-};
+// Game constants
+const W=700, H=700
+const friction=0.985
+const coinRadius=12
+const strikerRadius=15
 
-// Board is now CSS background - no image loading needed
-// ══════════════════════════════════════════════════
-// SETUP UI
-// ══════════════════════════════════════════════════
-function initSetup() {
-  document.querySelectorAll('.mode-btn').forEach(b=>b.addEventListener('click',()=>{
-    document.querySelectorAll('.mode-btn').forEach(x=>x.classList.remove('sel'));
-    b.classList.add('sel'); G.mode=b.dataset.mode;
-    document.getElementById('diffRow').style.display = G.mode==='ai'?'flex':'none';
-    document.getElementById('diffLabel').style.display = G.mode==='ai'?'block':'none';
-    document.getElementById('n2').style.display = G.mode==='local'?'block':'none';
-    document.getElementById('n2').value = G.mode==='local'?'Player 2':'Computer';
-    if(G.mode==='online'){showOnlineSetup();}
-  }));
-  document.querySelectorAll('[data-diff]').forEach(b=>b.addEventListener('click',()=>{
-    document.querySelectorAll('[data-diff]').forEach(x=>x.classList.remove('sel'));
-    b.classList.add('sel'); G.diff=b.dataset.diff;
-  }));
-  document.querySelectorAll('[data-col]').forEach(b=>b.addEventListener('click',()=>{
-    document.querySelectorAll('[data-col]').forEach(x=>x.classList.remove('sel'));
-    b.classList.add('sel');
-    G.pColors[0]=b.dataset.col; G.pColors[1]=b.dataset.col==='white'?'black':'white';
-  }));
-  document.getElementById('startBtn').addEventListener('click', startGame);
-  document.getElementById('btnAgain').addEventListener('click',()=>{
-    document.getElementById('winOverlay').classList.remove('open'); resetGame();});
-  document.getElementById('btnHome').addEventListener('click',()=>location.reload());
-  document.getElementById('menuBtn').addEventListener('click',()=>{
-    if(!G.over){G.paused=true; document.getElementById('menuOverlay').classList.add('open');}});
-  document.getElementById('btnResume').addEventListener('click',()=>{
-    G.paused=false; document.getElementById('menuOverlay').classList.remove('open');});
-  document.getElementById('btnRestart').addEventListener('click',()=>{
-    document.getElementById('menuOverlay').classList.remove('open'); resetGame();});
-  document.getElementById('btnQuit').addEventListener('click',()=>location.reload());
-}
+// Game state
+let mode="pass"
+let turn=1
+let score1=0
+let score2=0
+let p1Name="Player 1"
+let p2Name="Player 2"
 
-function startGame() {
-  G.pNames[0] = document.getElementById('n1').value.trim()||'Player 1';
-  G.pNames[1] = document.getElementById('n2').value.trim()||(G.mode==='ai'?'Computer':'Player 2');
-  document.getElementById('setup').style.display='none';
-  document.getElementById('game').style.display='flex';
-  G.cv = document.getElementById('cv');
-  G.ctx = G.cv.getContext('2d');
-  window.addEventListener('resize', resizeCanvas);
-  resizeCanvas();
-  resetGame();
-  setupInput();
-}
+// Pockets (corners of the board)
+const pockets=[
+  {x:50,y:50},{x:650,y:50},
+  {x:50,y:650},{x:650,y:650}
+]
 
-function resizeCanvas() {
-  const r = G.cv.getBoundingClientRect();
-  G.W = r.width; G.H = r.height;
-  G.cv.width = G.W; G.cv.height = G.H;
-  G.scale = G.W / BS;
-}
-
-// ══════════════════════════════════════════════════
-// GAME RESET / INIT
-// ══════════════════════════════════════════════════
-function resetGame() {
-  G.pts=[0,0]; G.coinsIn=[0,0];
-  G.queenHolder=-1; G.awaitCover=false; G.queenOnBoard=true;
-  G.cur=0; G.turn=1; G.over=false; G.paused=false;
-  G.phase='place'; G.dragging=false; G.aiming=false;
-  G.energy=100; G.maxEnergy=100; G.energyRegen=15; // Energy system
-  clearTimeout(G.aiTimer);
-  initCoins();
-  placeStriker();
-  updateUI();
-  if(!G.rafId) G.rafId=requestAnimationFrame(loop);
-}
-
-function initCoins() {
-  G.coins=[];
-  const cx=BS/2, cy=BS/2;
-  // Queen center
-  G.coins.push({x:cx,y:cy,vx:0,vy:0,type:'queen',in:false});
-  // Standard carrom arrangement: inner ring of 6, outer ring of 12 alternating
-  const r1=CR*2.3, r2=CR*4.5;
-  const inner=6, outer=12;
-  for(let i=0;i<inner;i++){
-    const a=(i*2*Math.PI/inner)+(Math.PI/6);
-    const t= i%2===0 ? 'black':'white';
-    G.coins.push({x:cx+Math.cos(a)*r1,y:cy+Math.sin(a)*r1,vx:0,vy:0,type:t,in:false});
+// Disk class for coins and striker
+class Disk{
+  constructor(x,y,r,color){
+    this.x=x;this.y=y;this.r=r;this.color=color
+    this.vx=0;this.vy=0;this.active=true
   }
-  for(let i=0;i<outer;i++){
-    const a=(i*2*Math.PI/outer);
-    const t= i%2===0 ? 'white':'black';
-    G.coins.push({x:cx+Math.cos(a)*r2,y:cy+Math.sin(a)*r2,vx:0,vy:0,type:t,in:false});
-  }
-}
-
-function placeStriker() {
-  const isP0 = G.cur===0;
-  G.strikerX = G.strikerX||BS/2; // Ensure strikerX has a value
-  G.striker={x:G.strikerX, y:isP0?LANE_Y0:LANE_Y1, vx:0,vy:0, r:SR};
-  G.aimAngle = isP0 ? -Math.PI/2 : Math.PI/2;
-  G.aimPower = 0;
-  G.phase = 'place';
-}
-
-// ══════════════════════════════════════════════════
-// INPUT
-// ══════════════════════════════════════════════════
-function setupInput() {
-  const cv=G.cv;
-  cv.addEventListener('mousedown',pd,{passive:false});
-  cv.addEventListener('mousemove',pm,{passive:false});
-  cv.addEventListener('mouseup',pu,{passive:false});
-  cv.addEventListener('touchstart',e=>{e.preventDefault();const t=e.touches[0];pd({clientX:t.clientX,clientY:t.clientY})},{passive:false});
-  cv.addEventListener('touchmove',e=>{e.preventDefault();const t=e.touches[0];pm({clientX:t.clientX,clientY:t.clientY})},{passive:false});
-  cv.addEventListener('touchend',e=>{e.preventDefault();pu()},{passive:false});
-}
-
-function cpt(e) {
-  const r=G.cv.getBoundingClientRect();
-  return {x:(e.clientX-r.left)/G.scale, y:(e.clientY-r.top)/G.scale};
-}
-
-function pd(e) {
-  if(G.over||G.paused||G.phase==='moving'||G.phase==='ai') return;
-  if(G.mode==='ai'&&G.cur===1) return;
-  if(isOnline&&G.cur!==myPlayerIdx) return; // Online: only current player
-  const p=cpt(e);
-  const s=G.striker;
-  if(G.phase==='place') {
-    // Slide striker along lane
-    G.dragging=true; G.dragX=p.x; G.dragY=p.y;
-  } else if(G.phase==='aim') {
-    G.aiming=true; G.dragX=p.x; G.dragY=p.y;
-  }
-}
-
-function pm(e) {
-  if(G.over||G.paused) return;
-  const p=cpt(e);
-  if(G.phase==='place'&&G.dragging) {
-    // Move striker left/right along lane
-    G.striker.x = Math.max(LANE_X_MIN+SR, Math.min(LANE_X_MAX-SR, p.x));
-    G.strikerX = G.striker.x;
-  } else if(G.phase==='aim'&&G.aiming) {
-    const s=G.striker;
-    const dx=p.x-s.x, dy=p.y-s.y;
-    G.aimAngle=Math.atan2(dy,dx);
-    G.aimPower=Math.min(Math.hypot(dx,dy)/8, MAX_PWR);
-    document.getElementById('pwFill').style.width=(G.aimPower/MAX_PWR*100)+'%';
-    // Show energy preview
-    const cost=Math.ceil((G.aimPower/MAX_PWR)*25);
-    const remaining=Math.max(0,G.energy-cost);
-    document.getElementById('energyVal').textContent=remaining;
-    document.getElementById('enFill').style.width=(remaining/G.maxEnergy*100)+'%';
-  }
-}
-
-function pu() {
-  if(G.phase==='place'&&G.dragging) {
-    G.dragging=false; G.phase='aim';
-  } else if(G.phase==='aim'&&G.aiming) {
-    G.aiming=false;
-    if(G.aimPower>0.8) shoot();
-    else { 
-      G.aimPower=0; 
-      document.getElementById('pwFill').style.width='0%';
-      updateEnergyUI(); // Reset energy preview
+  draw(){
+    if(!this.active)return
+    // 3D effect
+    ctx.beginPath()
+    ctx.arc(this.x+2,this.y+2,this.r,0,Math.PI*2)
+    ctx.fillStyle="rgba(0,0,0,0.3)"
+    ctx.fill()
+    // Main disk
+    ctx.beginPath()
+    ctx.arc(this.x,this.y,this.r,0,Math.PI*2)
+    const grad=ctx.createRadialGradient(this.x-3,this.y-3,2,this.x,this.y,this.r)
+    if(this.color==="red"){
+      grad.addColorStop(0,"#ff6b6b")
+      grad.addColorStop(1,"#c0392b")
+    }else if(this.color=="white"){
+      grad.addColorStop(0,"#fff")
+      grad.addColorStop(1,"#ddd")
+    }else{
+      grad.addColorStop(0,"#555")
+      grad.addColorStop(1,"#222")
     }
+    ctx.fillStyle=grad
+    ctx.fill()
+    ctx.strokeStyle="rgba(0,0,0,0.3)"
+    ctx.lineWidth=1
+    ctx.stroke()
+  }
+  update(){
+    if(!this.active)return
+    this.x+=this.vx;this.y+=this.vy
+    this.vx*=friction;this.vy*=friction
+    if(Math.abs(this.vx)<0.01)this.vx=0
+    if(Math.abs(this.vy)<0.01)this.vy=0
+    // Wall bounce
+    if(this.x<this.r){this.x=this.r;this.vx*=-0.8}
+    if(this.x>W-this.r){this.x=W-this.r;this.vx*=-0.8}
+    if(this.y<this.r){this.y=this.r;this.vy*=-0.8}
+    if(this.y>H-this.r){this.y=H-this.r;this.vy*=-0.8}
   }
 }
 
-function shoot() {
-  // Check energy - power consumption is proportional to shot power
-  const energyCost = Math.ceil((G.aimPower/MAX_PWR)*25); // 0-25 energy per shot
-  if(G.energy<energyCost){showMsg('⚡ Not enough energy!');G.aimPower=0;document.getElementById('pwFill').style.width='0%';return;}
-  
-  G.energy=Math.max(0,G.energy-energyCost);
-  updateEnergyUI();
-  
-  const s=G.striker;
-  s.vx=Math.cos(G.aimAngle)*G.aimPower;
-  s.vy=Math.sin(G.aimAngle)*G.aimPower;
-  G.phase='moving';
-  G.aimPower=0;
-  document.getElementById('pwFill').style.width='0%';
-  // Send move to peer in online mode
-  if(isOnline)sendMoveToPeer();
-}
+let coins=[]
+let striker
 
-// ══════════════════════════════════════════════════
-// PHYSICS
-// ══════════════════════════════════════════════════
-function stepPhysics() {
-  if(G.phase!=='moving') return;
-  let anyMoving=false;
-
-  // Step striker
-  if(stepObj(G.striker,SR)) anyMoving=true;
-
-  // Step coins
-  for(const c of G.coins) {
-    if(!c.in && stepObj(c,CR)) anyMoving=true;
-  }
-
-  // Collisions striker<>coins, coin<>coin
-  const active=[G.striker,...G.coins.filter(c=>!c.in)];
-  for(let i=0;i<active.length;i++) for(let j=i+1;j<active.length;j++) collide(active[i],active[j]);
-
-  // Check pockets
-  checkPockets();
-
-  if(!anyMoving) { endTurn(); }
-}
-
-function stepObj(o,r) {
-  if(Math.abs(o.vx)<MIN_V&&Math.abs(o.vy)<MIN_V){o.vx=0;o.vy=0;return false;}
-  o.vx*=FRICTION; o.vy*=FRICTION;
-  o.x+=o.vx; o.y+=o.vy;
-  const lo=BM+r, hi=BS-BM-r;
-  if(o.x<lo){o.x=lo;o.vx*=-WALL_DMP;}
-  if(o.x>hi){o.x=hi;o.vx*=-WALL_DMP;}
-  if(o.y<lo){o.y=lo;o.vy*=-WALL_DMP;}
-  if(o.y>hi){o.y=hi;o.vy*=-WALL_DMP;}
-  return true;
-}
-
-function collide(a,b) {
-  const dx=b.x-a.x, dy=b.y-a.y;
-  const dist=Math.hypot(dx,dy);
-  const ra=a.r||CR, rb=b.r||CR;
-  const min=ra+rb;
-  if(dist>=min||dist<0.001) return;
-  const nx=dx/dist, ny=dy/dist;
-  const overlap=(min-dist);
-  a.x-=nx*overlap*0.5; a.y-=ny*overlap*0.5;
-  b.x+=nx*overlap*0.5; b.y+=ny*overlap*0.5;
-  const dvx=b.vx-a.vx, dvy=b.vy-a.vy;
-  const dot=dvx*nx+dvy*ny;
-  if(dot>0) return;
-  const restitution=0.88;
-  const j=-(1+restitution)*dot/2;
-  a.vx-=j*nx; a.vy-=j*ny;
-  b.vx+=j*nx; b.vy+=j*ny;
-}
-
-function checkPockets() {
-  // Striker pocketed = foul
-  for(const p of POCKETS) {
-    if(Math.hypot(G.striker.x-p.x,G.striker.y-p.y)<PR) {
-      G.striker.vx=G.striker.vy=0;
-      showMsg('⚠ Foul! Striker pocketed – miss a turn');
-      G.phase='foul'; return;
-    }
-  }
-  for(const coin of G.coins) {
-    if(coin.in) continue;
-    for(const p of POCKETS) {
-      if(Math.hypot(coin.x-p.x,coin.y-p.y)<PR-2) {
-        coin.in=true; coin.vx=coin.vy=0;
-        handleCoin(coin);
-      }
-    }
+// Setup coins in center
+function setupCoins(){
+  coins=[]
+  let cx=W/2,cy=H/2
+  // Queen in center
+  coins.push(new Disk(cx,cy,coinRadius,"red"))
+  // 8 coins around queen
+  for(let i=0;i<8;i++){
+    let a=i*(Math.PI/4)
+    coins.push(new Disk(
+      cx+Math.cos(a)*28,
+      cy+Math.sin(a)*28,
+      coinRadius,
+      i%2?"black":"white"
+    ))
   }
 }
 
-function handleCoin(coin) {
-  const myColor=G.pColors[G.cur];
-  if(coin.type==='queen') {
-    G.queenOnBoard=false;
-    G.queenHolder=G.cur;
-    G.awaitCover=true;
-    G.energy=Math.min(G.maxEnergy,G.energy+20); // Energy bonus for queen
-    showMsg('👑 Queen pocketed! +20⚡ Energy');
-  } else if(coin.type===myColor) {
-    G.coinsIn[G.cur]++;
-    G.pts[G.cur]++;
-    G.energy=Math.min(G.maxEnergy,G.energy+10); // Energy bonus for own coin
-    if(G.awaitCover&&G.queenHolder===G.cur) {
-      G.awaitCover=false;
-      G.pts[G.cur]+=5;
-      showMsg('👑 Queen covered! +5 points! +10⚡');
-    }
-  } else {
-    // opponent coin pocketed by me
-    G.coinsIn[1-G.cur]++;
-    G.pts[1-G.cur]++;
-    G.energy=Math.max(0,G.energy-5); // Energy penalty for opponent coin
-    showMsg('🙈 Pocketed opponent coin! -5⚡');
-  }
-  updateUI();
+// Setup striker position (between baselines)
+function setupStriker(){
+  striker=new Disk(W/2,H-110,strikerRadius,"white")
+  striker.vx=0;striker.vy=0
 }
 
-// ══════════════════════════════════════════════════
-// TURN LOGIC
-// ══════════════════════════════════════════════════
-function endTurn() {
-  G.phase='done';
-  // If queen pocketed but not covered, return it to center
-  if(G.awaitCover&&G.queenHolder===G.cur) {
-    returnQueen();
-    G.awaitCover=false;
-    G.queenHolder=-1;
-    showMsg('👑 Queen returned – cover it next time!');
-  }
-  checkWin();
-  if(G.over) return;
-
-  // Sync state in online mode
-  if(isOnline)sendCoinSync();
-
-  // Determine if player earned another turn (pocketed own coin)
-  setTimeout(()=>{
-    G.phase==='done' && nextTurn();
-  },600);
-}
-
-function returnQueen() {
-  G.queenOnBoard=true;
-  let qc=G.coins.find(c=>c.type==='queen');
-  if(!qc){G.coins.push(qc={type:'queen',in:false});}
-  qc.in=false;
-  qc.x=BS/2+(Math.random()-.5)*30;
-  qc.y=BS/2+(Math.random()-.5)*30;
-  qc.vx=qc.vy=0;
-}
-
-function nextTurn() {
-  if(G.phase!=='done') return;
-  if(G.over) return;
-  G.cur= (G.mode==='local'||isOnline) ? 1-G.cur : (G.cur===0?1:0);
-  G.turn++;
-  // Regenerate energy at start of turn (up to max)
-  G.energy=Math.min(G.maxEnergy,G.energy+G.energyRegen);
-  updateEnergyUI();
-  placeStriker();
-  updateUI();
-  if(G.mode==='ai'&&G.cur===1) {
-    G.phase='ai';
-    G.aiTimer=setTimeout(doAI, 900+Math.random()*400);
-  }
-  // Sync turn change in online mode
-  if(isOnline)sendCoinSync();
-}
-
-function checkWin() {
-  for(let i=0;i<2;i++){
-    if(G.coinsIn[i]>=9&&!G.awaitCover) { winGame(i); return; }
-    if(G.pts[i]>=29) { winGame(i); return; }
+// Collision between two disks
+function collision(a,b){
+  let dx=b.x-a.x,dy=b.y-a.y
+  let dist=Math.sqrt(dx*dx+dy*dy)
+  if(dist<a.r+b.r){
+    let angle=Math.atan2(dy,dx)
+    let tx=a.x+Math.cos(angle)*(a.r+b.r)
+    let ty=a.y+Math.sin(angle)*(a.r+b.r)
+    let ax=(tx-b.x)*0.5,ay=(ty-b.y)*0.5
+    a.vx-=ax;a.vy-=ay
+    b.vx+=ax;b.vy+=ay
   }
 }
 
-function winGame(p) {
-  G.over=true;
-  document.getElementById('wEmoji').textContent=p===0?'🏆':'🤖';
-  document.getElementById('wTitle').textContent=G.pNames[p]+' Wins!';
-  document.getElementById('wSub').textContent=`Score: ${G.pts[p]} – ${G.pts[1-p]}`;
-  document.getElementById('winOverlay').classList.add('open');
-}
-
-// ══════════════════════════════════════════════════
-// AI
-// ══════════════════════════════════════════════════
-function doAI() {
-  if(G.over||G.cur!==1) return;
-  const myColor=G.pColors[1];
-  const avail=G.coins.filter(c=>!c.in);
-  if(!avail.length){nextTurn();return;}
-
-  let bestShot=null, bestScore=-Infinity;
-  const s=G.striker;
-
-  // Try each coin as target - compute ideal angle via ghost ball method
-  const candidates=[
-    ...avail.filter(c=>c.type===myColor),
-    ...avail.filter(c=>c.type==='queen'&&!G.awaitCover),
-    ...avail.filter(c=>c.type!==myColor&&c.type!=='queen')
-  ];
-
-  for(const coin of candidates.slice(0,8)) {
-    for(const pocket of POCKETS) {
-      const shot=computeShot(s,coin,pocket);
-      if(!shot) continue;
-      const score=scoreShotAI(coin,pocket,shot)+
-        (coin.type===myColor?300:0)+
-        (coin.type==='queen'&&!G.awaitCover?150:0);
-      if(score>bestScore){bestScore=score;bestShot=shot;}
-    }
-  }
-
-  if(!bestShot) {
-    // Fallback random shot
-    const t=candidates[Math.floor(Math.random()*candidates.length)];
-    if(t){const ang=Math.atan2(t.y-s.y,t.x-s.x);bestShot={angle:ang,power:12+Math.random()*8};}
-  }
-
-  if(bestShot) {
-    // Apply difficulty variance
-    let spread = G.diff==='easy'?0.28: G.diff==='medium'?0.12: 0.04;
-    let pv = G.diff==='easy'?0.65: G.diff==='medium'?0.85: 0.97;
-    // Lateral striker placement
-    G.striker.x = clamp(bestShot.strikerX||BS/2, LANE_X_MIN+SR, LANE_X_MAX-SR);
-    const finalAngle=bestShot.angle+(Math.random()-0.5)*spread*2;
-    let finalPower=bestShot.power*pv;
-    // Check energy constraint - AI must respect energy limit
-    const maxAffordablePower = (G.energy/25)*MAX_PWR;
-    finalPower = Math.min(finalPower, maxAffordablePower);
-    if(finalPower<3){finalPower=Math.min(8,maxAffordablePower);} // Minimum power to have any effect
-    G.aimAngle=finalAngle; G.aimPower=finalPower;
-    setTimeout(()=>{G.phase='aim'; setTimeout(shoot,200);},200);
-  } else { nextTurn(); }
-}
-
-function computeShot(striker,coin,pocket) {
-  // Ghost-ball: find position striker must hit to send coin into pocket
-  const dx=pocket.x-coin.x, dy=pocket.y-coin.y;
-  const dist=Math.hypot(dx,dy);
-  if(dist<0.001) return null;
-  const nx=dx/dist, ny=dy/dist;
-  // Ghost center = coin - (CR*2) in pocket direction
-  const gx=coin.x-nx*(CR+SR), gy=coin.y-ny*(CR+SR);
-  // Striker must travel from its pos to ghost
-  const sdx=gx-striker.x, sdy=gy-striker.y;
-  const sdist=Math.hypot(sdx,sdy);
-  if(sdist<1) return null;
-  const angle=Math.atan2(sdy,sdx);
-  const power=Math.min(8+sdist/30, MAX_PWR);
-  // Best striker X along lane (matching ghost X clamped)
-  const strikerX=clamp(gx, LANE_X_MIN+SR, LANE_X_MAX-SR);
-  return {angle, power, strikerX, gx,gy};
-}
-
-function scoreShotAI(coin,pocket,shot) {
-  // Score: closer to pocket = better, prefer easier angles
-  const d=Math.hypot(coin.x-pocket.x,coin.y-pocket.y);
-  return 500 - d;
-}
-
-// ══════════════════════════════════════════════════
-// TRAJECTORY PREDICTION
-// ══════════════════════════════════════════════════
-function predictTrajectory(sx,sy,angle,maxBounces) {
-  const pts=[{x:sx,y:sy}];
-  let x=sx,y=sy;
-  let dx=Math.cos(angle), dy=Math.sin(angle);
-  const step=8, lo=BM+SR, hi=BS-BM-SR;
-  let bounces=0;
-  for(let i=0;i<300;i++){
-    x+=dx*step; y+=dy*step;
-    if(x<lo){x=lo;dx=-dx;bounces++;} if(x>hi){x=hi;dx=-dx;bounces++;}
-    if(y<lo){y=lo;dy=-dy;bounces++;} if(y>hi){y=hi;dy=-dy;bounces++;}
-    pts.push({x,y});
-    if(bounces>=maxBounces) break;
-    // Stop line on first coin hit
-    const hit=G.coins.find(c=>!c.in&&Math.hypot(c.x-x,c.y-y)<CR+SR-4);
-    if(hit){break;}
-  }
-  return pts;
-}
-
-// ══════════════════════════════════════════════════
-// RENDER
-// ══════════════════════════════════════════════════
-let lastPhysicsTime = 0;
-const PHYSICS_INTERVAL = 1000 / 60; // 60fps physics
-
-function loop() {
-  G.rafId=requestAnimationFrame(loop);
-  const now = performance.now();
-  if(!G.paused && now - lastPhysicsTime > PHYSICS_INTERVAL) {
-    stepPhysics();
-    lastPhysicsTime = now;
-  }
-  render();
-}
-
-function render() {
-  const ctx=G.ctx, sc=G.scale;
-  ctx.clearRect(0,0,G.W,G.H);
-  ctx.save();
-  ctx.scale(sc,sc);
-  // Draw strike lanes (board is CSS background)
-  drawStaticBoard(ctx);
-  // Draw trajectory only in aim phase
-  if((G.phase==='aim'||G.phase==='place')&&G.cur===0&&!G.over) {
-    const maxB= G.aiming?2:1;
-    if(G.aiming||G.phase==='aim') {
-      const traj=predictTrajectory(G.striker.x,G.striker.y,G.aimAngle,2);
-      drawTrajectory(ctx,traj);
-    }
-  }
-  drawCoins(ctx);
-  drawStriker(ctx);
-  // Aim arrow when aiming
-  if(G.aiming&&!G.over) drawAimArrow(ctx);
-  ctx.restore();
-}
-
-
-
-function getBoardScale() {
-  // The image is 1536x1024, but we need a square board
-  // The board in the image is the center square portion
-  // Calculate scale to fit the board image into our BSxBS canvas
-  return BS / 1024; // Scale based on image height to fit
-}
-
-function drawStaticBoard(ctx) {
-  // Board is now CSS background - just draw strike lanes as overlay
-  const laneColor='rgba(100,60,20,0.35)';
-  ctx.strokeStyle=laneColor; ctx.lineWidth=2;
-  ctx.beginPath();
-  ctx.moveTo(LANE_X_MIN,LANE_Y0);ctx.lineTo(LANE_X_MAX,LANE_Y0);
-  ctx.stroke();
-  ctx.beginPath();
-  ctx.moveTo(LANE_X_MIN,LANE_Y1);ctx.lineTo(LANE_X_MAX,LANE_Y1);
-  ctx.stroke();
-  for(const lx of [LANE_X_MIN,LANE_X_MAX]) {
-    ctx.beginPath();ctx.moveTo(lx,LANE_Y0-6);ctx.lineTo(lx,LANE_Y0+6);ctx.stroke();
-    ctx.beginPath();ctx.moveTo(lx,LANE_Y1-6);ctx.lineTo(lx,LANE_Y1+6);ctx.stroke();
-  }
-}
-
-// Fallback board drawing when image is not available
-function drawCoins(ctx) {
-  // Sort coins by Y for proper depth (painters algorithm)
-  const sortedCoins=[...G.coins].filter(c=>!c.in).sort((a,b)=>a.y-b.y);
-  
-  for(const c of sortedCoins) {
-    const r=CR;
-    const coinHeight=5; // 3D thickness
-    
-    // Drop shadow on board
-    ctx.save();
-    ctx.shadowColor='rgba(0,0,0,0.4)';
-    ctx.shadowBlur=8;
-    ctx.shadowOffsetY=4;
-    ctx.beginPath();ctx.arc(c.x,c.y,r-1,0,Math.PI*2);
-    ctx.fillStyle='rgba(0,0,0,0.2)';
-    ctx.fill();
-    ctx.restore();
-    
-    if(c.type==='queen') {
-      // ══════════════════════════════════════════════════
-      // 3D QUEEN COIN
-      // ══════════════════════════════════════════════════
-      
-      // Side/thickness (3D height)
-      ctx.beginPath();
-      ctx.arc(c.x,c.y+coinHeight,r,0,Math.PI*2);
-      ctx.fillStyle='#600';
-      ctx.fill();
-      
-      // Side gradient for roundness
-      const sideGrad=ctx.createLinearGradient(c.x-r,c.y,c.x+r,c.y);
-      sideGrad.addColorStop(0,'#400');
-      sideGrad.addColorStop(0.5,'#800');
-      sideGrad.addColorStop(1,'#300');
-      ctx.beginPath();
-      ctx.arc(c.x,c.y+coinHeight/2,r,0,Math.PI*2);
-      ctx.fillStyle=sideGrad;
-      ctx.fill();
-      
-      // Top face with metallic shine
-      const topGrad=ctx.createRadialGradient(c.x-r*.4,c.y-r*.4,2,c.x,c.y,r);
-      topGrad.addColorStop(0,'#ff6b6b');
-      topGrad.addColorStop(0.3,'#e53935');
-      topGrad.addColorStop(0.7,'#b71c1c');
-      topGrad.addColorStop(1,'#7f0000');
-      ctx.beginPath();ctx.arc(c.x,c.y,r,0,Math.PI*2);
-      ctx.fillStyle=topGrad;
-      ctx.fill();
-      
-      // Metallic highlight ring
-      ctx.beginPath();ctx.arc(c.x,c.y,r-2,0,Math.PI*2);
-      ctx.strokeStyle='rgba(255,150,150,0.6)';
-      ctx.lineWidth=1.5;
-      ctx.stroke();
-      
-      // Inner detailed ring
-      ctx.beginPath();ctx.arc(c.x,c.y,r*.65,0,Math.PI*2);
-      ctx.strokeStyle='rgba(200,100,100,0.5)';
-      ctx.lineWidth=1;
-      ctx.stroke();
-      
-      // Crown symbol with 3D effect
-      ctx.fillStyle='rgba(255,220,100,0.95)';
-      ctx.font=`bold ${r*.85}px serif`;
-      ctx.textAlign='center';
-      ctx.textBaseline='middle';
-      // Crown shadow
-      ctx.fillStyle='rgba(150,120,0,0.4)';
-      ctx.fillText('♛',c.x+1,c.y+2);
-      // Crown main
-      ctx.fillStyle='rgba(255,220,100,0.95)';
-      ctx.fillText('♛',c.x,c.y+1);
-      // Crown highlight
-      ctx.fillStyle='rgba(255,255,200,0.6)';
-      ctx.fillText('♛',c.x-0.5,c.y);
-      
-    } else {
-      // ══════════════════════════════════════════════════
-      // 3D REGULAR COINS (WHITE/BLACK)
-      // ══════════════════════════════════════════════════
-      const isW=c.type==='white';
-      
-      // Side/thickness shadow
-      ctx.beginPath();
-      ctx.arc(c.x,c.y+coinHeight,r-0.5,0,Math.PI*2);
-      ctx.fillStyle=isW?'#999':'#111';
-      ctx.fill();
-      
-      // Side bevel gradient
-      const sideGrad=ctx.createLinearGradient(c.x-r,c.y,c.x+r,c.y);
-      if(isW){
-        sideGrad.addColorStop(0,'#bbb');
-        sideGrad.addColorStop(0.5,'#eee');
-        sideGrad.addColorStop(1,'#999');
+// Check if disk falls in pocket
+function pocket(d){
+  for(let p of pockets){
+    let dx=d.x-p.x,dy=d.y-p.y
+    if(Math.sqrt(dx*dx+dy*dy)<30){
+      d.active=false
+      if(d!==striker){
+        if(turn==1)score1++;else score2++
+        updateScore()
       }else{
-        sideGrad.addColorStop(0,'#1a1a1a');
-        sideGrad.addColorStop(0.5,'#333');
-        sideGrad.addColorStop(1,'#0a0a0a');
+        setupStriker()
       }
-      ctx.beginPath();
-      ctx.arc(c.x,c.y+coinHeight/2,r-0.5,0,Math.PI*2);
-      ctx.fillStyle=sideGrad;
-      ctx.fill();
-      
-      // Top face with realistic lighting
-      const topGrad=ctx.createRadialGradient(c.x-r*.35,c.y-r*.35,1,c.x,c.y,r);
-      if(isW){
-        // White coin - glossy plastic look
-        topGrad.addColorStop(0,'#ffffff');
-        topGrad.addColorStop(0.2,'#f5f5f5');
-        topGrad.addColorStop(0.5,'#e0e0e0');
-        topGrad.addColorStop(0.8,'#c0c0c0');
-        topGrad.addColorStop(1,'#a0a0a0');
-      }else{
-        // Black coin - matte with slight sheen
-        topGrad.addColorStop(0,'#555');
-        topGrad.addColorStop(0.3,'#333');
-        topGrad.addColorStop(0.7,'#1a1a1a');
-        topGrad.addColorStop(1,'#0a0a0a');
-      }
-      ctx.beginPath();ctx.arc(c.x,c.y,r,0,Math.PI*2);
-      ctx.fillStyle=topGrad;
-      ctx.fill();
-      
-      // Beveled edge highlight
-      ctx.beginPath();ctx.arc(c.x,c.y,r-1,0,Math.PI*2);
-      ctx.strokeStyle=isW?'rgba(255,255,255,0.8)':'rgba(80,80,80,0.5)';
-      ctx.lineWidth=1.5;
-      ctx.stroke();
-      
-      // Inner ring (recessed detail)
-      ctx.beginPath();ctx.arc(c.x,c.y,r*.6,0,Math.PI*2);
-      ctx.strokeStyle=isW?'rgba(180,180,180,0.6)':'rgba(60,60,60,0.5)';
-      ctx.lineWidth=1.5;
-      ctx.stroke();
-      
-      // Inner recessed gradient
-      const innerGrad=ctx.createRadialGradient(c.x,c.y,1,c.x,c.y,r*.55);
-      if(isW){
-        innerGrad.addColorStop(0,'rgba(255,255,255,0.3)');
-        innerGrad.addColorStop(1,'rgba(200,200,200,0.1)');
-      }else{
-        innerGrad.addColorStop(0,'rgba(80,80,80,0.3)');
-        innerGrad.addColorStop(1,'rgba(30,30,30,0.1)');
-      }
-      ctx.beginPath();ctx.arc(c.x,c.y,r*.55,0,Math.PI*2);
-      ctx.fillStyle=innerGrad;
-      ctx.fill();
-      
-      // Specular highlight (shine spot)
-      ctx.beginPath();ctx.ellipse(c.x-r*.3,c.y-r*.3,r*.25,r*.15,-Math.PI/4,0,Math.PI*2);
-      ctx.fillStyle=isW?'rgba(255,255,255,0.7)':'rgba(100,100,100,0.3)';
-      ctx.fill();
+      return true
     }
   }
+  return false
 }
 
-function drawStriker(ctx) {
-  const s=G.striker;
-  const r=s.r||SR;
-  const isW=G.pColors[G.cur]==='white';
-  const strikerHeight=8; // Thicker than coins
-  
-  // ══════════════════════════════════════════════════
-  // 3D STRIKER
-  // ══════════════════════════════════════════════════
-  
-  // Drop shadow on board
-  ctx.save();
-  ctx.shadowColor='rgba(0,0,0,0.5)';
-  ctx.shadowBlur=12;
-  ctx.shadowOffsetY=5;
-  ctx.beginPath();ctx.arc(s.x,s.y,r-1,0,Math.PI*2);
-  ctx.fillStyle='rgba(0,0,0,0.3)';
-  ctx.fill();
-  ctx.restore();
-  
-  // Side thickness (3D height)
-  ctx.beginPath();
-  ctx.arc(s.x,s.y+strikerHeight,r,0,Math.PI*2);
-  ctx.fillStyle=isW?'#4a5a8a':'#1a1a1a';
-  ctx.fill();
-  
-  // Side bevel with gradient for roundness
-  const sideGrad=ctx.createLinearGradient(s.x-r,s.y,s.x+r,s.y);
-  if(isW){
-    sideGrad.addColorStop(0,'#5a6a9a');
-    sideGrad.addColorStop(0.3,'#8a9aca');
-    sideGrad.addColorStop(0.5,'#aabaea');
-    sideGrad.addColorStop(0.7,'#7a8aba');
-    sideGrad.addColorStop(1,'#4a5a8a');
-  }else{
-    sideGrad.addColorStop(0,'#222');
-    sideGrad.addColorStop(0.3,'#444');
-    sideGrad.addColorStop(0.5,'#555');
-    sideGrad.addColorStop(0.7,'#333');
-    sideGrad.addColorStop(1,'#111');
-  }
-  ctx.beginPath();
-  ctx.arc(s.x,s.y+strikerHeight/2,r-0.5,0,Math.PI*2);
-  ctx.fillStyle=sideGrad;
-  ctx.fill();
-  
-  // Top face with metallic/plastic shine
-  const topGrad=ctx.createRadialGradient(s.x-r*.4,s.y-r*.4,2,s.x,s.y,r);
-  if(isW){
-    // White striker - glossy with blue tint
-    topGrad.addColorStop(0,'#ffffff');
-    topGrad.addColorStop(0.15,'#e8f0ff');
-    topGrad.addColorStop(0.4,'#c0d0f0');
-    topGrad.addColorStop(0.7,'#90a0d0');
-    topGrad.addColorStop(1,'#6070a0');
-  }else{
-    // Black striker - sleek dark
-    topGrad.addColorStop(0,'#666');
-    topGrad.addColorStop(0.2,'#444');
-    topGrad.addColorStop(0.5,'#2a2a2a');
-    topGrad.addColorStop(0.8,'#1a1a1a');
-    topGrad.addColorStop(1,'#0a0a0a');
-  }
-  ctx.beginPath();ctx.arc(s.x,s.y,r,0,Math.PI*2);
-  ctx.fillStyle=topGrad;
-  ctx.fill();
-  
-  // Outer rim highlight
-  ctx.beginPath();ctx.arc(s.x,s.y,r-1,0,Math.PI*2);
-  ctx.strokeStyle=isW?'rgba(255,255,255,0.9)':'rgba(100,100,100,0.5)';
-  ctx.lineWidth=2;
-  ctx.stroke();
-  
-  // Inner recessed circle
-  ctx.beginPath();ctx.arc(s.x,s.y,r*.7,0,Math.PI*2);
-  ctx.strokeStyle=isW?'rgba(100,120,180,0.4)':'rgba(80,80,80,0.4)';
-  ctx.lineWidth=1.5;
-  ctx.stroke();
-  
-  // Center depression with gradient
-  const centerGrad=ctx.createRadialGradient(s.x,s.y,1,s.x,s.y,r*.65);
-  if(isW){
-    centerGrad.addColorStop(0,'rgba(200,210,240,0.5)');
-    centerGrad.addColorStop(1,'rgba(160,170,200,0.2)');
-  }else{
-    centerGrad.addColorStop(0,'rgba(60,60,60,0.5)');
-    centerGrad.addColorStop(1,'rgba(30,30,30,0.2)');
-  }
-  ctx.beginPath();ctx.arc(s.x,s.y,r*.65,0,Math.PI*2);
-  ctx.fillStyle=centerGrad;
-  ctx.fill();
-  
-  // Large specular highlight (main shine)
-  ctx.beginPath();ctx.ellipse(s.x-r*.35,s.y-r*.35,r*.3,r*.2,-Math.PI/4,0,Math.PI*2);
-  ctx.fillStyle=isW?'rgba(255,255,255,0.8)':'rgba(150,150,150,0.4)';
-  ctx.fill();
-  
-  // Small bright spot highlight
-  ctx.beginPath();ctx.ellipse(s.x-r*.4,s.y-r*.4,r*.12,r*.08,-Math.PI/4,0,Math.PI*2);
-  ctx.fillStyle=isW?'rgba(255,255,255,0.95)':'rgba(200,200,200,0.5)';
-  ctx.fill();
-  
-  // Center marker dot (red)
-  ctx.beginPath();ctx.arc(s.x,s.y,5,0,Math.PI*2);
-  const dotGrad=ctx.createRadialGradient(s.x-2,s.y-2,1,s.x,s.y,5);
-  dotGrad.addColorStop(0,'#ff6666');
-  dotGrad.addColorStop(1,'#cc0000');
-  ctx.fillStyle=dotGrad;
-  ctx.fill();
-  ctx.strokeStyle='rgba(100,0,0,0.5)';
-  ctx.lineWidth=1;
-  ctx.stroke();
+// Update score display
+function updateScore(){
+  document.getElementById("s1").innerText=score1
+  document.getElementById("s2").innerText=score2
+}
 
-  // Lane indicator (when placing)
-  if(G.phase==='place'&&G.cur===0) {
-    ctx.strokeStyle='rgba(255,220,80,.6)';ctx.lineWidth=1.5;ctx.setLineDash([4,4]);
-    ctx.beginPath();ctx.moveTo(LANE_X_MIN,LANE_Y0);ctx.lineTo(LANE_X_MAX,LANE_Y0);ctx.stroke();
-    ctx.setLineDash([]);
+// Next turn
+function nextTurn(){
+  turn=turn==1?2:1
+  document.getElementById("turnDisplay").innerText=turn==1?p1Name:p2Name
+  document.getElementById("turnLabel").innerText="Turn "+(turn==1?"1":"2")
+  if(mode=="ai"&&turn==2)setTimeout(aiShot,500)
+}
+
+// Update physics
+function update(){
+  striker.update()
+  for(let c of coins)c.update()
+  // Collisions
+  for(let c of coins)collision(striker,c)
+  for(let i=0;i<coins.length;i++)
+    for(let j=i+1;j<coins.length;j++)
+      collision(coins[i],coins[j])
+  // Pockets
+  pocket(striker)
+  for(let c of coins)pocket(c)
+}
+
+// Draw everything
+function draw(){
+  ctx.clearRect(0,0,canvas.width,canvas.height)
+  striker.draw()
+  for(let c of coins)c.draw()
+}
+
+// Game loop
+function loop(){
+  update()
+  draw()
+  requestAnimationFrame(loop)
+}
+
+// Input handling
+let drag=false
+function getPos(e){
+  let rect=canvas.getBoundingClientRect()
+  let clientX=e.touches?e.touches[0].clientX:e.clientX
+  let clientY=e.touches?e.touches[0].clientY:e.clientY
+  return{
+    x:(clientX-rect.left)*(W/rect.width),
+    y:(clientY-rect.top)*(H/rect.height)
   }
 }
 
-function drawTrajectory(ctx,pts) {
-  if(pts.length<2) return;
-  ctx.save();
-  ctx.setLineDash([7,7]);
-  ctx.strokeStyle='rgba(255,220,60,.55)';
-  ctx.lineWidth=2;
-  ctx.beginPath();
-  ctx.moveTo(pts[0].x,pts[0].y);
-  for(let i=1;i<pts.length;i++) ctx.lineTo(pts[i].x,pts[i].y);
-  ctx.stroke();
-  // Endpoint circle 
-  const last=pts[pts.length-1];
-  ctx.setLineDash([]);
-  ctx.beginPath();ctx.arc(last.x,last.y,SR,0,Math.PI*2);
-  ctx.strokeStyle='rgba(255,220,60,.3)';ctx.lineWidth=1.5;ctx.stroke();
-  ctx.restore();
+function shoot(e){
+  let pos=getPos(e)
+  let dx=striker.x-pos.x
+  let dy=striker.y-pos.y
+  striker.vx=dx*0.15
+  striker.vy=dy*0.15
+  setTimeout(nextTurn,1500)
 }
 
-function drawAimArrow(ctx) {
-  const s=G.striker;
-  const len=Math.min(G.aimPower*6,90);
-  const ex=s.x+Math.cos(G.aimAngle)*len;
-  const ey=s.y+Math.sin(G.aimAngle)*len;
-  ctx.save();
-  ctx.strokeStyle=`hsl(${120-G.aimPower/MAX_PWR*120},100%,55%)`;
-  ctx.lineWidth=3;
-  ctx.lineCap='round';
-  ctx.beginPath();ctx.moveTo(s.x,s.y);ctx.lineTo(ex,ey);ctx.stroke();
-  // Arrowhead
-  const headLen=12,a=G.aimAngle;
-  ctx.beginPath();
-  ctx.moveTo(ex,ey);
-  ctx.lineTo(ex-Math.cos(a-0.4)*headLen,ey-Math.sin(a-0.4)*headLen);
-  ctx.moveTo(ex,ey);
-  ctx.lineTo(ex-Math.cos(a+0.4)*headLen,ey-Math.sin(a+0.4)*headLen);
-  ctx.stroke();
-  ctx.restore();
+canvas.addEventListener("mousedown",e=>{drag=true})
+canvas.addEventListener("mouseup",e=>{drag=false;shoot(e)})
+canvas.addEventListener("touchstart",e=>{drag=true;e.preventDefault()})
+canvas.addEventListener("touchend",e=>{drag=false;shoot(e);e.preventDefault()})
+
+// AI shot
+function aiShot(){
+  let target=coins.find(c=>c.active)
+  if(!target)return
+  let dx=striker.x-target.x
+  let dy=striker.y-target.y
+  striker.vx=dx*0.12
+  striker.vy=dy*0.12
+  setTimeout(nextTurn,1500)
 }
 
-// ══════════════════════════════════════════════════
-// UI HELPERS
-// ══════════════════════════════════════════════════
-function updateUI() {
-  for(let i=0;i<2;i++){
-    const col=G.pColors[i]==='white'?'#e2e8f0':'#334155';
-    document.getElementById('p'+i+'card').style.setProperty('--pc',col);
-    document.getElementById('p'+i+'pts').textContent=G.pts[i];
-    document.getElementById('p'+i+'name').textContent=G.pNames[i];
-    const icon=G.pColors[i]==='white'?'⚪':'⚫';
-    document.getElementById('p'+i+'coins').textContent=`${icon} ${G.coinsIn[i]}/9`;
-    document.getElementById('p'+i+'card').classList.toggle('active',G.cur===i);
-  }
-  document.getElementById('turnName').textContent=G.pNames[G.cur];
-  document.getElementById('roundLbl').textContent='Turn '+G.turn;
-  updateEnergyUI();
+// Start game
+function startGame(){
+  mode=document.querySelector(".mode-btn.sel").dataset.mode
+  p1Name=document.getElementById("p1name").value||"Player 1"
+  p2Name=document.getElementById("p2name").value||"Player 2"
+  document.getElementById("n1").innerText=p1Name
+  document.getElementById("n2").innerText=mode=="ai"?"Computer":p2Name
+  document.getElementById("setup").style.display="none"
+  document.getElementById("game").style.display="flex"
+  canvas.width=W;canvas.height=H
+  setupCoins()
+  setupStriker()
+  loop()
 }
 
-function updateEnergyUI(){
-  const pct=Math.max(0,Math.min(100,(G.energy/G.maxEnergy)*100));
-  document.getElementById('energyVal').textContent=Math.floor(pct);
-  document.getElementById('enFill').style.width=pct+'%';
-  document.getElementById('enFill').classList.toggle('low',pct<25);
-}
-
-let msgTO=null;
-function showMsg(txt) {
-  const el=document.getElementById('msgPill');
-  el.textContent=txt; el.classList.add('show');
-  clearTimeout(msgTO);
-  msgTO=setTimeout(()=>el.classList.remove('show'),3500);
-}
-
-function roundRect(ctx,x,y,w,h,r) {
-  ctx.beginPath();
-  ctx.moveTo(x+r,y);ctx.lineTo(x+w-r,y);ctx.arcTo(x+w,y,x+w,y+r,r);
-  ctx.lineTo(x+w,y+h-r);ctx.arcTo(x+w,y+h,x+w-r,y+h,r);
-  ctx.lineTo(x+r,y+h);ctx.arcTo(x,y+h,x,y+h-r,r);
-  ctx.lineTo(x,y+r);ctx.arcTo(x,y,x+r,y,r);
-  ctx.closePath();
-}
-
-function clamp(v,lo,hi){return Math.max(lo,Math.min(hi,v));}
-
-// ══════════════════════════════════════════════════
-// UX ENHANCEMENTS - Connection Status, Loading, Offline Detection
-// ══════════════════════════════════════════════════
-
-let connectionTimeout = null;
-let reconnectAttempts = 0;
-let maxReconnectAttempts = 5;
-let cancelConnectionFlag = false;
-
-// Update connection status indicator
-function updateConnectionStatus(status, text) {
-  const statusEl = document.getElementById('connectionStatus');
-  const textEl = document.getElementById('connectionText');
-  
-  if (!isOnline) {
-    statusEl.style.display = 'none';
-    return;
-  }
-  
-  statusEl.style.display = 'flex';
-  statusEl.className = 'connection-status ' + status;
-  textEl.textContent = text || status.charAt(0).toUpperCase() + status.slice(1);
-}
-
-// Show loading overlay
-function showLoading(text, subtext, showCancel) {
-  const overlay = document.getElementById('loadingOverlay');
-  const textEl = document.getElementById('loadingText');
-  const subtextEl = document.getElementById('loadingSubtext');
-  const cancelBtn = document.getElementById('cancelBtn');
-  
-  textEl.textContent = text || 'Connecting...';
-  subtextEl.textContent = subtext || '';
-  cancelBtn.style.display = showCancel ? 'block' : 'none';
-  
-  overlay.classList.add('active');
-  
-  // Set connection timeout
-  if (connectionTimeout) clearTimeout(connectionTimeout);
-  connectionTimeout = setTimeout(() => {
-    if (overlay.classList.contains('active')) {
-      hideLoading();
-      showError('Connection timed out. Please try again.', 'error');
-      cleanupPeerConnection();
-    }
-  }, 30000); // 30 second timeout
-}
-
-// Hide loading overlay
-function hideLoading() {
-  const overlay = document.getElementById('loadingOverlay');
-  overlay.classList.remove('active');
-  if (connectionTimeout) {
-    clearTimeout(connectionTimeout);
-    connectionTimeout = null;
-  }
-}
-
-// Show error toast
-function showError(message, type = 'error') {
-  const toast = document.getElementById('errorToast');
-  toast.textContent = message;
-  toast.className = 'error-toast ' + type;
-  toast.classList.add('show');
-  
-  setTimeout(() => {
-    toast.classList.remove('show');
-  }, 5000);
-}
-
-// Initialize offline detection
-function initOfflineDetection() {
-  const banner = document.getElementById('offlineBanner');
-  
-  function updateOnlineStatus() {
-    if (navigator.onLine) {
-      banner.classList.remove('show');
-      // Attempt reconnection if we were in an online game
-      if (isOnline && !conn || (conn && !conn.open)) {
-        attemptReconnection();
-      }
-    } else {
-      banner.classList.add('show');
-      showError('You are offline. Game may not function properly.', 'info');
-    }
-  }
-  
-  window.addEventListener('online', updateOnlineStatus);
-  window.addEventListener('offline', updateOnlineStatus);
-  
-  // Initial check
-  updateOnlineStatus();
-}
-
-// Attempt reconnection
-function attemptReconnection() {
-  if (!isOnline || reconnectAttempts >= maxReconnectAttempts) {
-    showError('Unable to reconnect. Please restart the game.', 'error');
-    return;
-  }
-  
-  reconnectAttempts++;
-  showLoading('Reconnecting...', `Attempt ${reconnectAttempts}/${maxReconnectAttempts}`, true);
-  
-  // Try to reconnect
-  setTimeout(() => {
-    if (roomCode) {
-      if (isHost) {
-        initPeerJS(roomCode, true);
-      } else {
-        initPeerJS(roomCode, false);
-      }
-    }
-  }, 2000);
-}
-
-// Cleanup peer connection
-function cleanupPeerConnection() {
-  if (conn) {
-    conn.close();
-    conn = null;
-  }
-  if (peer) {
-    peer.destroy();
-    peer = null;
-  }
-  isOnline = false;
-  isHost = false;
-  hideLoading();
-  updateConnectionStatus('disconnected', 'Disconnected');
-}
-
-// Copy room code to clipboard
-function copyRoomCode() {
-  const code = document.getElementById('roomCodeValue').textContent;
-  if (!code) return;
-  
-  navigator.clipboard.writeText(code).then(() => {
-    const btn = document.getElementById('copyRoomCode');
-    btn.classList.add('copied');
-    btn.textContent = '✓ Copied!';
-    setTimeout(() => {
-      btn.classList.remove('copied');
-      btn.textContent = '📋 Copy';
-    }, 2000);
-  }).catch(() => {
-    // Fallback for browsers without clipboard API
-    const textarea = document.createElement('textarea');
-    textarea.value = code;
-    document.body.appendChild(textarea);
-    textarea.select();
-    document.execCommand('copy');
-    document.body.removeChild(textarea);
-    
-    const btn = document.getElementById('copyRoomCode');
-    btn.classList.add('copied');
-    btn.textContent = '✓ Copied!';
-    setTimeout(() => {
-      btn.classList.remove('copied');
-      btn.textContent = '📋 Copy';
-    }, 2000);
-  });
-}
-
-// ══════════════════════════════════════════════════
-// ONLINE MULTIPLAYER (PeerJS) - ENHANCED
-// ══════════════════════════════════════════════════
-let peer=null,conn=null,isOnline=false,isHost=false,roomCode='',myPlayerIdx=0;
-
-function initOnlineSetup(){
-  document.getElementById('createRoomBtn').onclick=createRoom;
-  document.getElementById('joinRoomBtn').onclick=joinRoom;
-  document.getElementById('backFromOnline').onclick=()=>{
-    document.getElementById('onlineSetup').style.display='none';
-    document.getElementById('setup').style.display='flex';
-    cleanupPeerConnection();
-  };
-  
-  // Copy room code button
-  document.getElementById('copyRoomCode').onclick = copyRoomCode;
-  
-  // Cancel button for loading overlay
-  document.getElementById('cancelBtn').onclick = () => {
-    cancelConnectionFlag = true;
-    cleanupPeerConnection();
-    hideLoading();
-    document.getElementById('onlineStatus').innerHTML = '<span style="color:#f59e0b">Connection cancelled</span>';
-  };
-}
-
-function showOnlineSetup(){
-  document.getElementById('setup').style.display='none';
-  document.getElementById('onlineSetup').style.display='flex';
-  document.getElementById('onlineStatus').textContent='';
-  document.getElementById('roomCodeInput').value='';
-  document.getElementById('roomCodeDisplay').style.display = 'none';
-  document.getElementById('createRoomBtn').style.display = 'block';
-  initOnlineSetup();
-}
-
-function createRoom(){
-  if (!navigator.onLine) {
-    showError('You are offline. Please check your internet connection.', 'error');
-    return;
-  }
-  
-  roomCode=Math.floor(100000+Math.random()*900000).toString();
-  
-  // Show room code display with copy button
-  document.getElementById('roomCodeValue').textContent = roomCode;
-  document.getElementById('roomCodeDisplay').style.display = 'flex';
-  document.getElementById('createRoomBtn').style.display = 'none';
-  
-  document.getElementById('onlineStatus').innerHTML='<span style="color:#22c55e">Room created! Waiting for opponent...</span>';
-  
-  showLoading('Creating room...', 'Waiting for opponent to join', true);
-  initPeerJS(roomCode,true);
-}
-
-function joinRoom(){
-  if (!navigator.onLine) {
-    showError('You are offline. Please check your internet connection.', 'error');
-    return;
-  }
-  
-  const code=document.getElementById('roomCodeInput').value.trim().toUpperCase();
-  if(code.length!==6){
-    showError('Please enter a valid 6-digit room code', 'error');
-    return;
-  }
-  roomCode=code;
-  
-  showLoading('Joining room...', `Connecting to room ${roomCode}`, true);
-  initPeerJS(roomCode,false);
-}
-
-function initPeerJS(code,isH){
-  isHost=isH;isOnline=true;myPlayerIdx=isHost?0:1;
-  cancelConnectionFlag = false;
-  
-  const myId='carrom-'+code+'-'+(isHost?'host':'guest')+'-'+Date.now();
-  
-  try {
-    peer=new Peer(myId,{host:'0.peerjs.com',port:443,secure:true,debug:1});
-  } catch(e) {
-    hideLoading();
-    showError('Failed to initialize connection. Please try again.', 'error');
-    return;
-  }
-  
-  peer.on('open',(id)=>{
-    console.log('Peer open:',id);
-    updateConnectionStatus('connecting', 'Connecting...');
-    
-    if(!isHost){
-      const hostId='carrom-'+code+'-host';
-      try {
-        conn=peer.connect(hostId, { reliable: true });
-        setupConnection();
-      } catch(e) {
-        hideLoading();
-        showError('Room not found. Please check the room code.', 'error');
-        cleanupPeerConnection();
-      }
-    }
-  });
-  
-  peer.on('connection',(c)=>{
-    if (cancelConnectionFlag) return;
-    conn=c;
-    setupConnection();
-  });
-  
-  peer.on('error',(e)=>{
-    console.error('Peer error:', e);
-    hideLoading();
-    
-    let errorMsg = 'Connection error: ' + e.message;
-    if (e.type === 'peer-unavailable') {
-      errorMsg = 'Room not found. Please check the room code and try again.';
-    } else if (e.type === 'network' || e.type === 'disconnected') {
-      errorMsg = 'Network error. Please check your internet connection.';
-    } else if (e.type === 'unavailable-id') {
-      errorMsg = 'Connection ID unavailable. Please try again.';
-    } else if (e.type === 'socket-error') {
-      errorMsg = 'Server connection failed. Please try again later.';
-    }
-    
-    showError(errorMsg, 'error');
-    document.getElementById('onlineStatus').innerHTML = `<span style="color:#ef4444">${errorMsg}</span>`;
-    
-    // Attempt reconnection for certain errors
-    if ((e.type === 'network' || e.type === 'disconnected') && reconnectAttempts < maxReconnectAttempts) {
-      attemptReconnection();
-    } else {
-      cleanupPeerConnection();
-    }
-  });
-  
-  peer.on('disconnected', () => {
-    updateConnectionStatus('disconnected', 'Disconnected');
-    showError('Connection lost. Attempting to reconnect...', 'info');
-    attemptReconnection();
-  });
-}
-
-function setupConnection(){
-  if (!conn) return;
-  
-  conn.on('open',()=>{
-    console.log('Connection open');
-    hideLoading();
-    reconnectAttempts = 0; // Reset reconnection counter on successful connection
-    updateConnectionStatus('connected', 'Connected');
-    document.getElementById('onlineStatus').innerHTML='<span style="color:#22c55e">Connected! Starting game...</span>';
-    if(isHost){
-      // Host starts game after short delay
-      setTimeout(()=>startOnlineGame(),800);
-    }
-  });
-  
-  conn.on('data',(d)=>handlePeerData(d));
-  
-  conn.on('close',()=>{
-    updateConnectionStatus('disconnected', 'Disconnected');
-    showMsg('Opponent disconnected');
-    showError('Opponent disconnected from the game', 'error');
-    isOnline=false;
-  });
-  
-  conn.on('error',(e)=>{
-    console.error('Conn error:',e);
-    showError('Connection error occurred', 'error');
-    updateConnectionStatus('disconnected', 'Error');
-  });
-}
-
-function startOnlineGame(){
-  // Show connection status in game header
-  document.getElementById('connectionStatus').style.display = 'flex';
-  updateConnectionStatus('connected', 'Connected');
-  
-  G.pNames[0]=isHost?(document.getElementById('n1').value.trim()||'You'):'Opponent';
-  G.pNames[1]=isHost?'Opponent':(document.getElementById('n1').value.trim()||'You');
-  G.pColors[0]='white';
-  G.pColors[1]='black';
-  
-  document.getElementById('onlineSetup').style.display='none';
-  document.getElementById('game').style.display='flex';
-  G.cv = document.getElementById('cv');
-  G.ctx = G.cv.getContext('2d');
-  window.addEventListener('resize', resizeCanvas);
-  resizeCanvas();
-  resetGame();
-  setupInput();
-  
-  // Send start to peer
-  if(conn)conn.send({type:'start',names:G.pNames,cols:G.pColors});
-}
-
-function handlePeerData(d){
-  console.log('Peer data:',d);
-  switch(d.type){
-    case 'start':
-      G.pNames[0]=d.names[0];
-      G.pNames[1]=d.names[1];
-      G.pColors[0]=d.cols[0];
-      G.pColors[1]=d.cols[1];
-      
-      // Show connection status in game header
-      document.getElementById('connectionStatus').style.display = 'flex';
-      updateConnectionStatus('connected', 'Connected');
-      
-      document.getElementById('onlineSetup').style.display='none';
-      document.getElementById('game').style.display='flex';
-      G.cv = document.getElementById('cv');
-      G.ctx = G.cv.getContext('2d');
-      window.addEventListener('resize', resizeCanvas);
-      resizeCanvas();
-      resetGame();
-      setupInput();
-      break;
-    case 'move':
-      // Apply remote move - striker shot data
-      G.striker.x=d.striker.x;
-      G.striker.y=d.striker.y;
-      G.striker.vx=d.striker.vx;
-      G.striker.vy=d.striker.vy;
-      // Sync coins state
-      d.coins.forEach((c,i)=>{
-        if(G.coins[i]){
-          G.coins[i].x=c.x;
-          G.coins[i].y=c.y;
-          G.coins[i].in=c.in;
-        }
-      });
-      G.phase='moving';
-      if(d.queenReturned){
-        returnQueen();
-      }
-      // Sync game state
-      G.pts=d.scores;
-      G.coinsIn=d.pocketed;
-      G.cur=d.turn;
-      G.turn=d.turnNumber;
-      updateUI();
-      break;
-    case 'coinSync':
-      // Sync coins after pocket/score change
-      d.coins.forEach((c,i)=>{
-        if(G.coins[i]){
-          G.coins[i].x=c.x;
-          G.coins[i].y=c.y;
-          G.coins[i].in=c.in;
-        }
-      });
-      G.pts=d.scores;
-      G.coinsIn=d.pocketed;
-      updateUI();
-      break;
-  }
-}
-
-function sendMoveToPeer(){
-  if(!conn||!isOnline)return;
-  const coinData=G.coins.map(c=>({x:c.x,y:c.y,in:c.in}));
-  conn.send({
-    type:'move',
-    striker:{x:G.striker.x,y:G.striker.y,vx:G.striker.vx,vy:G.striker.vy},
-    coins:coinData,
-    scores:[G.pts[0],G.pts[1]],
-    pocketed:[G.coinsIn[0],G.coinsIn[1]],
-    turn:G.cur,
-    turnNumber:G.turn,
-    queenReturned:G.awaitCover&&G.queenHolder!==G.cur
-  });
-}
-
-function sendCoinSync(){
-  if(!conn||!isOnline)return;
-  const coinData=G.coins.map(c=>({x:c.x,y:c.y,in:c.in}));
-  conn.send({type:'coinSync',coins:coinData,scores:[G.pts[0],G.pts[1]],pocketed:[G.coinsIn[0],G.coinsIn[1]]});
-}
-
-// ══════════════════════════════════════════════════
-// BOOT
-// ══════════════════════════════════════════════════
-window.addEventListener('load',()=>{
-  setTimeout(()=>document.getElementById('loading').classList.add('out'),600);
-  initSetup();
-  // Hide diff label if local mode preselected (default is ai)
-  document.getElementById('diffRow').style.display='flex';
-  document.getElementById('diffLabel').style.display='block';
-  initOnlineSetup();
-  initOfflineDetection();
-});
+// Mode selection
+document.querySelectorAll(".mode-btn").forEach(b=>{
+  b.addEventListener("click",()=>{
+    document.querySelectorAll(".mode-btn").forEach(x=>x.classList.remove("sel"))
+    b.classList.add("sel")
+  })
+})
 </script>
-<script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js"></script>
-<div style="position:absolute;left:-9999px;top:-9999px;width:1px;height:1px;overflow:hidden;" aria-hidden="true">
-  carrom, carrom board, carrom game, carrom online, carom, karam board, carrom multiplayer, strike coins, 
-  carrom coins, queen carrom, carrom board game, carrom game online, play carrom, carrom free, carrom 2 player, 
-  carrom vs computer, carrom ai, indian carrom, online carrom board, carrom pool, carrom striker, 
-  carrom black, carrom white, carrom queen, cover queen, carrom pocket, carrom physics, realistic carrom, 
-  carrom disc, carrom men, carrom pieces, carrom table, carrom rules, carrom tournament, carrom championship, 
-  carrom board online free, play carrom online, carrom game free download, carrom no download, carrom instant, 
-  carrom mobile, carrom tablet, carrom desktop, carrom app, carrom classic, carrom traditional, 
-  karam, koram, krom, carom, carrum, karrom, karram, caram, carame, carim, carrom game,
-  indian traditional game, subcontinent game, south asian game, desi game, desi board game,
-  finger pool, table shuffleboard, novuss, carambole, billiards variant, pocket billiards, 
-  striker physics, coin physics, rebound angle, cushion shot, bank shot, carrom shot,
-  queen cover mandatory, covering the queen, queen penalty, foul rules, break shot, 
-  white coins, black coins, red coin, striker disc, striker weight, striker size,
-  powder board, boric acid, carrom powder, smooth surface, wooden board, plywood board,
-  carrom association, international carrom, world carrom, carrom federation, professional carrom,
-  carrom world cup, carrom championship, carrom league, carrom club, carrom team, carrom player,
-  carrom board size, official dimensions, tournament size, standard board, mini carrom, large carrom,
-  carrom tricks, carrom techniques, carrom skills, carrom training, carrom practice, carrom lessons,
-  beginner carrom, intermediate carrom, advanced carrom, expert carrom, master carrom, pro carrom,
-  thumb shot, index finger shot, middle finger shot, scissors shot, reverse shot, tricky shot,
-  double touch, second strike, incorrect striker, pocketing striker, penalty deduction,
-  carrom points, 25 points, 29 points, board finish, maximum points, scoring system,
-  carrom singles, carrom doubles, carrom mixed doubles, team carrom, mixed team,
-  time limit, shot clock, turn timer, match duration, set system, best of three,
-  carrom history, origin of carrom, who invented carrom, carrom in india, carrom in pakistan,
-  carrom in sri lanka, carrom in bangladesh, carrom in nepal, carrom in maldives,
-  carrom in europe, carrom in america, carrom in australia, carrom in africa, carrom worldwide,
-  carrom board price, buy carrom board, best carrom board, professional board, tournament board,
-  carrom set, complete set, starter set, advanced set, premium set, luxury carrom,
-  carrom accessories, striker set, coin set, powder bottle, corner pockets, stand table,
-  carrom variations, family rules, house rules, custom rules, regional variations,
-  total points carrom, free style carrom, tokyu carrom, thai carrom, japanese carrom,
-  carrom online multiplayer, play with friends, random opponent, ranked match, casual match,
-  carrom tournament online, esports carrom, competitive carrom, ranked carrom, carrom rating,
-  3d carrom, realistic physics, accurate simulation, true to life, authentic experience,
-  carrom puzzle, challenge mode, mission mode, career mode, story mode, adventure mode,
-  trick shots, impossible shots, amazing shots, spectacular shots, highlight reel, best moments,
-  carrom community, forum, discussion, strategy guide, tips and tricks, help, support,
-  carrom video, tutorial video, championship video, professional match, highlight video,
-  carrom stream, twitch carrom, youtube carrom, carrom content, carrom influencer, carrom celebrity,
-  carrom merchandise, tshirt, mug, poster, sticker, wallpaper, ringtone, notification,
-  carrom events, carrom meetup, carrom gathering, carrom night, game night, family night,
-  diwali carrom, eid carrom, christmas carrom, new year carrom, holiday carrom, festival game,
-  summer vacation game, rainy day game, indoor game, outdoor carrom, travel carrom,
-  carrom for kids, carrom for adults, carrom for seniors, carrom for all ages, universal game,
-  carrom benefits, hand eye coordination, fine motor skills, concentration, focus, patience,
-  carrom strategy, defensive play, offensive play, blocking, setting up, planning ahead,
-  break and run, clearing the board, running the board, perfect game, maximum break,
-  carrom hustler, carrom shark, carrom legend, carrom hero, carrom star, carrom champion,
-  local carrom, gully carrom, street carrom, club carrom, cafe carrom, tournament carrom,
-  carrom betting, carrom gambling, carrom for money, cash prize, tournament prize, winner takes all,
-  carrom ethics, sportsmanship, fair play, respect opponent, gentleman's game, ladies game,
-  carrom fun, carrom entertainment, carrom enjoyment, carrom passion, carrom love, carrom life,
-  play carrom now, instant carrom, quick carrom, fast carrom, speed carrom, blitz carrom,
-  carrom anytime, carrom anywhere, carrom on the go, mobile carrom, portable carrom, pocket carrom
-</div>
 </body>
 </html>
