@@ -184,14 +184,178 @@ canvas{
   color:#22c55e;
 }
 
-/* Instructions */
-.instructions{
-  margin-top:10px;
-  color:#64748b;
-  font-size:0.85rem;
-  padding:8px 16px;
-  background:rgba(255,255,255,0.05);
+/* Controls Container */
+.controls-container{
+  display:flex;
+  flex-direction:column;
+  gap:15px;
+  margin-top:15px;
+  padding:15px;
+  background:rgba(0,0,0,0.3);
+  border-radius:12px;
+  max-width:min(90vmin,700px);
+  width:100%;
+  margin-left:auto;
+  margin-right:auto;
+}
+
+/* Position Controls */
+.position-controls{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:15px;
+}
+
+.control-label{
+  color:#94a3b8;
+  font-size:0.9rem;
+  min-width:80px;
+}
+
+.control-btn{
+  width:50px;
+  height:45px;
+  border:none;
+  border-radius:10px;
+  background:linear-gradient(135deg,#3b82f6,#2563eb);
+  color:white;
+  font-size:1.5rem;
+  cursor:pointer;
+  transition:all 0.2s;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+}
+
+.control-btn:hover{
+  transform:scale(1.05);
+  box-shadow:0 4px 15px rgba(59,130,246,0.4);
+}
+
+.control-btn:active{
+  transform:scale(0.95);
+}
+
+/* Power Controls */
+.power-controls{
+  display:flex;
+  flex-direction:column;
+  gap:8px;
+}
+
+.power-label-row{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+}
+
+.power-label{
+  color:#94a3b8;
+  font-size:0.9rem;
+}
+
+.power-value{
+  color:#22c55e;
+  font-weight:700;
+  font-size:1.1rem;
+}
+
+.power-slider-container{
+  position:relative;
+  height:30px;
+  background:rgba(255,255,255,0.1);
+  border-radius:15px;
+  overflow:hidden;
+}
+
+.power-slider{
+  width:100%;
+  height:100%;
+  -webkit-appearance:none;
+  appearance:none;
+  background:transparent;
+  cursor:pointer;
+  position:relative;
+  z-index:2;
+}
+
+.power-slider::-webkit-slider-thumb{
+  -webkit-appearance:none;
+  appearance:none;
+  width:24px;
+  height:24px;
+  border-radius:50%;
+  background:white;
+  box-shadow:0 2px 8px rgba(0,0,0,0.4);
+  cursor:pointer;
+  margin-top:-8px;
+}
+
+.power-slider::-webkit-slider-runnable-track{
+  width:100%;
+  height:8px;
+  border-radius:4px;
+}
+
+.power-fill{
+  position:absolute;
+  left:0;
+  top:0;
+  height:100%;
+  background:linear-gradient(90deg,#22c55e,#eab308,#ef4444);
+  border-radius:15px;
+  pointer-events:none;
+  transition:width 0.1s;
+}
+
+/* Angle Controls */
+.angle-controls{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:15px;
+}
+
+.angle-display{
+  background:rgba(255,255,255,0.1);
+  padding:8px 20px;
   border-radius:8px;
+  color:#22c55e;
+  font-weight:600;
+  min-width:100px;
+  text-align:center;
+}
+
+/* Shoot Button */
+.shoot-btn{
+  width:100%;
+  padding:16px;
+  border:none;
+  border-radius:12px;
+  background:linear-gradient(135deg,#22c55e,#16a34a);
+  color:white;
+  font-size:1.1rem;
+  font-weight:700;
+  cursor:pointer;
+  transition:all 0.2s;
+  text-transform:uppercase;
+  letter-spacing:1px;
+}
+
+.shoot-btn:hover:not(:disabled){
+  transform:scale(1.02);
+  box-shadow:0 4px 20px rgba(34,197,94,0.4);
+}
+
+.shoot-btn:active:not(:disabled){
+  transform:scale(0.98);
+}
+
+.shoot-btn:disabled{
+  background:linear-gradient(135deg,#64748b,#475569);
+  cursor:not-allowed;
+  opacity:0.7;
 }
 </style>
 </head>
@@ -247,8 +411,38 @@ canvas{
   </div>
   
   <div id="turn-display">Turn: <b id="turnName">Player 1</b></div>
-  <div style="margin-top:10px;color:#64748b;font-size:0.85rem;">
-    🖱️ <b>Drag striker</b> to position • <b>Click & pull back</b> anywhere to aim & shoot
+  
+  <!-- Controls -->
+  <div class="controls-container">
+    <!-- Position Controls -->
+    <div class="position-controls">
+      <span class="control-label">Position:</span>
+      <button class="control-btn" id="btnLeft" title="Move Left">←</button>
+      <button class="control-btn" id="btnRight" title="Move Right">→</button>
+    </div>
+    
+    <!-- Angle Controls -->
+    <div class="angle-controls">
+      <span class="control-label">Aim:</span>
+      <button class="control-btn" id="btnRotateLeft" title="Rotate Left">↺</button>
+      <div class="angle-display" id="angleDisplay">0°</div>
+      <button class="control-btn" id="btnRotateRight" title="Rotate Right">↻</button>
+    </div>
+    
+    <!-- Power Controls -->
+    <div class="power-controls">
+      <div class="power-label-row">
+        <span class="power-label">Power</span>
+        <span class="power-value" id="powerValue">50%</span>
+      </div>
+      <div class="power-slider-container">
+        <div class="power-fill" id="powerFill" style="width:50%"></div>
+        <input type="range" class="power-slider" id="powerSlider" min="0" max="100" value="50">
+      </div>
+    </div>
+    
+    <!-- Shoot Button -->
+    <button class="shoot-btn" id="btnShoot">🔥 SHOOT</button>
   </div>
 </div>
 
@@ -636,6 +830,9 @@ function nextTurn(){
   // Reset striker
   setupStriker()
   
+  // Reset controls for new turn
+  resetControls()
+  
   // Switch turn
   turn=turn===1?2:1
   turnCount++
@@ -661,226 +858,159 @@ function aiPlay(){
   
   const target=targets[Math.floor(Math.random()*targets.length)]
   
-  // Calculate shot
+  // Calculate shot direction
   const dx=target.x-striker.x
   const dy=target.y-striker.y
-  const angle=Math.atan2(dy,dx)
+  const targetAngle=Math.atan2(dy,dx)
   
-  // Add some randomness
-  const power=8+Math.random()*4
-  const accuracy=0.9+Math.random()*0.2
+  // Calculate base angle (toward center)
+  const cx=W/2,cy=H/2
+  const baseAngle=Math.atan2(cy-striker.y,cx-striker.x)
   
-  striker.vx=Math.cos(angle)*power*accuracy
-  striker.vy=Math.sin(angle)*power*accuracy
+  // Set aim angle to point toward target
+  aimAngle=targetAngle-baseAngle
   
-  // Check turn end
-  setInterval(()=>{
-    if(!turnInProgress)return
-    let moving=false
-    for(const c of coins)if(c.isMoving())moving=true
-    if(striker.isMoving())moving=true
-    if(!moving){
-      turnInProgress=true
-      nextTurn()
-    }
+  // Random power between 40-80%
+  shotPower=40+Math.floor(Math.random()*40)
+  
+  // Update UI
+  updateAngleDisplay()
+  if(powerSlider){
+    powerSlider.value=shotPower
+    powerFill.style.width=shotPower+"%"
+    powerValue.textContent=shotPower+"%"
+  }
+  
+  // Small delay then shoot
+  setTimeout(()=>{
+    if(btnShoot)btnShoot.click()
   },500)
 }
 
 // ============================================
-// INPUT
+// BUTTON CONTROLS
 // ============================================
 
-function getPos(e){
-  const rect=canvas.getBoundingClientRect()
-  const scaleX=canvas.width/rect.width
-  const scaleY=canvas.height/rect.height
-  
-  let clientX,clientY
-  if(e.touches){
-    clientX=e.touches[0].clientX
-    clientY=e.touches[0].clientY
-  }else{
-    clientX=e.clientX
-    clientY=e.clientY
-  }
-  
-  return{
-    x:(clientX-rect.left)*scaleX,
-    y:(clientY-rect.top)*scaleY
-  }
-}
+// Game state for controls
+let aimAngle=0  // Angle in radians (0 = toward center)
+let shotPower=50  // Power 0-100
 
-function shoot(startPos, endPos){
-  if(turnInProgress)return
-  if(!startPos||!endPos)return
-  
-  // Calculate pull vector (from start to end = pull back direction)
-  // Pulling back (away from striker) should shoot toward striker
-  const dx=startPos.x-endPos.x
-  const dy=startPos.y-endPos.y
-  
-  // Need minimum pull to shoot
-  const pullDist=Math.sqrt(dx*dx+dy*dy)
-  if(pullDist<15)return  // Too small, don't shoot
-  
-  // Limit power
-  const maxPower=22
-  const power=Math.min(pullDist*0.12,maxPower)
-  const angle=Math.atan2(dy,dx)
-  
-  striker.vx=Math.cos(angle)*power
-  striker.vy=Math.sin(angle)*power
-  
-  turnInProgress=true
-}
+// UI Elements
+let btnLeft,btnRight,btnRotateLeft,btnRotateRight,btnShoot,powerSlider,powerFill,powerValue,angleDisplay
 
-// ============================================
-// INPUT - POSITIONING & AIMING
-// ============================================
-
-let isPositioning=false
-let isAiming=false
-let dragStartPos=null      // Where aiming started (fixed)
-let dragCurrentPos=null    // Current mouse position while aiming
-let dragStartX=null        // For striker positioning
-
-// Helper: Check if a position is on/near the striker
-function isClickOnStriker(pos){
-  const dx=pos.x-striker.x
-  const dy=pos.y-striker.y
-  const dist=Math.sqrt(dx*dx+dy*dy)
-  return dist<striker.r*2.5
-}
-
-// MOUSE EVENTS
-canvas.addEventListener("mousedown",e=>{
-  if(turnInProgress)return
-  const pos=getPos(e)
+// Initialize controls after DOM is ready
+function initControls(){
+  btnLeft=document.getElementById("btnLeft")
+  btnRight=document.getElementById("btnRight")
+  btnRotateLeft=document.getElementById("btnRotateLeft")
+  btnRotateRight=document.getElementById("btnRotateRight")
+  btnShoot=document.getElementById("btnShoot")
+  powerSlider=document.getElementById("powerSlider")
+  powerFill=document.getElementById("powerFill")
+  powerValue=document.getElementById("powerValue")
+  angleDisplay=document.getElementById("angleDisplay")
   
-  // Check if clicking on striker (for positioning left-right)
-  if(isClickOnStriker(pos)){
-    isPositioning=true
-    dragStartX=pos.x
-  }else{
-    // Clicked elsewhere - start aiming (pull back to shoot)
-    isAiming=true
-    dragStartPos=pos        // Fixed anchor point
-    dragCurrentPos=pos      // Current drag position
-  }
-})
-
-canvas.addEventListener("mousemove",e=>{
-  const pos=getPos(e)
-  
-  if(isPositioning){
-    // Slide striker left-right on baseline
-    striker.x=pos.x
-    if(turn===1)striker.y=STRIKER_Y_BOTTOM
-    else striker.y=STRIKER_Y_TOP
+  // Position buttons - move striker left/right
+  btnLeft.addEventListener("click",()=>{
+    if(turnInProgress)return
+    striker.x-=30
     striker.x=Math.max(BASELINE_X_MIN+striker.r,Math.min(BASELINE_X_MAX-striker.r,striker.x))
-  }else if(isAiming){
-    // Update current drag position
-    dragCurrentPos=pos
-  }
-})
-
-canvas.addEventListener("mouseup",e=>{
-  const pos=getPos(e)
+  })
   
-  if(isPositioning){
-    isPositioning=false
-    dragStartX=null
-  }else if(isAiming){
-    // Shoot using the drag vector
-    shoot(dragStartPos, dragCurrentPos)
-    isAiming=false
-    dragStartPos=null
-    dragCurrentPos=null
-  }
-})
-
-canvas.addEventListener("mouseleave",()=>{
-  // Cancel if mouse leaves canvas
-  if(isPositioning){
-    isPositioning=false
-    dragStartX=null
-  }
-  if(isAiming){
-    isAiming=false
-    dragStartPos=null
-    dragCurrentPos=null
-  }
-})
-
-// TOUCH EVENTS
-canvas.addEventListener("touchstart",e=>{
-  e.preventDefault()
-  if(turnInProgress)return
-  const pos=getPos(e)
-  
-  if(isClickOnStriker(pos)){
-    isPositioning=true
-    dragStartX=pos.x
-  }else{
-    isAiming=true
-    dragStartPos=pos
-    dragCurrentPos=pos
-  }
-},{passive:false})
-
-canvas.addEventListener("touchmove",e=>{
-  e.preventDefault()
-  const pos=getPos(e)
-  
-  if(isPositioning){
-    striker.x=pos.x
-    if(turn===1)striker.y=STRIKER_Y_BOTTOM
-    else striker.y=STRIKER_Y_TOP
+  btnRight.addEventListener("click",()=>{
+    if(turnInProgress)return
+    striker.x+=30
     striker.x=Math.max(BASELINE_X_MIN+striker.r,Math.min(BASELINE_X_MAX-striker.r,striker.x))
-  }else if(isAiming){
-    dragCurrentPos=pos
-  }
-},{passive:false})
-
-canvas.addEventListener("touchend",e=>{
-  e.preventDefault()
+  })
   
-  if(isPositioning){
-    isPositioning=false
-  }else if(isAiming){
-    // Use last known position for shooting
-    shoot(dragStartPos, dragCurrentPos)
-    isAiming=false
-    dragStartPos=null
-    dragCurrentPos=null
-  }
-},{passive:false})
+  // Angle buttons - rotate aim
+  btnRotateLeft.addEventListener("click",()=>{
+    if(turnInProgress)return
+    aimAngle-=0.1
+    updateAngleDisplay()
+  })
+  
+  btnRotateRight.addEventListener("click",()=>{
+    if(turnInProgress)return
+    aimAngle+=0.1
+    updateAngleDisplay()
+  })
+  
+  // Power slider
+  powerSlider.addEventListener("input",(e)=>{
+    shotPower=parseInt(e.target.value)
+    powerFill.style.width=shotPower+"%"
+    powerValue.textContent=shotPower+"%"
+    
+    // Color coding
+    if(shotPower<30)powerValue.style.color="#22c55e"
+    else if(shotPower<70)powerValue.style.color="#eab308"
+    else powerValue.style.color="#ef4444"
+  })
+  
+  // Shoot button
+  btnShoot.addEventListener("click",()=>{
+    if(turnInProgress)return
+    if(shotPower<5)return  // Too weak
+    
+    // Calculate base direction (toward center from striker position)
+    const cx=W/2
+    const cy=H/2
+    let baseAngle=Math.atan2(cy-striker.y,cx-striker.x)
+    
+    // Add aim adjustment
+    // Player 1 (bottom) aims upward, Player 2 (top) aims downward
+    const finalAngle=baseAngle+aimAngle
+    
+    // Convert power (0-100) to velocity
+    const maxPower=20
+    const power=(shotPower/100)*maxPower
+    
+    striker.vx=Math.cos(finalAngle)*power
+    striker.vy=Math.sin(finalAngle)*power
+    
+    turnInProgress=true
+    btnShoot.disabled=true
+  })
+  
+  updateAngleDisplay()
+}
 
-canvas.addEventListener("touchcancel",e=>{
-  e.preventDefault()
-  isPositioning=false
-  isAiming=false
-  dragStartPos=null
-  dragCurrentPos=null
-},{passive:false})
+function updateAngleDisplay(){
+  // Convert angle to degrees for display
+  let deg=Math.round(aimAngle*(180/Math.PI))
+  if(deg>0)angleDisplay.textContent="+"+deg+"°"
+  else angleDisplay.textContent=deg+"°"
+}
+
+function resetControls(){
+  aimAngle=0
+  shotPower=50
+  if(powerSlider){
+    powerSlider.value=50
+    powerFill.style.width="50%"
+    powerValue.textContent="50%"
+    powerValue.style.color="#22c55e"
+  }
+  if(angleDisplay)updateAngleDisplay()
+  if(btnShoot)btnShoot.disabled=false
+}
 
 // ============================================
 // GAME LOOP
 // ============================================
 
 function update(){
-  // Update striker (only if not being positioned)
-  if(!isPositioning){
-    striker.update()
-    
-    // Hard boundary - never let striker escape wooden frame
-    const boundMin=PLAY_MIN+striker.r
-    const boundMax=PLAY_MAX-striker.r
-    if(striker.x<boundMin)striker.x=boundMin
-    if(striker.x>boundMax)striker.x=boundMax
-    if(striker.y<boundMin)striker.y=boundMin
-    if(striker.y>boundMax)striker.y=boundMax
-  }
+  // Update striker
+  striker.update()
+  
+  // Hard boundary - never let striker escape wooden frame
+  const boundMin=PLAY_MIN+striker.r
+  const boundMax=PLAY_MAX-striker.r
+  if(striker.x<boundMin)striker.x=boundMin
+  if(striker.x>boundMax)striker.x=boundMax
+  if(striker.y<boundMin)striker.y=boundMin
+  if(striker.y>boundMax)striker.y=boundMax
   
   for(const c of coins)c.update()
   
@@ -921,81 +1051,61 @@ function draw(){
   // Draw coins
   for(const c of coins)c.draw()
   
-  // Draw aim guide
-  if(isAiming&&dragStartPos&&dragCurrentPos&&!turnInProgress){
-    // Calculate pull vector and shooting direction
-    const dx=dragStartPos.x-dragCurrentPos.x
-    const dy=dragStartPos.y-dragCurrentPos.y
-    const pullDist=Math.sqrt(dx*dx+dy*dy)
+  // Draw aim guide (GREEN line as requested)
+  if(!turnInProgress&&striker&&striker.active){
+    // Calculate aim direction
+    const cx=W/2
+    const cy=H/2
+    const baseAngle=Math.atan2(cy-striker.y,cx-striker.x)
+    const finalAngle=baseAngle+aimAngle
     
-    if(pullDist>5){
-      const angle=Math.atan2(dy,dx)
-      const power=Math.min(pullDist*0.12,22)
-      
-      // Draw pull line (from start to current)
-      ctx.beginPath()
-      ctx.moveTo(dragStartPos.x,dragStartPos.y)
-      ctx.lineTo(dragCurrentPos.x,dragCurrentPos.y)
-      ctx.strokeStyle="rgba(255,255,255,0.4)"
-      ctx.lineWidth=3
-      ctx.setLineDash([8,4])
-      ctx.stroke()
-      ctx.setLineDash([])
-      
-      // Draw drag handle circle
-      ctx.beginPath()
-      ctx.arc(dragCurrentPos.x,dragCurrentPos.y,10,0,Math.PI*2)
-      ctx.fillStyle="rgba(255,255,255,0.9)"
-      ctx.fill()
-      ctx.strokeStyle="rgba(0,0,0,0.5)"
-      ctx.lineWidth=2
-      ctx.stroke()
-      
-      // Draw aim trajectory line (shows where striker will go)
-      const trajLen=60+power*4
-      ctx.beginPath()
-      ctx.moveTo(striker.x,striker.y)
-      ctx.lineTo(striker.x+Math.cos(angle)*trajLen,striker.y+Math.sin(angle)*trajLen)
-      
-      // Color based on power
-      const powerRatio=power/22
-      if(powerRatio<0.3){
-        ctx.strokeStyle="rgba(34,197,94,0.8)"  // Green - low power
-      }else if(powerRatio<0.7){
-        ctx.strokeStyle="rgba(245,158,11,0.8)" // Orange - medium power
-      }else{
-        ctx.strokeStyle="rgba(239,68,68,0.8)"  // Red - high power
-      }
-      ctx.lineWidth=4
-      ctx.stroke()
-      
-      // Draw arrow head
-      const arrowLen=15
-      const arrowAngle=0.5
-      ctx.beginPath()
-      ctx.moveTo(striker.x+Math.cos(angle)*trajLen,striker.y+Math.sin(angle)*trajLen)
-      ctx.lineTo(
-        striker.x+Math.cos(angle)*trajLen-Math.cos(angle-arrowAngle)*arrowLen,
-        striker.y+Math.sin(angle)*trajLen-Math.sin(angle-arrowAngle)*arrowLen
-      )
-      ctx.moveTo(striker.x+Math.cos(angle)*trajLen,striker.y+Math.sin(angle)*trajLen)
-      ctx.lineTo(
-        striker.x+Math.cos(angle)*trajLen-Math.cos(angle+arrowAngle)*arrowLen,
-        striker.y+Math.sin(angle)*trajLen-Math.sin(angle+arrowAngle)*arrowLen
-      )
-      ctx.stroke()
-      
-      // Draw power indicator text
-      ctx.font="bold 14px Poppins,sans-serif"
-      ctx.fillStyle="white"
-      ctx.textAlign="center"
-      ctx.fillText(Math.round(powerRatio*100)+"%",striker.x+Math.cos(angle)*(trajLen+25),striker.y+Math.sin(angle)*(trajLen+25))
-    }
+    // Line length based on power
+    const maxLineLen=150
+    const lineLen=(shotPower/100)*maxLineLen
     
-    // Draw anchor point
+    const endX=striker.x+Math.cos(finalAngle)*lineLen
+    const endY=striker.y+Math.sin(finalAngle)*lineLen
+    
+    // Draw GREEN aim line (main trajectory)
     ctx.beginPath()
-    ctx.arc(dragStartPos.x,dragStartPos.y,6,0,Math.PI*2)
-    ctx.fillStyle="rgba(255,255,255,0.6)"
+    ctx.moveTo(striker.x,striker.y)
+    ctx.lineTo(endX,endY)
+    ctx.strokeStyle="#22c55e"  // GREEN as requested
+    ctx.lineWidth=4
+    ctx.stroke()
+    
+    // Draw arrow head at end
+    const arrowLen=12
+    const arrowAngle=0.5
+    ctx.beginPath()
+    ctx.moveTo(endX,endY)
+    ctx.lineTo(
+      endX-Math.cos(finalAngle-arrowAngle)*arrowLen,
+      endY-Math.sin(finalAngle-arrowAngle)*arrowLen
+    )
+    ctx.moveTo(endX,endY)
+    ctx.lineTo(
+      endX-Math.cos(finalAngle+arrowAngle)*arrowLen,
+      endY-Math.sin(finalAngle+arrowAngle)*arrowLen
+    )
+    ctx.strokeStyle="#22c55e"
+    ctx.lineWidth=3
+    ctx.stroke()
+    
+    // Draw dotted extension line
+    ctx.beginPath()
+    ctx.moveTo(endX,endY)
+    ctx.lineTo(striker.x+Math.cos(finalAngle)*(lineLen+40),striker.y+Math.sin(finalAngle)*(lineLen+40))
+    ctx.strokeStyle="rgba(34,197,94,0.4)"  // Light green
+    ctx.lineWidth=2
+    ctx.setLineDash([5,5])
+    ctx.stroke()
+    ctx.setLineDash([])
+    
+    // Draw aim indicator circle at end
+    ctx.beginPath()
+    ctx.arc(endX,endY,6,0,Math.PI*2)
+    ctx.fillStyle="#22c55e"
     ctx.fill()
   }
 }
@@ -1026,6 +1136,9 @@ function startGame(){
   document.getElementById("setup").style.display="none"
   document.getElementById("game").style.display="flex"
   
+  // Init controls
+  initControls()
+  
   // Init game
   resetGame()
   loop()
@@ -1048,6 +1161,7 @@ function resetGame(){
   
   setupCoins()
   setupStriker()
+  resetControls()
 }
 
 // Mode selection
@@ -1057,6 +1171,9 @@ document.querySelectorAll(".mode-btn").forEach(btn=>{
     btn.classList.add("sel")
   })
 })
+
+// Initialize button controls when page loads
+document.addEventListener("DOMContentLoaded",initControls)
 </script>
 </body>
 </html>
