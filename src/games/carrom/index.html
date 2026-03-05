@@ -249,7 +249,7 @@ const ctx=canvas.getContext("2d")
 
 // Board constants
 const W=700,H=700
-const BOARD_MARGIN=85  // Keep coins/striker well inside wooden frame (increased)
+const BOARD_MARGIN=45  // Reduced to match pocket positions in board image
 const PLAY_MIN=BOARD_MARGIN
 const PLAY_MAX=W-BOARD_MARGIN
 const FRICTION=0.985
@@ -268,12 +268,13 @@ let score1=0,score2=0
 let p1Name="Player 1",p2Name="Player 2"
 let gameOver=false
 
-// 4 Corner pockets (slightly inside so coins can reach)
+// 4 Corner pockets - exactly matching board image positions
+// Scaled from 1024x1024 image to 700x700 canvas
 const POCKETS=[
-  {x:95,y:95},      // Top-left
-  {x:605,y:95},     // Top-right
-  {x:95,y:605},     // Bottom-left
-  {x:605,y:605}     // Bottom-right
+  {x:55,y:55},      // Top-left (matches black hole in image)
+  {x:645,y:55},     // Top-right
+  {x:55,y:645},     // Bottom-left
+  {x:645,y:645}     // Bottom-right
 ]
 
 // Striker baseline positions (Y coordinates)
