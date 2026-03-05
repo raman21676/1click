@@ -434,8 +434,14 @@ function setupCoins(){
 
 function setupStriker(){
   // Striker positioned BETWEEN the two baselines
-  // For player at bottom (Player 1), striker starts at bottom baseline area
-  const strikerY=BASELINE_Y_BOTTOM-15  // Position between the two baselines
+  // Player 1 (bottom) uses lower baselines
+  // Player 2 (top) uses upper baselines
+  let strikerY
+  if(turn===1){
+    strikerY=BASELINE_Y_BOTTOM-15  // Bottom player - between lower baselines
+  }else{
+    strikerY=BASELINE_Y_TOP+15     // Top player - between upper baselines
+  }
   striker=new Disk(W/2,strikerY,STRIKER_R,"white","striker")
   striker.vx=0
   striker.vy=0
