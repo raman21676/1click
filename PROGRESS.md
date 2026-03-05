@@ -6,49 +6,52 @@
 
 ## 📋 Session History
 
-### Session 17: Carrom Button-Based Controls
+### Session 17: Carrom Mobile-Style Controls
 
 **Date:** 2026-03-05  
-**Time:** 19:05 - 19:20 IST  
+**Time:** 19:05 - 19:25 IST  
 **Agent:** AI Agent  
 **Status:** ✅ Complete
 
 #### Summary
 
-Complete redesign of Carrom game controls with dedicated buttons and power bar. Replaced drag-based controls with intuitive button interface.
+Complete redesign of Carrom game controls with mobile game-style interface. Features bottom slider bar and drag-to-aim mechanics.
 
 #### Problem
-- Drag controls were confusing for users
-- No dedicated buttons for positioning/aiming
-- No power customization option
-- Aiming line was not clearly visible
+- Previous controls weren't intuitive
+- Users requested mobile game-style controls
+- Need sliding striker positioning
+- Need drag-to-aim with visual feedback
 
 #### Solution
-Implemented button-based control system:
-- **Position Buttons** (← →): Slide striker left/right along baseline
-- **Aim Buttons** (↺ ↻): Rotate aim angle left/right  
-- **Power Slider**: Gradient bar (green→yellow→red) with 0-100% control
-- **Shoot Button**: Green 🔥 SHOOT button to fire
-- **Green Aim Line**: Highly visible trajectory line on board
+Implemented mobile Carrom game control system:
+- **Bottom Slider Bar**: Horizontal slider below board to position striker
+- **Drag-to-Aim**: Touch striker on board and drag back to aim
+- **Visual Feedback**:
+  - Colored arrow (yellow→orange→red based on pull power)
+  - Dotted trajectory line
+  - Dashed circle around striker (aiming guide)
+  - Power percentage display
+- **Power from Drag**: No power bar - power determined by drag distance
+- **Shoot on Release**: Release finger to fire
 
 #### Changes Made
 
 | File | Changes |
 |------|---------|
-| `src/games/carrom/index.html` | Complete input system redesign |
-| `src/games/carrom/index.html` | Added control buttons UI (Position, Aim, Power, Shoot) |
-| `src/games/carrom/index.html` | GREEN aim line with arrow and dotted extension |
-| `src/games/carrom/index.html` | Power slider with gradient fill |
-| `src/games/carrom/index.html` | Updated AI for button controls |
+| `src/games/carrom/index.html` | Complete control system rewrite |
+| `src/games/carrom/index.html` | Bottom slider bar UI |
+| `src/games/carrom/index.html` | Touch/drag aiming system |
+| `src/games/carrom/index.html` | Mobile-style visual feedback |
+| `src/games/carrom/index.html` | Updated AI for new controls |
 
 #### Controls
-| Control | Action |
-|---------|--------|
-| ← → Buttons | Slide striker left/right |
-| ↺ ↻ Buttons | Rotate aim angle |
-| Power Slider | Set shot power (0-100%) |
-| 🔥 SHOOT | Fire the striker |
-| Green Line | Visual aim guide |
+| Action | How To |
+|--------|--------|
+| Position Striker | Drag slider striker left/right |
+| Aim | Touch board striker, drag back |
+| Shoot | Release finger |
+| Power | Determined by drag distance |
 
 ---
 
