@@ -66,7 +66,7 @@ html{overflow-y:auto}
 .p-coins{font-size:.72rem;color:var(--muted);margin-top:2px}
 .vs-badge{text-align:center;font-size:.7rem;font-weight:700;color:var(--muted);background:rgba(255,255,255,.05);border-radius:8px;padding:6px 8px}
 /* CANVAS - Responsive Square Board */
-.c-wrap{position:relative;width:100%;max-width:min(85vmin,700px);aspect-ratio:1;flex-shrink:1;min-height:0;border-radius:12px;box-shadow:0 20px 60px rgba(0,0,0,0.8),0 0 0 1px rgba(255,255,255,0.05);overflow:hidden;margin:0 auto}
+.c-wrap{position:relative;width:100%;max-width:min(85vmin,700px);aspect-ratio:1;flex-shrink:1;min-height:0;border-radius:12px;box-shadow:0 20px 60px rgba(0,0,0,0.8),0 0 0 1px rgba(255,255,255,0.05);overflow:hidden;margin:0 auto;background:url("./assets/board.png");background-size:cover;background-position:center}
 #cv{width:100%;height:100%;cursor:crosshair;display:block;border-radius:12px}
 /* CONTROLS */
 .controls{width:100%;max-width:580px;display:flex;align-items:center;gap:10px;flex-shrink:0}
@@ -364,27 +364,7 @@ const G = {
   energy:100, maxEnergy:100, energyRegen:15 // Energy system
 };
 
-// Cached board canvas for performance optimization
-let cachedBoardCanvas = null;
-let boardCacheValid = false;
-
-// Board background image
-let boardImage = null;
-let boardImageLoaded = false;
-
-// Load board image
-function loadBoardImage() {
-  if (boardImage) return;
-  boardImage = new Image();
-  boardImage.crossOrigin = 'anonymous';
-  boardImage.onload = () => {
-    boardImageLoaded = true;
-    // Invalidate cache to redraw with image
-    cachedBoardCanvas = null;
-    boardCacheValid = false;
-  };
-  boardImage.src = './assets/board.png';
-}
+// Board is now CSS background - no image loading needed
 // ══════════════════════════════════════════════════
 // SETUP UI
 // ══════════════════════════════════════════════════
@@ -429,8 +409,6 @@ function startGame() {
   G.ctx = G.cv.getContext('2d');
   window.addEventListener('resize', resizeCanvas);
   resizeCanvas();
-  // Load board image before starting game
-  loadBoardImage();
   resetGame();
   setupInput();
 }
@@ -863,9 +841,8 @@ function render() {
   ctx.clearRect(0,0,G.W,G.H);
   ctx.save();
   ctx.scale(sc,sc);
-  // Use cached board for better performance
-  if(!cachedBoardCanvas) cacheBoard();
-  ctx.drawImage(cachedBoardCanvas,0,0);
+  // Draw strike lanes (board is CSS background)
+  drawStaticBoard(ctx);
   // Draw trajectory only in aim phase
   if((G.phase==='aim'||G.phase==='place')&&G.cur===0&&!G.over) {
     const maxB= G.aiming?2:1;
@@ -881,13 +858,7 @@ function render() {
   ctx.restore();
 }
 
-function cacheBoard() {
-  cachedBoardCanvas = document.createElement('canvas');
-  cachedBoardCanvas.width = BS;
-  cachedBoardCanvas.height = BS;
-  const ctx = cachedBoardCanvas.getContext('2d');
-  drawStaticBoard(ctx);
-}
+
 
 function getBoardScale() {
   // The image is 1536x1024, but we need a square board
@@ -897,37 +868,7 @@ function getBoardScale() {
 }
 
 function drawStaticBoard(ctx) {
-  const m=BM, s=BS-BM*2;
-  
-  // ══════════════════════════════════════════════════
-  // BOARD BACKGROUND IMAGE - Square Board
-  // ══════════════════════════════════════════════════
-  
-  if (boardImageLoaded && boardImage) {
-    // The board image is now square (1024x1024)
-    // Draw it to fill the entire playing area including the margin for the frame
-    const padding = 4; // Small padding for the wooden frame
-    ctx.drawImage(boardImage, 0, 0, boardImage.width, boardImage.height, m-padding, m-padding, s+padding*2, s+padding*2);
-  } else {
-    // Fallback: draw a simple wooden board if image not loaded
-    drawFallbackBoard(ctx, m, s);
-  }
-  
-  // ══════════════════════════════════════════════════
-  // DROP SHADOW for 3D effect
-  // ══════════════════════════════════════════════════
-  ctx.save();
-  ctx.globalCompositeOperation = 'destination-over';
-  ctx.shadowColor='rgba(0,0,0,0.6)';
-  ctx.shadowBlur=40;
-  ctx.shadowOffsetY=20;
-  ctx.fillStyle='rgba(0,0,0,0.3)';
-  ctx.fillRect(m-10, m-10, s+20, s+20);
-  ctx.restore();
-  
-  // ══════════════════════════════════════════════════
-  // STRIKE LANES - subtle overlay
-  // ══════════════════════════════════════════════════
+  // Board is now CSS background - just draw strike lanes as overlay
   const laneColor='rgba(100,60,20,0.35)';
   ctx.strokeStyle=laneColor; ctx.lineWidth=2;
   ctx.beginPath();
@@ -943,43 +884,6 @@ function drawStaticBoard(ctx) {
 }
 
 // Fallback board drawing when image is not available
-function drawFallbackBoard(ctx, m, s) {
-  // Wood frame
-  const frameThickness=22;
-  const frameGrad=ctx.createLinearGradient(m-frameThickness,m-frameThickness,m+s+frameThickness,m+s+frameThickness);
-  frameGrad.addColorStop(0,'#8B5A2B');
-  frameGrad.addColorStop(0.3,'#654321');
-  frameGrad.addColorStop(0.5,'#8B6914');
-  frameGrad.addColorStop(0.7,'#5D3A1A');
-  frameGrad.addColorStop(1,'#4A2510');
-  ctx.fillStyle=frameGrad;
-  roundRect(ctx,m-frameThickness,m-frameThickness,s+frameThickness*2,s+frameThickness*2,16);
-  ctx.fill();
-  
-  // Surface
-  const surfaceGrad=ctx.createLinearGradient(m,m,m+s,m+s);
-  surfaceGrad.addColorStop(0,'#e8c070');
-  surfaceGrad.addColorStop(0.5,'#d4b060');
-  surfaceGrad.addColorStop(1,'#c8a050');
-  ctx.fillStyle=surfaceGrad;
-  roundRect(ctx,m,m,s,s,6);
-  ctx.fill();
-  
-  // Simple pockets
-  for(const p of POCKETS) {
-    ctx.beginPath();
-    ctx.arc(p.x,p.y,PR,0,Math.PI*2);
-    const holeGrad=ctx.createRadialGradient(p.x-5,p.y-5,2,p.x,p.y,PR);
-    holeGrad.addColorStop(0,'#3a2010');
-    holeGrad.addColorStop(1,'#0a0500');
-    ctx.fillStyle=holeGrad;
-    ctx.fill();
-    ctx.strokeStyle='rgba(180,140,80,0.8)';
-    ctx.lineWidth=2;
-    ctx.stroke();
-  }
-}
-
 function drawCoins(ctx) {
   // Sort coins by Y for proper depth (painters algorithm)
   const sortedCoins=[...G.coins].filter(c=>!c.in).sort((a,b)=>a.y-b.y);
