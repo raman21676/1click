@@ -161,7 +161,7 @@ input{
   aspect-ratio:1;
   margin:auto;
   background:url("./assets/carromboard.png");
-  background-size:cover;
+  background-size:100% 100%;
   background-position:center;
   border-radius:12px;
   box-shadow:0 0 40px rgba(0,0,0,.8);
@@ -256,8 +256,8 @@ const FRICTION=0.985
 const WALL_BOUNCE=0.8
 
 // Sizes (proportional to 700px board)
-const COIN_R=12      // Carrommen radius
-const STRIKER_R=16   // Striker radius
+const COIN_R=10      // Carrommen radius (slightly smaller)
+const STRIKER_R=14   // Striker radius
 const POCKET_R=30    // Pocket detection radius
 
 // Game state
@@ -278,8 +278,8 @@ const POCKETS=[
 
 // Striker baseline positions (Y coordinates)
 // Striker must be BETWEEN these baselines
-const BASELINE_Y_TOP=110      // Upper baseline
-const BASELINE_Y_BOTTOM=590   // Lower baseline
+const BASELINE_Y_TOP=130      // Upper baseline (inside frame)
+const BASELINE_Y_BOTTOM=570   // Lower baseline (inside frame)
 const BASELINE_X_MIN=150      // Left limit
 const BASELINE_X_MAX=550      // Right limit
 
