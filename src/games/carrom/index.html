@@ -249,7 +249,7 @@ const ctx=canvas.getContext("2d")
 
 // Board constants
 const W=700,H=700
-const BOARD_MARGIN=45  // Keep coins/striker inside wooden frame
+const BOARD_MARGIN=65  // Keep coins/striker well inside wooden frame
 const PLAY_MIN=BOARD_MARGIN
 const PLAY_MAX=W-BOARD_MARGIN
 const FRICTION=0.985
@@ -278,8 +278,8 @@ const POCKETS=[
 
 // Striker baseline positions (Y coordinates)
 // Striker must be BETWEEN these baselines
-const BASELINE_Y_TOP=130      // Upper baseline (inside frame)
-const BASELINE_Y_BOTTOM=570   // Lower baseline (inside frame)
+const BASELINE_Y_TOP=140      // Upper baseline (well inside frame)
+const BASELINE_Y_BOTTOM=560   // Lower baseline (well inside frame)
 const BASELINE_X_MIN=150      // Left limit
 const BASELINE_X_MAX=550      // Right limit
 
@@ -755,6 +755,11 @@ canvas.addEventListener("touchend",e=>{
 function update(){
   // Update all disks
   striker.update()
+  
+  // Safety clamp - force striker inside board
+  striker.x=Math.max(PLAY_MIN+striker.r,Math.min(PLAY_MAX-striker.r,striker.x))
+  striker.y=Math.max(PLAY_MIN+striker.r,Math.min(PLAY_MAX-striker.r,striker.y))
+  
   for(const c of coins)c.update()
   
   // Collisions
