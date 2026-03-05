@@ -161,7 +161,7 @@ input{
   aspect-ratio:1;
   margin:auto;
   background:url("./assets/carromboard.png");
-  background-size:115% 115%;  /* Zoom in to crop extra transparent edges */
+  background-size:130% 130%;  /* Stronger zoom to fully crop transparent edges */
   background-position:center;
   border-radius:12px;
   box-shadow:0 0 40px rgba(0,0,0,.8);
@@ -249,7 +249,7 @@ const ctx=canvas.getContext("2d")
 
 // Board constants
 const W=700,H=700
-const BOARD_MARGIN=82  // Adjusted for 115% zoom - striker/coins stay inside frame
+const BOARD_MARGIN=65  // Tight boundary - striker stays strictly inside wooden frame
 const PLAY_MIN=BOARD_MARGIN
 const PLAY_MAX=W-BOARD_MARGIN
 const FRICTION=0.985
@@ -269,18 +269,18 @@ let p1Name="Player 1",p2Name="Player 2"
 let gameOver=false
 
 // 4 Corner pockets - exactly at black holes (green arrows)
-// Adjusted for 115% zoom to align with visible board corners
+// Adjusted for 130% zoom to align with visible board corners
 const POCKETS=[
-  {x:30,y:30},      // Top-left black hole
-  {x:670,y:30},     // Top-right black hole
-  {x:30,y:670},     // Bottom-left black hole
-  {x:670,y:670}     // Bottom-right black hole
+  {x:25,y:25},      // Top-left black hole
+  {x:675,y:25},     // Top-right black hole
+  {x:25,y:675},     // Bottom-left black hole
+  {x:675,y:675}     // Bottom-right black hole
 ]
 
 // Striker baseline positions (Y coordinates)
 // Striker must be BETWEEN these baselines
-const BASELINE_Y_TOP=145      // Upper baseline (adjusted for 115% zoom)
-const BASELINE_Y_BOTTOM=515   // Lower baseline (adjusted for 115% zoom)
+const BASELINE_Y_TOP=130      // Upper baseline (adjusted for 130% zoom)
+const BASELINE_Y_BOTTOM=530   // Lower baseline (adjusted for 130% zoom)
 const BASELINE_X_MIN=150      // Left limit
 const BASELINE_X_MAX=550      // Right limit
 
