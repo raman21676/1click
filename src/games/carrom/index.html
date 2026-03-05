@@ -279,7 +279,7 @@ const POCKETS=[
 // Striker baseline positions (Y coordinates)
 // Striker must be BETWEEN these baselines
 const BASELINE_Y_TOP=140      // Upper baseline (well inside frame)
-const BASELINE_Y_BOTTOM=560   // Lower baseline (well inside frame)
+const BASELINE_Y_BOTTOM=520   // Lower baseline (moved up)
 const BASELINE_X_MIN=150      // Left limit
 const BASELINE_X_MAX=550      // Right limit
 
@@ -435,7 +435,7 @@ function setupCoins(){
 function setupStriker(){
   // Striker positioned BETWEEN the two baselines
   // For player at bottom (Player 1), striker starts at bottom baseline area
-  const strikerY=BASELINE_Y_BOTTOM-25  // Just inside bottom baseline
+  const strikerY=BASELINE_Y_BOTTOM-35  // Position between the two baselines
   striker=new Disk(W/2,strikerY,STRIKER_R,"white","striker")
   striker.vx=0
   striker.vy=0
