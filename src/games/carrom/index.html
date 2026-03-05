@@ -677,9 +677,6 @@ function aiPlay(){
 // INPUT
 // ============================================
 
-let dragStart=null
-let isDragging=false
-
 function getPos(e){
   const rect=canvas.getBoundingClientRect()
   const scaleX=canvas.width/rect.width
@@ -705,13 +702,17 @@ let isAiming=false  // True when pulling back to aim (after positioning)
 function shoot(pos){
   if(turnInProgress)return
   
-  // Calculate power based on drag distance
+  // Calculate power based on drag distance (pull back)
   const dx=striker.x-pos.x
   const dy=striker.y-pos.y
   
+  // Need minimum pull to shoot
+  const pullDist=Math.sqrt(dx*dx+dy*dy)
+  if(pullDist<10)return  // Too small, don't shoot
+  
   // Limit power
   const maxPower=25
-  const power=Math.min(Math.sqrt(dx*dx+dy*dy)*0.15,maxPower)
+  const power=Math.min(pullDist*0.15,maxPower)
   const angle=Math.atan2(dy,dx)
   
   striker.vx=Math.cos(angle)*power
@@ -719,27 +720,40 @@ function shoot(pos){
   
   turnInProgress=true
   isAiming=false
+  dragStartPos=null
 }
 
 // Striker positioning and shooting
-// 1. Click and drag striker left/right to position on baseline
-// 2. Pull back from striker to aim and shoot
-let isPositioning=false  // Sliding left-right on baseline
+// 1. Click ON striker and drag left/right = positioning
+// 2. Click BEHIND striker (below for P1, above for P2) and drag = aiming
+let isPositioning=false
+let isAiming=false
+let dragStartPos=null
 let dragStartX=null
 
 canvas.addEventListener("mousedown",e=>{
+  if(turnInProgress)return
   const pos=getPos(e)
-  // Check if clicking near striker (for positioning)
   const dx=pos.x-striker.x
   const dy=pos.y-striker.y
-  if(Math.sqrt(dx*dx+dy*dy)<striker.r*3){
+  const dist=Math.sqrt(dx*dx+dy*dy)
+  
+  // Check if clicking on striker (for positioning left-right)
+  if(dist<striker.r*2.5){
     isPositioning=true
     dragStartX=pos.x
-  }else if(Math.sqrt(dx*dx+dy*dy)<striker.r*6){
-    // Clicked near striker - start aiming
-    isDragging=true
+  }
+  // Check if clicking behind striker (for aiming)
+  // For Player 1 (bottom): click below striker
+  // For Player 2 (top): click above striker
+  else if(turn===1&&pos.y>striker.y+striker.r){
+    // Player 1: clicked below striker
     isAiming=true
-    dragStart=pos
+    dragStartPos=pos
+  }else if(turn===2&&pos.y<striker.y-striker.r){
+    // Player 2: clicked above striker
+    isAiming=true
+    dragStartPos=pos
   }
 })
 
@@ -748,39 +762,43 @@ canvas.addEventListener("mousemove",e=>{
   if(isPositioning){
     // Slide striker left-right on baseline
     striker.x=pos.x
-    // Keep striker on baseline Y
     if(turn===1)striker.y=STRIKER_Y_BOTTOM
     else striker.y=STRIKER_Y_TOP
-    // Clamp to baseline limits
     striker.x=Math.max(BASELINE_X_MIN+striker.r,Math.min(BASELINE_X_MAX-striker.r,striker.x))
-  }else if(isDragging&&isAiming){
-    dragStart=pos
+  }else if(isAiming){
+    dragStartPos=pos
   }
 })
 
 canvas.addEventListener("mouseup",e=>{
+  const pos=getPos(e)
   if(isPositioning){
     isPositioning=false
     dragStartX=null
-  }else if(isDragging){
-    isDragging=false
-    shoot(getPos(e))
+  }else if(isAiming){
+    isAiming=false
+    shoot(pos)
   }
 })
 
 // Touch support
 canvas.addEventListener("touchstart",e=>{
   e.preventDefault()
+  if(turnInProgress)return
   const pos=getPos(e)
   const dx=pos.x-striker.x
   const dy=pos.y-striker.y
-  if(Math.sqrt(dx*dx+dy*dy)<striker.r*3){
+  const dist=Math.sqrt(dx*dx+dy*dy)
+  
+  if(dist<striker.r*2.5){
     isPositioning=true
     dragStartX=pos.x
-  }else if(Math.sqrt(dx*dx+dy*dy)<striker.r*6){
-    isDragging=true
+  }else if(turn===1&&pos.y>striker.y+striker.r){
     isAiming=true
-    dragStart=pos
+    dragStartPos=pos
+  }else if(turn===2&&pos.y<striker.y-striker.r){
+    isAiming=true
+    dragStartPos=pos
   }
 })
 
@@ -792,18 +810,19 @@ canvas.addEventListener("touchmove",e=>{
     if(turn===1)striker.y=STRIKER_Y_BOTTOM
     else striker.y=STRIKER_Y_TOP
     striker.x=Math.max(BASELINE_X_MIN+striker.r,Math.min(BASELINE_X_MAX-striker.r,striker.x))
-  }else if(isDragging&&isAiming){
-    dragStart=pos
+  }else if(isAiming){
+    dragStartPos=pos
   }
 })
 
 canvas.addEventListener("touchend",e=>{
   e.preventDefault()
+  const pos=getPos(e.changedTouches[0])
   if(isPositioning){
     isPositioning=false
-  }else if(isDragging){
-    isDragging=false
-    shoot(getPos(e))
+  }else if(isAiming){
+    isAiming=false
+    shoot(pos)
   }
 })
 
@@ -864,11 +883,11 @@ function draw(){
   // Draw coins
   for(const c of coins)c.draw()
   
-  // Draw drag line
-  if(isDragging&&dragStart){
+  // Draw aim line
+  if(isAiming&&dragStartPos){
     ctx.beginPath()
     ctx.moveTo(striker.x,striker.y)
-    ctx.lineTo(dragStart.x,dragStart.y)
+    ctx.lineTo(dragStartPos.x,dragStartPos.y)
     ctx.strokeStyle="rgba(255,255,255,0.5)"
     ctx.lineWidth=2
     ctx.setLineDash([5,5])
@@ -877,9 +896,21 @@ function draw(){
     
     // Draw aim circle
     ctx.beginPath()
-    ctx.arc(dragStart.x,dragStart.y,8,0,Math.PI*2)
+    ctx.arc(dragStartPos.x,dragStartPos.y,8,0,Math.PI*2)
     ctx.fillStyle="rgba(255,255,255,0.8)"
     ctx.fill()
+    
+    // Draw direction line (extended)
+    const dx=striker.x-dragStartPos.x
+    const dy=striker.y-dragStartPos.y
+    const angle=Math.atan2(dy,dx)
+    const lineLen=100
+    ctx.beginPath()
+    ctx.moveTo(striker.x,striker.y)
+    ctx.lineTo(striker.x+Math.cos(angle)*lineLen,striker.y+Math.sin(angle)*lineLen)
+    ctx.strokeStyle="rgba(255,255,255,0.3)"
+    ctx.lineWidth=1
+    ctx.stroke()
   }
 }
 
