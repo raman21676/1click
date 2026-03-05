@@ -65,8 +65,8 @@ html{overflow-y:auto}
 .p-pts{font-size:1.4rem;font-weight:900;color:var(--pc,#fff);line-height:1}
 .p-coins{font-size:.72rem;color:var(--muted);margin-top:2px}
 .vs-badge{text-align:center;font-size:.7rem;font-weight:700;color:var(--muted);background:rgba(255,255,255,.05);border-radius:8px;padding:6px 8px}
-/* CANVAS */
-.c-wrap{position:relative;width:100%;max-width:580px;aspect-ratio:1;flex-shrink:1;min-height:0;border-radius:12px;box-shadow:0 20px 60px rgba(0,0,0,0.8),0 0 0 1px rgba(255,255,255,0.05);overflow:hidden}
+/* CANVAS - Responsive Square Board */
+.c-wrap{position:relative;width:100%;max-width:min(85vmin,700px);aspect-ratio:1;flex-shrink:1;min-height:0;border-radius:12px;box-shadow:0 20px 60px rgba(0,0,0,0.8),0 0 0 1px rgba(255,255,255,0.05);overflow:hidden;margin:0 auto}
 #cv{width:100%;height:100%;cursor:crosshair;display:block;border-radius:12px}
 /* CONTROLS */
 .controls{width:100%;max-width:580px;display:flex;align-items:center;gap:10px;flex-shrink:0}
@@ -95,7 +95,8 @@ html{overflow-y:auto}
 .m-btn{padding:12px 24px;border:none;background:linear-gradient(135deg,#22c55e,#16a34a);color:#fff;font-size:.95rem;font-weight:700;border-radius:12px;cursor:pointer;font-family:inherit;transition:all .2s}
 .m-btn:hover{transform:translateY(-2px)}
 .m-btn.sec{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.2)}
-@media(max-width:480px){.c-wrap{max-width:100vmin}.controls{flex-wrap:wrap}.msg-pill{max-width:140px}}
+@media(max-width:768px){.c-wrap{max-width:95vmin}.controls{flex-wrap:wrap}.msg-pill{max-width:140px}}
+@media(max-width:480px){.c-wrap{max-width:98vmin}.controls{flex-wrap:wrap}.msg-pill{max-width:140px}}
 
 /* ══════════════════════════════════════════════════
    UX ENHANCEMENTS - Connection Status, Loading, Offline
@@ -316,22 +317,24 @@ html{overflow-y:auto}
 // CONSTANTS
 // ══════════════════════════════════════════════════
 const BS = 800;          // Board Size (logical px)
-const BM = 50;           // Board Margin
-const PR = 28;           // Pocket Radius
-const CR = 17;           // Coin Radius
-const SR = 24;           // Striker Radius
+const BM = 40;           // Board Margin (reduced for cropped board)
+const PR = 24;           // Pocket Radius (scaled with new coin size)
+const CR = 14;           // Coin Radius (smaller to fit in center circle)
+const SR = 20;           // Striker Radius (proportional to coins)
 const FRICTION = 0.983;
 const WALL_DMP = 0.72;
 const MIN_V = 0.08;
 const MAX_PWR = 28;
 const LINE_W = BS - BM*2;
-const LANE_Y0 = BS - BM - 80;  // player 0 lane Y
-const LANE_Y1 = BM + 80;       // player 1 lane Y
-const LANE_X_MIN = BS/2 - 90;
-const LANE_X_MAX = BS/2 + 90;
+const LANE_Y0 = BS - BM - 100;  // player 0 lane Y (bottom baseline)
+const LANE_Y1 = BM + 100;       // player 1 lane Y (top baseline)
+const LANE_X_MIN = BS/2 - 110;  // wider strike lane
+const LANE_X_MAX = BS/2 + 110;
+// Pocket positions - adjusted to match the new board image corners
+// The pockets in the new image are slightly inset from the edges
 const POCKETS = [
-  {x:BM, y:BM}, {x:BS-BM, y:BM},
-  {x:BM, y:BS-BM}, {x:BS-BM, y:BS-BM}
+  {x:BM+10, y:BM+10}, {x:BS-BM-10, y:BM+10},
+  {x:BM+10, y:BS-BM-10}, {x:BS-BM-10, y:BS-BM-10}
 ];
 
 // ══════════════════════════════════════════════════
@@ -364,6 +367,24 @@ const G = {
 // Cached board canvas for performance optimization
 let cachedBoardCanvas = null;
 let boardCacheValid = false;
+
+// Board background image
+let boardImage = null;
+let boardImageLoaded = false;
+
+// Load board image
+function loadBoardImage() {
+  if (boardImage) return;
+  boardImage = new Image();
+  boardImage.crossOrigin = 'anonymous';
+  boardImage.onload = () => {
+    boardImageLoaded = true;
+    // Invalidate cache to redraw with image
+    cachedBoardCanvas = null;
+    boardCacheValid = false;
+  };
+  boardImage.src = './assets/board.png';
+}
 // ══════════════════════════════════════════════════
 // SETUP UI
 // ══════════════════════════════════════════════════
@@ -408,6 +429,8 @@ function startGame() {
   G.ctx = G.cv.getContext('2d');
   window.addEventListener('resize', resizeCanvas);
   resizeCanvas();
+  // Load board image before starting game
+  loadBoardImage();
   resetGame();
   setupInput();
 }
@@ -866,24 +889,62 @@ function cacheBoard() {
   drawStaticBoard(ctx);
 }
 
+function getBoardScale() {
+  // The image is 1536x1024, but we need a square board
+  // The board in the image is the center square portion
+  // Calculate scale to fit the board image into our BSxBS canvas
+  return BS / 1024; // Scale based on image height to fit
+}
+
 function drawStaticBoard(ctx) {
   const m=BM, s=BS-BM*2;
   
   // ══════════════════════════════════════════════════
-  // 3D WOOD FRAME WITH DEPTH
+  // BOARD BACKGROUND IMAGE - Square Board
   // ══════════════════════════════════════════════════
   
-  // Drop shadow under the board
+  if (boardImageLoaded && boardImage) {
+    // The board image is now square (1024x1024)
+    // Draw it to fill the entire playing area including the margin for the frame
+    const padding = 4; // Small padding for the wooden frame
+    ctx.drawImage(boardImage, 0, 0, boardImage.width, boardImage.height, m-padding, m-padding, s+padding*2, s+padding*2);
+  } else {
+    // Fallback: draw a simple wooden board if image not loaded
+    drawFallbackBoard(ctx, m, s);
+  }
+  
+  // ══════════════════════════════════════════════════
+  // DROP SHADOW for 3D effect
+  // ══════════════════════════════════════════════════
   ctx.save();
+  ctx.globalCompositeOperation = 'destination-over';
   ctx.shadowColor='rgba(0,0,0,0.6)';
-  ctx.shadowBlur=30;
-  ctx.shadowOffsetY=15;
-  roundRect(ctx,m-20,m-20,s+40,s+40,16);
+  ctx.shadowBlur=40;
+  ctx.shadowOffsetY=20;
   ctx.fillStyle='rgba(0,0,0,0.3)';
-  ctx.fill();
+  ctx.fillRect(m-10, m-10, s+20, s+20);
   ctx.restore();
   
-  // Wood frame side (3D thickness)
+  // ══════════════════════════════════════════════════
+  // STRIKE LANES - subtle overlay
+  // ══════════════════════════════════════════════════
+  const laneColor='rgba(100,60,20,0.35)';
+  ctx.strokeStyle=laneColor; ctx.lineWidth=2;
+  ctx.beginPath();
+  ctx.moveTo(LANE_X_MIN,LANE_Y0);ctx.lineTo(LANE_X_MAX,LANE_Y0);
+  ctx.stroke();
+  ctx.beginPath();
+  ctx.moveTo(LANE_X_MIN,LANE_Y1);ctx.lineTo(LANE_X_MAX,LANE_Y1);
+  ctx.stroke();
+  for(const lx of [LANE_X_MIN,LANE_X_MAX]) {
+    ctx.beginPath();ctx.moveTo(lx,LANE_Y0-6);ctx.lineTo(lx,LANE_Y0+6);ctx.stroke();
+    ctx.beginPath();ctx.moveTo(lx,LANE_Y1-6);ctx.lineTo(lx,LANE_Y1+6);ctx.stroke();
+  }
+}
+
+// Fallback board drawing when image is not available
+function drawFallbackBoard(ctx, m, s) {
+  // Wood frame
   const frameThickness=22;
   const frameGrad=ctx.createLinearGradient(m-frameThickness,m-frameThickness,m+s+frameThickness,m+s+frameThickness);
   frameGrad.addColorStop(0,'#8B5A2B');
@@ -895,156 +956,28 @@ function drawStaticBoard(ctx) {
   roundRect(ctx,m-frameThickness,m-frameThickness,s+frameThickness*2,s+frameThickness*2,16);
   ctx.fill();
   
-  // Wood grain texture
-  ctx.save();
-  ctx.globalAlpha=0.15;
-  for(let i=0;i<20;i++){
-    ctx.beginPath();
-    const y1=m-20+i*50+Math.sin(i*1.3)*10;
-    const y2=m-20+i*50+Math.cos(i*0.8)*12;
-    ctx.moveTo(m-25,y1);
-    ctx.lineTo(m+s+25,y2);
-    ctx.lineWidth=4+Math.random()*4;
-    ctx.strokeStyle='#2a1a0a';
-    ctx.stroke();
-    
-    // Wood knots
-    if(i%4===0){
-      ctx.beginPath();
-      ctx.ellipse(m+50+Math.random()*(s-100),y1,8,15,Math.random(),0,Math.PI*2);
-      ctx.fillStyle='#3d2310';
-      ctx.fill();
-    }
-  }
-  ctx.restore();
-  
-  // Frame bevel/highlight (top edge)
-  ctx.strokeStyle='rgba(200,150,80,0.6)';
-  ctx.lineWidth=2;
-  roundRect(ctx,m-18,m-18,s+36,s+36,14);
-  ctx.stroke();
-  
-  // Frame inner shadow (depth effect)
-  ctx.strokeStyle='rgba(40,20,10,0.8)';
-  ctx.lineWidth=3;
-  roundRect(ctx,m-8,m-8,s+16,s+16,8);
-  ctx.stroke();
-
-  // ══════════════════════════════════════════════════
-  // 3D PLAYING SURFACE (recessed board)
-  // ══════════════════════════════════════════════════
-  
-  // Surface base with 3D recessed look
+  // Surface
   const surfaceGrad=ctx.createLinearGradient(m,m,m+s,m+s);
-  surfaceGrad.addColorStop(0,'#f0d080');
-  surfaceGrad.addColorStop(0.3,'#e0c070');
-  surfaceGrad.addColorStop(0.7,'#d4b060');
+  surfaceGrad.addColorStop(0,'#e8c070');
+  surfaceGrad.addColorStop(0.5,'#d4b060');
   surfaceGrad.addColorStop(1,'#c8a050');
   ctx.fillStyle=surfaceGrad;
   roundRect(ctx,m,m,s,s,6);
   ctx.fill();
   
-  // Surface inner bevel (top highlight)
-  ctx.strokeStyle='rgba(255,230,180,0.4)';
-  ctx.lineWidth=2;
-  roundRect(ctx,m+2,m+2,s-4,s-4,4);
-  ctx.stroke();
-  
-  // Surface texture (felt-like)
-  ctx.save();
-  ctx.globalAlpha=0.03;
-  for(let i=0;i<200;i++){
-    ctx.beginPath();
-    ctx.arc(m+Math.random()*s,m+Math.random()*s,1+Math.random()*2,0,Math.PI*2);
-    ctx.fillStyle='#8B6914';
-    ctx.fill();
-  }
-  ctx.restore();
-
-  // Board lines with 3D effect
-  ctx.strokeStyle='rgba(100,60,20,0.7)';
-  ctx.lineWidth=2;
-  roundRect(ctx,m+12,m+12,s-24,s-24,3);
-  ctx.stroke();
-  
-  // Baseline
-  ctx.strokeStyle='rgba(100,60,20,0.5)';
-  ctx.lineWidth=1.5;
-  roundRect(ctx,m+24,m+24,s-48,s-48,2);
-  ctx.stroke();
-
-  // ══════════════════════════════════════════════════
-  // 3D POCKETS (holes with depth)
-  // ══════════════════════════════════════════════════
+  // Simple pockets
   for(const p of POCKETS) {
-    // Outer rim shadow (depth)
     ctx.beginPath();
-    ctx.arc(p.x+3,p.y+3,PR,0,Math.PI*2);
-    ctx.fillStyle='rgba(0,0,0,0.4)';
-    ctx.fill();
-    
-    // Pocket hole (dark)
-    ctx.beginPath();
-    ctx.arc(p.x,p.y,PR-2,0,Math.PI*2);
+    ctx.arc(p.x,p.y,PR,0,Math.PI*2);
     const holeGrad=ctx.createRadialGradient(p.x-5,p.y-5,2,p.x,p.y,PR);
     holeGrad.addColorStop(0,'#3a2010');
-    holeGrad.addColorStop(0.5,'#1a0a00');
     holeGrad.addColorStop(1,'#0a0500');
     ctx.fillStyle=holeGrad;
     ctx.fill();
-    
-    // Rim highlight (3D edge)
-    ctx.beginPath();
-    ctx.arc(p.x,p.y,PR-1,0,Math.PI*2);
     ctx.strokeStyle='rgba(180,140,80,0.8)';
     ctx.lineWidth=2;
     ctx.stroke();
-    
-    // Inner bevel shadow
-    ctx.beginPath();
-    ctx.arc(p.x,p.y,PR-4,0,Math.PI*2);
-    ctx.strokeStyle='rgba(60,30,10,0.6)';
-    ctx.lineWidth=1;
-    ctx.stroke();
   }
-
-  // ══════════════════════════════════════════════════
-  // STRIKE LANES
-  // ══════════════════════════════════════════════════
-  const laneColor='rgba(130,80,30,0.55)';
-  ctx.strokeStyle=laneColor; ctx.lineWidth=1.8;
-  ctx.beginPath();
-  ctx.moveTo(LANE_X_MIN,LANE_Y0);ctx.lineTo(LANE_X_MAX,LANE_Y0);
-  ctx.stroke();
-  ctx.beginPath();
-  ctx.moveTo(LANE_X_MIN,LANE_Y1);ctx.lineTo(LANE_X_MAX,LANE_Y1);
-  ctx.stroke();
-  for(const lx of [LANE_X_MIN,LANE_X_MAX]) {
-    ctx.beginPath();ctx.moveTo(lx,LANE_Y0-6);ctx.lineTo(lx,LANE_Y0+6);ctx.stroke();
-    ctx.beginPath();ctx.moveTo(lx,LANE_Y1-6);ctx.lineTo(lx,LANE_Y1+6);ctx.stroke();
-  }
-
-  // Center circle
-  ctx.beginPath();
-  ctx.arc(BS/2,BS/2,58,0,Math.PI*2);
-  ctx.strokeStyle='rgba(140,85,30,0.5)';
-  ctx.lineWidth=2;
-  ctx.stroke();
-  ctx.beginPath();
-  ctx.arc(BS/2,BS/2,24,0,Math.PI*2);
-  ctx.strokeStyle='rgba(180,40,40,0.55)';
-  ctx.lineWidth=2.5;
-  ctx.stroke();
-  ctx.beginPath();ctx.arc(BS/2,BS/2,7,0,Math.PI*2);
-  ctx.fillStyle='rgba(200,40,40,0.7)';ctx.fill();
-
-  // Diagonal lines
-  ctx.strokeStyle='rgba(130,80,30,0.3)';
-  ctx.lineWidth=1;
-  ctx.setLineDash([8,8]);
-  ctx.beginPath();ctx.moveTo(BM+26,BM+26);ctx.lineTo(BS-BM-26,BS-BM-26);ctx.stroke();
-  ctx.beginPath();ctx.moveTo(BS-BM-26,BM+26);ctx.lineTo(BM+26,BS-BM-26);ctx.stroke();
-  ctx.setLineDash([]);
 }
 
 function drawCoins(ctx) {
