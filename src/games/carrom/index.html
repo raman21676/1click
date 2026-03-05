@@ -326,7 +326,7 @@ const ctx=canvas.getContext("2d")
 
 // Board constants
 const W=700,H=700
-const BOARD_MARGIN=55  // Boundaries at red inner lines (coins/striker bounce here)
+const BOARD_MARGIN=22  // Boundaries at outer wooden frame edge (green lines)
 const PLAY_MIN=BOARD_MARGIN
 const PLAY_MAX=W-BOARD_MARGIN
 const FRICTION=0.985
@@ -741,8 +741,9 @@ function aiPlay(){
     const maxPower=22
     const power=(aimPower/150)*maxPower
     
-    striker.vx=Math.cos(aimAngle)*power
-    striker.vy=Math.sin(aimAngle)*power
+    // Shoot in OPPOSITE direction of drag (pull back to shoot forward)
+    striker.vx=Math.cos(aimAngle+Math.PI)*power
+    striker.vy=Math.sin(aimAngle+Math.PI)*power
     
     turnInProgress=true
     cancelAiming()
@@ -919,8 +920,9 @@ function handleBoardEnd(e){
     const maxPower=22
     const power=(aimPower/150)*maxPower
     
-    striker.vx=Math.cos(aimAngle)*power
-    striker.vy=Math.sin(aimAngle)*power
+    // Shoot in OPPOSITE direction of drag (pull back to shoot forward)
+    striker.vx=Math.cos(aimAngle+Math.PI)*power
+    striker.vy=Math.sin(aimAngle+Math.PI)*power
     
     turnInProgress=true
   }
@@ -1002,6 +1004,9 @@ function draw(){
       // When dragging to aim - show mobile-style visuals
       const powerRatio=Math.min(aimPower/150,1)
       
+      // Shooting angle is OPPOSITE of drag direction
+      const shootAngle=aimAngle+Math.PI
+      
       // Draw dashed circle around striker (aiming guide)
       ctx.beginPath()
       ctx.arc(striker.x,striker.y,striker.r+25,0,Math.PI*2)
@@ -1011,11 +1016,11 @@ function draw(){
       ctx.stroke()
       ctx.setLineDash([])
       
-      // Calculate trajectory end point
+      // Calculate trajectory end point (in SHOOT direction, opposite of drag)
       const maxLineLen=200
       const lineLen=powerRatio*maxLineLen
-      const endX=striker.x+Math.cos(aimAngle)*lineLen
-      const endY=striker.y+Math.sin(aimAngle)*lineLen
+      const endX=striker.x+Math.cos(shootAngle)*lineLen
+      const endY=striker.y+Math.sin(shootAngle)*lineLen
       
       // Draw dotted trajectory line
       ctx.beginPath()
@@ -1053,17 +1058,17 @@ function draw(){
       }
       ctx.stroke()
       
-      // Arrow head
+      // Arrow head (pointing in shoot direction)
       ctx.beginPath()
       ctx.moveTo(endX,endY)
       ctx.lineTo(
-        endX-Math.cos(aimAngle-arrowAngle)*arrowLen,
-        endY-Math.sin(aimAngle-arrowAngle)*arrowLen
+        endX-Math.cos(shootAngle-arrowAngle)*arrowLen,
+        endY-Math.sin(shootAngle-arrowAngle)*arrowLen
       )
       ctx.moveTo(endX,endY)
       ctx.lineTo(
-        endX-Math.cos(aimAngle+arrowAngle)*arrowLen,
-        endY-Math.sin(aimAngle+arrowAngle)*arrowLen
+        endX-Math.cos(shootAngle+arrowAngle)*arrowLen,
+        endY-Math.sin(shootAngle+arrowAngle)*arrowLen
       )
       ctx.lineWidth=5
       ctx.stroke()
