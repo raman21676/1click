@@ -249,7 +249,7 @@ const ctx=canvas.getContext("2d")
 
 // Board constants
 const W=700,H=700
-const BOARD_MARGIN=45  // Reduced to match pocket positions in board image
+const BOARD_MARGIN=75  // Keep striker/coins inside wooden frame, away from pockets
 const PLAY_MIN=BOARD_MARGIN
 const PLAY_MAX=W-BOARD_MARGIN
 const FRICTION=0.985
@@ -268,13 +268,13 @@ let score1=0,score2=0
 let p1Name="Player 1",p2Name="Player 2"
 let gameOver=false
 
-// 4 Corner pockets - exactly matching board image positions
-// Scaled from 1024x1024 image to 700x700 canvas
+// 4 Corner pockets - exactly at black holes in board image
+// The black holes are at inner corners of wooden frame
 const POCKETS=[
-  {x:55,y:55},      // Top-left (matches black hole in image)
-  {x:645,y:55},     // Top-right
-  {x:55,y:645},     // Bottom-left
-  {x:645,y:645}     // Bottom-right
+  {x:45,y:45},      // Top-left black hole
+  {x:655,y:45},     // Top-right black hole
+  {x:45,y:655},     // Bottom-left black hole
+  {x:655,y:655}     // Bottom-right black hole
 ]
 
 // Striker baseline positions (Y coordinates)
@@ -768,9 +768,13 @@ function update(){
   // Update all disks
   striker.update()
   
-  // Safety clamp - force striker inside board
-  striker.x=Math.max(PLAY_MIN+striker.r,Math.min(PLAY_MAX-striker.r,striker.x))
-  striker.y=Math.max(PLAY_MIN+striker.r,Math.min(PLAY_MAX-striker.r,striker.y))
+  // Hard boundary - never let striker escape wooden frame
+  const boundMin=PLAY_MIN+striker.r
+  const boundMax=PLAY_MAX-striker.r
+  if(striker.x<boundMin)striker.x=boundMin
+  if(striker.x>boundMax)striker.x=boundMax
+  if(striker.y<boundMin)striker.y=boundMin
+  if(striker.y>boundMax)striker.y=boundMax
   
   for(const c of coins)c.update()
   
