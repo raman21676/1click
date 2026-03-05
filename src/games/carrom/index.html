@@ -249,7 +249,7 @@ const ctx=canvas.getContext("2d")
 
 // Board constants
 const W=700,H=700
-const BOARD_MARGIN=65  // Tight boundary - striker stays strictly inside wooden frame
+const BOARD_MARGIN=55  // Boundaries at red inner lines (coins/striker bounce here)
 const PLAY_MIN=BOARD_MARGIN
 const PLAY_MAX=W-BOARD_MARGIN
 const FRICTION=0.985
@@ -277,12 +277,12 @@ const POCKETS=[
   {x:675,y:675}     // Bottom-right black hole
 ]
 
-// Striker baseline positions (Y coordinates)
-// Striker must be BETWEEN these baselines
-const BASELINE_Y_TOP=130      // Upper baseline (adjusted for 130% zoom)
-const BASELINE_Y_BOTTOM=530   // Lower baseline (adjusted for 130% zoom)
-const BASELINE_X_MIN=150      // Left limit
-const BASELINE_X_MAX=550      // Right limit
+// Striker baseline Y positions - striker sits BETWEEN the two black lines
+// and slides left-right along this exact Y position
+const STRIKER_Y_TOP=122       // Between the two black baselines at top
+const STRIKER_Y_BOTTOM=578    // Between the two black baselines at bottom
+const BASELINE_X_MIN=170      // Left limit (at red circle)
+const BASELINE_X_MAX=530      // Right limit (at red circle)
 
 // Disk class for coins and striker
 class Disk{
@@ -434,14 +434,13 @@ function setupCoins(){
 }
 
 function setupStriker(){
-  // Striker positioned BETWEEN the two baselines
-  // Player 1 (bottom) uses lower baselines
-  // Player 2 (top) uses upper baselines
+  // Striker positioned exactly BETWEEN the two black baseline lines
+  // It slides left-right along this Y position only
   let strikerY
   if(turn===1){
-    strikerY=BASELINE_Y_BOTTOM-15  // Bottom player - between lower baselines
+    strikerY=STRIKER_Y_BOTTOM  // Bottom player - on lower baseline
   }else{
-    strikerY=BASELINE_Y_TOP+15     // Top player - between upper baselines
+    strikerY=STRIKER_Y_TOP     // Top player - on upper baseline
   }
   striker=new Disk(W/2,strikerY,STRIKER_R,"white","striker")
   striker.vx=0
@@ -701,6 +700,8 @@ function getPos(e){
   }
 }
 
+let isAiming=false  // True when pulling back to aim (after positioning)
+
 function shoot(pos){
   if(turnInProgress)return
   
@@ -717,28 +718,54 @@ function shoot(pos){
   striker.vy=Math.sin(angle)*power
   
   turnInProgress=true
+  isAiming=false
 }
+
+// Striker positioning and shooting
+// 1. Click and drag striker left/right to position on baseline
+// 2. Pull back from striker to aim and shoot
+let isPositioning=false  // Sliding left-right on baseline
+let dragStartX=null
 
 canvas.addEventListener("mousedown",e=>{
   const pos=getPos(e)
-  // Check if clicking near striker
+  // Check if clicking near striker (for positioning)
   const dx=pos.x-striker.x
   const dy=pos.y-striker.y
-  if(Math.sqrt(dx*dx+dy*dy)<striker.r*2){
+  if(Math.sqrt(dx*dx+dy*dy)<striker.r*3){
+    isPositioning=true
+    dragStartX=pos.x
+  }else if(Math.sqrt(dx*dx+dy*dy)<striker.r*6){
+    // Clicked near striker - start aiming
     isDragging=true
+    isAiming=true
     dragStart=pos
   }
 })
 
 canvas.addEventListener("mousemove",e=>{
-  if(!isDragging)return
-  dragStart=getPos(e)
+  const pos=getPos(e)
+  if(isPositioning){
+    // Slide striker left-right on baseline
+    striker.x=pos.x
+    // Keep striker on baseline Y
+    if(turn===1)striker.y=STRIKER_Y_BOTTOM
+    else striker.y=STRIKER_Y_TOP
+    // Clamp to baseline limits
+    striker.x=Math.max(BASELINE_X_MIN+striker.r,Math.min(BASELINE_X_MAX-striker.r,striker.x))
+  }else if(isDragging&&isAiming){
+    dragStart=pos
+  }
 })
 
 canvas.addEventListener("mouseup",e=>{
-  if(!isDragging)return
-  isDragging=false
-  shoot(getPos(e))
+  if(isPositioning){
+    isPositioning=false
+    dragStartX=null
+  }else if(isDragging){
+    isDragging=false
+    shoot(getPos(e))
+  }
 })
 
 // Touch support
@@ -747,17 +774,37 @@ canvas.addEventListener("touchstart",e=>{
   const pos=getPos(e)
   const dx=pos.x-striker.x
   const dy=pos.y-striker.y
-  if(Math.sqrt(dx*dx+dy*dy)<striker.r*2){
+  if(Math.sqrt(dx*dx+dy*dy)<striker.r*3){
+    isPositioning=true
+    dragStartX=pos.x
+  }else if(Math.sqrt(dx*dx+dy*dy)<striker.r*6){
     isDragging=true
+    isAiming=true
+    dragStart=pos
+  }
+})
+
+canvas.addEventListener("touchmove",e=>{
+  e.preventDefault()
+  const pos=getPos(e)
+  if(isPositioning){
+    striker.x=pos.x
+    if(turn===1)striker.y=STRIKER_Y_BOTTOM
+    else striker.y=STRIKER_Y_TOP
+    striker.x=Math.max(BASELINE_X_MIN+striker.r,Math.min(BASELINE_X_MAX-striker.r,striker.x))
+  }else if(isDragging&&isAiming){
     dragStart=pos
   }
 })
 
 canvas.addEventListener("touchend",e=>{
   e.preventDefault()
-  if(!isDragging)return
-  isDragging=false
-  shoot(getPos(e))
+  if(isPositioning){
+    isPositioning=false
+  }else if(isDragging){
+    isDragging=false
+    shoot(getPos(e))
+  }
 })
 
 // ============================================
@@ -765,16 +812,18 @@ canvas.addEventListener("touchend",e=>{
 // ============================================
 
 function update(){
-  // Update all disks
-  striker.update()
-  
-  // Hard boundary - never let striker escape wooden frame
-  const boundMin=PLAY_MIN+striker.r
-  const boundMax=PLAY_MAX-striker.r
-  if(striker.x<boundMin)striker.x=boundMin
-  if(striker.x>boundMax)striker.x=boundMax
-  if(striker.y<boundMin)striker.y=boundMin
-  if(striker.y>boundMax)striker.y=boundMax
+  // Update striker (only if not being positioned)
+  if(!isPositioning){
+    striker.update()
+    
+    // Hard boundary - never let striker escape wooden frame
+    const boundMin=PLAY_MIN+striker.r
+    const boundMax=PLAY_MAX-striker.r
+    if(striker.x<boundMin)striker.x=boundMin
+    if(striker.x>boundMax)striker.x=boundMax
+    if(striker.y<boundMin)striker.y=boundMin
+    if(striker.y>boundMax)striker.y=boundMax
+  }
   
   for(const c of coins)c.update()
   
