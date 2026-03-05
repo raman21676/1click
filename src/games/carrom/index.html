@@ -183,6 +183,16 @@ canvas{
 #turn-display b{
   color:#22c55e;
 }
+
+/* Instructions */
+.instructions{
+  margin-top:10px;
+  color:#64748b;
+  font-size:0.85rem;
+  padding:8px 16px;
+  background:rgba(255,255,255,0.05);
+  border-radius:8px;
+}
 </style>
 </head>
 <body>
@@ -237,6 +247,9 @@ canvas{
   </div>
   
   <div id="turn-display">Turn: <b id="turnName">Player 1</b></div>
+  <div style="margin-top:10px;color:#64748b;font-size:0.85rem;">
+    🖱️ <b>Drag striker</b> to position • <b>Click & pull back</b> anywhere to aim & shoot
+  </div>
 </div>
 
 <script>
@@ -697,59 +710,68 @@ function getPos(e){
   }
 }
 
-let isAiming=false  // True when pulling back to aim (after positioning)
-
-function shoot(pos){
+function shoot(startPos, endPos){
   if(turnInProgress)return
+  if(!startPos||!endPos)return
   
-  // Calculate power based on drag distance (pull back)
-  const dx=striker.x-pos.x
-  const dy=striker.y-pos.y
+  // Calculate pull vector (from start to end = pull back direction)
+  // Pulling back (away from striker) should shoot toward striker
+  const dx=startPos.x-endPos.x
+  const dy=startPos.y-endPos.y
   
   // Need minimum pull to shoot
   const pullDist=Math.sqrt(dx*dx+dy*dy)
-  if(pullDist<10)return  // Too small, don't shoot
+  if(pullDist<15)return  // Too small, don't shoot
   
   // Limit power
-  const maxPower=25
-  const power=Math.min(pullDist*0.15,maxPower)
+  const maxPower=22
+  const power=Math.min(pullDist*0.12,maxPower)
   const angle=Math.atan2(dy,dx)
   
   striker.vx=Math.cos(angle)*power
   striker.vy=Math.sin(angle)*power
   
   turnInProgress=true
-  isAiming=false
-  dragStartPos=null
 }
 
-// Striker positioning and shooting
-// 1. Click ON striker and drag left/right = positioning
-// 2. Click ANYWHERE ELSE and drag = aiming (pull back to shoot)
-let isPositioning=false
-let dragStartPos=null
-let dragStartX=null
+// ============================================
+// INPUT - POSITIONING & AIMING
+// ============================================
 
-canvas.addEventListener("mousedown",e=>{
-  if(turnInProgress)return
-  const pos=getPos(e)
+let isPositioning=false
+let isAiming=false
+let dragStartPos=null      // Where aiming started (fixed)
+let dragCurrentPos=null    // Current mouse position while aiming
+let dragStartX=null        // For striker positioning
+
+// Helper: Check if a position is on/near the striker
+function isClickOnStriker(pos){
   const dx=pos.x-striker.x
   const dy=pos.y-striker.y
   const dist=Math.sqrt(dx*dx+dy*dy)
+  return dist<striker.r*2.5
+}
+
+// MOUSE EVENTS
+canvas.addEventListener("mousedown",e=>{
+  if(turnInProgress)return
+  const pos=getPos(e)
   
   // Check if clicking on striker (for positioning left-right)
-  if(dist<striker.r*3){
+  if(isClickOnStriker(pos)){
     isPositioning=true
     dragStartX=pos.x
   }else{
-    // Clicked elsewhere - start aiming
+    // Clicked elsewhere - start aiming (pull back to shoot)
     isAiming=true
-    dragStartPos=pos
+    dragStartPos=pos        // Fixed anchor point
+    dragCurrentPos=pos      // Current drag position
   }
 })
 
 canvas.addEventListener("mousemove",e=>{
   const pos=getPos(e)
+  
   if(isPositioning){
     // Slide striker left-right on baseline
     striker.x=pos.x
@@ -757,62 +779,90 @@ canvas.addEventListener("mousemove",e=>{
     else striker.y=STRIKER_Y_TOP
     striker.x=Math.max(BASELINE_X_MIN+striker.r,Math.min(BASELINE_X_MAX-striker.r,striker.x))
   }else if(isAiming){
-    dragStartPos=pos
+    // Update current drag position
+    dragCurrentPos=pos
   }
 })
 
 canvas.addEventListener("mouseup",e=>{
   const pos=getPos(e)
+  
   if(isPositioning){
     isPositioning=false
     dragStartX=null
   }else if(isAiming){
+    // Shoot using the drag vector
+    shoot(dragStartPos, dragCurrentPos)
     isAiming=false
-    shoot(pos)
+    dragStartPos=null
+    dragCurrentPos=null
   }
 })
 
-// Touch support
+canvas.addEventListener("mouseleave",()=>{
+  // Cancel if mouse leaves canvas
+  if(isPositioning){
+    isPositioning=false
+    dragStartX=null
+  }
+  if(isAiming){
+    isAiming=false
+    dragStartPos=null
+    dragCurrentPos=null
+  }
+})
+
+// TOUCH EVENTS
 canvas.addEventListener("touchstart",e=>{
   e.preventDefault()
   if(turnInProgress)return
   const pos=getPos(e)
-  const dx=pos.x-striker.x
-  const dy=pos.y-striker.y
-  const dist=Math.sqrt(dx*dx+dy*dy)
   
-  if(dist<striker.r*3){
+  if(isClickOnStriker(pos)){
     isPositioning=true
     dragStartX=pos.x
   }else{
     isAiming=true
     dragStartPos=pos
+    dragCurrentPos=pos
   }
-})
+},{passive:false})
 
 canvas.addEventListener("touchmove",e=>{
   e.preventDefault()
   const pos=getPos(e)
+  
   if(isPositioning){
     striker.x=pos.x
     if(turn===1)striker.y=STRIKER_Y_BOTTOM
     else striker.y=STRIKER_Y_TOP
     striker.x=Math.max(BASELINE_X_MIN+striker.r,Math.min(BASELINE_X_MAX-striker.r,striker.x))
   }else if(isAiming){
-    dragStartPos=pos
+    dragCurrentPos=pos
   }
-})
+},{passive:false})
 
 canvas.addEventListener("touchend",e=>{
   e.preventDefault()
-  const pos=getPos(e.changedTouches[0])
+  
   if(isPositioning){
     isPositioning=false
   }else if(isAiming){
+    // Use last known position for shooting
+    shoot(dragStartPos, dragCurrentPos)
     isAiming=false
-    shoot(pos)
+    dragStartPos=null
+    dragCurrentPos=null
   }
-})
+},{passive:false})
+
+canvas.addEventListener("touchcancel",e=>{
+  e.preventDefault()
+  isPositioning=false
+  isAiming=false
+  dragStartPos=null
+  dragCurrentPos=null
+},{passive:false})
 
 // ============================================
 // GAME LOOP
@@ -871,34 +921,82 @@ function draw(){
   // Draw coins
   for(const c of coins)c.draw()
   
-  // Draw aim line
-  if(isAiming&&dragStartPos){
-    ctx.beginPath()
-    ctx.moveTo(striker.x,striker.y)
-    ctx.lineTo(dragStartPos.x,dragStartPos.y)
-    ctx.strokeStyle="rgba(255,255,255,0.5)"
-    ctx.lineWidth=2
-    ctx.setLineDash([5,5])
-    ctx.stroke()
-    ctx.setLineDash([])
+  // Draw aim guide
+  if(isAiming&&dragStartPos&&dragCurrentPos&&!turnInProgress){
+    // Calculate pull vector and shooting direction
+    const dx=dragStartPos.x-dragCurrentPos.x
+    const dy=dragStartPos.y-dragCurrentPos.y
+    const pullDist=Math.sqrt(dx*dx+dy*dy)
     
-    // Draw aim circle
+    if(pullDist>5){
+      const angle=Math.atan2(dy,dx)
+      const power=Math.min(pullDist*0.12,22)
+      
+      // Draw pull line (from start to current)
+      ctx.beginPath()
+      ctx.moveTo(dragStartPos.x,dragStartPos.y)
+      ctx.lineTo(dragCurrentPos.x,dragCurrentPos.y)
+      ctx.strokeStyle="rgba(255,255,255,0.4)"
+      ctx.lineWidth=3
+      ctx.setLineDash([8,4])
+      ctx.stroke()
+      ctx.setLineDash([])
+      
+      // Draw drag handle circle
+      ctx.beginPath()
+      ctx.arc(dragCurrentPos.x,dragCurrentPos.y,10,0,Math.PI*2)
+      ctx.fillStyle="rgba(255,255,255,0.9)"
+      ctx.fill()
+      ctx.strokeStyle="rgba(0,0,0,0.5)"
+      ctx.lineWidth=2
+      ctx.stroke()
+      
+      // Draw aim trajectory line (shows where striker will go)
+      const trajLen=60+power*4
+      ctx.beginPath()
+      ctx.moveTo(striker.x,striker.y)
+      ctx.lineTo(striker.x+Math.cos(angle)*trajLen,striker.y+Math.sin(angle)*trajLen)
+      
+      // Color based on power
+      const powerRatio=power/22
+      if(powerRatio<0.3){
+        ctx.strokeStyle="rgba(34,197,94,0.8)"  // Green - low power
+      }else if(powerRatio<0.7){
+        ctx.strokeStyle="rgba(245,158,11,0.8)" // Orange - medium power
+      }else{
+        ctx.strokeStyle="rgba(239,68,68,0.8)"  // Red - high power
+      }
+      ctx.lineWidth=4
+      ctx.stroke()
+      
+      // Draw arrow head
+      const arrowLen=15
+      const arrowAngle=0.5
+      ctx.beginPath()
+      ctx.moveTo(striker.x+Math.cos(angle)*trajLen,striker.y+Math.sin(angle)*trajLen)
+      ctx.lineTo(
+        striker.x+Math.cos(angle)*trajLen-Math.cos(angle-arrowAngle)*arrowLen,
+        striker.y+Math.sin(angle)*trajLen-Math.sin(angle-arrowAngle)*arrowLen
+      )
+      ctx.moveTo(striker.x+Math.cos(angle)*trajLen,striker.y+Math.sin(angle)*trajLen)
+      ctx.lineTo(
+        striker.x+Math.cos(angle)*trajLen-Math.cos(angle+arrowAngle)*arrowLen,
+        striker.y+Math.sin(angle)*trajLen-Math.sin(angle+arrowAngle)*arrowLen
+      )
+      ctx.stroke()
+      
+      // Draw power indicator text
+      ctx.font="bold 14px Poppins,sans-serif"
+      ctx.fillStyle="white"
+      ctx.textAlign="center"
+      ctx.fillText(Math.round(powerRatio*100)+"%",striker.x+Math.cos(angle)*(trajLen+25),striker.y+Math.sin(angle)*(trajLen+25))
+    }
+    
+    // Draw anchor point
     ctx.beginPath()
-    ctx.arc(dragStartPos.x,dragStartPos.y,8,0,Math.PI*2)
-    ctx.fillStyle="rgba(255,255,255,0.8)"
+    ctx.arc(dragStartPos.x,dragStartPos.y,6,0,Math.PI*2)
+    ctx.fillStyle="rgba(255,255,255,0.6)"
     ctx.fill()
-    
-    // Draw direction line (extended)
-    const dx=striker.x-dragStartPos.x
-    const dy=striker.y-dragStartPos.y
-    const angle=Math.atan2(dy,dx)
-    const lineLen=100
-    ctx.beginPath()
-    ctx.moveTo(striker.x,striker.y)
-    ctx.lineTo(striker.x+Math.cos(angle)*lineLen,striker.y+Math.sin(angle)*lineLen)
-    ctx.strokeStyle="rgba(255,255,255,0.3)"
-    ctx.lineWidth=1
-    ctx.stroke()
   }
 }
 

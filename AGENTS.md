@@ -10,133 +10,265 @@
 |-------|-------|
 | **Project Name** | 1click |
 | **Type** | Browser-based Mini Games Platform |
-| **Domain** | 1click.live |
-| **GitHub Repo** | git@github.com:Raman21676/1click.git |
+| **Domain** | https://1click.live |
+| **GitHub Repo** | https://github.com/Raman21676/1click |
 | **Live URL** | https://raman21676.github.io/1click/ |
-| **Custom Domain** | https://1click.live |
 | **Hosting** | GitHub Pages (Free) |
-| **Tech Stack** | HTML5, CSS3, Vanilla JavaScript |
+| **Tech Stack** | HTML5, CSS3, Vanilla JavaScript (ES6+) |
+| **Build Process** | None - Static files only |
+| **Package Manager** | None - No dependencies |
 
----
+### Project Mission
 
-## 🎯 Project Mission
-
-Create a **fast, smooth, serverless** gaming website with 8+ mini games that:
+Create a fast, smooth, serverless gaming website with 9+ mini games that:
 - Requires NO dedicated server (all client-side)
 - Supports both Website and future Android app
-- Generates part-time income through advertisements
+- Generates income through advertisements (planned)
 - Auto-deploys on every GitHub push
 
 ---
 
-## 📁 File Structure (MUST FOLLOW)
+## 🗂️ Directory Structure
 
 ```
 1click/
-├── AGENTS.md              ← You are here (READ FIRST)
-├── ARCHITECTURE.md        ← System design & game logic
-├── TODO.md                ← Current tasks & status
-├── PROGRESS.md            ← Completed work log with commits
-├── ISSUES.md              ← Errors & solutions log
-├── README.md              ← Project overview for humans
+│
+├── index.html                      # Landing page with game cards
+├── CNAME                           # Custom domain config (1click.live)
+├── sitemap.xml                     # SEO sitemap
+├── robots.txt                      # SEO robots file
+├── README.md                       # Human-readable project overview
+├── AGENTS.md                       # This file - AI agent guidelines
+├── ARCHITECTURE.md                 # System design & game logic patterns
+├── TODO.md                         # Current tasks & status
+├── PROGRESS.md                     # Development log with session history
+├── ISSUES.md                       # Bug tracking
+├── CURRENT_ISSUES.md               # Active issues summary
+├── LUDO_DESIGN_SPECS.md            # Ludo game specifications
+├── LUDO_IMPROVEMENTS.md            # Ludo improvement tracking
+├── LUDO_BUG_SUMMARY.md             # Ludo bug documentation
+├── CHESS_REDESIGN_PLAN.md          # Chess redesign documentation
+│
 ├── .github/
 │   └── workflows/
-│       └── deploy.yml     ← CI/CD configuration
-├── docs/                  ← Additional documentation
+│       ├── deploy.yml              # Primary CI/CD workflow
+│       └── static.yml              # Alternative static deployment
+│
 ├── src/
-│   ├── index.html         ← Main landing page
-│   ├── games/             ← Individual game folders
-│   │   ├── chess/
-│   │   ├── ludo/
-│   │   ├── snake-ladder/
-│   │   ├── sudoku/
-│   │   ├── baagchal/
-│   │   ├── tictactoe/
-│   │   ├── snake/
-│   │   └── truth-dare/
-│   └── assets/
-│       ├── css/           ← Stylesheets
-│       ├── js/            ← Shared JavaScript
-│       └── images/        ← Game assets
-└── tests/                 ← Test files
+│   ├── assets/
+│   │   ├── css/
+│   │   │   ├── loading.css         # Loading screen & sound toggle styles
+│   │   │   ├── main.css            # Global styles (legacy)
+│   │   │   └── variables.css       # CSS variables (legacy)
+│   │   ├── js/
+│   │   │   ├── main.js             # Shared utilities
+│   │   │   ├── storage.js          # LocalStorage wrapper
+│   │   │   └── sound.js            # Sound manager (Web Audio API)
+│   │   ├── images/                 # Game icons, logos
+│   │   └── sounds/                 # Sound effect files (if any)
+│   │
+│   └── games/                      # Individual game implementations
+│       ├── tictactoe/
+│       │   └── index.html          # (~894 lines) Tic-Tac-Toe with AI
+│       ├── snake/
+│       │   └── index.html          # (~803 lines) Classic Snake game
+│       ├── sudoku/
+│       │   └── index.html          # (~1125 lines) Sudoku puzzle
+│       ├── baagchal/
+│       │   └── index.html          # (~2361 lines) Nepali Tiger vs Goats
+│       │   └── assets/
+│       │       └── ai-bot.png
+│       ├── truth-or-dare/
+│       │   └── index.html          # (~769 lines) Bottle spinner game
+│       ├── ludo/
+│       │   └── index.html          # (~3911 lines) Full Ludo with AI
+│       │   └── assets/
+│       │       ├── ai-bot.png
+│       │       ├── cat.png
+│       │       ├── eagle.png
+│       │       ├── panda.png
+│       │       └── tiger.png
+│       ├── chess/
+│       │   └── index.html          # (~2626 lines) Chess with AI
+│       │   └── assets/
+│       │       └── ai-bot.png
+│       ├── snake-ladder/
+│       │   └── index.html          # (~1746 lines) Snake & Ladder
+│       │   └── assets/
+│       │       └── AI-Bot.png
+│       └── carrom/
+│           └── index.html          # (~964 lines) Carrom board game
+│           └── assets/
+│               ├── AI-Bot.png
+│               ├── board.png
+│               └── carromboard.png
+│
+├── tests/                          # Test directory (currently empty)
+└── docs/                           # Additional documentation
 ```
 
 ---
 
-## 🔧 Your Responsibilities as AI Agent
+## 💻 Technology Stack
 
-### BEFORE Starting Work:
-1. ✅ Read AGENTS.md (this file)
-2. ✅ Read ARCHITECTURE.md for system design
-3. ✅ Read TODO.md for current priorities
-4. ✅ Read PROGRESS.md to understand what's done
-5. ✅ Read ISSUES.md to avoid known problems
+### Core Technologies
+| Technology | Purpose | Version |
+|------------|---------|---------|
+| HTML5 | Structure & Canvas | Latest |
+| CSS3 | Styling & Animations | Latest |
+| JavaScript (ES6+) | Game Logic & Interactivity | ES2020+ |
+| LocalStorage | Save Progress & Scores | Web API |
+| Web Audio API | Sound Effects | Web API |
 
-### WHILE Working:
-1. ✅ Update TODO.md - Mark tasks as "in_progress"
-2. ✅ Test changes locally using browser (Safari/Brave)
-3. ✅ Follow existing code style
-4. ✅ Add comments for complex logic
-5. ✅ Update PROGRESS.md with what you're working on
+### Design System
+- **Primary Colors**: Teal/Green gradient (`#14b8a6` to `#06b6d4`)
+- **Dark Theme**: Slate-based (`#0f172a` background)
+- **Light Theme**: Slate-50 based (`#f8fafc` background)
+- **Fonts**: Inter (body), Poppins (display) - loaded from Google Fonts
+- **CSS Variables**: Defined in each file's `:root` selector
 
-### AFTER Completing Work:
-1. ✅ Update TODO.md - Mark tasks as "done"
-2. ✅ Update PROGRESS.md with:
-   - What was completed
-   - Date/Time
-   - Files modified
-   - Any issues encountered
-3. ✅ Commit with descriptive message:
-   ```
-   git add .
-   git commit -m "feat: add snake game movement logic
-   
-   - Implemented snake body tracking
-   - Added collision detection
-   - Closes task: SNAKE-001"
-   git push origin main
-   ```
-4. ✅ Verify deployment at https://raman21676.github.io/1click/
-5. ✅ Take screenshot if visual changes
-6. ✅ Update ISSUES.md if any bugs were fixed
+### Key Patterns
+1. **Self-contained games**: Each game is a single HTML file with embedded CSS and JavaScript
+2. **Responsive design**: Mobile-first with `clamp()`, `vmin`, and media queries
+3. **No external dependencies**: No npm, no build tools, no frameworks
+4. **Shared utilities**: Common code in `src/assets/js/` and `src/assets/css/`
 
 ---
 
-## 🎮 Games to Build (Priority Order)
+## 🎮 Games Architecture
 
-| # | Game | Status | Priority | Notes |
-|---|------|--------|----------|-------|
-| 1 | Tic-Tac-Toe | ⏳ Pending | HIGH | Simplest, start here |
-| 2 | Snake | ⏳ Pending | HIGH | Classic, test performance |
-| 3 | Sudoku | ⏳ Pending | HIGH | Logic-based, no server needed |
-| 4 | Baagchal | ⏳ Pending | HIGH | Nepali game, USP |
-| 5 | Truth or Dare | ⏳ Pending | MEDIUM | Bottle spinner UI |
-| 6 | Ludo | ⏳ Pending | MEDIUM | Complex logic |
-| 7 | Chess | ⏳ Pending | LOW | Most complex, use Chess.js |
-| 8 | Snake & Ladder | ⏳ Pending | LOW | Board game |
+### Game File Structure
+
+Each game follows this pattern in a single HTML file:
+
+```html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <!-- Meta tags for SEO -->
+    <meta charset="UTF-8">
+    <meta name="description" content="...">
+    <meta name="keywords" content="...">
+    
+    <!-- Schema.org structured data -->
+    <script type="application/ld+json">{...}</script>
+    
+    <style>
+        /* Loading screen styles */
+        /* Game-specific styles */
+        /* Responsive media queries */
+    </style>
+</head>
+<body>
+    <!-- Loading screen -->
+    <div id="loadingScreen">...</div>
+    
+    <!-- Sound toggle -->
+    <button id="soundToggle">...</button>
+    
+    <!-- Game UI -->
+    <div class="game-container">...</div>
+    
+    <script src="../../src/assets/js/sound.js"></script>
+    <script>
+        // Game initialization
+        // Game logic
+        // Event listeners
+    </script>
+</body>
+</html>
+```
+
+### Game Categories
+
+| Game Type | Games | Implementation |
+|-----------|-------|----------------|
+| Grid-based | Tic-Tac-Toe, Sudoku | CSS Grid, DOM manipulation |
+| Canvas-based | Snake | HTML5 Canvas, requestAnimationFrame |
+| Board games | Ludo, Snake & Ladder, Chess, Baagchal, Carrom | CSS Grid/SVG, complex state |
+| Party games | Truth or Dare | CSS animations, random selection |
 
 ---
 
-## 💻 Technology Guidelines
+## 🔧 Development Guidelines
 
-### DO:
-- ✅ Use **Vanilla JavaScript** (no frameworks needed for simple games)
-- ✅ Use **HTML5 Canvas** for games requiring graphics
-- ✅ Use **CSS Grid/Flexbox** for layouts
-- ✅ Use **LocalStorage** for saving game state
-- ✅ Use **Service Workers** for offline play (later phase)
-- ✅ Optimize images before adding to repo
+### Code Style
 
-### DON'T:
-- ❌ Use heavy frameworks (React, Vue, Angular) - unnecessary overhead
-- ❌ Add backend/server code - must remain serverless
-- ❌ Use external CDNs for critical resources (keep it self-contained)
-- ❌ Add node_modules or build tools unless absolutely necessary
-- ❌ Commit large files (>10MB)
+1. **JavaScript**
+   - Use ES6+ features (arrow functions, const/let, template literals)
+   - Prefer `const` over `let`, never use `var`
+   - Use descriptive variable names
+   - Comment complex game logic
+   - Organize code: Constants → State → DOM refs → Functions → Init
+
+2. **CSS**
+   - Use CSS custom properties (variables) for colors
+   - Mobile-first responsive design
+   - Use `clamp()` for fluid typography and sizing
+   - Avoid `!important` unless absolutely necessary
+   - Group related styles together
+
+3. **HTML**
+   - Semantic HTML5 elements
+   - Accessibility attributes (aria-label, role)
+   - SEO meta tags on every page
+   - Schema.org structured data for games
+
+### Required Features for Each Game
+
+Every game MUST include:
+
+1. **Loading screen** (from `loading.css` pattern)
+2. **Sound toggle button** (integrates with `sound.js`)
+3. **Back button** linking to home page
+4. **Responsive design** (mobile, tablet, desktop)
+5. **SEO meta tags** (description, keywords, Open Graph)
+6. **Schema.org structured data** (VideoGame type)
+7. **Theme support** (dark/light mode classes)
+
+### Local Storage Keys
+
+```javascript
+// Follow this naming convention:
+'1click_theme'           // 'dark' | 'light'
+'1click_soundEnabled'    // 'true' | 'false'
+'1click_soundVolume'     // '0.0' to '1.0'
+'1click_[game]_highscore' // Game-specific scores
+'1click_[game]_progress'  // Saved game state
+```
 
 ---
 
-## 🔄 Git Workflow
+## 🚀 Build & Deployment
+
+### No Build Process
+
+This project has NO build step. Files are deployed as-is.
+
+### Local Development
+
+```bash
+# Clone repository
+git clone git@github.com:Raman21676/1click.git
+cd 1click
+
+# Open in browser (macOS)
+open index.html
+
+# Or serve with Python for testing
+python3 -m http.server 8000
+# Then visit http://localhost:8000
+```
+
+### Deployment Process
+
+1. **Automatic**: Push to `main` branch triggers GitHub Actions
+2. **Workflow**: `.github/workflows/deploy.yml`
+3. **Target**: GitHub Pages
+4. **URL**: https://raman21676.github.io/1click/
+5. **Custom Domain**: https://1click.live (via CNAME file)
+
+### Git Workflow
 
 ```bash
 # 1. Always pull latest before starting
@@ -145,23 +277,21 @@ git pull origin main
 # 2. Make your changes
 # ... edit files ...
 
-# 3. Stage changes
+# 3. Stage and commit
 git add .
-
-# 4. Commit with meaningful message
 git commit -m "type: description
 
 Details here
 Related: TASK-001"
 
-# 5. Push
+# 4. Push
 git push origin main
 
-# 6. Verify deployment (takes 1-2 minutes)
+# 5. Verify deployment (takes 1-2 minutes)
 # Check: https://raman21676.github.io/1click/
 ```
 
-### Commit Message Types:
+### Commit Message Types
 - `feat:` - New feature
 - `fix:` - Bug fix
 - `docs:` - Documentation changes
@@ -172,15 +302,108 @@ git push origin main
 
 ---
 
-## 🐛 Issue Reporting Format
+## 🧪 Testing
 
-When encountering errors, log in ISSUES.md:
+### Testing Strategy
+
+Currently minimal automated testing. Testing is primarily manual:
+
+1. **Browser Testing**
+   - Safari (Primary) - macOS/iOS
+   - Brave (Secondary) - Chrome-based
+   - Test on both desktop and mobile
+
+2. **Viewport Testing**
+   - Desktop: 1920x1080, 1366x768
+   - Tablet: 768x1024 (iPad)
+   - Mobile: 375x667 (iPhone SE), 390x844 (iPhone 14)
+
+3. **Manual Test Checklist**
+   - [ ] Game loads without errors
+   - [ ] All buttons interactive
+   - [ ] Mobile touch controls work
+   - [ ] Sound toggle functions
+   - [ ] Theme toggle works (if implemented)
+   - [ ] Back button returns to home
+   - [ ] No console errors
+
+### Performance Targets
+
+| Metric | Target |
+|--------|--------|
+| First Contentful Paint | < 1.5s |
+| Time to Interactive | < 3s |
+| Lighthouse Score | > 90 |
+| Game FPS | 60fps |
+
+---
+
+## 📊 Shared Utilities
+
+### Sound Manager (`src/assets/js/sound.js`)
+
+```javascript
+// Initialize (called automatically on first click)
+SoundManager.init();
+
+// Play sounds
+SoundManager.playClick();
+SoundManager.playMove();
+SoundManager.playWin();
+SoundManager.playDiceRoll();
+// ... see file for full list
+
+// Toggle
+SoundManager.toggle(); // Returns new state
+```
+
+### Loading Screen (`src/assets/css/loading.css`)
+
+```javascript
+// Hide loading screen when game ready
+setTimeout(() => {
+  document.getElementById('loadingScreen').classList.add('hidden');
+}, 500);
+```
+
+---
+
+## 🔐 Security Considerations
+
+1. **No Sensitive Data**: Never commit API keys, passwords, or credentials
+2. **XSS Prevention**: Sanitize any user input before DOM insertion
+3. **Content Security Policy**: Consider adding CSP headers (GitHub Pages limited)
+4. **HTTPS**: Enforced by GitHub Pages and Cloudflare
+
+---
+
+## 📝 SEO Requirements
+
+Every game page MUST include:
+
+1. **Meta tags**: description, keywords, robots, theme-color
+2. **Open Graph**: og:type, og:url, og:title, og:description
+3. **Canonical URL**: `<link rel="canonical" href="...">`
+4. **Schema.org**: VideoGame structured data
+5. **Semantic HTML**: Proper heading hierarchy
+
+---
+
+## 🐛 Issue Reporting
+
+When encountering bugs, update the appropriate file:
+
+1. **ISSUES.md** - Formal issue log with template
+2. **CURRENT_ISSUES.md** - Quick summary of active issues
+3. **Game-specific docs** (e.g., LUDO_BUG_SUMMARY.md)
+
+### Issue Template
 
 ```markdown
-## Issue #X: [Brief Title]
+## Issue #[Number]: [Brief Title]
 
 **Date:** YYYY-MM-DD HH:MM  
-**Severity:** High/Medium/Low  
+**Severity:** Critical/High/Medium/Low  
 **Status:** Open/In Progress/Resolved
 
 ### Problem
@@ -208,12 +431,28 @@ How it was fixed
 
 ---
 
-## 📱 Future Android App Considerations
+## 🎯 Current Status (as of 2026-03-05)
 
-- Keep game logic in separate JavaScript modules
-- Avoid browser-specific APIs in core game logic
-- Document all game state structures
-- This allows reuse in WebView-based Android app later
+### Games Completed ✅
+1. Tic-Tac-Toe (with AI - Minimax)
+2. Snake (3 difficulty levels)
+3. Sudoku (4 board sizes, 4 difficulties)
+4. Baagchal (4 Tigers vs 20 Goats, AI)
+5. Ludo (2-4 players, AI, full rules)
+6. Chess (vs AI, 3 difficulties)
+7. Snake & Ladder (2-4 players)
+8. Truth or Dare (bottle spinner)
+9. Carrom (physics-based)
+
+### Known Issues 🔴
+See `CURRENT_ISSUES.md` for active bugs. Currently includes Ludo dice face rendering issues.
+
+### Next Priorities
+1. Fix Ludo dice visual bug
+2. Add sound effects to remaining games
+3. Implement Service Worker for offline play
+4. Add Google AdSense integration
+5. Android app preparation (WebView wrapper)
 
 ---
 
@@ -229,27 +468,14 @@ How it was fixed
 
 ---
 
-## 📝 Browser Testing
-
-**Available Browsers on MacBook:**
-- Safari (Primary)
-- Brave (Secondary)
-
-**Test on:**
-- Desktop (1920x1080, 1366x768)
-- Mobile viewport (375x667 - iPhone SE)
-- Tablet viewport (768x1024 - iPad)
-
----
-
 ## ⚠️ CRITICAL REMINDERS
 
-1. **NEVER** commit directly without reading TODO.md first
+1. **NEVER** commit `node_modules` or build artifacts (none exist)
 2. **ALWAYS** test in browser before committing
 3. **ALWAYS** update PROGRESS.md after completing work
-4. **NEVER** delete AGENTS.md, ARCHITECTURE.md, TODO.md, PROGRESS.md, ISSUES.md
+4. **NEVER** delete documentation files (AGENTS.md, ARCHITECTURE.md, etc.)
 5. **ALWAYS** use the GitHub repo: git@github.com:Raman21676/1click.git
-6. **VERIFY** deployment after every push
+6. **VERIFY** deployment after every push at https://1click.live
 
 ---
 
@@ -261,11 +487,8 @@ If you need help that you cannot do:
 3. What you've tried
 4. Ask for specific help
 
-Example:
-> "I need help setting up the DNS records for 1click.live. I've created the CNAME file, but I need you to add A records in your domain provider's dashboard."
-
 ---
 
-**Last Updated:** 2026-02-28 12:17 IST  
-**Version:** 1.0  
-**Next Review:** When Phase 1 completes
+**Last Updated:** 2026-03-05  
+**Version:** 2.0  
+**Next Review:** When Phase 4 (Polish) begins

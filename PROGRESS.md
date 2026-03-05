@@ -6,6 +6,49 @@
 
 ## 📋 Session History
 
+### Session 17: Carrom Aiming System Fix
+
+**Date:** 2026-03-05  
+**Time:** 19:05 - 19:10 IST  
+**Agent:** AI Agent  
+**Status:** ✅ Complete
+
+#### Summary
+
+Fixed the Carrom game's aiming and shooting mechanics. Added visual feedback for aiming including trajectory lines, power indicators, and pull-back guides.
+
+#### Problem
+- Striker could move but users had no visual feedback when aiming
+- No indication of shot direction or power
+- Confusing controls - users didn't know how to aim
+
+#### Solution
+- Implemented proper pull-back aiming mechanics (like pool/billiards)
+- Added visual trajectory line showing where striker will go
+- Added power indicator (0-100%) with color coding (green/yellow/red)
+- Added pull-back guide line and drag handle
+- Added on-screen instructions
+
+#### Changes Made
+
+| File | Changes |
+|------|---------|
+| `src/games/carrom/index.html` | Rewrote input handling for aiming |
+| `src/games/carrom/index.html` | Added drawAimGuide() function with trajectory visualization |
+| `src/games/carrom/index.html` | Fixed shoot() function to use proper vector math |
+| `src/games/carrom/index.html` | Added touch event handling for mobile |
+| `src/games/carrom/index.html` | Added instructions text |
+
+#### Controls
+- **Position Striker**: Click/drag ON the striker to slide left/right
+- **Aim & Shoot**: Click anywhere ELSE, drag back (pull), release to shoot
+- **Visual Feedback**: 
+  - Dashed line shows pull distance
+  - Colored trajectory line shows shot direction
+  - Power percentage displayed
+
+---
+
 ### Session 16: Snake & Ladder Game Development
 
 **Date:** 2026-03-03  
