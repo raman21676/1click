@@ -249,7 +249,7 @@ const ctx=canvas.getContext("2d")
 
 // Board constants
 const W=700,H=700
-const BOARD_MARGIN=75  // Keep striker/coins inside wooden frame, away from pockets
+const BOARD_MARGIN=95  // Inner boundary (red lines) - striker/coins stay inside
 const PLAY_MIN=BOARD_MARGIN
 const PLAY_MAX=W-BOARD_MARGIN
 const FRICTION=0.985
@@ -258,7 +258,7 @@ const WALL_BOUNCE=0.8
 // Sizes (proportional to 700px board)
 const COIN_R=10      // Carrommen radius (slightly smaller)
 const STRIKER_R=14   // Striker radius
-const POCKET_R=30    // Pocket detection radius
+const POCKET_R=28    // Exact size of black holes for perfect alignment
 
 // Game state
 let mode="pass"      // "pass" or "ai"
@@ -268,19 +268,19 @@ let score1=0,score2=0
 let p1Name="Player 1",p2Name="Player 2"
 let gameOver=false
 
-// 4 Corner pockets - exactly at black holes in board image
-// The black holes are at inner corners of wooden frame
+// 4 Corner pockets - exactly at black holes (green arrows)
+// These are at the corners of the wooden frame
 const POCKETS=[
-  {x:45,y:45},      // Top-left black hole
-  {x:655,y:45},     // Top-right black hole
-  {x:45,y:655},     // Bottom-left black hole
-  {x:655,y:655}     // Bottom-right black hole
+  {x:35,y:35},      // Top-left black hole
+  {x:665,y:35},     // Top-right black hole
+  {x:35,y:665},     // Bottom-left black hole
+  {x:665,y:665}     // Bottom-right black hole
 ]
 
 // Striker baseline positions (Y coordinates)
 // Striker must be BETWEEN these baselines
-const BASELINE_Y_TOP=140      // Upper baseline (well inside frame)
-const BASELINE_Y_BOTTOM=520   // Lower baseline (moved up)
+const BASELINE_Y_TOP=160      // Upper baseline (between the two black lines)
+const BASELINE_Y_BOTTOM=500   // Lower baseline (between the two black lines)
 const BASELINE_X_MIN=150      // Left limit
 const BASELINE_X_MAX=550      // Right limit
 
