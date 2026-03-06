@@ -54,6 +54,52 @@ Fixed two critical issues in the Carrom game: (1) Boundaries were incorrectly se
 
 ---
 
+### Session 21: Carrom Four Boundary Coordinates Documentation
+
+**Date:** 2026-03-06  
+**Time:** 13:45 IST  
+**Agent:** AI Agent  
+**Status:** 📝 Documented
+
+#### Summary
+
+Documented the four boundary wall coordinates for the Carrom game board. User noted that the **left boundary** is not positioned correctly and needs adjustment.
+
+#### Four Boundary Coordinates (700x700 canvas)
+
+| Boundary | Axis | Coordinate | Variable | Status |
+|----------|------|------------|----------|--------|
+| **Left Wall** | X | **32** | `PLAY_MIN` | ⚠️ Needs fix - not aligned correctly |
+| **Right Wall** | X | **668** | `PLAY_MAX` | ✅ Correct |
+| **Top Wall** | Y | **32** | `PLAY_MIN` | ✅ Correct |
+| **Bottom Wall** | Y | **668** | `PLAY_MAX` | ✅ Correct |
+
+```javascript
+// Current boundary constants
+const W = 700, H = 700
+const BOARD_MARGIN = 32   // Distance from edge
+const PLAY_MIN = 32       // Left/Top wall position
+const PLAY_MAX = 668      // Right/Bottom wall position (W - BOARD_MARGIN)
+```
+
+#### Four Corner Pockets
+
+| Pocket | X | Y |
+|--------|---|---|
+| Top-Left | 32 | 32 |
+| Top-Right | 668 | 32 |
+| Bottom-Left | 32 | 668 |
+| Bottom-Right | 668 | 668 |
+
+#### Notes
+
+- Left boundary (x=32) needs adjustment - user reports it's not in the correct position
+- All other boundaries appear correct
+- Boundaries define where coins bounce (inner edge of dark wooden frame)
+- Pockets are at the same coordinates but with detection radius of 28px
+
+---
+
 ### Session 20: Carrom Striker Position Final Calibration
 
 **Date:** 2026-03-06  

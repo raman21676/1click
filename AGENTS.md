@@ -429,20 +429,57 @@ See `CURRENT_ISSUES.md` for active bugs. Currently includes Ludo dice face rende
 
 ### Game-Specific Constants Reference
 
-#### Carrom Striker Positions (Calibrated 2026-03-06)
-Final values after extensive testing to fit striker perfectly between baseline boundaries:
+#### Carrom Board Coordinates (Calibrated 2026-03-06)
+
+**Canvas Size:** 700 x 700 pixels
+
+##### Four Boundary Walls (where coins bounce)
+| Boundary | Coordinate | Current Value | Status |
+|----------|------------|---------------|--------|
+| **Left Wall** | x = BOARD_MARGIN | **32** | ⚠️ Needs adjustment |
+| **Right Wall** | x = W - BOARD_MARGIN | **668** | ✅ Correct |
+| **Top Wall** | y = BOARD_MARGIN | **32** | ✅ Correct |
+| **Bottom Wall** | y = H - BOARD_MARGIN | **668** | ✅ Correct |
 
 ```javascript
-// Striker sliding range (X-axis) - fits between red circles
-const BASELINE_X_MIN = 110   // Left limit
-const BASELINE_X_MAX = 586   // Right limit
-
-// Striker baseline Y positions
-const STRIKER_Y_TOP = 75     // Opponent's turn (top baseline)
-const STRIKER_Y_BOTTOM = 590 // Player's turn (bottom baseline)
+// Board boundary constants
+const W = 700, H = 700
+const BOARD_MARGIN = 32       // Inner edge of dark wooden frame
+const PLAY_MIN = 32           // Left/Top boundary
+const PLAY_MAX = 668          // Right/Bottom boundary (700 - 32)
 ```
 
-**File:** `src/games/carrom/index.html` (lines 361-368)
+##### Four Corner Pockets (pocket detection zones)
+| Pocket | X | Y |
+|--------|---|---|
+| Top-Left | 32 | 32 |
+| Top-Right | 668 | 32 |
+| Bottom-Left | 32 | 668 |
+| Bottom-Right | 668 | 668 |
+
+```javascript
+const POCKETS = [
+  {x:32, y:32},     // Top-left
+  {x:668, y:32},    // Top-right
+  {x:32, y:668},    // Bottom-left
+  {x:668, y:668}    // Bottom-right
+]
+const POCKET_R = 28  // Pocket detection radius
+```
+
+##### Striker Baseline Positions
+| Position | Y Value | Description |
+|----------|---------|-------------|
+| STRIKER_Y_TOP | **75** | Opponent's baseline (top) |
+| STRIKER_Y_BOTTOM | **590** | Player's baseline (bottom) |
+
+##### Striker Sliding Range (X-axis)
+| Limit | X Value | Description |
+|-------|---------|-------------|
+| BASELINE_X_MIN | **110** | Left red circle limit |
+| BASELINE_X_MAX | **586** | Right red circle limit |
+
+**File:** `src/games/carrom/index.html` (lines 327-368)
 
 ### Next Priorities
 1. Fix Ludo dice visual bug
