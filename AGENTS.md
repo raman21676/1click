@@ -436,15 +436,15 @@ See `CURRENT_ISSUES.md` for active bugs. Currently includes Ludo dice face rende
 ##### Four Boundary Walls (coins & striker cannot exceed)
 | Boundary | Axis | Value | Description |
 |----------|------|-------|-------------|
-| **Left Wall** | X | **20** | Coins/striker bounce at x=20 |
-| **Right Wall** | X | **680** | Coins/striker bounce at x=680 |
-| **Top Wall** | Y | **20** | Coins/striker bounce at y=20 |
-| **Bottom Wall** | Y | **680** | Coins/striker bounce at y=680 |
+| **Left Wall** | X | **10** | Coins/striker bounce at x=10 |
+| **Right Wall** | X | **690** | Coins/striker bounce at x=690 |
+| **Top Wall** | Y | **10** | Coins/striker bounce at y=10 |
+| **Bottom Wall** | Y | **690** | Coins/striker bounce at y=690 |
 
 ```javascript
 // Four boundary wall coordinates
-const PLAY_MIN = 20   // Left & Top wall position
-const PLAY_MAX = 680  // Right & Bottom wall position
+const PLAY_MIN = 10   // Left & Top wall position
+const PLAY_MAX = 690  // Right & Bottom wall position
 ```
 
 ##### Four Corner Pockets (pocket detection zones - different from walls)

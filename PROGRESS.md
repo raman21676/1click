@@ -71,15 +71,15 @@ Documented the four boundary wall coordinates for the Carrom game board. User no
 
 | Boundary | Axis | Value | Variable |
 |----------|------|-------|----------|
-| **Left Wall** | X | **20** | `PLAY_MIN` |
-| **Right Wall** | X | **680** | `PLAY_MAX` |
-| **Top Wall** | Y | **20** | `PLAY_MIN` |
-| **Bottom Wall** | Y | **680** | `PLAY_MAX` |
+| **Left Wall** | X | **10** | `PLAY_MIN` |
+| **Right Wall** | X | **690** | `PLAY_MAX` |
+| **Top Wall** | Y | **10** | `PLAY_MIN` |
+| **Bottom Wall** | Y | **690** | `PLAY_MAX` |
 
 ```javascript
 // Four boundary walls - coins and striker cannot exceed these
-const PLAY_MIN = 20   // Left & Top wall
-const PLAY_MAX = 680  // Right & Bottom wall
+const PLAY_MIN = 10   // Left & Top wall
+const PLAY_MAX = 690  // Right & Bottom wall
 ```
 
 #### Four Corner Pockets (separate from boundaries)
