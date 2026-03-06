@@ -97,14 +97,14 @@ Create a fast, smooth, serverless gaming website with 9+ mini games that:
 │       │   └── assets/
 │       │       └── AI-Bot.png
 │       └── carrom/
-│           └── index.html          # (~964 lines) Carrom board game
+│           └── index.html          # (~1191 lines) Carrom board game
 │           └── assets/
 │               ├── AI-Bot.png
 │               ├── board.png
 │               └── carromboard.png
 │
 ├── tests/                          # Test directory (currently empty)
-└── docs/                           # Additional documentation
+└── docs/                           # Additional documentation (currently empty)
 ```
 
 ---
@@ -184,8 +184,8 @@ Each game follows this pattern in a single HTML file:
 | Game Type | Games | Implementation |
 |-----------|-------|----------------|
 | Grid-based | Tic-Tac-Toe, Sudoku | CSS Grid, DOM manipulation |
-| Canvas-based | Snake | HTML5 Canvas, requestAnimationFrame |
-| Board games | Ludo, Snake & Ladder, Chess, Baagchal, Carrom | CSS Grid/SVG, complex state |
+| Canvas-based | Snake, Carrom | HTML5 Canvas, requestAnimationFrame |
+| Board games | Ludo, Snake & Ladder, Chess, Baagchal | CSS Grid/SVG, complex state |
 | Party games | Truth or Dare | CSS animations, random selection |
 
 ---
@@ -357,6 +357,28 @@ SoundManager.playDiceRoll();
 SoundManager.toggle(); // Returns new state
 ```
 
+### Storage Manager (`src/assets/js/storage.js`)
+
+```javascript
+// Get/Set items
+StorageManager.get(key, defaultValue);
+StorageManager.set(key, value);
+
+// High scores
+StorageManager.getHighScores(gameId);
+StorageManager.addHighScore(gameId, score);
+
+// Game progress
+StorageManager.saveProgress(gameId, state);
+StorageManager.loadProgress(gameId);
+
+// Settings
+StorageManager.getTheme();
+StorageManager.setTheme('dark' | 'light');
+StorageManager.isSoundEnabled();
+StorageManager.toggleSound();
+```
+
 ### Loading Screen (`src/assets/css/loading.css`)
 
 ```javascript
@@ -389,49 +411,7 @@ Every game page MUST include:
 
 ---
 
-## 🐛 Issue Reporting
-
-When encountering bugs, update the appropriate file:
-
-1. **ISSUES.md** - Formal issue log with template
-2. **CURRENT_ISSUES.md** - Quick summary of active issues
-3. **Game-specific docs** (e.g., LUDO_BUG_SUMMARY.md)
-
-### Issue Template
-
-```markdown
-## Issue #[Number]: [Brief Title]
-
-**Date:** YYYY-MM-DD HH:MM  
-**Severity:** Critical/High/Medium/Low  
-**Status:** Open/In Progress/Resolved
-
-### Problem
-Description of the issue
-
-### Error Message
-```
-Paste error here
-```
-
-### Steps to Reproduce
-1. Step one
-2. Step two
-
-### Solution Applied
-How it was fixed
-
-### Files Modified
-- file1.js
-- file2.css
-
-### Commit
-`abc1234: fix: resolve issue X`
-```
-
----
-
-## 🎯 Current Status (as of 2026-03-05)
+## 🎯 Current Status (as of 2026-03-06)
 
 ### Games Completed ✅
 1. Tic-Tac-Toe (with AI - Minimax)
@@ -489,6 +469,6 @@ If you need help that you cannot do:
 
 ---
 
-**Last Updated:** 2026-03-05  
-**Version:** 2.0  
+**Last Updated:** 2026-03-06
+**Version:** 2.1
 **Next Review:** When Phase 4 (Polish) begins

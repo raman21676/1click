@@ -6,6 +6,98 @@
 
 ## 📋 Session History
 
+### Session 18: Carrom Boundary & Slider Range Fix
+
+**Date:** 2026-03-06  
+**Time:** 06:45 - 07:15 IST  
+**Agent:** AI Agent  
+**Status:** ✅ Complete
+
+#### Summary
+
+Fixed two critical issues in the Carrom game: (1) Boundaries were incorrectly set on the yellow playing surface instead of the dark wooden frame, and (2) Striker sliding range didn't cover the full distance between red circles.
+
+#### Issues Fixed
+
+**Issue 1: Wrong Boundaries**
+- **Problem:** Purple lines (old boundaries) were on the yellow board surface
+- **Expected:** Red lines at inner edge of dark wooden frame (as per user's screenshot)
+- **Solution:** Changed `BOARD_MARGIN` from 10 to 32 pixels
+- **Result:** Coins now bounce at the inner edge of the dark wooden frame
+
+**Issue 2: Limited Striker Sliding Range**
+- **Problem:** Blue line showed limited sliding range that didn't reach red circles
+- **Expected:** Green line showing full range from left red circle to right red circle
+- **Solution:** 
+  - Changed `BASELINE_X_MIN` from 95 to 80 (left red circle)
+  - Changed `BASELINE_X_MAX` from 600 to 620 (right red circle)
+  - Fixed slider mapping calculation to use full range
+- **Result:** Striker now slides from left red circle to right red circle
+
+#### Changes Made
+
+| File | Changes |
+|------|---------|
+| `src/games/carrom/index.html` | `BOARD_MARGIN`: 10 → 32 (boundary at dark frame) |
+| `src/games/carrom/index.html` | `POCKETS`: Updated to (32,32), (668,32), (32,668), (668,668) |
+| `src/games/carrom/index.html` | `BASELINE_X_MIN`: 95 → 80 (left red circle) |
+| `src/games/carrom/index.html` | `BASELINE_X_MAX`: 600 → 620 (right red circle) |
+| `src/games/carrom/index.html` | `updateSliderFromEvent()`: Fixed slider→striker mapping |
+| `src/games/carrom/index.html` | `updateSliderPosition()`: Fixed striker→slider mapping |
+
+#### Testing Results
+
+- ✅ Striker slides from left red circle (x=80) to right red circle (x=620)
+- ✅ Coins bounce at inner edge of dark wooden frame (32px margin)
+- ✅ Top/bottom boundaries work correctly at y=32 and y=668
+- ✅ Left/right boundaries work correctly at x=32 and x=668
+
+---
+
+### Session 19: Carrom Slider Range Fine-Tuning
+
+**Date:** 2026-03-06  
+**Time:** 08:45 - 09:45 IST  
+**Agent:** AI Agent  
+**Status:** ✅ Complete
+
+#### Summary
+
+Fine-tuned the striker sliding range after user feedback that the striker wasn't perfectly aligning with the red circles at the slider extremes.
+
+#### Issues Fixed
+
+**Issue 1: Striker Not Reaching Red Circles**
+- **Problem:** Initial values (80, 620) stopped short of red circles
+- **Solution:** Adjusted to (70, 630)
+
+**Issue 2: Striker Going Too Far Beyond Red Circles**  
+- **Problem:** Values (55, 645) made striker go past red circles
+- **Solution:** Adjusted to (75, 625) - perfect alignment
+
+#### Final Values
+
+```javascript
+BASELINE_X_MIN = 75   // Left red circle center
+BASELINE_X_MAX = 625  // Right red circle center
+```
+
+#### Changes Made
+
+| File | Changes |
+|------|---------|
+| `src/games/carrom/index.html` | `BASELINE_X_MIN`: 80 → **75** (left red circle) |
+| `src/games/carrom/index.html` | `BASELINE_X_MAX`: 620 → **625** (right red circle) |
+
+#### Testing Results
+
+- ✅ Striker at leftmost (0%): **x=75**, perfectly aligned with left red circle
+- ✅ Striker at rightmost (100%): **x=625**, perfectly aligned with right red circle  
+- ✅ Striker at center (50%): **x=350**, perfectly centered
+- ✅ Slider visual (white circle) matches striker board position
+
+---
+
 ### Session 17: Carrom Mobile-Style Controls
 
 **Date:** 2026-03-05  

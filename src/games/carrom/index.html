@@ -326,7 +326,10 @@ const ctx=canvas.getContext("2d")
 
 // Board constants
 const W=700,H=700
-const BOARD_MARGIN=10  // Boundaries at inner edge of black wooden frame
+// Boundaries at inner edge of dark wooden frame (not the yellow playing surface)
+// Based on carromboard.png: dark frame starts at ~40px of 1024px image
+// Scaled to 700px canvas: 40 * 700/1024 ≈ 27px, rounded to 30px for cleaner edges
+const BOARD_MARGIN=32  // Inner edge of dark wooden frame (red line boundary)
 const PLAY_MIN=BOARD_MARGIN
 const PLAY_MAX=W-BOARD_MARGIN
 const FRICTION=0.985
@@ -345,21 +348,24 @@ let score1=0,score2=0
 let p1Name="Player 1",p2Name="Player 2"
 let gameOver=false
 
-// 4 Corner pockets - exactly at black holes (green arrows)
-// Adjusted for 130% zoom to align with visible board corners
+// 4 Corner pockets - exactly at black holes in the corners
+// Based on carromboard.png: pockets are at corners of inner dark frame
+// At ~55px from edges on 700px canvas to align with visual board corners
 const POCKETS=[
-  {x:25,y:25},      // Top-left black hole
-  {x:675,y:25},     // Top-right black hole
-  {x:25,y:675},     // Bottom-left black hole
-  {x:675,y:675}     // Bottom-right black hole
+  {x:32,y:32},      // Top-left black hole
+  {x:668,y:32},     // Top-right black hole
+  {x:32,y:668},     // Bottom-left black hole
+  {x:668,y:668}     // Bottom-right black hole
 ]
 
 // Striker baseline Y positions - striker sits BETWEEN the two black lines
 // and slides left-right along this exact Y position
-const STRIKER_Y_TOP=145       // Between the two black baselines at top (was too high)
-const STRIKER_Y_BOTTOM=590    // Touching the LOWER bold black line (moved down)
-const BASELINE_X_MIN=95       // Left limit - striker aligns with red circle like right side
-const BASELINE_X_MAX=600      // Right limit - allow to move further right to red circle
+const STRIKER_Y_TOP=110       // Upper baseline position (aligned with red circle)
+const STRIKER_Y_BOTTOM=590    // Lower baseline position (aligned with red circle)
+// Striker sliding range - must cover from left red circle to right red circle (green line)
+// Adjusted: striker was going too far beyond red circles
+const BASELINE_X_MIN=75       // Left limit - striker center at left red circle
+const BASELINE_X_MAX=625      // Right limit - striker center at right red circle
 
 // Disk class for coins and striker
 class Disk{
@@ -864,21 +870,23 @@ function updateSliderFromEvent(e){
   const pos=getEventPos(e,sliderTrack)
   const rect=sliderTrack.getBoundingClientRect()
   let percent=(pos.x/rect.width)*100
-  percent=Math.max(5,Math.min(95,percent))
+  percent=Math.max(0,Math.min(100,percent))
   
   // Update slider visual
   sliderStriker.style.left=percent+"%"
   
   // Update striker position on board
-  const boardRange=BASELINE_X_MAX-BASELINE_X_MIN-2*striker.r
-  striker.x=BASELINE_X_MIN+striker.r+(percent/100)*boardRange
+  // Striker center moves from BASELINE_X_MIN to BASELINE_X_MAX (full red circle to red circle)
+  const boardRange=BASELINE_X_MAX-BASELINE_X_MIN
+  striker.x=BASELINE_X_MIN+(percent/100)*boardRange
 }
 
 function updateSliderPosition(){
   if(!striker)return
-  const boardRange=BASELINE_X_MAX-BASELINE_X_MIN-2*striker.r
-  const percent=((striker.x-BASELINE_X_MIN-striker.r)/boardRange)*100
-  if(sliderStriker)sliderStriker.style.left=Math.max(5,Math.min(95,percent))+"%"
+  // Striker center moves from BASELINE_X_MIN to BASELINE_X_MAX (full red circle to red circle)
+  const boardRange=BASELINE_X_MAX-BASELINE_X_MIN
+  const percent=((striker.x-BASELINE_X_MIN)/boardRange)*100
+  if(sliderStriker)sliderStriker.style.left=Math.max(0,Math.min(100,percent))+"%"
 }
 
 // BOARD HANDLERS (Aiming)
