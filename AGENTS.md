@@ -433,23 +433,21 @@ See `CURRENT_ISSUES.md` for active bugs. Currently includes Ludo dice face rende
 
 **Canvas Size:** 700 x 700 pixels
 
-##### Four Boundary Walls (where coins bounce)
-| Boundary | Coordinate | Current Value | Status |
-|----------|------------|---------------|--------|
-| **Left Wall** | x = BOARD_MARGIN | **32** | ⚠️ Needs adjustment |
-| **Right Wall** | x = W - BOARD_MARGIN | **668** | ✅ Correct |
-| **Top Wall** | y = BOARD_MARGIN | **32** | ✅ Correct |
-| **Bottom Wall** | y = H - BOARD_MARGIN | **668** | ✅ Correct |
+##### Four Boundary Walls (coins & striker cannot exceed)
+| Boundary | Axis | Value | Description |
+|----------|------|-------|-------------|
+| **Left Wall** | X | **31** | Coins/striker bounce at x=31 |
+| **Right Wall** | X | **670** | Coins/striker bounce at x=670 |
+| **Top Wall** | Y | **31** | Coins/striker bounce at y=31 |
+| **Bottom Wall** | Y | **670** | Coins/striker bounce at y=670 |
 
 ```javascript
-// Board boundary constants
-const W = 700, H = 700
-const BOARD_MARGIN = 32       // Inner edge of dark wooden frame
-const PLAY_MIN = 32           // Left/Top boundary
-const PLAY_MAX = 668          // Right/Bottom boundary (700 - 32)
+// Four boundary wall coordinates
+const PLAY_MIN = 31   // Left & Top wall position
+const PLAY_MAX = 670  // Right & Bottom wall position
 ```
 
-##### Four Corner Pockets (pocket detection zones)
+##### Four Corner Pockets (pocket detection zones - different from walls)
 | Pocket | X | Y |
 |--------|---|---|
 | Top-Left | 32 | 32 |

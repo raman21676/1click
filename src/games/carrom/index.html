@@ -329,9 +329,9 @@ const W=700,H=700
 // Boundaries at inner edge of dark wooden frame (not the yellow playing surface)
 // Based on carromboard.png: dark frame starts at ~40px of 1024px image
 // Scaled to 700px canvas: 40 * 700/1024 ≈ 27px, rounded to 30px for cleaner edges
-const BOARD_MARGIN=32  // Inner edge of dark wooden frame (red line boundary)
-const PLAY_MIN=BOARD_MARGIN
-const PLAY_MAX=W-BOARD_MARGIN
+const BOARD_MARGIN=30  // Base margin calculation
+const PLAY_MIN=31      // Left/Top wall boundary (coins/striker cannot exceed)
+const PLAY_MAX=670     // Right/Bottom wall boundary (coins/striker cannot exceed)
 const FRICTION=0.985
 const WALL_BOUNCE=0.8
 
@@ -350,7 +350,6 @@ let gameOver=false
 
 // 4 Corner pockets - exactly at black holes in the corners
 // Based on carromboard.png: pockets are at corners of inner dark frame
-// At ~55px from edges on 700px canvas to align with visual board corners
 const POCKETS=[
   {x:32,y:32},      // Top-left black hole
   {x:668,y:32},     // Top-right black hole

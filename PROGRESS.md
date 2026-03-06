@@ -65,24 +65,24 @@ Fixed two critical issues in the Carrom game: (1) Boundaries were incorrectly se
 
 Documented the four boundary wall coordinates for the Carrom game board. User noted that the **left boundary** is not positioned correctly and needs adjustment.
 
-#### Four Boundary Coordinates (700x700 canvas)
+#### Four Boundary Wall Coordinates (700x700 canvas)
 
-| Boundary | Axis | Coordinate | Variable | Status |
-|----------|------|------------|----------|--------|
-| **Left Wall** | X | **32** | `PLAY_MIN` | ⚠️ Needs fix - not aligned correctly |
-| **Right Wall** | X | **668** | `PLAY_MAX` | ✅ Correct |
-| **Top Wall** | Y | **32** | `PLAY_MIN` | ✅ Correct |
-| **Bottom Wall** | Y | **668** | `PLAY_MAX` | ✅ Correct |
+**Updated to:**
+
+| Boundary | Axis | Value | Variable |
+|----------|------|-------|----------|
+| **Left Wall** | X | **31** | `PLAY_MIN` |
+| **Right Wall** | X | **670** | `PLAY_MAX` |
+| **Top Wall** | Y | **31** | `PLAY_MIN` |
+| **Bottom Wall** | Y | **670** | `PLAY_MAX` |
 
 ```javascript
-// Current boundary constants
-const W = 700, H = 700
-const BOARD_MARGIN = 32   // Distance from edge
-const PLAY_MIN = 32       // Left/Top wall position
-const PLAY_MAX = 668      // Right/Bottom wall position (W - BOARD_MARGIN)
+// Four boundary walls - coins and striker cannot exceed these
+const PLAY_MIN = 31   // Left & Top wall
+const PLAY_MAX = 670  // Right & Bottom wall
 ```
 
-#### Four Corner Pockets
+#### Four Corner Pockets (separate from boundaries)
 
 | Pocket | X | Y |
 |--------|---|---|
@@ -91,12 +91,15 @@ const PLAY_MAX = 668      // Right/Bottom wall position (W - BOARD_MARGIN)
 | Bottom-Left | 32 | 668 |
 | Bottom-Right | 668 | 668 |
 
+```javascript
+const POCKET_R = 28  // Pocket detection radius
+```
+
 #### Notes
 
-- Left boundary (x=32) needs adjustment - user reports it's not in the correct position
-- All other boundaries appear correct
-- Boundaries define where coins bounce (inner edge of dark wooden frame)
-- Pockets are at the same coordinates but with detection radius of 28px
+- **Boundary walls** (where coins/striker bounce): x/y = 31 and 670
+- **Pockets** (where coins disappear): x/y = 32 and 668 with 28px detection radius
+- Boundaries are slightly inside the pocket positions to prevent coins from floating over pockets
 
 ---
 
