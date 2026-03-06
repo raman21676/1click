@@ -427,6 +427,23 @@ Every game page MUST include:
 ### Known Issues 🔴
 See `CURRENT_ISSUES.md` for active bugs. Currently includes Ludo dice face rendering issues.
 
+### Game-Specific Constants Reference
+
+#### Carrom Striker Positions (Calibrated 2026-03-06)
+Final values after extensive testing to fit striker perfectly between baseline boundaries:
+
+```javascript
+// Striker sliding range (X-axis) - fits between red circles
+const BASELINE_X_MIN = 110   // Left limit
+const BASELINE_X_MAX = 586   // Right limit
+
+// Striker baseline Y positions
+const STRIKER_Y_TOP = 75     // Opponent's turn (top baseline)
+const STRIKER_Y_BOTTOM = 590 // Player's turn (bottom baseline)
+```
+
+**File:** `src/games/carrom/index.html` (lines 361-368)
+
 ### Next Priorities
 1. Fix Ludo dice visual bug
 2. Add sound effects to remaining games

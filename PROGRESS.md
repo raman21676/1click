@@ -54,6 +54,48 @@ Fixed two critical issues in the Carrom game: (1) Boundaries were incorrectly se
 
 ---
 
+### Session 20: Carrom Striker Position Final Calibration
+
+**Date:** 2026-03-06  
+**Time:** 10:15 - 12:40 IST  
+**Agent:** AI Agent  
+**Status:** ✅ Complete
+
+#### Summary
+
+Final calibration of Carrom striker positions after extensive testing with user. Both player (bottom) and opponent (top) striker positions were fine-tuned to fit perfectly within the baseline boundaries.
+
+#### Final Calibrated Values
+
+```javascript
+// Striker sliding range (X-axis) - fits between red circles without overlapping
+const BASELINE_X_MIN = 110   // Left limit - striker stops at left red circle
+const BASELINE_X_MAX = 586   // Right limit - striker stops at right red circle
+
+// Striker baseline Y positions
+const STRIKER_Y_TOP = 75     // Upper baseline - opponent's turn (between black lines at top)
+const STRIKER_Y_BOTTOM = 590 // Lower baseline - player's turn (between black lines at bottom)
+```
+
+#### Changes Made
+
+| File | Changes |
+|------|---------|
+| `src/games/carrom/index.html` | `BASELINE_X_MIN`: 60 → **110** (final left limit) |
+| `src/games/carrom/index.html` | `BASELINE_X_MAX`: 640 → **586** (final right limit) |
+| `src/games/carrom/index.html` | `STRIKER_Y_TOP`: 110 → **75** (opponent striker position) |
+| `src/games/carrom/index.html` | `STRIKER_Y_BOTTOM`: 590 (player striker - unchanged) |
+
+#### Testing Results
+
+- ✅ Player striker (bottom): Perfectly positioned between the two black lines
+- ✅ Opponent striker (top): Perfectly positioned between the two black lines
+- ✅ Leftmost position: Striker fits at left red circle without exceeding
+- ✅ Rightmost position: Striker fits at right red circle without exceeding
+- ✅ Both strikers properly aligned with their respective baselines
+
+---
+
 ### Session 19: Carrom Slider Range Fine-Tuning
 
 **Date:** 2026-03-06  
