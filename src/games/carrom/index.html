@@ -160,8 +160,8 @@ input{
   max-width:min(90vmin,700px);
   aspect-ratio:1;
   margin:auto;
-  background:#2d1810;  /* Dark wooden frame color */
-  border-radius:12px;
+  background:#1a4d3a;  /* Dark green outer background */
+  border-radius:20px;
   box-shadow:0 0 40px rgba(0,0,0,.8);
   overflow:hidden;
 }
@@ -334,9 +334,9 @@ const FRICTION=0.985
 const WALL_BOUNCE=0.8
 
 // Sizes
-const COIN_R=18      // Coin radius for image display
-const STRIKER_R=24   // Striker radius
-const POCKET_R=28    // Pocket radius
+const COIN_R=12      // Coin radius
+const STRIKER_R=18   // Striker radius
+const POCKET_R=24    // Pocket radius
 
 // Game state
 let mode="pass"
@@ -389,72 +389,212 @@ async function loadAllImages(){
 }
 
 // ============================================
-// BOARD DRAWING - Using Images
+// BOARD DRAWING - Professional Carrom Board
 // ============================================
 
 function drawBoard(){
-  // Outer frame (dark wood)
-  ctx.fillStyle="#2d1810"
+  // Dark green outer background
+  ctx.fillStyle="#1a4d3a"
   ctx.fillRect(0,0,W,H)
   
-  // Inner playing surface (beige)
-  ctx.fillStyle="#f5e6c8"
-  ctx.fillRect(FRAME_MARGIN,FRAME_MARGIN,W-FRAME_MARGIN*2,H-FRAME_MARGIN*2)
+  // Board frame with orange corners
+  const frameW=W-FRAME_MARGIN*2
+  const frameH=H-FRAME_MARGIN*2
   
-  // Draw pockets
+  // Main wooden frame (brown)
+  ctx.fillStyle="#8b4513"
+  ctx.fillRect(FRAME_MARGIN,FRAME_MARGIN,frameW,frameH)
+  
+  // Orange rounded corner pieces
+  const cornerSize=45
+  ctx.fillStyle="#d2691e"  // Orange
+  
+  // Top-left corner
+  ctx.beginPath()
+  ctx.moveTo(FRAME_MARGIN,FRAME_MARGIN+cornerSize)
+  ctx.arcTo(FRAME_MARGIN,FRAME_MARGIN,FRAME_MARGIN+cornerSize,FRAME_MARGIN,cornerSize)
+  ctx.lineTo(FRAME_MARGIN,FRAME_MARGIN+cornerSize)
+  ctx.fill()
+  
+  // Top-right corner
+  ctx.beginPath()
+  ctx.moveTo(W-FRAME_MARGIN-cornerSize,FRAME_MARGIN)
+  ctx.arcTo(W-FRAME_MARGIN,FRAME_MARGIN,W-FRAME_MARGIN,FRAME_MARGIN+cornerSize,cornerSize)
+  ctx.lineTo(W-FRAME_MARGIN-cornerSize,FRAME_MARGIN)
+  ctx.fill()
+  
+  // Bottom-left corner
+  ctx.beginPath()
+  ctx.moveTo(FRAME_MARGIN,H-FRAME_MARGIN-cornerSize)
+  ctx.arcTo(FRAME_MARGIN,H-FRAME_MARGIN,FRAME_MARGIN+cornerSize,H-FRAME_MARGIN,cornerSize)
+  ctx.lineTo(FRAME_MARGIN,H-FRAME_MARGIN-cornerSize)
+  ctx.fill()
+  
+  // Bottom-right corner
+  ctx.beginPath()
+  ctx.moveTo(W-FRAME_MARGIN,H-FRAME_MARGIN-cornerSize)
+  ctx.arcTo(W-FRAME_MARGIN,H-FRAME_MARGIN,W-FRAME_MARGIN-cornerSize,H-FRAME_MARGIN,cornerSize)
+  ctx.lineTo(W-FRAME_MARGIN,H-FRAME_MARGIN-cornerSize)
+  ctx.fill()
+  
+  // Inner playing surface (cream/beige)
+  const innerMargin=FRAME_MARGIN+18
+  ctx.fillStyle="#f5e6c8"
+  ctx.fillRect(innerMargin,innerMargin,W-innerMargin*2,H-innerMargin*2)
+  
+  // Draw pockets (black circles at corners)
   for(const p of POCKETS){
     ctx.beginPath()
-    ctx.arc(p.x,p.y,POCKET_R+3,0,Math.PI*2)
-    ctx.fillStyle="#1a0f0a"
+    ctx.arc(p.x,p.y,POCKET_R,0,Math.PI*2)
+    ctx.fillStyle="#1a1a1a"
     ctx.fill()
     
+    // Pocket highlight
     ctx.beginPath()
-    ctx.arc(p.x,p.y,POCKET_R,0,Math.PI*2)
-    ctx.fillStyle="#0a0505"
+    ctx.arc(p.x-3,p.y-3,POCKET_R*0.3,0,Math.PI*2)
+    ctx.fillStyle="rgba(255,255,255,0.2)"
     ctx.fill()
   }
   
-  // Frame border
-  ctx.strokeStyle="#1a0f0a"
+  // Draw baseline rectangles (the sliding areas)
+  const rectWidth=BASELINE_X_MAX-BASELINE_X_MIN
+  const rectHeight=36  // Height of baseline rectangle
+  
+  ctx.strokeStyle="#8b4513"
   ctx.lineWidth=3
-  ctx.strokeRect(FRAME_MARGIN,FRAME_MARGIN,W-FRAME_MARGIN*2,H-FRAME_MARGIN*2)
   
-  const leftX=BASELINE_X_MIN
-  const rightX=BASELINE_X_MAX
+  // Top baseline rectangle
+  ctx.strokeRect(BASELINE_X_MIN,STRIKER_Y_TOP-rectHeight/2,rectWidth,rectHeight)
   
+  // Bottom baseline rectangle
+  ctx.strokeRect(BASELINE_X_MIN,STRIKER_Y_BOTTOM-rectHeight/2,rectWidth,rectHeight)
+  
+  // Left baseline rectangle
+  ctx.strokeRect(BASELINE_X_MIN-rectHeight/2,STRIKER_Y_TOP,rectHeight,STRIKER_Y_BOTTOM-STRIKER_Y_TOP)
+  
+  // Right baseline rectangle
+  ctx.strokeRect(BASELINE_X_MAX-rectHeight/2,STRIKER_Y_TOP,rectHeight,STRIKER_Y_BOTTOM-STRIKER_Y_TOP)
+  
+  // Draw corner arrows with circles
+  drawProfessionalCornerArrows()
+  
+  // Draw center star
+  drawProfessionalCenterStar()
+}
+
+function drawProfessionalCornerArrows(){
+  ctx.strokeStyle="#5a3d2b"
   ctx.lineWidth=2
   
-  // Baselines
+  const arcR=40
+  const offset=85
+  
+  // Top-left corner - arrow pointing down-right
   ctx.beginPath()
-  ctx.moveTo(leftX,STRIKER_Y_TOP)
-  ctx.lineTo(rightX,STRIKER_Y_TOP)
+  ctx.arc(offset,offset,arcR,0,Math.PI/2)
+  ctx.stroke()
+  // Arrow head
+  drawProfessionalArrowHead(offset+arcR,offset,0)
+  // Small circle at corner
+  ctx.beginPath()
+  ctx.arc(offset-10,offset-10,6,0,Math.PI*2)
   ctx.stroke()
   
+  // Top-right corner - arrow pointing down-left
   ctx.beginPath()
-  ctx.moveTo(leftX,STRIKER_Y_BOTTOM)
-  ctx.lineTo(rightX,STRIKER_Y_BOTTOM)
+  ctx.arc(W-offset,offset,arcR,Math.PI/2,Math.PI)
+  ctx.stroke()
+  drawProfessionalArrowHead(W-offset,offset+arcR,Math.PI/2)
+  ctx.beginPath()
+  ctx.arc(W-offset+10,offset-10,6,0,Math.PI*2)
   ctx.stroke()
   
-  // Draw arrow images at corners
-  if(IMAGES.arrow1){
-    const arrowSize=70
-    // Top-left arrow - pointing down-right
-    ctx.drawImage(IMAGES.arrow1,60,60,arrowSize,arrowSize)
+  // Bottom-right corner - arrow pointing up-left
+  ctx.beginPath()
+  ctx.arc(W-offset,H-offset,arcR,Math.PI,Math.PI*1.5)
+  ctx.stroke()
+  drawProfessionalArrowHead(W-offset-arcR,H-offset,Math.PI)
+  ctx.beginPath()
+  ctx.arc(W-offset+10,H-offset+10,6,0,Math.PI*2)
+  ctx.stroke()
+  
+  // Bottom-left corner - arrow pointing up-right
+  ctx.beginPath()
+  ctx.arc(offset,H-offset,arcR,Math.PI*1.5,0)
+  ctx.stroke()
+  drawProfessionalArrowHead(offset,H-offset-arcR,Math.PI*1.5)
+  ctx.beginPath()
+  ctx.arc(offset-10,H-offset+10,6,0,Math.PI*2)
+  ctx.stroke()
+}
+
+function drawProfessionalArrowHead(x,y,angle){
+  const len=10
+  ctx.beginPath()
+  ctx.moveTo(x,y)
+  ctx.lineTo(x-Math.cos(angle-0.4)*len,y-Math.sin(angle-0.4)*len)
+  ctx.moveTo(x,y)
+  ctx.lineTo(x-Math.cos(angle+0.4)*len,y-Math.sin(angle+0.4)*len)
+  ctx.stroke()
+}
+
+function drawProfessionalCenterStar(){
+  const cx=W/2
+  const cy=H/2
+  
+  // Draw outer circle
+  ctx.beginPath()
+  ctx.arc(cx,cy,70,0,Math.PI*2)
+  ctx.strokeStyle="#8b4513"
+  ctx.lineWidth=2
+  ctx.stroke()
+  
+  // Draw inner circle
+  ctx.beginPath()
+  ctx.arc(cx,cy,55,0,Math.PI*2)
+  ctx.strokeStyle="#8b4513"
+  ctx.lineWidth=1
+  ctx.stroke()
+  
+  // Draw 8 main points (compass style)
+  const longR=50
+  const shortR=20
+  
+  for(let i=0;i<8;i++){
+    const angle=(i*Math.PI/4)-Math.PI/2
     
-    // Top-right arrow - pointing down-left  
-    ctx.drawImage(IMAGES.arrow2,W-60-arrowSize,60,arrowSize,arrowSize)
+    ctx.beginPath()
+    ctx.moveTo(cx+Math.cos(angle)*shortR,cy+Math.sin(angle)*shortR)
+    ctx.lineTo(cx+Math.cos(angle)*longR,cy+Math.sin(angle)*longR)
     
-    // Bottom-left arrow - pointing up-right
-    ctx.drawImage(IMAGES.arrow3,60,H-60-arrowSize,arrowSize,arrowSize)
-    
-    // Bottom-right arrow - pointing up-left
-    ctx.drawImage(IMAGES.arrow4,W-60-arrowSize,H-60-arrowSize,arrowSize,arrowSize)
+    // Alternate red and black points
+    if(i%2===0){
+      ctx.strokeStyle="#c41e3a"  // Red
+      ctx.lineWidth=6
+    }else{
+      ctx.strokeStyle="#1a1a1a"  // Black
+      ctx.lineWidth=5
+    }
+    ctx.stroke()
   }
   
-  // Draw center star image
-  if(IMAGES.centerStar){
-    const starSize=160
-    ctx.drawImage(IMAGES.centerStar,W/2-starSize/2,H/2-starSize/2,starSize,starSize)
+  // Center red circle
+  ctx.beginPath()
+  ctx.arc(cx,cy,18,0,Math.PI*2)
+  ctx.fillStyle="#c41e3a"
+  ctx.fill()
+  ctx.strokeStyle="#8b4513"
+  ctx.lineWidth=2
+  ctx.stroke()
+  
+  // Small dots around the center
+  const dotR=60
+  for(let i=0;i<12;i++){
+    const angle=(i*Math.PI/6)
+    ctx.beginPath()
+    ctx.arc(cx+Math.cos(angle)*dotR,cy+Math.sin(angle)*dotR,3,0,Math.PI*2)
+    ctx.fillStyle="#8b4513"
+    ctx.fill()
   }
 }
 
@@ -587,18 +727,32 @@ class Disk{
   draw(){
     if(!this.active||this.inPocket)return
     
-    const img=this.getImage()
-    if(!img)return
-    
-    // Draw shadow
+    // Always draw flat design (no images)
     ctx.beginPath()
-    ctx.arc(this.x+2,this.y+3,this.r-2,0,Math.PI*2)
-    ctx.fillStyle="rgba(0,0,0,0.3)"
+    ctx.arc(this.x,this.y,this.r,0,Math.PI*2)
+    
+    if(this.type==="queen"){
+      ctx.fillStyle="#c41e3a"  // Red
+    }else if(this.type==="black"){
+      ctx.fillStyle="#1a1a1a"  // Black
+    }else if(this.type==="striker"){
+      ctx.fillStyle="#4a6fa5"  // Blue
+    }else{
+      ctx.fillStyle="#e8e8e8"  // White
+    }
+    
     ctx.fill()
     
-    // Draw image
-    const size=this.r*2
-    ctx.drawImage(img,this.x-this.r,this.y-this.r,size,size)
+    // Border
+    ctx.strokeStyle="rgba(0,0,0,0.4)"
+    ctx.lineWidth=1
+    ctx.stroke()
+    
+    // Small highlight
+    ctx.beginPath()
+    ctx.arc(this.x-2,this.y-2,this.r*0.3,0,Math.PI*2)
+    ctx.fillStyle="rgba(255,255,255,0.5)"
+    ctx.fill()
   }
   
   update(){
@@ -661,30 +815,43 @@ function setupCoins(){
   // 1. QUEEN at exact center
   coins.push(new Disk(cx,cy,COIN_R,"red","queen"))
   
-  // 2. INNER RING - 6 coins alternating black/white
-  // Starting from angle that creates Y-shape toward pockets
-  const innerR=COIN_R*2.2
+  // Standard carrom setup - tight formation around queen
+  const spacing=COIN_R*2.1
+  
+  // Inner ring - 6 coins
   for(let i=0;i<6;i++){
-    const angle=(i*Math.PI/3)+(Math.PI/6)  // Offset for Y-shape
-    const x=cx+Math.cos(angle)*innerR
-    const y=cy+Math.sin(angle)*innerR
-    const color=i%2===0?"black":"white"
+    const angle=(i*Math.PI/3)
+    const x=cx+Math.cos(angle)*spacing
+    const y=cy+Math.sin(angle)*spacing
     const type=i%2===0?"black":"white"
-    coins.push(new Disk(x,y,COIN_R,color,type))
+    coins.push(new Disk(x,y,COIN_R,type,type))
   }
   
-  // 3. OUTER RING - 12 coins alternating black/white
-  const outerR=COIN_R*4.2
-  for(let i=0;i<12;i++){
-    const angle=(i*Math.PI/6)
-    const x=cx+Math.cos(angle)*outerR
-    const y=cy+Math.sin(angle)*outerR
-    const color=i%2===0?"white":"black"
-    const type=i%2===0?"white":"black"
-    coins.push(new Disk(x,y,COIN_R,color,type))
-  }
+  // Outer positions to complete the pattern (13 more coins)
+  // Top and bottom
+  coins.push(new Disk(cx,cy-spacing*2,COIN_R,"white","white"))
+  coins.push(new Disk(cx,cy+spacing*2,COIN_R,"white","white"))
   
-  // Total: 1 queen + 6 inner + 12 outer = 19 coins
+  // Sides
+  coins.push(new Disk(cx-spacing*2,cy,COIN_R,"black","black"))
+  coins.push(new Disk(cx+spacing*2,cy,COIN_R,"black","black"))
+  
+  // Diagonal positions
+  const diag=spacing*1.5
+  coins.push(new Disk(cx-diag,cy-diag,COIN_R,"black","black"))
+  coins.push(new Disk(cx+diag,cy-diag,COIN_R,"white","white"))
+  coins.push(new Disk(cx-diag,cy+diag,COIN_R,"white","white"))
+  coins.push(new Disk(cx+diag,cy+diag,COIN_R,"black","black"))
+  
+  // Additional positions to make 19 total
+  coins.push(new Disk(cx-spacing*2.5,cy-spacing*0.5,COIN_R,"white","white"))
+  coins.push(new Disk(cx+spacing*2.5,cy-spacing*0.5,COIN_R,"black","black"))
+  coins.push(new Disk(cx-spacing*2.5,cy+spacing*0.5,COIN_R,"black","black"))
+  coins.push(new Disk(cx+spacing*2.5,cy+spacing*0.5,COIN_R,"white","white"))
+  coins.push(new Disk(cx-spacing*0.5,cy-spacing*2.5,COIN_R,"black","black"))
+  coins.push(new Disk(cx+spacing*0.5,cy-spacing*2.5,COIN_R,"black","black"))
+  coins.push(new Disk(cx-spacing*0.5,cy+spacing*2.5,COIN_R,"white","white"))
+  coins.push(new Disk(cx+spacing*0.5,cy+spacing*2.5,COIN_R,"white","white"))
 }
 
 function setupStriker(){
