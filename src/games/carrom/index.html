@@ -324,11 +324,12 @@ const ctx=canvas.getContext("2d")
 
 // Board constants
 const W=700,H=700
-// Boundaries at inner edge of dark wooden frame (not the yellow playing surface)
-// Based on carromboard.png: dark frame starts at ~40px of 1024px image
-// Scaled to 700px canvas: 40 * 700/1024 ≈ 27px, rounded to 30px for cleaner edges
-const PLAY_MIN=10      // Left/Top wall boundary (coins/striker cannot exceed)
-const PLAY_MAX=690     // Right/Bottom wall boundary (coins/striker cannot exceed)
+
+// Visual frame boundaries - where the dark wooden frame meets the beige playing surface
+const FRAME_MARGIN=32  // Distance from canvas edge to inner frame edge
+const PLAY_MIN=FRAME_MARGIN      // Left/Top wall boundary
+const PLAY_MAX=W-FRAME_MARGIN    // Right/Bottom wall boundary (668)
+
 const FRICTION=0.985
 const WALL_BOUNCE=0.8
 
@@ -354,34 +355,32 @@ const POCKETS=[
   {x:668,y:668}     // Bottom-right black hole
 ]
 
-// Striker baseline Y positions - striker sits BETWEEN the two black lines
-// and slides left-right along this exact Y position
-const STRIKER_Y_TOP=75        // Upper baseline position
-const STRIKER_Y_BOTTOM=590    // Lower baseline position (between the two black lines at bottom)
-// Striker sliding range - striker should stop AT the red circles, not overlap them
-// Fixed: striker now stops at red circles without overlapping
-const BASELINE_X_MIN=110      // Left limit (perfect)
-const BASELINE_X_MAX=586      // Right limit (slight increase)
+// Striker baseline Y positions - aligned with board geometry
+const BASELINE_OFFSET=50      // Distance from frame edge to baseline
+const STRIKER_Y_TOP=FRAME_MARGIN+BASELINE_OFFSET        // Upper baseline (82)
+const STRIKER_Y_BOTTOM=W-FRAME_MARGIN-BASELINE_OFFSET   // Lower baseline (618)
+// Striker sliding range - aligned with red circles
+const BASELINE_X_MIN=FRAME_MARGIN+BASELINE_OFFSET       // Left limit (82)
+const BASELINE_X_MAX=W-FRAME_MARGIN-BASELINE_OFFSET     // Right limit (618)
 
 // ============================================
-// BOARD DRAWING (Programmatic - No Image)
+// BOARD DRAWING - Clean Professional Design
 // ============================================
 
 function drawBoard(){
-  // Clear canvas
-  ctx.fillStyle="#2d1810"  // Dark wood frame
+  // Outer frame (dark wood)
+  ctx.fillStyle="#2d1810"
   ctx.fillRect(0,0,W,H)
   
-  // Playing surface (beige area)
-  const margin=30
-  ctx.fillStyle="#f5e6c8"  // Beige playing surface
-  ctx.fillRect(margin,margin,W-margin*2,H-margin*2)
+  // Inner playing surface (beige)
+  ctx.fillStyle="#f5e6c8"
+  ctx.fillRect(FRAME_MARGIN,FRAME_MARGIN,W-FRAME_MARGIN*2,H-FRAME_MARGIN*2)
   
   // Draw pockets (4 corner holes)
   for(const p of POCKETS){
-    // Outer dark circle (pocket shadow)
+    // Pocket shadow
     ctx.beginPath()
-    ctx.arc(p.x,p.y,POCKET_R+2,0,Math.PI*2)
+    ctx.arc(p.x,p.y,POCKET_R+3,0,Math.PI*2)
     ctx.fillStyle="#1a0f0a"
     ctx.fill()
     
@@ -391,114 +390,94 @@ function drawBoard(){
     ctx.fillStyle="#0a0505"
     ctx.fill()
     
-    // Highlight for depth
+    // Depth highlight
     ctx.beginPath()
-    ctx.arc(p.x-3,p.y-3,POCKET_R*0.3,0,Math.PI*2)
-    ctx.fillStyle="rgba(255,255,255,0.1)"
+    ctx.arc(p.x-2,p.y-2,POCKET_R*0.25,0,Math.PI*2)
+    ctx.fillStyle="rgba(255,255,255,0.15)"
     ctx.fill()
   }
   
-  // Board geometry - calculate all points mathematically
-  const frameMargin=30
-  const innerMargin=POCKET_R+10  // Distance from pocket center to inner frame line
-  
-  // Inner frame corners (where playing area lines meet)
-  const frameTL={x:frameMargin,y:frameMargin}
-  const frameTR={x:W-frameMargin,y:frameMargin}
-  const frameBL={x:frameMargin,y:H-frameMargin}
-  const frameBR={x:W-frameMargin,y:H-frameMargin}
-  
-  // Points where baselines meet vertical lines (at red circles)
-  // Calculated as intersection of baseline Y with inner frame X offset
-  const baseOffset=55  // Distance from frame edge to baseline center
-  const leftBaseX=frameMargin+baseOffset
-  const rightBaseX=W-frameMargin-baseOffset
-  
-  const topBaseY=STRIKER_Y_TOP
-  const bottomBaseY=STRIKER_Y_BOTTOM
-  
-  // Points where diagonals meet (on the inner frame)
-  const diagInset=POCKET_R+15
-  
+  // Board line styling
   ctx.strokeStyle="#1a0f0a"
+  ctx.lineCap="round"
+  ctx.lineJoin="round"
+  
+  // === OUTER FRAME BORDER ===
   ctx.lineWidth=3
+  ctx.strokeRect(FRAME_MARGIN,FRAME_MARGIN,W-FRAME_MARGIN*2,H-FRAME_MARGIN*2)
   
-  // Draw outer frame rectangle
-  ctx.strokeRect(frameMargin,frameMargin,W-frameMargin*2,H-frameMargin*2)
+  // === BASELINES (where striker slides) ===
+  const baselineOffset=50  // Distance from frame edge to baseline center
+  const leftX=FRAME_MARGIN+baselineOffset
+  const rightX=W-FRAME_MARGIN-baselineOffset
   
-  // Draw baselines (horizontal lines)
   ctx.lineWidth=2
+  
+  // Top baseline
   ctx.beginPath()
-  ctx.moveTo(leftBaseX,topBaseY)
-  ctx.lineTo(rightBaseX,topBaseY)
+  ctx.moveTo(leftX,STRIKER_Y_TOP)
+  ctx.lineTo(rightX,STRIKER_Y_TOP)
   ctx.stroke()
   
+  // Bottom baseline
   ctx.beginPath()
-  ctx.moveTo(leftBaseX,bottomBaseY)
-  ctx.lineTo(rightBaseX,bottomBaseY)
+  ctx.moveTo(leftX,STRIKER_Y_BOTTOM)
+  ctx.lineTo(rightX,STRIKER_Y_BOTTOM)
   ctx.stroke()
   
-  // Draw vertical lines from baselines to frame
+  // === RED CIRCLES at baseline ends ===
+  const redR=13
+  drawRedCircle(leftX,STRIKER_Y_TOP,redR)
+  drawRedCircle(rightX,STRIKER_Y_TOP,redR)
+  drawRedCircle(leftX,STRIKER_Y_BOTTOM,redR)
+  drawRedCircle(rightX,STRIKER_Y_BOTTOM,redR)
+  
+  // === CORNER DESIGN (arcs + diagonals) ===
+  const cornerArcR=32  // Arc radius
+  const arcInset=28    // How much arc extends from corner
+  
+  // Top-left corner
   ctx.beginPath()
-  ctx.moveTo(leftBaseX,topBaseY)
-  ctx.lineTo(leftBaseX,frameMargin)
+  ctx.arc(leftX+arcInset,STRIKER_Y_TOP+arcInset,cornerArcR,Math.PI,Math.PI*1.5)
+  ctx.stroke()
+  drawArrowHead(leftX+arcInset,STRIKER_Y_TOP,Math.PI*1.5)
+  // Diagonal from arc to pocket area
+  ctx.beginPath()
+  ctx.moveTo(leftX+8,STRIKER_Y_TOP+8)
+  ctx.lineTo(POCKETS[0].x+POCKET_R-5,POCKETS[0].y+POCKET_R-5)
   ctx.stroke()
   
+  // Top-right corner
   ctx.beginPath()
-  ctx.moveTo(rightBaseX,topBaseY)
-  ctx.lineTo(rightBaseX,frameMargin)
+  ctx.arc(rightX-arcInset,STRIKER_Y_TOP+arcInset,cornerArcR,Math.PI*1.5,0)
+  ctx.stroke()
+  drawArrowHead(rightX-arcInset,STRIKER_Y_TOP,0)
+  ctx.beginPath()
+  ctx.moveTo(rightX-8,STRIKER_Y_TOP+8)
+  ctx.lineTo(POCKETS[1].x-POCKET_R+5,POCKETS[1].y+POCKET_R-5)
   ctx.stroke()
   
+  // Bottom-left corner
   ctx.beginPath()
-  ctx.moveTo(leftBaseX,bottomBaseY)
-  ctx.lineTo(leftBaseX,H-frameMargin)
+  ctx.arc(leftX+arcInset,STRIKER_Y_BOTTOM-arcInset,cornerArcR,Math.PI/2,Math.PI)
+  ctx.stroke()
+  drawArrowHead(leftX+arcInset,STRIKER_Y_BOTTOM,Math.PI)
+  ctx.beginPath()
+  ctx.moveTo(leftX+8,STRIKER_Y_BOTTOM-8)
+  ctx.lineTo(POCKETS[2].x+POCKET_R-5,POCKETS[2].y-POCKET_R+5)
   ctx.stroke()
   
+  // Bottom-right corner
   ctx.beginPath()
-  ctx.moveTo(rightBaseX,bottomBaseY)
-  ctx.lineTo(rightBaseX,H-frameMargin)
+  ctx.arc(rightX-arcInset,STRIKER_Y_BOTTOM-arcInset,cornerArcR,0,Math.PI/2)
+  ctx.stroke()
+  drawArrowHead(rightX-arcInset,STRIKER_Y_BOTTOM,Math.PI/2)
+  ctx.beginPath()
+  ctx.moveTo(rightX-8,STRIKER_Y_BOTTOM-8)
+  ctx.lineTo(POCKETS[3].x-POCKET_R+5,POCKETS[3].y-POCKET_R+5)
   ctx.stroke()
   
-  // Draw red circles at baseline ends
-  const redCircleR=14
-  drawRedCircle(leftBaseX,topBaseY,redCircleR)
-  drawRedCircle(rightBaseX,topBaseY,redCircleR)
-  drawRedCircle(leftBaseX,bottomBaseY,redCircleR)
-  drawRedCircle(rightBaseX,bottomBaseY,redCircleR)
-  
-  // Draw diagonal lines from frame corners to baselines (traditional carrom design)
-  // These connect the inner frame corners to points on the baselines
-  ctx.lineWidth=2
-  const diagOffset=35  // How far along baseline diagonals start
-  
-  // Top-left: from frame corner to point on top baseline
-  ctx.beginPath()
-  ctx.moveTo(frameTL.x+diagInset,frameTL.y+diagInset)
-  ctx.lineTo(leftBaseX+diagOffset,topBaseY)
-  ctx.stroke()
-  
-  // Top-right: from frame corner to point on top baseline
-  ctx.beginPath()
-  ctx.moveTo(frameTR.x-diagInset,frameTR.y+diagInset)
-  ctx.lineTo(rightBaseX-diagOffset,topBaseY)
-  ctx.stroke()
-  
-  // Bottom-left: from frame corner to point on bottom baseline
-  ctx.beginPath()
-  ctx.moveTo(frameBL.x+diagInset,frameBL.y-diagInset)
-  ctx.lineTo(leftBaseX+diagOffset,bottomBaseY)
-  ctx.stroke()
-  
-  // Bottom-right: from frame corner to point on bottom baseline
-  ctx.beginPath()
-  ctx.moveTo(frameBR.x-diagInset,frameBR.y-diagInset)
-  ctx.lineTo(rightBaseX-diagOffset,bottomBaseY)
-  ctx.stroke()
-  
-  // Draw corner arcs (quarter circles connecting frame to baselines)
-  drawCornerArcs(leftBaseX,rightBaseX,topBaseY,bottomBaseY,frameMargin)
-  
-  // Draw center star design
+  // === CENTER STAR ===
   drawCenterStar()
 }
 
