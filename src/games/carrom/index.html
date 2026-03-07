@@ -316,7 +316,7 @@ canvas{
 
 <script>
 // ============================================
-// CARROM GAME - CORRECT IMPLEMENTATION
+// CARROM GAME - IMAGE BASED WITH PROPER RULES
 // ============================================
 
 const canvas=document.getElementById("cv")
@@ -325,46 +325,71 @@ const ctx=canvas.getContext("2d")
 // Board constants
 const W=700,H=700
 
-// Visual frame boundaries - where the dark wooden frame meets the beige playing surface
-const FRAME_MARGIN=32  // Distance from canvas edge to inner frame edge
-const PLAY_MIN=FRAME_MARGIN      // Left/Top wall boundary
-const PLAY_MAX=W-FRAME_MARGIN    // Right/Bottom wall boundary (668)
+// Visual frame boundaries
+const FRAME_MARGIN=32
+const PLAY_MIN=FRAME_MARGIN
+const PLAY_MAX=W-FRAME_MARGIN
 
 const FRICTION=0.985
 const WALL_BOUNCE=0.8
 
-// Sizes (proportional to 700px board)
-const COIN_R=13      // Carrommen radius (increased for better visibility)
-const STRIKER_R=20   // Striker radius (increased for better visibility)
-const POCKET_R=28    // Exact size of black holes for perfect alignment
+// Sizes
+const COIN_R=16      // Slightly bigger for image display
+const STRIKER_R=22   // Striker radius
+const POCKET_R=28    // Pocket radius
 
 // Game state
-let mode="pass"      // "pass" or "ai"
-let turn=1           // 1 or 2
+let mode="pass"
+let turn=1
 let turnCount=1
 let score1=0,score2=0
 let p1Name="Player 1",p2Name="Player 2"
 let gameOver=false
 
-// 4 Corner pockets - exactly at black holes in the corners
-// Based on carromboard.png: pockets are at corners of inner dark frame
+// Pockets
 const POCKETS=[
-  {x:32,y:32},      // Top-left black hole
-  {x:668,y:32},     // Top-right black hole
-  {x:32,y:668},     // Bottom-left black hole
-  {x:668,y:668}     // Bottom-right black hole
+  {x:32,y:32},
+  {x:668,y:32},
+  {x:32,y:668},
+  {x:668,y:668}
 ]
 
-// Striker baseline Y positions - aligned with board geometry
-const BASELINE_OFFSET=50      // Distance from frame edge to baseline
-const STRIKER_Y_TOP=FRAME_MARGIN+BASELINE_OFFSET        // Upper baseline (82)
-const STRIKER_Y_BOTTOM=W-FRAME_MARGIN-BASELINE_OFFSET   // Lower baseline (618)
-// Striker sliding range - aligned with red circles
-const BASELINE_X_MIN=FRAME_MARGIN+BASELINE_OFFSET       // Left limit (82)
-const BASELINE_X_MAX=W-FRAME_MARGIN-BASELINE_OFFSET     // Right limit (618)
+// Baseline positions
+const BASELINE_OFFSET=55
+const STRIKER_Y_TOP=FRAME_MARGIN+BASELINE_OFFSET
+const STRIKER_Y_BOTTOM=W-FRAME_MARGIN-BASELINE_OFFSET
+const BASELINE_X_MIN=FRAME_MARGIN+BASELINE_OFFSET
+const BASELINE_X_MAX=W-FRAME_MARGIN-BASELINE_OFFSET
+
+// Load images
+const IMAGES={}
+function loadImage(src){
+  return new Promise((resolve,reject)=>{
+    const img=new Image()
+    img.onload=()=>resolve(img)
+    img.onerror=reject
+    img.src=src
+  })
+}
+
+async function loadAllImages(){
+  try{
+    IMAGES.blackCoin=await loadImage("./assets/black-coin.png")
+    IMAGES.whiteCoin=await loadImage("./assets/white-coin.png")
+    IMAGES.redCoin=await loadImage("./assets/red-coin.png")
+    IMAGES.striker=await loadImage("./assets/striker.png")
+    IMAGES.centerStar=await loadImage("./assets/center-star.png")
+    IMAGES.arrow1=await loadImage("./assets/arrow-1.png")
+    IMAGES.arrow2=await loadImage("./assets/arrow-2.png")
+    IMAGES.arrow3=await loadImage("./assets/arrow-3.png")
+    IMAGES.arrow4=await loadImage("./assets/arrow-4.png")
+  }catch(e){
+    console.error("Failed to load images:",e)
+  }
+}
 
 // ============================================
-// BOARD DRAWING - Clean Professional Design
+// BOARD DRAWING - Using Images
 // ============================================
 
 function drawBoard(){
@@ -376,109 +401,77 @@ function drawBoard(){
   ctx.fillStyle="#f5e6c8"
   ctx.fillRect(FRAME_MARGIN,FRAME_MARGIN,W-FRAME_MARGIN*2,H-FRAME_MARGIN*2)
   
-  // Draw pockets (4 corner holes)
+  // Draw pockets
   for(const p of POCKETS){
-    // Pocket shadow
     ctx.beginPath()
     ctx.arc(p.x,p.y,POCKET_R+3,0,Math.PI*2)
     ctx.fillStyle="#1a0f0a"
     ctx.fill()
     
-    // Inner black hole
     ctx.beginPath()
     ctx.arc(p.x,p.y,POCKET_R,0,Math.PI*2)
     ctx.fillStyle="#0a0505"
     ctx.fill()
-    
-    // Depth highlight
-    ctx.beginPath()
-    ctx.arc(p.x-2,p.y-2,POCKET_R*0.25,0,Math.PI*2)
-    ctx.fillStyle="rgba(255,255,255,0.15)"
-    ctx.fill()
   }
   
-  // Board line styling
+  // Frame border
   ctx.strokeStyle="#1a0f0a"
-  ctx.lineCap="round"
-  ctx.lineJoin="round"
-  
-  // === OUTER FRAME BORDER ===
   ctx.lineWidth=3
   ctx.strokeRect(FRAME_MARGIN,FRAME_MARGIN,W-FRAME_MARGIN*2,H-FRAME_MARGIN*2)
   
-  // === BASELINES (where striker slides) ===
-  const baselineOffset=50  // Distance from frame edge to baseline center
-  const leftX=FRAME_MARGIN+baselineOffset
-  const rightX=W-FRAME_MARGIN-baselineOffset
+  const leftX=BASELINE_X_MIN
+  const rightX=BASELINE_X_MAX
   
   ctx.lineWidth=2
   
-  // Top baseline
+  // Baselines
   ctx.beginPath()
   ctx.moveTo(leftX,STRIKER_Y_TOP)
   ctx.lineTo(rightX,STRIKER_Y_TOP)
   ctx.stroke()
   
-  // Bottom baseline
   ctx.beginPath()
   ctx.moveTo(leftX,STRIKER_Y_BOTTOM)
   ctx.lineTo(rightX,STRIKER_Y_BOTTOM)
   ctx.stroke()
   
-  // === RED CIRCLES at baseline ends ===
-  const redR=13
-  drawRedCircle(leftX,STRIKER_Y_TOP,redR)
-  drawRedCircle(rightX,STRIKER_Y_TOP,redR)
-  drawRedCircle(leftX,STRIKER_Y_BOTTOM,redR)
-  drawRedCircle(rightX,STRIKER_Y_BOTTOM,redR)
+  // Draw arrow images at corners
+  if(IMAGES.arrow1){
+    const arrowSize=50
+    // Top-left arrow
+    ctx.save()
+    ctx.translate(55,55)
+    ctx.rotate(-Math.PI/4)
+    ctx.drawImage(IMAGES.arrow1,-arrowSize/2,-arrowSize/2,arrowSize,arrowSize)
+    ctx.restore()
+    
+    // Top-right arrow
+    ctx.save()
+    ctx.translate(W-55,55)
+    ctx.rotate(Math.PI/4)
+    ctx.drawImage(IMAGES.arrow2,-arrowSize/2,-arrowSize/2,arrowSize,arrowSize)
+    ctx.restore()
+    
+    // Bottom-left arrow
+    ctx.save()
+    ctx.translate(55,H-55)
+    ctx.rotate(-Math.PI*0.75)
+    ctx.drawImage(IMAGES.arrow3,-arrowSize/2,-arrowSize/2,arrowSize,arrowSize)
+    ctx.restore()
+    
+    // Bottom-right arrow
+    ctx.save()
+    ctx.translate(W-55,H-55)
+    ctx.rotate(Math.PI*0.75)
+    ctx.drawImage(IMAGES.arrow4,-arrowSize/2,-arrowSize/2,arrowSize,arrowSize)
+    ctx.restore()
+  }
   
-  // === CORNER DESIGN (arcs + diagonals) ===
-  const cornerArcR=32  // Arc radius
-  const arcInset=28    // How much arc extends from corner
-  
-  // Top-left corner
-  ctx.beginPath()
-  ctx.arc(leftX+arcInset,STRIKER_Y_TOP+arcInset,cornerArcR,Math.PI,Math.PI*1.5)
-  ctx.stroke()
-  drawArrowHead(leftX+arcInset,STRIKER_Y_TOP,Math.PI*1.5)
-  // Diagonal from arc to pocket area
-  ctx.beginPath()
-  ctx.moveTo(leftX+8,STRIKER_Y_TOP+8)
-  ctx.lineTo(POCKETS[0].x+POCKET_R-5,POCKETS[0].y+POCKET_R-5)
-  ctx.stroke()
-  
-  // Top-right corner
-  ctx.beginPath()
-  ctx.arc(rightX-arcInset,STRIKER_Y_TOP+arcInset,cornerArcR,Math.PI*1.5,0)
-  ctx.stroke()
-  drawArrowHead(rightX-arcInset,STRIKER_Y_TOP,0)
-  ctx.beginPath()
-  ctx.moveTo(rightX-8,STRIKER_Y_TOP+8)
-  ctx.lineTo(POCKETS[1].x-POCKET_R+5,POCKETS[1].y+POCKET_R-5)
-  ctx.stroke()
-  
-  // Bottom-left corner
-  ctx.beginPath()
-  ctx.arc(leftX+arcInset,STRIKER_Y_BOTTOM-arcInset,cornerArcR,Math.PI/2,Math.PI)
-  ctx.stroke()
-  drawArrowHead(leftX+arcInset,STRIKER_Y_BOTTOM,Math.PI)
-  ctx.beginPath()
-  ctx.moveTo(leftX+8,STRIKER_Y_BOTTOM-8)
-  ctx.lineTo(POCKETS[2].x+POCKET_R-5,POCKETS[2].y-POCKET_R+5)
-  ctx.stroke()
-  
-  // Bottom-right corner
-  ctx.beginPath()
-  ctx.arc(rightX-arcInset,STRIKER_Y_BOTTOM-arcInset,cornerArcR,0,Math.PI/2)
-  ctx.stroke()
-  drawArrowHead(rightX-arcInset,STRIKER_Y_BOTTOM,Math.PI/2)
-  ctx.beginPath()
-  ctx.moveTo(rightX-8,STRIKER_Y_BOTTOM-8)
-  ctx.lineTo(POCKETS[3].x-POCKET_R+5,POCKETS[3].y-POCKET_R+5)
-  ctx.stroke()
-  
-  // === CENTER STAR ===
-  drawCenterStar()
+  // Draw center star image
+  if(IMAGES.centerStar){
+    const starSize=140
+    ctx.drawImage(IMAGES.centerStar,W/2-starSize/2,H/2-starSize/2,starSize,starSize)
+  }
 }
 
 function drawRedCircle(x,y,r){
@@ -593,85 +586,35 @@ class Disk{
     this.y=y
     this.r=r
     this.color=color
-    this.type=type        // "queen", "white", "black", "striker"
+    this.type=type
     this.vx=0
     this.vy=0
     this.active=true
     this.inPocket=false
   }
   
+  getImage(){
+    if(this.type==="striker")return IMAGES.striker
+    if(this.type==="queen")return IMAGES.redCoin
+    if(this.type==="black")return IMAGES.blackCoin
+    return IMAGES.whiteCoin
+  }
+  
   draw(){
     if(!this.active||this.inPocket)return
     
-    // Drop shadow for 3D depth
+    const img=this.getImage()
+    if(!img)return
+    
+    // Draw shadow
     ctx.beginPath()
-    ctx.arc(this.x+3,this.y+4,this.r,0,Math.PI*2)
-    ctx.fillStyle="rgba(0,0,0,0.25)"
+    ctx.arc(this.x+2,this.y+3,this.r-2,0,Math.PI*2)
+    ctx.fillStyle="rgba(0,0,0,0.3)"
     ctx.fill()
     
-    // Slightly smaller shadow for gradient effect
-    ctx.beginPath()
-    ctx.arc(this.x+2,this.y+3,this.r-1,0,Math.PI*2)
-    ctx.fillStyle="rgba(0,0,0,0.15)"
-    ctx.fill()
-    
-    // Main disk with gradient
-    ctx.beginPath()
-    ctx.arc(this.x,this.y,this.r,0,Math.PI*2)
-    
-    const grad=ctx.createRadialGradient(
-      this.x-this.r*0.3,this.y-this.r*0.3,this.r*0.2,
-      this.x,this.y,this.r
-    )
-    
-    if(this.color==="red"){
-      // Queen - pink color
-      grad.addColorStop(0,"#ffb6c1")  // Light pink
-      grad.addColorStop(0.5,"#ff69b4")  // Hot pink
-      grad.addColorStop(1,"#c71585")  // Medium violet red
-    }else if(this.color==="white"){
-      grad.addColorStop(0,"#ffffff")
-      grad.addColorStop(0.5,"#f0f0f0")
-      grad.addColorStop(1,"#d0d0d0")
-    }else{
-      // Black
-      grad.addColorStop(0,"#666666")
-      grad.addColorStop(0.5,"#333333")
-      grad.addColorStop(1,"#111111")
-    }
-    
-    ctx.fillStyle=grad
-    ctx.fill()
-    
-    // Outer rim (beveled edge)
-    ctx.strokeStyle="rgba(0,0,0,0.4)"
-    ctx.lineWidth=1.5
-    ctx.stroke()
-    
-    // Inner rim (lighter for 3D bevel effect)
-    ctx.beginPath()
-    ctx.arc(this.x,this.y,this.r-2,0,Math.PI*2)
-    ctx.strokeStyle="rgba(255,255,255,0.3)"
-    ctx.lineWidth=1
-    ctx.stroke()
-    
-    // Top-left highlight (main shine)
-    ctx.beginPath()
-    ctx.arc(this.x-this.r*0.35,this.y-this.r*0.35,this.r*0.25,0,Math.PI*2)
-    ctx.fillStyle="rgba(255,255,255,0.6)"
-    ctx.fill()
-    
-    // Bottom-right shadow
-    ctx.beginPath()
-    ctx.arc(this.x+this.r*0.3,this.y+this.r*0.3,this.r*0.2,0,Math.PI*2)
-    ctx.fillStyle="rgba(0,0,0,0.2)"
-    ctx.fill()
-    
-    // Small bright specular highlight
-    ctx.beginPath()
-    ctx.arc(this.x-this.r*0.4,this.y-this.r*0.4,this.r*0.1,0,Math.PI*2)
-    ctx.fillStyle="rgba(255,255,255,0.9)"
-    ctx.fill()
+    // Draw image
+    const size=this.r*2
+    ctx.drawImage(img,this.x-this.r,this.y-this.r,size,size)
   }
   
   update(){
@@ -1385,7 +1328,10 @@ function loop(){
 // SETUP & START
 // ============================================
 
-function startGame(){
+async function startGame(){
+  // Load images first
+  await loadAllImages()
+  
   // Get settings
   const modeBtn=document.querySelector(".mode-btn.sel")
   mode=modeBtn?modeBtn.dataset.mode:"pass"
