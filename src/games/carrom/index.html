@@ -398,89 +398,105 @@ function drawBoard(){
     ctx.fill()
   }
   
-  // Board frame coordinates
-  const baseMargin=45
-  const leftX=margin+baseMargin      // Left red circle X
-  const rightX=W-margin-baseMargin   // Right red circle X
-  const topY=STRIKER_Y_TOP           // Top baseline Y
-  const bottomY=STRIKER_Y_BOTTOM     // Bottom baseline Y
+  // Board geometry - calculate all points mathematically
+  const frameMargin=30
+  const innerMargin=POCKET_R+10  // Distance from pocket center to inner frame line
   
-  // Draw outer frame rectangle (from corner to corner, excluding pockets)
-  const frameInset=POCKET_R+8
+  // Inner frame corners (where playing area lines meet)
+  const frameTL={x:frameMargin,y:frameMargin}
+  const frameTR={x:W-frameMargin,y:frameMargin}
+  const frameBL={x:frameMargin,y:H-frameMargin}
+  const frameBR={x:W-frameMargin,y:H-frameMargin}
+  
+  // Points where baselines meet vertical lines (at red circles)
+  // Calculated as intersection of baseline Y with inner frame X offset
+  const baseOffset=55  // Distance from frame edge to baseline center
+  const leftBaseX=frameMargin+baseOffset
+  const rightBaseX=W-frameMargin-baseOffset
+  
+  const topBaseY=STRIKER_Y_TOP
+  const bottomBaseY=STRIKER_Y_BOTTOM
+  
+  // Points where diagonals meet (on the inner frame)
+  const diagInset=POCKET_R+15
+  
   ctx.strokeStyle="#1a0f0a"
   ctx.lineWidth=3
   
-  // Draw complete inner border rectangle
-  ctx.strokeRect(margin,margin,W-margin*2,H-margin*2)
+  // Draw outer frame rectangle
+  ctx.strokeRect(frameMargin,frameMargin,W-frameMargin*2,H-frameMargin*2)
   
-  // Draw baselines (horizontal lines where striker slides)
+  // Draw baselines (horizontal lines)
   ctx.lineWidth=2
-  // Top baseline
   ctx.beginPath()
-  ctx.moveTo(leftX,topY)
-  ctx.lineTo(rightX,topY)
-  ctx.stroke()
-  // Bottom baseline
-  ctx.beginPath()
-  ctx.moveTo(leftX,bottomY)
-  ctx.lineTo(rightX,bottomY)
+  ctx.moveTo(leftBaseX,topBaseY)
+  ctx.lineTo(rightBaseX,topBaseY)
   ctx.stroke()
   
-  // Draw vertical lines at baselines (connecting to frame)
-  // Top left vertical
   ctx.beginPath()
-  ctx.moveTo(leftX,topY)
-  ctx.lineTo(leftX,margin)
-  ctx.stroke()
-  // Top right vertical
-  ctx.beginPath()
-  ctx.moveTo(rightX,topY)
-  ctx.lineTo(rightX,margin)
-  ctx.stroke()
-  // Bottom left vertical
-  ctx.beginPath()
-  ctx.moveTo(leftX,bottomY)
-  ctx.lineTo(leftX,H-margin)
-  ctx.stroke()
-  // Bottom right vertical
-  ctx.beginPath()
-  ctx.moveTo(rightX,bottomY)
-  ctx.lineTo(rightX,H-margin)
+  ctx.moveTo(leftBaseX,bottomBaseY)
+  ctx.lineTo(rightBaseX,bottomBaseY)
   ctx.stroke()
   
-  // Draw red circles at baseline ends (striker limits)
+  // Draw vertical lines from baselines to frame
+  ctx.beginPath()
+  ctx.moveTo(leftBaseX,topBaseY)
+  ctx.lineTo(leftBaseX,frameMargin)
+  ctx.stroke()
+  
+  ctx.beginPath()
+  ctx.moveTo(rightBaseX,topBaseY)
+  ctx.lineTo(rightBaseX,frameMargin)
+  ctx.stroke()
+  
+  ctx.beginPath()
+  ctx.moveTo(leftBaseX,bottomBaseY)
+  ctx.lineTo(leftBaseX,H-frameMargin)
+  ctx.stroke()
+  
+  ctx.beginPath()
+  ctx.moveTo(rightBaseX,bottomBaseY)
+  ctx.lineTo(rightBaseX,H-frameMargin)
+  ctx.stroke()
+  
+  // Draw red circles at baseline ends
   const redCircleR=14
-  drawRedCircle(leftX,topY,redCircleR)
-  drawRedCircle(rightX,topY,redCircleR)
-  drawRedCircle(leftX,bottomY,redCircleR)
-  drawRedCircle(rightX,bottomY,redCircleR)
+  drawRedCircle(leftBaseX,topBaseY,redCircleR)
+  drawRedCircle(rightBaseX,topBaseY,redCircleR)
+  drawRedCircle(leftBaseX,bottomBaseY,redCircleR)
+  drawRedCircle(rightBaseX,bottomBaseY,redCircleR)
   
-  // Draw corner diagonal lines (from baselines to pockets)
-  ctx.strokeStyle="#1a0f0a"
+  // Draw diagonal lines from frame corners to baselines (traditional carrom design)
+  // These connect the inner frame corners to points on the baselines
   ctx.lineWidth=2
-  // Top-left diagonal
+  const diagOffset=35  // How far along baseline diagonals start
+  
+  // Top-left: from frame corner to point on top baseline
   ctx.beginPath()
-  ctx.moveTo(leftX,topY)
-  ctx.lineTo(POCKETS[0].x+frameInset*0.7,POCKETS[0].y+frameInset*0.7)
-  ctx.stroke()
-  // Top-right diagonal
-  ctx.beginPath()
-  ctx.moveTo(rightX,topY)
-  ctx.lineTo(POCKETS[1].x-frameInset*0.7,POCKETS[1].y+frameInset*0.7)
-  ctx.stroke()
-  // Bottom-left diagonal
-  ctx.beginPath()
-  ctx.moveTo(leftX,bottomY)
-  ctx.lineTo(POCKETS[2].x+frameInset*0.7,POCKETS[2].y-frameInset*0.7)
-  ctx.stroke()
-  // Bottom-right diagonal
-  ctx.beginPath()
-  ctx.moveTo(rightX,bottomY)
-  ctx.lineTo(POCKETS[3].x-frameInset*0.7,POCKETS[3].y-frameInset*0.7)
+  ctx.moveTo(frameTL.x+diagInset,frameTL.y+diagInset)
+  ctx.lineTo(leftBaseX+diagOffset,topBaseY)
   ctx.stroke()
   
-  // Draw corner arcs (quarter circles in each corner)
-  drawCornerArcs(leftX,rightX,topY,bottomY)
+  // Top-right: from frame corner to point on top baseline
+  ctx.beginPath()
+  ctx.moveTo(frameTR.x-diagInset,frameTR.y+diagInset)
+  ctx.lineTo(rightBaseX-diagOffset,topBaseY)
+  ctx.stroke()
+  
+  // Bottom-left: from frame corner to point on bottom baseline
+  ctx.beginPath()
+  ctx.moveTo(frameBL.x+diagInset,frameBL.y-diagInset)
+  ctx.lineTo(leftBaseX+diagOffset,bottomBaseY)
+  ctx.stroke()
+  
+  // Bottom-right: from frame corner to point on bottom baseline
+  ctx.beginPath()
+  ctx.moveTo(frameBR.x-diagInset,frameBR.y-diagInset)
+  ctx.lineTo(rightBaseX-diagOffset,bottomBaseY)
+  ctx.stroke()
+  
+  // Draw corner arcs (quarter circles connecting frame to baselines)
+  drawCornerArcs(leftBaseX,rightBaseX,topBaseY,bottomBaseY,frameMargin)
   
   // Draw center star design
   drawCenterStar()
@@ -542,37 +558,43 @@ function drawCenterStar(){
   }
 }
 
-function drawCornerArcs(leftX,rightX,topY,bottomY){
+function drawCornerArcs(leftX,rightX,topY,bottomY,frameMargin){
   // Draw curved arrow guides in corners (pointing toward center)
   ctx.strokeStyle="#1a0f0a"
   ctx.lineWidth=2
   
-  // Arc radius - quarter circles connecting baselines to vertical lines
-  const arcR=35
+  // Arc radius - quarter circles in the corner regions
+  const arcR=28
   
-  // Top-left corner: arc from top baseline to left vertical line
-  ctx.beginPath()
-  ctx.arc(leftX+arcR,topY+arcR,arcR,Math.PI,Math.PI*1.5)
-  ctx.stroke()
-  drawArrowHead(leftX+arcR,topY,Math.PI*1.5)
+  // Calculate arc centers (in the corner frame areas)
+  const leftArcX=leftX
+  const rightArcX=rightX
+  const topArcY=topY
+  const bottomArcY=bottomY
   
-  // Top-right corner: arc from top baseline to right vertical line
+  // Top-left corner: arc from vertical line to horizontal baseline
   ctx.beginPath()
-  ctx.arc(rightX-arcR,topY+arcR,arcR,Math.PI*1.5,Math.PI*2)
+  ctx.arc(leftArcX+arcR,topArcY+arcR,arcR,Math.PI,Math.PI*1.5)
   ctx.stroke()
-  drawArrowHead(rightX-arcR,topY,Math.PI*2)
+  drawArrowHead(leftArcX+arcR,topArcY,Math.PI*1.5)
   
-  // Bottom-right corner: arc from bottom baseline to right vertical line
+  // Top-right corner
   ctx.beginPath()
-  ctx.arc(rightX-arcR,bottomY-arcR,arcR,0,Math.PI/2)
+  ctx.arc(rightArcX-arcR,topArcY+arcR,arcR,Math.PI*1.5,Math.PI*2)
   ctx.stroke()
-  drawArrowHead(rightX-arcR,bottomY,Math.PI/2)
+  drawArrowHead(rightArcX-arcR,topArcY,0)
   
-  // Bottom-left corner: arc from bottom baseline to left vertical line
+  // Bottom-right corner
   ctx.beginPath()
-  ctx.arc(leftX+arcR,bottomY-arcR,arcR,Math.PI/2,Math.PI)
+  ctx.arc(rightArcX-arcR,bottomArcY-arcR,arcR,0,Math.PI/2)
   ctx.stroke()
-  drawArrowHead(leftX+arcR,bottomY,Math.PI)
+  drawArrowHead(rightArcX-arcR,bottomArcY,Math.PI/2)
+  
+  // Bottom-left corner
+  ctx.beginPath()
+  ctx.arc(leftArcX+arcR,bottomArcY-arcR,arcR,Math.PI/2,Math.PI)
+  ctx.stroke()
+  drawArrowHead(leftArcX+arcR,bottomArcY,Math.PI)
 }
 
 function drawArrowHead(x,y,angle){
@@ -602,10 +624,16 @@ class Disk{
   draw(){
     if(!this.active||this.inPocket)return
     
-    // Shadow
+    // Drop shadow for 3D depth
     ctx.beginPath()
-    ctx.arc(this.x+2,this.y+3,this.r,0,Math.PI*2)
-    ctx.fillStyle="rgba(0,0,0,0.4)"
+    ctx.arc(this.x+3,this.y+4,this.r,0,Math.PI*2)
+    ctx.fillStyle="rgba(0,0,0,0.25)"
+    ctx.fill()
+    
+    // Slightly smaller shadow for gradient effect
+    ctx.beginPath()
+    ctx.arc(this.x+2,this.y+3,this.r-1,0,Math.PI*2)
+    ctx.fillStyle="rgba(0,0,0,0.15)"
     ctx.fill()
     
     // Main disk with gradient
@@ -618,17 +646,17 @@ class Disk{
     )
     
     if(this.color==="red"){
-      // Queen
-      grad.addColorStop(0,"#ff6b6b")
-      grad.addColorStop(0.5,"#e53935")
-      grad.addColorStop(1,"#b71c1c")
+      // Queen - pink color
+      grad.addColorStop(0,"#ffb6c1")  // Light pink
+      grad.addColorStop(0.5,"#ff69b4")  // Hot pink
+      grad.addColorStop(1,"#c71585")  // Medium violet red
     }else if(this.color==="white"){
       grad.addColorStop(0,"#ffffff")
-      grad.addColorStop(0.5,"#f5f5f5")
-      grad.addColorStop(1,"#cccccc")
+      grad.addColorStop(0.5,"#f0f0f0")
+      grad.addColorStop(1,"#d0d0d0")
     }else{
       // Black
-      grad.addColorStop(0,"#555555")
+      grad.addColorStop(0,"#666666")
       grad.addColorStop(0.5,"#333333")
       grad.addColorStop(1,"#111111")
     }
@@ -636,15 +664,34 @@ class Disk{
     ctx.fillStyle=grad
     ctx.fill()
     
-    // Rim
-    ctx.strokeStyle="rgba(0,0,0,0.3)"
+    // Outer rim (beveled edge)
+    ctx.strokeStyle="rgba(0,0,0,0.4)"
+    ctx.lineWidth=1.5
+    ctx.stroke()
+    
+    // Inner rim (lighter for 3D bevel effect)
+    ctx.beginPath()
+    ctx.arc(this.x,this.y,this.r-2,0,Math.PI*2)
+    ctx.strokeStyle="rgba(255,255,255,0.3)"
     ctx.lineWidth=1
     ctx.stroke()
     
-    // Highlight for 3D effect
+    // Top-left highlight (main shine)
     ctx.beginPath()
-    ctx.arc(this.x-this.r*0.3,this.y-this.r*0.3,this.r*0.2,0,Math.PI*2)
-    ctx.fillStyle="rgba(255,255,255,0.4)"
+    ctx.arc(this.x-this.r*0.35,this.y-this.r*0.35,this.r*0.25,0,Math.PI*2)
+    ctx.fillStyle="rgba(255,255,255,0.6)"
+    ctx.fill()
+    
+    // Bottom-right shadow
+    ctx.beginPath()
+    ctx.arc(this.x+this.r*0.3,this.y+this.r*0.3,this.r*0.2,0,Math.PI*2)
+    ctx.fillStyle="rgba(0,0,0,0.2)"
+    ctx.fill()
+    
+    // Small bright specular highlight
+    ctx.beginPath()
+    ctx.arc(this.x-this.r*0.4,this.y-this.r*0.4,this.r*0.1,0,Math.PI*2)
+    ctx.fillStyle="rgba(255,255,255,0.9)"
     ctx.fill()
   }
   
