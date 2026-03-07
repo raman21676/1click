@@ -334,8 +334,8 @@ const FRICTION=0.985
 const WALL_BOUNCE=0.8
 
 // Sizes
-const COIN_R=16      // Slightly bigger for image display
-const STRIKER_R=22   // Striker radius
+const COIN_R=18      // Coin radius for image display
+const STRIKER_R=24   // Striker radius
 const POCKET_R=28    // Pocket radius
 
 // Game state
@@ -437,39 +437,23 @@ function drawBoard(){
   
   // Draw arrow images at corners
   if(IMAGES.arrow1){
-    const arrowSize=50
-    // Top-left arrow
-    ctx.save()
-    ctx.translate(55,55)
-    ctx.rotate(-Math.PI/4)
-    ctx.drawImage(IMAGES.arrow1,-arrowSize/2,-arrowSize/2,arrowSize,arrowSize)
-    ctx.restore()
+    const arrowSize=70
+    // Top-left arrow - pointing down-right
+    ctx.drawImage(IMAGES.arrow1,60,60,arrowSize,arrowSize)
     
-    // Top-right arrow
-    ctx.save()
-    ctx.translate(W-55,55)
-    ctx.rotate(Math.PI/4)
-    ctx.drawImage(IMAGES.arrow2,-arrowSize/2,-arrowSize/2,arrowSize,arrowSize)
-    ctx.restore()
+    // Top-right arrow - pointing down-left  
+    ctx.drawImage(IMAGES.arrow2,W-60-arrowSize,60,arrowSize,arrowSize)
     
-    // Bottom-left arrow
-    ctx.save()
-    ctx.translate(55,H-55)
-    ctx.rotate(-Math.PI*0.75)
-    ctx.drawImage(IMAGES.arrow3,-arrowSize/2,-arrowSize/2,arrowSize,arrowSize)
-    ctx.restore()
+    // Bottom-left arrow - pointing up-right
+    ctx.drawImage(IMAGES.arrow3,60,H-60-arrowSize,arrowSize,arrowSize)
     
-    // Bottom-right arrow
-    ctx.save()
-    ctx.translate(W-55,H-55)
-    ctx.rotate(Math.PI*0.75)
-    ctx.drawImage(IMAGES.arrow4,-arrowSize/2,-arrowSize/2,arrowSize,arrowSize)
-    ctx.restore()
+    // Bottom-right arrow - pointing up-left
+    ctx.drawImage(IMAGES.arrow4,W-60-arrowSize,H-60-arrowSize,arrowSize,arrowSize)
   }
   
   // Draw center star image
   if(IMAGES.centerStar){
-    const starSize=140
+    const starSize=160
     ctx.drawImage(IMAGES.centerStar,W/2-starSize/2,H/2-starSize/2,starSize,starSize)
   }
 }
