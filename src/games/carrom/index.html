@@ -333,8 +333,8 @@ const FRICTION=0.985
 const WALL_BOUNCE=0.8
 
 // Sizes (proportional to 700px board)
-const COIN_R=10      // Carrommen radius (slightly smaller)
-const STRIKER_R=16   // Striker radius (slightly bigger)
+const COIN_R=13      // Carrommen radius (increased for better visibility)
+const STRIKER_R=20   // Striker radius (increased for better visibility)
 const POCKET_R=28    // Exact size of black holes for perfect alignment
 
 // Game state
@@ -377,11 +377,6 @@ function drawBoard(){
   ctx.fillStyle="#f5e6c8"  // Beige playing surface
   ctx.fillRect(margin,margin,W-margin*2,H-margin*2)
   
-  // Inner border line
-  ctx.strokeStyle="#1a0f0a"
-  ctx.lineWidth=3
-  ctx.strokeRect(margin,margin,W-margin*2,H-margin*2)
-  
   // Draw pockets (4 corner holes)
   for(const p of POCKETS){
     // Outer dark circle (pocket shadow)
@@ -403,63 +398,92 @@ function drawBoard(){
     ctx.fill()
   }
   
-  // Draw baselines (where striker slides)
-  const baseMargin=45  // Distance from edge to baseline
-  const leftX=margin+baseMargin
-  const rightX=W-margin-baseMargin
+  // Board frame coordinates
+  const baseMargin=45
+  const leftX=margin+baseMargin      // Left red circle X
+  const rightX=W-margin-baseMargin   // Right red circle X
+  const topY=STRIKER_Y_TOP           // Top baseline Y
+  const bottomY=STRIKER_Y_BOTTOM     // Bottom baseline Y
   
-  // Top baseline area
+  // Draw outer frame rectangle (from corner to corner, excluding pockets)
+  const frameInset=POCKET_R+8
   ctx.strokeStyle="#1a0f0a"
+  ctx.lineWidth=3
+  
+  // Draw complete inner border rectangle
+  ctx.strokeRect(margin,margin,W-margin*2,H-margin*2)
+  
+  // Draw baselines (horizontal lines where striker slides)
   ctx.lineWidth=2
+  // Top baseline
   ctx.beginPath()
-  ctx.moveTo(leftX,STRIKER_Y_TOP)
-  ctx.lineTo(rightX,STRIKER_Y_TOP)
+  ctx.moveTo(leftX,topY)
+  ctx.lineTo(rightX,topY)
+  ctx.stroke()
+  // Bottom baseline
+  ctx.beginPath()
+  ctx.moveTo(leftX,bottomY)
+  ctx.lineTo(rightX,bottomY)
   ctx.stroke()
   
-  // Bottom baseline area
+  // Draw vertical lines at baselines (connecting to frame)
+  // Top left vertical
   ctx.beginPath()
-  ctx.moveTo(leftX,STRIKER_Y_BOTTOM)
-  ctx.lineTo(rightX,STRIKER_Y_BOTTOM)
+  ctx.moveTo(leftX,topY)
+  ctx.lineTo(leftX,margin)
+  ctx.stroke()
+  // Top right vertical
+  ctx.beginPath()
+  ctx.moveTo(rightX,topY)
+  ctx.lineTo(rightX,margin)
+  ctx.stroke()
+  // Bottom left vertical
+  ctx.beginPath()
+  ctx.moveTo(leftX,bottomY)
+  ctx.lineTo(leftX,H-margin)
+  ctx.stroke()
+  // Bottom right vertical
+  ctx.beginPath()
+  ctx.moveTo(rightX,bottomY)
+  ctx.lineTo(rightX,H-margin)
   ctx.stroke()
   
   // Draw red circles at baseline ends (striker limits)
-  const redCircleR=12
-  // Top baseline red circles
-  drawRedCircle(leftX,STRIKER_Y_TOP,redCircleR)
-  drawRedCircle(rightX,STRIKER_Y_TOP,redCircleR)
-  // Bottom baseline red circles
-  drawRedCircle(leftX,STRIKER_Y_BOTTOM,redCircleR)
-  drawRedCircle(rightX,STRIKER_Y_BOTTOM,redCircleR)
+  const redCircleR=14
+  drawRedCircle(leftX,topY,redCircleR)
+  drawRedCircle(rightX,topY,redCircleR)
+  drawRedCircle(leftX,bottomY,redCircleR)
+  drawRedCircle(rightX,bottomY,redCircleR)
   
-  // Connecting lines from baselines to corners (inner frame)
+  // Draw corner diagonal lines (from baselines to pockets)
   ctx.strokeStyle="#1a0f0a"
   ctx.lineWidth=2
-  // Top-left
+  // Top-left diagonal
   ctx.beginPath()
-  ctx.moveTo(leftX,STRIKER_Y_TOP)
-  ctx.lineTo(POCKETS[0].x+POCKET_R+5,POCKETS[0].y+POCKET_R+5)
+  ctx.moveTo(leftX,topY)
+  ctx.lineTo(POCKETS[0].x+frameInset*0.7,POCKETS[0].y+frameInset*0.7)
   ctx.stroke()
-  // Top-right
+  // Top-right diagonal
   ctx.beginPath()
-  ctx.moveTo(rightX,STRIKER_Y_TOP)
-  ctx.lineTo(POCKETS[1].x-POCKET_R-5,POCKETS[1].y+POCKET_R+5)
+  ctx.moveTo(rightX,topY)
+  ctx.lineTo(POCKETS[1].x-frameInset*0.7,POCKETS[1].y+frameInset*0.7)
   ctx.stroke()
-  // Bottom-left
+  // Bottom-left diagonal
   ctx.beginPath()
-  ctx.moveTo(leftX,STRIKER_Y_BOTTOM)
-  ctx.lineTo(POCKETS[2].x+POCKET_R+5,POCKETS[2].y-POCKET_R-5)
+  ctx.moveTo(leftX,bottomY)
+  ctx.lineTo(POCKETS[2].x+frameInset*0.7,POCKETS[2].y-frameInset*0.7)
   ctx.stroke()
-  // Bottom-right
+  // Bottom-right diagonal
   ctx.beginPath()
-  ctx.moveTo(rightX,STRIKER_Y_BOTTOM)
-  ctx.lineTo(POCKETS[3].x-POCKET_R-5,POCKETS[3].y-POCKET_R-5)
+  ctx.moveTo(rightX,bottomY)
+  ctx.lineTo(POCKETS[3].x-frameInset*0.7,POCKETS[3].y-frameInset*0.7)
   ctx.stroke()
+  
+  // Draw corner arcs (quarter circles in each corner)
+  drawCornerArcs(leftX,rightX,topY,bottomY)
   
   // Draw center star design
   drawCenterStar()
-  
-  // Draw corner arcs (the curved arrow guides)
-  drawCornerArcs()
 }
 
 function drawRedCircle(x,y,r){
@@ -518,39 +542,37 @@ function drawCenterStar(){
   }
 }
 
-function drawCornerArcs(){
+function drawCornerArcs(leftX,rightX,topY,bottomY){
   // Draw curved arrow guides in corners (pointing toward center)
   ctx.strokeStyle="#1a0f0a"
   ctx.lineWidth=2
   
-  // Arc radius
-  const arcR=45
-  const offset=75
+  // Arc radius - quarter circles connecting baselines to vertical lines
+  const arcR=35
   
-  // Top-left corner arc (pointing down-right)
+  // Top-left corner: arc from top baseline to left vertical line
   ctx.beginPath()
-  ctx.arc(offset,offset,arcR,0,Math.PI/2)
+  ctx.arc(leftX+arcR,topY+arcR,arcR,Math.PI,Math.PI*1.5)
   ctx.stroke()
-  // Arrow head
-  drawArrowHead(offset+arcR,offset,0)
+  drawArrowHead(leftX+arcR,topY,Math.PI*1.5)
   
-  // Top-right corner arc (pointing down-left)
+  // Top-right corner: arc from top baseline to right vertical line
   ctx.beginPath()
-  ctx.arc(W-offset,offset,arcR,Math.PI/2,Math.PI)
+  ctx.arc(rightX-arcR,topY+arcR,arcR,Math.PI*1.5,Math.PI*2)
   ctx.stroke()
-  drawArrowHead(W-offset,offset+arcR,Math.PI/2)
+  drawArrowHead(rightX-arcR,topY,Math.PI*2)
   
-  // Bottom-right corner arc (pointing up-left)
+  // Bottom-right corner: arc from bottom baseline to right vertical line
   ctx.beginPath()
-  ctx.arc(W-offset,H-offset,arcR,Math.PI,Math.PI*1.5)
+  ctx.arc(rightX-arcR,bottomY-arcR,arcR,0,Math.PI/2)
   ctx.stroke()
-  drawArrowHead(W-offset-arcR,H-offset,Math.PI)
+  drawArrowHead(rightX-arcR,bottomY,Math.PI/2)
   
-  // Bottom-left corner arc (pointing up-right)
+  // Bottom-left corner: arc from bottom baseline to left vertical line
   ctx.beginPath()
-  ctx.arc(offset,H-offset,arcR,Math.PI*1.5,Math.PI*2)
+  ctx.arc(leftX+arcR,bottomY-arcR,arcR,Math.PI/2,Math.PI)
   ctx.stroke()
-  drawArrowHead(offset,H-offset-arcR,Math.PI*1.5)
+  drawArrowHead(leftX+arcR,bottomY,Math.PI)
 }
 
 function drawArrowHead(x,y,angle){
