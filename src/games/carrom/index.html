@@ -874,17 +874,17 @@ function nextTurn(){
     showMessage("Queen returned - not covered!")
   }
   
-  // Reset striker
-  setupStriker()
-  
-  // Reset controls for new turn
-  resetControls()
-  
-  // Switch turn
+  // Switch turn FIRST
   turn=turn===1?2:1
   turnCount++
   document.getElementById("turnName").textContent=turn===1?p1Name:p2Name
   document.getElementById("turnNum").textContent=turnCount
+  
+  // Reset striker for the NEW current player
+  setupStriker()
+  
+  // Reset controls for new turn
+  resetControls()
   
   turnInProgress=false
   
