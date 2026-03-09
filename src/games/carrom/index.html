@@ -331,8 +331,8 @@ const FRAME_THICKNESS=45  // Wooden frame thickness
 const PLAY_MIN=FRAME_INSET+FRAME_THICKNESS  // Inner playing boundary
 const PLAY_MAX=W-PLAY_MIN
 
-const FRICTION=0.92  // Much higher friction - stops quickly
-const WALL_BOUNCE=0.7  // Less bounce
+const FRICTION=0.88  // Even higher friction - stops fast
+const WALL_BOUNCE=0.6  // Less bounce
 
 // Sizes
 const COIN_R=12      // Coin radius
@@ -534,9 +534,9 @@ class Disk{
     this.vx*=FRICTION
     this.vy*=FRICTION
     
-    // Stop if very slow (higher threshold = stops faster)
-    if(Math.abs(this.vx)<0.5)this.vx=0
-    if(Math.abs(this.vy)<0.5)this.vy=0
+    // Stop if very slow (much higher threshold = stops immediately)
+    if(Math.abs(this.vx)<1.0)this.vx=0
+    if(Math.abs(this.vy)<1.0)this.vy=0
     
     // Wall collisions - keep inside wooden frame
     const minX=PLAY_MIN+this.r
@@ -563,7 +563,7 @@ class Disk{
   }
   
   isMoving(){
-    return Math.abs(this.vx)>0.1||Math.abs(this.vy)>0.1
+    return Math.abs(this.vx)>0.8||Math.abs(this.vy)>0.8
   }
 }
 
@@ -824,7 +824,7 @@ function aiPlay(){
   
   // Small delay then shoot
   setTimeout(()=>{
-    const maxPower=12  // Reduced max power
+    const maxPower=8  // Much lower max power - snappy shots
     const power=(aimPower/150)*maxPower
     
     // Shoot in OPPOSITE direction of drag (pull back to shoot forward)
@@ -1005,7 +1005,7 @@ function handleBoardEnd(e){
   
   // Shoot if pulled back enough
   if(aimPower>20){
-    const maxPower=12  // Reduced max power
+    const maxPower=8  // Much lower max power - snappy shots
     const power=(aimPower/150)*maxPower
     
     // Shoot in OPPOSITE direction of drag (pull back to shoot forward)
