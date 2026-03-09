@@ -990,13 +990,14 @@ function handleBoardStart(e){
   if(turnInProgress)return
   const pos=getCanvasPos(e)
   
-  // Check if touching near striker
+  // Check if touching near striker (on the baseline)
   const dx=pos.x-striker.x
   const dy=pos.y-striker.y
   const dist=Math.sqrt(dx*dx+dy*dy)
   
   if(dist<striker.r*3){
     isAimingOnBoard=true
+    // Striker stays on baseline - dragStartPos is current striker position
     dragStartPos={x:striker.x,y:striker.y}
     dragCurrentPos=pos
     e.preventDefault()
@@ -1008,12 +1009,15 @@ function handleBoardMove(e){
   e.preventDefault()
   dragCurrentPos=getCanvasPos(e)
   
-  // Calculate aim angle and power
+  // Calculate aim angle and power from DRAG DIRECTION
+  // Striker stays on baseline - don't move it!
   const dx=dragCurrentPos.x-dragStartPos.x
   const dy=dragCurrentPos.y-dragStartPos.y
   
   aimAngle=Math.atan2(dy,dx)
   aimPower=Math.min(Math.sqrt(dx*dx+dy*dy),150)  // Max pull distance
+  
+  // KEEP STRIKER ON BASELINE - don't change striker.x/y during aiming
 }
 
 function handleBoardEnd(e){
@@ -1053,18 +1057,31 @@ function resetControls(){
 
 function update(){
   // Update both strikers
-  if(striker1) striker1.update()
-  if(striker2) striker2.update()
-  
-  // Hard boundary for active striker
-  const activeStriker=turn===1?striker1:striker2
-  if(activeStriker){
-    const boundMin=PLAY_MIN+activeStriker.r
-    const boundMax=PLAY_MAX-activeStriker.r
-    if(activeStriker.x<boundMin)activeStriker.x=boundMin
-    if(activeStriker.x>boundMax)activeStriker.x=boundMax
-    if(activeStriker.y<boundMin)activeStriker.y=boundMin
-    if(activeStriker.y>boundMax)activeStriker.y=boundMax
+  // During aiming (before shot), striker stays on baseline
+  // During shot, striker moves freely
+  if(striker1) {
+    if(!turnInProgress && turn===1) {
+      // Player 1's turn, not shot yet - keep on baseline
+      striker1.y = STRIKER_Y_BOTTOM
+      striker1.vy = 0
+      if(striker1.x < BASELINE_X_MIN) striker1.x = BASELINE_X_MIN
+      if(striker1.x > BASELINE_X_MAX) striker1.x = BASELINE_X_MAX
+    } else {
+      // Shot in progress - normal physics
+      striker1.update()
+    }
+  }
+  if(striker2) {
+    if(!turnInProgress && turn===2) {
+      // Player 2's turn, not shot yet - keep on baseline
+      striker2.y = STRIKER_Y_TOP
+      striker2.vy = 0
+      if(striker2.x < BASELINE_X_MIN) striker2.x = BASELINE_X_MIN
+      if(striker2.x > BASELINE_X_MAX) striker2.x = BASELINE_X_MAX
+    } else {
+      // Shot in progress - normal physics
+      striker2.update()
+    }
   }
   
   for(const c of coins)c.update()
