@@ -160,8 +160,8 @@ input{
   max-width:min(90vmin,700px);
   aspect-ratio:1;
   margin:auto;
-  background:#1a4d3a;  /* Dark green outer background */
-  border-radius:20px;
+  background:#2d5a52;  /* Dark teal outer background matching board */
+  border-radius:12px;
   box-shadow:0 0 40px rgba(0,0,0,.8);
   overflow:hidden;
 }
@@ -325,10 +325,11 @@ const ctx=canvas.getContext("2d")
 // Board constants
 const W=700,H=700
 
-// Visual frame boundaries
-const FRAME_MARGIN=32
-const PLAY_MIN=FRAME_MARGIN
-const PLAY_MAX=W-FRAME_MARGIN
+// Frame and playing area boundaries
+const FRAME_INSET=25      // Outer frame inset
+const FRAME_THICKNESS=45  // Wooden frame thickness
+const PLAY_MIN=FRAME_INSET+FRAME_THICKNESS  // Inner playing boundary
+const PLAY_MAX=W-PLAY_MIN
 
 const FRICTION=0.985
 const WALL_BOUNCE=0.8
@@ -336,7 +337,7 @@ const WALL_BOUNCE=0.8
 // Sizes
 const COIN_R=12      // Coin radius
 const STRIKER_R=18   // Striker radius
-const POCKET_R=24    // Pocket radius
+const POCKET_R=22    // Pocket radius (slightly smaller)
 
 // Game state
 let mode="pass"
@@ -346,20 +347,21 @@ let score1=0,score2=0
 let p1Name="Player 1",p2Name="Player 2"
 let gameOver=false
 
-// Pockets
+// Pockets (at the four corners inside the frame)
+const POCKET_INSET=FRAME_INSET+18
 const POCKETS=[
-  {x:32,y:32},
-  {x:668,y:32},
-  {x:32,y:668},
-  {x:668,y:668}
+  {x:POCKET_INSET,y:POCKET_INSET},
+  {x:W-POCKET_INSET,y:POCKET_INSET},
+  {x:POCKET_INSET,y:H-POCKET_INSET},
+  {x:W-POCKET_INSET,y:H-POCKET_INSET}
 ]
 
-// Baseline positions
-const BASELINE_OFFSET=55
-const STRIKER_Y_TOP=FRAME_MARGIN+BASELINE_OFFSET
-const STRIKER_Y_BOTTOM=W-FRAME_MARGIN-BASELINE_OFFSET
-const BASELINE_X_MIN=FRAME_MARGIN+BASELINE_OFFSET
-const BASELINE_X_MAX=W-FRAME_MARGIN-BASELINE_OFFSET
+// Baseline positions (for striker movement)
+const BASELINE_OFFSET=70
+const STRIKER_Y_TOP=PLAY_MIN+BASELINE_OFFSET
+const STRIKER_Y_BOTTOM=PLAY_MAX-BASELINE_OFFSET
+const BASELINE_X_MIN=PLAY_MIN+BASELINE_OFFSET
+const BASELINE_X_MAX=PLAY_MAX-BASELINE_OFFSET
 
 // Load images
 const IMAGES={}
@@ -389,147 +391,162 @@ async function loadAllImages(){
 }
 
 // ============================================
-// BOARD DRAWING - Professional Carrom Board
+// BOARD DRAWING - EXACT MATCH TO GOAL IMAGE
 // ============================================
 
 function drawBoard(){
-  // Dark green outer background
-  ctx.fillStyle="#1a4d3a"
+  // === 1. OUTER BACKGROUND (Dark teal table) ===
+  ctx.fillStyle="#2d5a52"
   ctx.fillRect(0,0,W,H)
   
-  // Board frame with orange corners
-  const frameW=W-FRAME_MARGIN*2
-  const frameH=H-FRAME_MARGIN*2
+  // === 2. WOODEN FRAME (Thick, with rounded corners) ===
+  const frameThickness=45
+  const frameInset=25
   
-  // Main wooden frame (brown)
-  ctx.fillStyle="#8b4513"
-  ctx.fillRect(FRAME_MARGIN,FRAME_MARGIN,frameW,frameH)
+  // Main wooden frame - warm brown color
+  ctx.fillStyle="#c17f3e"
+  ctx.fillRect(frameInset,frameInset,W-frameInset*2,H-frameInset*2)
   
-  // Orange rounded corner pieces
-  const cornerSize=45
-  ctx.fillStyle="#d2691e"  // Orange
+  // Rounded corners for frame (orange-ish wood)
+  const cornerR=35
+  ctx.fillStyle="#d48c45"
   
-  // Top-left corner
+  // Top-left rounded corner
   ctx.beginPath()
-  ctx.moveTo(FRAME_MARGIN,FRAME_MARGIN+cornerSize)
-  ctx.arcTo(FRAME_MARGIN,FRAME_MARGIN,FRAME_MARGIN+cornerSize,FRAME_MARGIN,cornerSize)
-  ctx.lineTo(FRAME_MARGIN,FRAME_MARGIN+cornerSize)
+  ctx.moveTo(frameInset,frameInset+cornerR)
+  ctx.arc(frameInset+cornerR,frameInset+cornerR,cornerR,Math.PI,Math.PI*1.5)
+  ctx.lineTo(frameInset,frameInset)
   ctx.fill()
   
-  // Top-right corner
+  // Top-right rounded corner
   ctx.beginPath()
-  ctx.moveTo(W-FRAME_MARGIN-cornerSize,FRAME_MARGIN)
-  ctx.arcTo(W-FRAME_MARGIN,FRAME_MARGIN,W-FRAME_MARGIN,FRAME_MARGIN+cornerSize,cornerSize)
-  ctx.lineTo(W-FRAME_MARGIN-cornerSize,FRAME_MARGIN)
+  ctx.moveTo(W-frameInset-cornerR,frameInset)
+  ctx.arc(W-frameInset-cornerR,frameInset+cornerR,cornerR,Math.PI*1.5,0)
+  ctx.lineTo(W-frameInset,frameInset)
   ctx.fill()
   
-  // Bottom-left corner
+  // Bottom-left rounded corner
   ctx.beginPath()
-  ctx.moveTo(FRAME_MARGIN,H-FRAME_MARGIN-cornerSize)
-  ctx.arcTo(FRAME_MARGIN,H-FRAME_MARGIN,FRAME_MARGIN+cornerSize,H-FRAME_MARGIN,cornerSize)
-  ctx.lineTo(FRAME_MARGIN,H-FRAME_MARGIN-cornerSize)
+  ctx.moveTo(frameInset,H-frameInset-cornerR)
+  ctx.arc(frameInset+cornerR,H-frameInset-cornerR,cornerR,Math.PI/2,Math.PI)
+  ctx.lineTo(frameInset,H-frameInset)
   ctx.fill()
   
-  // Bottom-right corner
+  // Bottom-right rounded corner
   ctx.beginPath()
-  ctx.moveTo(W-FRAME_MARGIN,H-FRAME_MARGIN-cornerSize)
-  ctx.arcTo(W-FRAME_MARGIN,H-FRAME_MARGIN,W-FRAME_MARGIN-cornerSize,H-FRAME_MARGIN,cornerSize)
-  ctx.lineTo(W-FRAME_MARGIN,H-FRAME_MARGIN-cornerSize)
+  ctx.moveTo(W-frameInset,H-frameInset-cornerR)
+  ctx.arc(W-frameInset-cornerR,H-frameInset-cornerR,cornerR,0,Math.PI/2)
+  ctx.lineTo(W-frameInset,H-frameInset)
   ctx.fill()
   
-  // Inner playing surface (cream/beige)
-  const innerMargin=FRAME_MARGIN+18
+  // === 3. INNER PLAYING SURFACE (Cream/beige) ===
+  const innerMargin=frameInset+25
   ctx.fillStyle="#f5e6c8"
   ctx.fillRect(innerMargin,innerMargin,W-innerMargin*2,H-innerMargin*2)
   
-  // Draw pockets (black circles at corners)
-  for(const p of POCKETS){
+  // === 4. CORNER POCKETS (Black circles at exact corners) ===
+  const pocketInset=frameInset+18
+  const POCKET_POSITIONS=[
+    {x:pocketInset,y:pocketInset},
+    {x:W-pocketInset,y:pocketInset},
+    {x:pocketInset,y:H-pocketInset},
+    {x:W-pocketInset,y:H-pocketInset}
+  ]
+  
+  for(const p of POCKET_POSITIONS){
     ctx.beginPath()
-    ctx.arc(p.x,p.y,POCKET_R,0,Math.PI*2)
+    ctx.arc(p.x,p.y,22,0,Math.PI*2)
     ctx.fillStyle="#1a1a1a"
     ctx.fill()
-    
-    // Pocket highlight
+    // Inner shadow
     ctx.beginPath()
-    ctx.arc(p.x-3,p.y-3,POCKET_R*0.3,0,Math.PI*2)
-    ctx.fillStyle="rgba(255,255,255,0.2)"
+    ctx.arc(p.x,p.y,18,0,Math.PI*2)
+    ctx.fillStyle="#0a0a0a"
     ctx.fill()
   }
   
-  // Draw baseline rectangles (the sliding areas)
-  const rectWidth=BASELINE_X_MAX-BASELINE_X_MIN
-  const rectHeight=36  // Height of baseline rectangle
+  // === 5. BASELINE RECTANGLE (Inner boundary lines) ===
+  const baselineOffset=70
+  const blLeft=innerMargin+baselineOffset
+  const blRight=W-innerMargin-baselineOffset
+  const blTop=innerMargin+baselineOffset
+  const blBottom=H-innerMargin-baselineOffset
   
-  ctx.strokeStyle="#8b4513"
-  ctx.lineWidth=3
+  // Thin inner rectangle
+  ctx.strokeStyle="#8b6f47"
+  ctx.lineWidth=2
+  ctx.strokeRect(blLeft,blTop,blRight-blLeft,blBottom-blTop)
   
-  // Top baseline rectangle
-  ctx.strokeRect(BASELINE_X_MIN,STRIKER_Y_TOP-rectHeight/2,rectWidth,rectHeight)
+  // === 6. BASELINE MARKINGS (Orange circles at corners) ===
+  const markerOffset=15
+  ctx.fillStyle="#e8913a"
   
-  // Bottom baseline rectangle
-  ctx.strokeRect(BASELINE_X_MIN,STRIKER_Y_BOTTOM-rectHeight/2,rectWidth,rectHeight)
+  // Four orange circles at corners of baseline
+  const markerR=12
+  ctx.beginPath(); ctx.arc(blLeft+markerOffset,blTop+markerOffset,markerR,0,Math.PI*2); ctx.fill()
+  ctx.beginPath(); ctx.arc(blRight-markerOffset,blTop+markerOffset,markerR,0,Math.PI*2); ctx.fill()
+  ctx.beginPath(); ctx.arc(blRight-markerOffset,blBottom-markerOffset,markerR,0,Math.PI*2); ctx.fill()
+  ctx.beginPath(); ctx.arc(blLeft+markerOffset,blBottom-markerOffset,markerR,0,Math.PI*2); ctx.fill()
   
-  // Left baseline rectangle
-  ctx.strokeRect(BASELINE_X_MIN-rectHeight/2,STRIKER_Y_TOP,rectHeight,STRIKER_Y_BOTTOM-STRIKER_Y_TOP)
+  // === 7. BASELINE END CIRCLES (Small white circles at edges) ===
+  const edgeCircleOffset=35
+  ctx.fillStyle="rgba(255,255,255,0.7)"
+  ctx.strokeStyle="#8b6f47"
+  ctx.lineWidth=1
   
-  // Right baseline rectangle
-  ctx.strokeRect(BASELINE_X_MAX-rectHeight/2,STRIKER_Y_TOP,rectHeight,STRIKER_Y_BOTTOM-STRIKER_Y_TOP)
+  // Top edge circles
+  ctx.beginPath(); ctx.arc(blLeft+edgeCircleOffset,blTop-8,6,0,Math.PI*2); ctx.fill(); ctx.stroke()
+  ctx.beginPath(); ctx.arc(blRight-edgeCircleOffset,blTop-8,6,0,Math.PI*2); ctx.fill(); ctx.stroke()
   
-  // Draw corner arrows with circles
-  drawProfessionalCornerArrows()
+  // Bottom edge circles  
+  ctx.beginPath(); ctx.arc(blLeft+edgeCircleOffset,blBottom+8,6,0,Math.PI*2); ctx.fill(); ctx.stroke()
+  ctx.beginPath(); ctx.arc(blRight-edgeCircleOffset,blBottom+8,6,0,Math.PI*2); ctx.fill(); ctx.stroke()
   
-  // Draw center star
-  drawProfessionalCenterStar()
+  // === 8. CORNER ARROWS (Curved indicators) ===
+  drawGoalCornerArrows(blLeft,blRight,blTop,blBottom)
+  
+  // === 9. CENTER STAR (Red 8-pointed star burst) ===
+  drawGoalCenterStar()
+  
+  // === 10. DECORATIVE CIRCLES (Small corner accents) ===
+  drawDecorativeCircles()
 }
 
-function drawProfessionalCornerArrows(){
-  ctx.strokeStyle="#5a3d2b"
-  ctx.lineWidth=2
+function drawGoalCornerArrows(blLeft,blRight,blTop,blBottom){
+  ctx.strokeStyle="#5d4e37"
+  ctx.lineWidth=1.5
   
-  const arcR=40
-  const offset=85
+  const arcR=25
+  const offset=20
   
-  // Top-left corner - arrow pointing down-right
+  // Top-left corner: arc from top to left
   ctx.beginPath()
-  ctx.arc(offset,offset,arcR,0,Math.PI/2)
+  ctx.arc(blLeft+offset,blTop+offset,arcR,Math.PI,Math.PI*1.5)
   ctx.stroke()
   // Arrow head
-  drawProfessionalArrowHead(offset+arcR,offset,0)
-  // Small circle at corner
-  ctx.beginPath()
-  ctx.arc(offset-10,offset-10,6,0,Math.PI*2)
-  ctx.stroke()
+  drawGoalArrowHead(blLeft+offset+arcR,blTop+offset,0)
   
-  // Top-right corner - arrow pointing down-left
+  // Top-right corner: arc from top to right
   ctx.beginPath()
-  ctx.arc(W-offset,offset,arcR,Math.PI/2,Math.PI)
+  ctx.arc(blRight-offset,blTop+offset,arcR,Math.PI*1.5,Math.PI*2)
   ctx.stroke()
-  drawProfessionalArrowHead(W-offset,offset+arcR,Math.PI/2)
-  ctx.beginPath()
-  ctx.arc(W-offset+10,offset-10,6,0,Math.PI*2)
-  ctx.stroke()
+  drawGoalArrowHead(blRight-offset,blTop+offset+arcR,Math.PI/2)
   
-  // Bottom-right corner - arrow pointing up-left
+  // Bottom-right corner: arc from right to bottom
   ctx.beginPath()
-  ctx.arc(W-offset,H-offset,arcR,Math.PI,Math.PI*1.5)
+  ctx.arc(blRight-offset,blBottom-offset,arcR,0,Math.PI/2)
   ctx.stroke()
-  drawProfessionalArrowHead(W-offset-arcR,H-offset,Math.PI)
-  ctx.beginPath()
-  ctx.arc(W-offset+10,H-offset+10,6,0,Math.PI*2)
-  ctx.stroke()
+  drawGoalArrowHead(blRight-offset-arcR,blBottom-offset,Math.PI)
   
-  // Bottom-left corner - arrow pointing up-right
+  // Bottom-left corner: arc from left to bottom
   ctx.beginPath()
-  ctx.arc(offset,H-offset,arcR,Math.PI*1.5,0)
+  ctx.arc(blLeft+offset,blBottom-offset,arcR,Math.PI/2,Math.PI)
   ctx.stroke()
-  drawProfessionalArrowHead(offset,H-offset-arcR,Math.PI*1.5)
-  ctx.beginPath()
-  ctx.arc(offset-10,H-offset+10,6,0,Math.PI*2)
-  ctx.stroke()
+  drawGoalArrowHead(blLeft+offset,blBottom-offset-arcR,Math.PI*1.5)
 }
 
-function drawProfessionalArrowHead(x,y,angle){
-  const len=10
+function drawGoalArrowHead(x,y,angle){
+  const len=8
   ctx.beginPath()
   ctx.moveTo(x,y)
   ctx.lineTo(x-Math.cos(angle-0.4)*len,y-Math.sin(angle-0.4)*len)
@@ -538,170 +555,82 @@ function drawProfessionalArrowHead(x,y,angle){
   ctx.stroke()
 }
 
-function drawProfessionalCenterStar(){
+function drawDecorativeCircles(){
+  // Small white circles near corners (on the cream surface near frame)
+  ctx.fillStyle="rgba(255,255,255,0.6)"
+  ctx.strokeStyle="#8b7355"
+  ctx.lineWidth=1
+  
+  const pos1=PLAY_MIN+15
+  const pos2=PLAY_MAX-15
+  
+  // Four small circles near corners
+  ctx.beginPath(); ctx.arc(pos1,pos1,5,0,Math.PI*2); ctx.fill(); ctx.stroke()
+  ctx.beginPath(); ctx.arc(pos2,pos1,5,0,Math.PI*2); ctx.fill(); ctx.stroke()
+  ctx.beginPath(); ctx.arc(pos1,pos2,5,0,Math.PI*2); ctx.fill(); ctx.stroke()
+  ctx.beginPath(); ctx.arc(pos2,pos2,5,0,Math.PI*2); ctx.fill(); ctx.stroke()
+}
+
+function drawGoalCenterStar(){
   const cx=W/2
   const cy=H/2
   
-  // Draw outer circle
+  // Outer thin circle
   ctx.beginPath()
-  ctx.arc(cx,cy,70,0,Math.PI*2)
-  ctx.strokeStyle="#8b4513"
-  ctx.lineWidth=2
-  ctx.stroke()
-  
-  // Draw inner circle
-  ctx.beginPath()
-  ctx.arc(cx,cy,55,0,Math.PI*2)
-  ctx.strokeStyle="#8b4513"
+  ctx.arc(cx,cy,85,0,Math.PI*2)
+  ctx.strokeStyle="#8b7355"
   ctx.lineWidth=1
   ctx.stroke()
   
-  // Draw 8 main points (compass style)
-  const longR=50
-  const shortR=20
+  // Draw the iconic 8-pointed red star burst
+  const outerR=75
+  const midR=45
+  const innerR=18
   
+  // Draw 8 triangular points (the red star burst)
   for(let i=0;i<8;i++){
     const angle=(i*Math.PI/4)-Math.PI/2
+    const nextAngle=((i+1)*Math.PI/4)-Math.PI/2
     
     ctx.beginPath()
-    ctx.moveTo(cx+Math.cos(angle)*shortR,cy+Math.sin(angle)*shortR)
-    ctx.lineTo(cx+Math.cos(angle)*longR,cy+Math.sin(angle)*longR)
+    ctx.moveTo(cx+Math.cos(angle)*outerR,cy+Math.sin(angle)*outerR)
+    ctx.lineTo(cx,cy)  // Center
+    ctx.lineTo(cx+Math.cos(nextAngle)*outerR,cy+Math.sin(nextAngle)*outerR)
     
-    // Alternate red and black points
+    // Alternate between red and dark red/brown for depth
     if(i%2===0){
-      ctx.strokeStyle="#c41e3a"  // Red
-      ctx.lineWidth=6
+      ctx.fillStyle="#c44536"  // Bright red
     }else{
-      ctx.strokeStyle="#1a1a1a"  // Black
-      ctx.lineWidth=5
+      ctx.fillStyle="#a03529"  // Darker red
     }
-    ctx.stroke()
-  }
-  
-  // Center red circle
-  ctx.beginPath()
-  ctx.arc(cx,cy,18,0,Math.PI*2)
-  ctx.fillStyle="#c41e3a"
-  ctx.fill()
-  ctx.strokeStyle="#8b4513"
-  ctx.lineWidth=2
-  ctx.stroke()
-  
-  // Small dots around the center
-  const dotR=60
-  for(let i=0;i<12;i++){
-    const angle=(i*Math.PI/6)
-    ctx.beginPath()
-    ctx.arc(cx+Math.cos(angle)*dotR,cy+Math.sin(angle)*dotR,3,0,Math.PI*2)
-    ctx.fillStyle="#8b4513"
     ctx.fill()
   }
-}
-
-function drawRedCircle(x,y,r){
-  // Red circle with gradient
-  const grad=ctx.createRadialGradient(x-2,y-2,r*0.3,x,y,r)
-  grad.addColorStop(0,"#ff6b6b")
-  grad.addColorStop(0.5,"#d32f2f")
-  grad.addColorStop(1,"#b71c1c")
   
+  // Draw white/black accents between star points (the "V" shapes)
+  ctx.fillStyle="#f5e6c8"  // Match background color
+  for(let i=0;i<8;i++){
+    const angle=(i*Math.PI/4)-Math.PI/2
+    ctx.beginPath()
+    ctx.moveTo(cx,cy)
+    ctx.lineTo(cx+Math.cos(angle-Math.PI/8)*midR,cy+Math.sin(angle-Math.PI/8)*midR)
+    ctx.lineTo(cx+Math.cos(angle+Math.PI/8)*midR,cy+Math.sin(angle+Math.PI/8)*midR)
+    ctx.fill()
+  }
+  
+  // Center red circle (the focal point)
   ctx.beginPath()
-  ctx.arc(x,y,r,0,Math.PI*2)
-  ctx.fillStyle=grad
+  ctx.arc(cx,cy,innerR,0,Math.PI*2)
+  ctx.fillStyle="#d94e3b"
   ctx.fill()
-  ctx.strokeStyle="#8b0000"
-  ctx.lineWidth=1
-  ctx.stroke()
-}
-
-function drawCenterStar(){
-  const cx=W/2
-  const cy=H/2
   
-  // Outer circle
-  ctx.beginPath()
-  ctx.arc(cx,cy,70,0,Math.PI*2)
-  ctx.strokeStyle="#1a0f0a"
-  ctx.lineWidth=2
-  ctx.stroke()
-  
-  // Inner circle
-  ctx.beginPath()
-  ctx.arc(cx,cy,55,0,Math.PI*2)
-  ctx.strokeStyle="#1a0f0a"
-  ctx.lineWidth=2
-  ctx.stroke()
-  
-  // Center dot
+  // Center highlight dot
   ctx.beginPath()
   ctx.arc(cx,cy,8,0,Math.PI*2)
-  ctx.fillStyle="#1a0f0a"
+  ctx.fillStyle="#e85d4a"
   ctx.fill()
-  
-  // Red star points (8-pointed star)
-  ctx.fillStyle="#c62828"
-  for(let i=0;i<8;i++){
-    const angle=(i*Math.PI/4)-Math.PI/2
-    const innerR=15
-    const outerR=i%2===0?50:35
-    
-    ctx.beginPath()
-    ctx.moveTo(cx+Math.cos(angle)*innerR,cy+Math.sin(angle)*innerR)
-    ctx.lineTo(cx+Math.cos(angle-Math.PI/8)*outerR,cy+Math.sin(angle-Math.PI/8)*outerR)
-    ctx.lineTo(cx+Math.cos(angle+Math.PI/8)*outerR,cy+Math.sin(angle+Math.PI/8)*outerR)
-    ctx.closePath()
-    ctx.fill()
-  }
 }
 
-function drawCornerArcs(leftX,rightX,topY,bottomY,frameMargin){
-  // Draw curved arrow guides in corners (pointing toward center)
-  ctx.strokeStyle="#1a0f0a"
-  ctx.lineWidth=2
-  
-  // Arc radius - quarter circles in the corner regions
-  const arcR=28
-  
-  // Calculate arc centers (in the corner frame areas)
-  const leftArcX=leftX
-  const rightArcX=rightX
-  const topArcY=topY
-  const bottomArcY=bottomY
-  
-  // Top-left corner: arc from vertical line to horizontal baseline
-  ctx.beginPath()
-  ctx.arc(leftArcX+arcR,topArcY+arcR,arcR,Math.PI,Math.PI*1.5)
-  ctx.stroke()
-  drawArrowHead(leftArcX+arcR,topArcY,Math.PI*1.5)
-  
-  // Top-right corner
-  ctx.beginPath()
-  ctx.arc(rightArcX-arcR,topArcY+arcR,arcR,Math.PI*1.5,Math.PI*2)
-  ctx.stroke()
-  drawArrowHead(rightArcX-arcR,topArcY,0)
-  
-  // Bottom-right corner
-  ctx.beginPath()
-  ctx.arc(rightArcX-arcR,bottomArcY-arcR,arcR,0,Math.PI/2)
-  ctx.stroke()
-  drawArrowHead(rightArcX-arcR,bottomArcY,Math.PI/2)
-  
-  // Bottom-left corner
-  ctx.beginPath()
-  ctx.arc(leftArcX+arcR,bottomArcY-arcR,arcR,Math.PI/2,Math.PI)
-  ctx.stroke()
-  drawArrowHead(leftArcX+arcR,bottomArcY,Math.PI)
-}
-
-function drawArrowHead(x,y,angle){
-  const len=8
-  ctx.beginPath()
-  ctx.moveTo(x,y)
-  ctx.lineTo(x-Math.cos(angle-0.3)*len,y-Math.sin(angle-0.3)*len)
-  ctx.moveTo(x,y)
-  ctx.lineTo(x-Math.cos(angle+0.3)*len,y-Math.sin(angle+0.3)*len)
-  ctx.stroke()
-}
+// (Removed old unused drawing functions - now using goal-style functions)
 
 // Disk class for coins and striker
 class Disk{
