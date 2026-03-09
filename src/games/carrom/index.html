@@ -331,8 +331,8 @@ const FRAME_THICKNESS=45  // Wooden frame thickness
 const PLAY_MIN=FRAME_INSET+FRAME_THICKNESS  // Inner playing boundary
 const PLAY_MAX=W-PLAY_MIN
 
-const FRICTION=0.96  // Smoother sliding - not too fast, not too slow
-const WALL_BOUNCE=0.75  // Normal bounce
+const FRICTION=0.98  // Less friction - faster, smoother sliding
+const WALL_BOUNCE=0.8  // Good bounce
 
 // Sizes
 const COIN_R=12      // Coin radius
@@ -536,9 +536,9 @@ class Disk{
     this.vx*=FRICTION
     this.vy*=FRICTION
     
-    // Stop if very slow (natural stop)
-    if(Math.abs(this.vx)<0.15)this.vx=0
-    if(Math.abs(this.vy)<0.15)this.vy=0
+    // Stop if very slow (lower threshold = slides longer)
+    if(Math.abs(this.vx)<0.08)this.vx=0
+    if(Math.abs(this.vy)<0.08)this.vy=0
     
     // Wall collisions - keep inside wooden frame
     const minX=PLAY_MIN+this.r
@@ -840,7 +840,7 @@ function aiPlay(){
   
   // Small delay then shoot
   setTimeout(()=>{
-    const maxPower=15  // Good power for smooth sliding
+    const maxPower=18  // Stronger shots
     const power=(aimPower/150)*maxPower
     
     // Shoot in OPPOSITE direction of drag (pull back to shoot forward)
@@ -1025,7 +1025,7 @@ function handleBoardEnd(e){
   
   // Shoot if pulled back enough
   if(aimPower>20){
-    const maxPower=15  // Good power for smooth sliding
+    const maxPower=18  // Stronger shots
     const power=(aimPower/150)*maxPower
     
     // Shoot in OPPOSITE direction of drag (pull back to shoot forward)
