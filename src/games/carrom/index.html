@@ -790,18 +790,21 @@ function checkPocket(disk){
 let queenPocketed=false
 let queenPocketedBy=null
 let queenCovered=false
+let keepTurn=false
 
 function handlePocketing(disk){
   if(disk.type==="striker"){
     // Foul - striker pocketed
     setupStriker()
     showMessage("Foul! Striker pocketed")
+    keepTurn=false
     return
   }
   
   if(disk.type==="queen"){
     queenPocketed=true
     queenPocketedBy=turn
+    keepTurn=true
     showMessage("Queen pocketed! Cover it!")
     return
   }
@@ -810,6 +813,7 @@ function handlePocketing(disk){
   if(turn===1){
     if(disk.type==="white"){
       score1++
+      keepTurn=true
       // Check if queen is covered
       if(queenPocketed&&queenPocketedBy===1&&!queenCovered){
         queenCovered=true
@@ -824,6 +828,7 @@ function handlePocketing(disk){
   }else{
     if(disk.type==="black"){
       score2++
+      keepTurn=true
       if(queenPocketed&&queenPocketedBy===2&&!queenCovered){
         queenCovered=true
         score2+=3
@@ -887,29 +892,38 @@ function nextTurn(){
   
   // Return queen if not covered
   if(queenPocketed&&!queenCovered){
-    // Return queen to center
-    const cx=W/2,cy=H/2
-    const queen=coins.find(c=>c.type==="queen")
-    if(queen){
-      queen.active=true
-      queen.inPocket=false
-      queen.x=cx+(Math.random()-0.5)*20
-      queen.y=cy+(Math.random()-0.5)*20
-      queen.vx=0
-      queen.vy=0
+    // If player didn't pocket a coin in the SAME turn they pocketed the queen,
+    // or if they had to cover it but failed.
+    // Actually, queen requires keeping the turn and then covering it. 
+    // If keepTurn is false, they failed to cover it or failed to pocket queen.
+    if(!keepTurn && queenPocketedBy===turn) {
+      // Return queen to center
+      const cx=W/2,cy=H/2
+      const queen=coins.find(c=>c.type==="queen")
+      if(queen){
+        queen.active=true
+        queen.inPocket=false
+        queen.x=cx+(Math.random()-0.5)*20
+        queen.y=cy+(Math.random()-0.5)*20
+        queen.vx=0
+        queen.vy=0
+      }
+      queenPocketed=false
+      queenPocketedBy=null
+      showMessage("Queen returned - not covered!")
     }
-    queenPocketed=false
-    queenPocketedBy=null
-    showMessage("Queen returned - not covered!")
   }
   
-  // Switch turn FIRST
-  turn=turn===1?2:1
-  turnCount++
-  document.getElementById("turnName").textContent=turn===1?p1Name:p2Name
-  document.getElementById("turnNum").textContent=turnCount
+  if(!keepTurn){
+    // Switch turn
+    turn=turn===1?2:1
+    turnCount++
+    document.getElementById("turnName").textContent=turn===1?p1Name:p2Name
+    document.getElementById("turnNum").textContent=turnCount
+  }
+  keepTurn=false // Reset for next shot
   
-  // Reset striker for the NEW current player
+  // Reset striker for the current player
   setupStriker()
   
   // Reset controls for new turn
