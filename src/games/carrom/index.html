@@ -357,9 +357,10 @@ const POCKETS=[
 ]
 
 // Baseline positions (for striker movement)
-const BASELINE_OFFSET=70
-const STRIKER_Y_TOP=PLAY_MIN+BASELINE_OFFSET
-const STRIKER_Y_BOTTOM=PLAY_MAX-BASELINE_OFFSET
+// In 2-player carrom: Player 1 (bottom), Player 2 (top)
+const BASELINE_OFFSET=45  // Closer to edges
+const STRIKER_Y_TOP=PLAY_MIN+BASELINE_OFFSET      // Top baseline for Player 2
+const STRIKER_Y_BOTTOM=PLAY_MAX-BASELINE_OFFSET   // Bottom baseline for Player 1
 const BASELINE_X_MIN=PLAY_MIN+BASELINE_OFFSET
 const BASELINE_X_MAX=PLAY_MAX-BASELINE_OFFSET
 
@@ -569,7 +570,9 @@ class Disk{
 
 // Game objects
 let coins=[]      // 19 coins (9 white, 9 black, 1 queen)
-let striker       // Striker disk
+let striker1      // Player 1 striker (bottom)
+let striker2      // Player 2 striker (top)
+let striker       // Current active striker
 
 // ============================================
 // SETUP FUNCTIONS
@@ -597,17 +600,29 @@ function setupCoins(){
 }
 
 function setupStriker(){
-  // Striker positioned exactly BETWEEN the two black baseline lines
-  // It slides left-right along this Y position only
-  let strikerY
-  if(turn===1){
-    strikerY=STRIKER_Y_BOTTOM  // Bottom player - on lower baseline
-  }else{
-    strikerY=STRIKER_Y_TOP     // Top player - on upper baseline
+  // In 2-player carrom, BOTH strikers are on the board
+  // Player 1 at bottom, Player 2 at top
+  // Only current player's striker is active
+  
+  if(!striker1){
+    striker1=new Disk(W/2,STRIKER_Y_BOTTOM,STRIKER_R,"white","striker")
+    striker1.vx=0; striker1.vy=0
   }
-  striker=new Disk(W/2,strikerY,STRIKER_R,"white","striker")
-  striker.vx=0
-  striker.vy=0
+  if(!striker2){
+    striker2=new Disk(W/2,STRIKER_Y_TOP,STRIKER_R,"white","striker")
+    striker2.vx=0; striker2.vy=0
+  }
+  
+  // Set active striker based on turn
+  if(turn===1){
+    striker=striker1
+    striker1.active=true
+    striker2.active=false
+  }else{
+    striker=striker2
+    striker1.active=false
+    striker2.active=true
+  }
 }
 
 // ============================================
@@ -1036,29 +1051,36 @@ function resetControls(){
 // ============================================
 
 function update(){
-  // Update striker
-  striker.update()
+  // Update both strikers
+  if(striker1) striker1.update()
+  if(striker2) striker2.update()
   
-  // Hard boundary - never let striker escape wooden frame
-  const boundMin=PLAY_MIN+striker.r
-  const boundMax=PLAY_MAX-striker.r
-  if(striker.x<boundMin)striker.x=boundMin
-  if(striker.x>boundMax)striker.x=boundMax
-  if(striker.y<boundMin)striker.y=boundMin
-  if(striker.y>boundMax)striker.y=boundMax
+  // Hard boundary for active striker
+  const activeStriker=turn===1?striker1:striker2
+  if(activeStriker){
+    const boundMin=PLAY_MIN+activeStriker.r
+    const boundMax=PLAY_MAX-activeStriker.r
+    if(activeStriker.x<boundMin)activeStriker.x=boundMin
+    if(activeStriker.x>boundMax)activeStriker.x=boundMax
+    if(activeStriker.y<boundMin)activeStriker.y=boundMin
+    if(activeStriker.y>boundMax)activeStriker.y=boundMax
+  }
   
   for(const c of coins)c.update()
   
-  // Collisions
-  for(const c of coins)checkCollision(striker,c)
+  // Collisions with active striker only
+  const activeS=turn===1?striker1:striker2
+  if(activeS){
+    for(const c of coins)checkCollision(activeS,c)
+  }
   for(let i=0;i<coins.length;i++){
     for(let j=i+1;j<coins.length;j++){
       checkCollision(coins[i],coins[j])
     }
   }
   
-  // Pocket detection
-  if(checkPocket(striker))handlePocketing(striker)
+  // Pocket detection for active striker
+  if(activeS&&checkPocket(activeS))handlePocketing(activeS)
   for(const c of coins){
     if(checkPocket(c))handlePocketing(c)
   }
@@ -1067,10 +1089,9 @@ function update(){
   if(turnInProgress){
     let moving=false
     for(const c of coins)if(c.active&&c.isMoving())moving=true
-    if(striker.active&&striker.isMoving())moving=true
+    if(activeS&&activeS.isMoving())moving=true
     
     if(!moving){
-      // All stopped - end turn
       setTimeout(nextTurn,500)
       turnInProgress=false
     }
@@ -1081,8 +1102,23 @@ function draw(){
   // Draw board background
   drawBoard()
   
-  // Draw striker
-  striker.draw()
+  // Draw both strikers (inactive one slightly faded)
+  if(striker1){
+    if(turn===1) striker1.draw()
+    else {
+      ctx.globalAlpha=0.4  // Faded for inactive player
+      striker1.draw()
+      ctx.globalAlpha=1.0
+    }
+  }
+  if(striker2){
+    if(turn===2) striker2.draw()
+    else {
+      ctx.globalAlpha=0.4  // Faded for inactive player
+      striker2.draw()
+      ctx.globalAlpha=1.0
+    }
+  }
   
   // Draw coins
   for(const c of coins)c.draw()
