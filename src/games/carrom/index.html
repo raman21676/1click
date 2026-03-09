@@ -506,7 +506,8 @@ class Disk{
   }
   
   draw(){
-    if(!this.active||this.inPocket)return
+    if(this.inPocket)return  // Only skip if pocketed, not if inactive
+    if(!this.active&&this.type!=="striker")return  // Non-strikers skip if inactive
     
     ctx.beginPath()
     ctx.arc(this.x,this.y,this.r,0,Math.PI*2)
