@@ -1057,29 +1057,31 @@ function resetControls(){
 
 function update(){
   // Update both strikers
-  // During aiming (before shot), striker stays on baseline
-  // During shot, striker moves freely
+  // If striker has velocity (moving), let it move freely
+  // If striker is stopped and it's player's turn, keep on baseline for positioning
   if(striker1) {
-    if(!turnInProgress && turn===1) {
-      // Player 1's turn, not shot yet - keep on baseline
+    const isMoving = Math.abs(striker1.vx) > 0.1 || Math.abs(striker1.vy) > 0.1
+    if(!isMoving && !turnInProgress && turn===1) {
+      // Stopped, Player 1's turn, not shot yet - keep on baseline for positioning
       striker1.y = STRIKER_Y_BOTTOM
       striker1.vy = 0
       if(striker1.x < BASELINE_X_MIN) striker1.x = BASELINE_X_MIN
       if(striker1.x > BASELINE_X_MAX) striker1.x = BASELINE_X_MAX
     } else {
-      // Shot in progress - normal physics
+      // Moving or shot in progress - normal physics
       striker1.update()
     }
   }
   if(striker2) {
-    if(!turnInProgress && turn===2) {
-      // Player 2's turn, not shot yet - keep on baseline
+    const isMoving = Math.abs(striker2.vx) > 0.1 || Math.abs(striker2.vy) > 0.1
+    if(!isMoving && !turnInProgress && turn===2) {
+      // Stopped, Player 2's turn, not shot yet - keep on baseline for positioning
       striker2.y = STRIKER_Y_TOP
       striker2.vy = 0
       if(striker2.x < BASELINE_X_MIN) striker2.x = BASELINE_X_MIN
       if(striker2.x > BASELINE_X_MAX) striker2.x = BASELINE_X_MAX
     } else {
-      // Shot in progress - normal physics
+      // Moving or shot in progress - normal physics
       striker2.update()
     }
   }
