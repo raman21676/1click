@@ -400,15 +400,15 @@ function drawBoard(){
   ctx.fillRect(0,0,W,H)
   
   // === 2. WOODEN FRAME (Thick, with rounded corners) ===
-  const frameInset=18  // Frame starts here
-  const frameThickness=52
+  const frameInset=16  // Frame starts here
+  const frameThickness=55
   
   // Main wooden frame - warm medium brown color
   ctx.fillStyle="#b87333"
   ctx.fillRect(frameInset,frameInset,W-frameInset*2,H-frameInset*2)
   
   // Rounded corners for frame (lighter orange-brown wood at corners)
-  const cornerR=45  // Large radius for rounded corners
+  const cornerR=55  // Even larger radius for more pronounced corners
   ctx.fillStyle="#cd853f"
   
   // Top-left rounded corner - more pronounced curve
@@ -457,7 +457,7 @@ function drawBoard(){
   ctx.fillRect(innerMargin,innerMargin,W-innerMargin*2,H-innerMargin*2)
   
   // === 4. CORNER POCKETS (Black circles at exact corners) ===
-  const pocketInset=frameInset+26  // More inset like goal
+  const pocketInset=frameInset+28  // Positioned like goal
   const POCKET_POSITIONS=[
     {x:pocketInset,y:pocketInset},
     {x:W-pocketInset,y:pocketInset},
@@ -643,8 +643,8 @@ function drawGoalCenterStar(){
     ctx.fill()
   }
   
-  // Diagonal white/cream points (NE, SE, SW, NW)
-  ctx.fillStyle="#f5e6c0"
+  // Diagonal white points (NE, SE, SW, NW) - like goal image
+  ctx.fillStyle="#f8f0d0"
   for(let i=0;i<4;i++){
     const angle=(i*Math.PI/2)
     ctx.beginPath()
@@ -656,15 +656,15 @@ function drawGoalCenterStar(){
     ctx.fill()
   }
   
-  // Dark gray/black tips on diagonal points
-  ctx.fillStyle="#3a3a3a"
+  // Dark tips on diagonal points (black/dark gray)
+  ctx.fillStyle="#2a2a2a"
   for(let i=0;i<4;i++){
     const angle=(i*Math.PI/2)
     ctx.beginPath()
     ctx.moveTo(cx,cy)
-    ctx.lineTo(cx+Math.cos(angle-Math.PI/12)*(diagR-15),cy+Math.sin(angle-Math.PI/12)*(diagR-15))
-    ctx.lineTo(cx+Math.cos(angle)*(diagR-8),cy+Math.sin(angle)*(diagR-8))
-    ctx.lineTo(cx+Math.cos(angle+Math.PI/12)*(diagR-15),cy+Math.sin(angle+Math.PI/12)*(diagR-15))
+    ctx.lineTo(cx+Math.cos(angle-Math.PI/12)*(diagR-12),cy+Math.sin(angle-Math.PI/12)*(diagR-12))
+    ctx.lineTo(cx+Math.cos(angle)*(diagR-5),cy+Math.sin(angle)*(diagR-5))
+    ctx.lineTo(cx+Math.cos(angle+Math.PI/12)*(diagR-12),cy+Math.sin(angle+Math.PI/12)*(diagR-12))
     ctx.closePath()
     ctx.fill()
   }
