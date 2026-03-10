@@ -393,158 +393,237 @@ async function loadAllImages(){
 }
 
 // ============================================
-// BOARD DRAWING - EXACT MATCH TO GOAL IMAGE
+// BOARD DRAWING - MATCH GOAL IMAGE STYLE
 // ============================================
 
 function drawBoard(){
-  // 1. OUTER BACKGROUND (Teal)
-  ctx.fillStyle="#103d32";
-  ctx.fillRect(0,0,W,H);
-  
-  // 2. WOODEN FRAME
-  ctx.fillStyle="#8c2819"; // Reddish brown
-  ctx.fillRect(FRAME_MARGIN, FRAME_MARGIN, W-FRAME_MARGIN*2, H-FRAME_MARGIN*2);
-  
-  // 3. ORANGE CORNERS
-  ctx.fillStyle="#f68b1f"; // Orange
-  const cornerR=25, cornerS=50;
-  ctx.beginPath(); ctx.roundRect(FRAME_MARGIN, FRAME_MARGIN, cornerS, cornerS, [cornerR, 0, cornerR, 0]); ctx.fill();
-  ctx.beginPath(); ctx.roundRect(W-FRAME_MARGIN-cornerS, FRAME_MARGIN, cornerS, cornerS, [0, cornerR, 0, cornerR]); ctx.fill();
-  ctx.beginPath(); ctx.roundRect(FRAME_MARGIN, H-FRAME_MARGIN-cornerS, cornerS, cornerS, [0, cornerR, 0, cornerR]); ctx.fill();
-  ctx.beginPath(); ctx.roundRect(W-FRAME_MARGIN-cornerS, H-FRAME_MARGIN-cornerS, cornerS, cornerS, [cornerR, 0, cornerR, 0]); ctx.fill();
-  
-  // 4. INNER PLAYING SURFACE
-  ctx.fillStyle="#f6ebd1"; // Creamy yellow
-  ctx.beginPath(); ctx.roundRect(BOARD_MARGIN, BOARD_MARGIN, W-BOARD_MARGIN*2, H-BOARD_MARGIN*2, 10); ctx.fill();
-  
-  // 5. POCKETS
-  ctx.fillStyle="#151515";
-  for(let p of POCKETS){
-    ctx.beginPath(); ctx.arc(p.x, p.y, POCKET_R, 0, Math.PI*2); ctx.fill();
-  }
-  
   const cx=W/2, cy=H/2;
   
-  // 6. DIAGONAL LINES & ARROWS
-  ctx.strokeStyle="#000";
-  ctx.lineWidth=1.5;
-  const diagStart=105;
-  const diagEnd=W/2 - BOARD_MARGIN - 50;
+  // 1. OUTER BACKGROUND (Dark teal frame area)
+  ctx.fillStyle="#0d4a3a";
+  ctx.fillRect(0,0,W,H);
   
-  for(let i=0; i<4; i++){
-    const a = i*Math.PI/2 + Math.PI/4;
-    // Line
-    ctx.beginPath();
-    ctx.moveTo(cx + Math.cos(a)*diagStart, cy + Math.sin(a)*diagStart);
-    ctx.lineTo(cx + Math.cos(a)*diagEnd, cy + Math.sin(a)*diagEnd);
-    ctx.stroke();
-
-    // Arrow tip
-    const arrowA = a + Math.PI/2;
-    ctx.beginPath();
-    ctx.moveTo(cx + Math.cos(a)*diagEnd, cy + Math.sin(a)*diagEnd);
-    ctx.lineTo(cx + Math.cos(a)*(diagEnd-10) + Math.cos(arrowA)*5, cy + Math.sin(a)*(diagEnd-10) + Math.sin(arrowA)*5);
-    ctx.lineTo(cx + Math.cos(a)*(diagEnd-10) - Math.cos(arrowA)*5, cy + Math.sin(a)*(diagEnd-10) - Math.sin(arrowA)*5);
-    ctx.fillStyle="#000"; ctx.fill();
-
-    // Small semi-circle near base
-    ctx.beginPath();
-    ctx.arc(cx + Math.cos(a)*diagStart, cy + Math.sin(a)*diagStart, 15, a-Math.PI/2, a+Math.PI/2);
-    ctx.stroke();
-    
-    // Rotating arc arrows inside diagonal semi-circles
-    const arrEndA = a + Math.PI/2;
-    ctx.beginPath();
-    let ptX = cx + Math.cos(a)*diagStart + Math.cos(arrEndA)*15;
-    let ptY = cy + Math.sin(a)*diagStart + Math.sin(arrEndA)*15;
-    ctx.moveTo(ptX, ptY);
-    ctx.lineTo(ptX - Math.cos(a)*5 + Math.cos(a-Math.PI/2)*5, ptY - Math.sin(a)*5 + Math.sin(a-Math.PI/2)*5);
-    ctx.lineTo(ptX + Math.cos(a)*5 + Math.cos(a-Math.PI/2)*5, ptY + Math.sin(a)*5 + Math.sin(a-Math.PI/2)*5);
+  // 2. WOODEN FRAME (Reddish-brown border)
+  ctx.fillStyle="#8b3a2e";
+  ctx.fillRect(FRAME_MARGIN, FRAME_MARGIN, W-FRAME_MARGIN*2, H-FRAME_MARGIN*2);
+  
+  // 3. ORANGE CORNERS (rounded corners at frame)
+  const cornerSize=55;
+  ctx.fillStyle="#e8913a";
+  // Top-left
+  ctx.beginPath();
+  ctx.moveTo(FRAME_MARGIN, FRAME_MARGIN+cornerSize);
+  ctx.quadraticCurveTo(FRAME_MARGIN, FRAME_MARGIN, FRAME_MARGIN+cornerSize, FRAME_MARGIN);
+  ctx.lineTo(FRAME_MARGIN+cornerSize, FRAME_MARGIN+cornerSize);
+  ctx.lineTo(FRAME_MARGIN, FRAME_MARGIN+cornerSize);
+  ctx.fill();
+  // Top-right
+  ctx.beginPath();
+  ctx.moveTo(W-FRAME_MARGIN-cornerSize, FRAME_MARGIN);
+  ctx.quadraticCurveTo(W-FRAME_MARGIN, FRAME_MARGIN, W-FRAME_MARGIN, FRAME_MARGIN+cornerSize);
+  ctx.lineTo(W-FRAME_MARGIN-cornerSize, FRAME_MARGIN+cornerSize);
+  ctx.lineTo(W-FRAME_MARGIN-cornerSize, FRAME_MARGIN);
+  ctx.fill();
+  // Bottom-left
+  ctx.beginPath();
+  ctx.moveTo(FRAME_MARGIN, H-FRAME_MARGIN-cornerSize);
+  ctx.quadraticCurveTo(FRAME_MARGIN, H-FRAME_MARGIN, FRAME_MARGIN+cornerSize, H-FRAME_MARGIN);
+  ctx.lineTo(FRAME_MARGIN+cornerSize, H-FRAME_MARGIN-cornerSize);
+  ctx.lineTo(FRAME_MARGIN, H-FRAME_MARGIN-cornerSize);
+  ctx.fill();
+  // Bottom-right
+  ctx.beginPath();
+  ctx.moveTo(W-FRAME_MARGIN-cornerSize, H-FRAME_MARGIN);
+  ctx.quadraticCurveTo(W-FRAME_MARGIN, H-FRAME_MARGIN, W-FRAME_MARGIN, H-FRAME_MARGIN-cornerSize);
+  ctx.lineTo(W-FRAME_MARGIN-cornerSize, H-FRAME_MARGIN-cornerSize);
+  ctx.lineTo(W-FRAME_MARGIN-cornerSize, H-FRAME_MARGIN);
+  ctx.fill();
+  
+  // 4. INNER PLAYING SURFACE (Cream/beige)
+  ctx.fillStyle="#f5e6c8";
+  ctx.fillRect(BOARD_MARGIN, BOARD_MARGIN, W-BOARD_MARGIN*2, H-BOARD_MARGIN*2);
+  
+  // 5. POCKETS (Black circles at corners)
+  ctx.fillStyle="#1a1a1a";
+  for(let p of POCKETS){
+    ctx.beginPath(); 
+    ctx.arc(p.x, p.y, POCKET_R, 0, Math.PI*2); 
     ctx.fill();
-  }
-  
-  // 7. BASELINES
-  function drawBaseline(x1, y1, x2, y2, angle) {
-     ctx.strokeStyle="#000";
-     ctx.lineWidth=1.5;
-     
-     const dx = Math.cos(angle);
-     const dy = Math.sin(angle);
-     
-     // Two parallel lines
-     ctx.beginPath(); ctx.moveTo(x1, y1); ctx.lineTo(x2, y2); ctx.stroke();
-     ctx.beginPath(); ctx.moveTo(x1 + dx*BASELINE_OFF, y1 + dy*BASELINE_OFF); ctx.lineTo(x2 + dx*BASELINE_OFF, y2 + dy*BASELINE_OFF); ctx.stroke();
-     
-     // End circles (orange)
-     ctx.fillStyle="#e8731d";
-     ctx.beginPath(); ctx.arc(x1 + dx*(BASELINE_OFF/2), y1 + dy*(BASELINE_OFF/2), 16, 0, Math.PI*2); ctx.fill(); ctx.stroke();
-     ctx.beginPath(); ctx.arc(x2 + dx*(BASELINE_OFF/2), y2 + dy*(BASELINE_OFF/2), 16, 0, Math.PI*2); ctx.fill(); ctx.stroke();
-     
-     // Inner RED center circles inside orange
-     ctx.fillStyle="#d82525";
-     ctx.beginPath(); ctx.arc(x1 + dx*(BASELINE_OFF/2), y1 + dy*(BASELINE_OFF/2), 6, 0, Math.PI*2); ctx.fill();
-     ctx.beginPath(); ctx.arc(x2 + dx*(BASELINE_OFF/2), y2 + dy*(BASELINE_OFF/2), 6, 0, Math.PI*2); ctx.fill();
-     
-     // Moon shapes inside outer baseline
-     ctx.fillStyle="#000";
-     const div = 4;
-     for(let i=1; i<div; i++){
-       let bx = x1 + (x2-x1)*i/div + dx*BASELINE_OFF;
-       let by = y1 + (y2-y1)*i/div + dy*BASELINE_OFF;
-       ctx.beginPath();
-       ctx.arc(bx, by, 8, angle + Math.PI/2, angle - Math.PI/2);
-       ctx.stroke();
-       // Add reddish dot
-       ctx.beginPath(); ctx.arc(bx - dx*5, by - dy*5, 3.5, 0, Math.PI*2); ctx.fillStyle="#c52222"; ctx.fill();
-     }
-  }
-  
-  drawBaseline(cx - BL_LEN, cy - BASELINE_DIST, cx + BL_LEN, cy - BASELINE_DIST, Math.PI/2);
-  drawBaseline(cx - BL_LEN, cy + BASELINE_DIST, cx + BL_LEN, cy + BASELINE_DIST, -Math.PI/2);
-  drawBaseline(cx - BASELINE_DIST, cy - BL_LEN, cx - BASELINE_DIST, cy + BL_LEN, 0);
-  drawBaseline(cx + BASELINE_DIST, cy - BL_LEN, cx + BASELINE_DIST, cy + BL_LEN, Math.PI);
-
-  // 8. CENTER STAR AND CIRCLES
-  ctx.strokeStyle="#000";
-  ctx.lineWidth=1;
-  ctx.beginPath(); ctx.arc(cx, cy, 95, 0, Math.PI*2); ctx.stroke();
-  ctx.beginPath(); ctx.arc(cx, cy, 90, 0, Math.PI*2); ctx.stroke();
-  
-  // 4 red & 4 black/white alternating star points
-  for(let i=0; i<8; i++){
-    const a = i*Math.PI/4 - Math.PI/2;
+    // Pocket inner shadow
     ctx.beginPath();
-    ctx.moveTo(cx, cy);
-    ctx.lineTo(cx + Math.cos(a - Math.PI/12)*25, cy + Math.sin(a - Math.PI/12)*25);
-    ctx.lineTo(cx + Math.cos(a)*85, cy + Math.sin(a)*85);
-    ctx.lineTo(cx + Math.cos(a + Math.PI/12)*25, cy + Math.sin(a + Math.PI/12)*25);
-    ctx.closePath();
+    ctx.arc(p.x, p.y, POCKET_R-3, 0, Math.PI*2);
+    ctx.fillStyle="#0d0d0d";
+    ctx.fill();
+    ctx.fillStyle="#1a1a1a";
+  }
+  
+  // 6. BASELINES - Wide red lines at edges with orange circles
+  const baselineY=80; // Distance from edge
+  const baselineWidth=28; // Width of baseline area
+  
+  ctx.lineWidth=2;
+  
+  // Function to draw a baseline
+  function drawBaselineArea(isHorizontal, x1, y1, x2, y2) {
+    // Main baseline lines (thick)
+    ctx.strokeStyle="#c4a86b";
+    ctx.lineWidth=2;
+    ctx.beginPath();
+    ctx.moveTo(x1, y1);
+    ctx.lineTo(x2, y2);
+    ctx.stroke();
     
-    if (i%2 === 0) {
-      // Red petal
-      ctx.fillStyle = "#c52222";
-      ctx.fill();
+    // Second parallel line
+    if(isHorizontal){
+      ctx.beginPath();
+      ctx.moveTo(x1, y1+baselineWidth);
+      ctx.lineTo(x2, y2+baselineWidth);
       ctx.stroke();
     } else {
-      // Black/White split
-      ctx.fillStyle = "#1a1a1a";
+      ctx.beginPath();
+      ctx.moveTo(x1+baselineWidth, y1);
+      ctx.lineTo(x2+baselineWidth, y2);
+      ctx.stroke();
+    }
+    
+    // End circles (orange with red center)
+    const circleR=18;
+    const centers = isHorizontal ? [
+      {x: x1+circleR+5, y: y1+baselineWidth/2},
+      {x: x2-circleR-5, y: y2+baselineWidth/2}
+    ] : [
+      {x: x1+baselineWidth/2, y: y1+circleR+5},
+      {x: x2+baselineWidth/2, y: y2-circleR-5}
+    ];
+    
+    centers.forEach(c => {
+      // Outer orange circle
+      ctx.beginPath();
+      ctx.arc(c.x, c.y, circleR, 0, Math.PI*2);
+      ctx.fillStyle="#e8913a";
       ctx.fill();
+      ctx.strokeStyle="#b87333";
       ctx.stroke();
       
-      // Right half white
+      // Inner red circle
       ctx.beginPath();
-      ctx.moveTo(cx, cy);
-      ctx.lineTo(cx + Math.cos(a)*85, cy + Math.sin(a)*85);
-      ctx.lineTo(cx + Math.cos(a + Math.PI/12)*25, cy + Math.sin(a + Math.PI/12)*25);
-      ctx.closePath();
-      ctx.fillStyle = "#ffffff";
+      ctx.arc(c.x, c.y, 7, 0, Math.PI*2);
+      ctx.fillStyle="#c44536";
       ctx.fill();
-      ctx.stroke();
+    });
+    
+    // Arrow indicators on baseline
+    ctx.fillStyle="#333";
+    if(isHorizontal){
+      // Center mark
+      const midX = (x1+x2)/2;
+      ctx.beginPath();
+      ctx.arc(midX, y1+baselineWidth/2, 4, 0, Math.PI*2);
+      ctx.fill();
+    } else {
+      const midY = (y1+y2)/2;
+      ctx.beginPath();
+      ctx.arc(x1+baselineWidth/2, midY, 4, 0, Math.PI*2);
+      ctx.fill();
     }
   }
   
-  // Inner red circle
-  ctx.beginPath(); ctx.arc(cx, cy, 22, 0, Math.PI*2); ctx.fillStyle="#c52222"; ctx.fill(); ctx.stroke();
+  // Draw 4 baselines
+  const edgeGap=BOARD_MARGIN+20;
+  const endGap=BOARD_MARGIN+60;
+  // Top
+  drawBaselineArea(true, endGap, edgeGap, W-endGap, edgeGap);
+  // Bottom
+  drawBaselineArea(true, endGap, H-edgeGap-baselineWidth, W-endGap, H-edgeGap-baselineWidth);
+  // Left
+  drawBaselineArea(false, edgeGap, endGap, edgeGap, H-endGap);
+  // Right
+  drawBaselineArea(false, W-edgeGap-baselineWidth, endGap, W-edgeGap-baselineWidth, H-endGap);
+  
+  // 7. DIAGONAL LINES - From corner areas to center
+  ctx.strokeStyle="#5a5a5a";
+  ctx.lineWidth=1.5;
+  
+  // Draw 4 diagonal lines with arrow heads
+  for(let i=0; i<4; i++){
+    const angle = i*Math.PI/2 + Math.PI/4;
+    const startDist = 120; // Start from near corner
+    const endDist = 170;   // End before center circle
+    
+    const startX = cx + Math.cos(angle)*startDist;
+    const startY = cy + Math.sin(angle)*startDist;
+    const endX = cx + Math.cos(angle)*endDist;
+    const endY = cy + Math.sin(angle)*endDist;
+    
+    // Main diagonal line
+    ctx.beginPath();
+    ctx.moveTo(startX, startY);
+    ctx.lineTo(endX, endY);
+    ctx.stroke();
+    
+    // Arrow head at end (pointing to center)
+    const arrowSize=10;
+    const arrowAngle1 = angle + Math.PI - 0.3;
+    const arrowAngle2 = angle + Math.PI + 0.3;
+    
+    ctx.beginPath();
+    ctx.moveTo(endX, endY);
+    ctx.lineTo(endX + Math.cos(arrowAngle1)*arrowSize, endY + Math.sin(arrowAngle1)*arrowSize);
+    ctx.lineTo(endX + Math.cos(arrowAngle2)*arrowSize, endY + Math.sin(arrowAngle2)*arrowSize);
+    ctx.closePath();
+    ctx.fillStyle="#5a5a5a";
+    ctx.fill();
+    
+    // Small circle at start
+    ctx.beginPath();
+    ctx.arc(startX, startY, 12, 0, Math.PI*2);
+    ctx.stroke();
+  }
+  
+  // 8. CENTER COMPASS/STAR DESIGN
+  // Outer center circle
+  ctx.strokeStyle="#8b7355";
+  ctx.lineWidth=2;
+  ctx.beginPath(); 
+  ctx.arc(cx, cy, 110, 0, Math.PI*2); 
+  ctx.stroke();
+  
+  // Compass star - 8 points
+  ctx.lineWidth=2;
+  for(let i=0; i<8; i++){
+    const angle = i*Math.PI/4 - Math.PI/2;
+    const innerR = 25;
+    const outerR = i%2===0 ? 100 : 70; // Alternating long/short points
+    
+    ctx.beginPath();
+    ctx.moveTo(cx + Math.cos(angle)*innerR, cy + Math.sin(angle)*innerR);
+    ctx.lineTo(cx + Math.cos(angle)*outerR, cy + Math.sin(angle)*outerR);
+    
+    // Color: alternate between red and black/white
+    if(i%2 === 0){
+      ctx.strokeStyle="#c44536"; // Red
+      ctx.lineWidth=3;
+    } else {
+      ctx.strokeStyle="#1a1a1a"; // Black
+      ctx.lineWidth=2;
+    }
+    ctx.stroke();
+  }
+  
+  // Red center circle
+  ctx.beginPath(); 
+  ctx.arc(cx, cy, 25, 0, Math.PI*2); 
+  ctx.fillStyle="#c44536"; 
+  ctx.fill(); 
+  ctx.strokeStyle="#8b3a2e";
+  ctx.lineWidth=2;
+  ctx.stroke();
+  
+  // Inner white highlight
+  ctx.beginPath();
+  ctx.arc(cx-5, cy-5, 8, 0, Math.PI*2);
+  ctx.fillStyle="rgba(255,255,255,0.3)";
+  ctx.fill();
 }
 
 // (Removed old unused drawing functions - now using goal-style functions)
