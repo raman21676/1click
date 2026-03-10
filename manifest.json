@@ -1,0 +1,105 @@
+{
+  "name": "1click - Free Online Mini Games",
+  "short_name": "1click Games",
+  "description": "Play 9+ free mini games instantly! Ludo, Snake & Ladder, Chess, Carrom, Sudoku & more. No download required.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0f172a",
+  "theme_color": "#0f172a",
+  "orientation": "portrait-primary",
+  "scope": "/",
+  "lang": "en",
+  "dir": "ltr",
+  "categories": ["games", "entertainment"],
+  "icons": [
+    {
+      "src": "/src/assets/images/icon-72x72.png",
+      "sizes": "72x72",
+      "type": "image/png",
+      "purpose": "maskable any"
+    },
+    {
+      "src": "/src/assets/images/icon-96x96.png",
+      "sizes": "96x96",
+      "type": "image/png",
+      "purpose": "maskable any"
+    },
+    {
+      "src": "/src/assets/images/icon-128x128.png",
+      "sizes": "128x128",
+      "type": "image/png",
+      "purpose": "maskable any"
+    },
+    {
+      "src": "/src/assets/images/icon-144x144.png",
+      "sizes": "144x144",
+      "type": "image/png",
+      "purpose": "maskable any"
+    },
+    {
+      "src": "/src/assets/images/icon-152x152.png",
+      "sizes": "152x152",
+      "type": "image/png",
+      "purpose": "maskable any"
+    },
+    {
+      "src": "/src/assets/images/icon-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "maskable any"
+    },
+    {
+      "src": "/src/assets/images/icon-384x384.png",
+      "sizes": "384x384",
+      "type": "image/png",
+      "purpose": "maskable any"
+    },
+    {
+      "src": "/src/assets/images/icon-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable any"
+    }
+  ],
+  "screenshots": [
+    {
+      "src": "/src/assets/images/screenshot-wide.png",
+      "sizes": "1280x720",
+      "type": "image/png",
+      "form_factor": "wide",
+      "label": "1click Games Homepage"
+    },
+    {
+      "src": "/src/assets/images/screenshot-narrow.png",
+      "sizes": "750x1334",
+      "type": "image/png",
+      "form_factor": "narrow",
+      "label": "1click Games on Mobile"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Play Ludo",
+      "short_name": "Ludo",
+      "description": "Start playing Ludo instantly",
+      "url": "/src/games/ludo/",
+      "icons": [{ "src": "/src/games/ludo/icon.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "Play Chess",
+      "short_name": "Chess",
+      "description": "Start playing Chess instantly",
+      "url": "/src/games/chess/",
+      "icons": [{ "src": "/src/games/chess/icon.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "Play Snake & Ladder",
+      "short_name": "Snake & Ladder",
+      "description": "Start playing Snake & Ladder instantly",
+      "url": "/src/games/snake-ladder/",
+      "icons": [{ "src": "/src/games/snake-ladder/icon.png", "sizes": "192x192" }]
+    }
+  ],
+  "related_applications": [],
+  "prefer_related_applications": false
+}

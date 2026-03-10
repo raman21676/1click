@@ -455,6 +455,76 @@
         }
         
         /* ============================================
+           AD CONTAINERS
+           ============================================ */
+        .ad-container {
+            width: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px dashed rgba(255, 255, 255, 0.2);
+            overflow: hidden;
+        }
+        
+        .ad-placeholder {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: rgba(255, 255, 255, 0.4);
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+        
+        /* Top Banner Ad */
+        .ad-banner-top {
+            margin-top: 80px;
+            padding: 0.75rem;
+            min-height: 90px;
+        }
+        
+        .ad-banner-top .ad-placeholder {
+            width: 728px;
+            height: 90px;
+            max-width: 100%;
+        }
+        
+        /* Bottom Banner Ad */
+        .ad-banner-bottom {
+            padding: 0.75rem;
+            min-height: 90px;
+            margin-bottom: 1rem;
+        }
+        
+        .ad-banner-bottom .ad-placeholder {
+            width: 728px;
+            height: 90px;
+            max-width: 100%;
+        }
+        
+        /* Mobile Responsive Ads */
+        @media (max-width: 768px) {
+            .ad-banner-top,
+            .ad-banner-bottom {
+                min-height: 50px;
+                padding: 0.5rem;
+            }
+            
+            .ad-banner-top .ad-placeholder,
+            .ad-banner-bottom .ad-placeholder {
+                width: 320px;
+                height: 50px;
+            }
+        }
+        
+        /* Hide ads when printing */
+        @media print {
+            .ad-container {
+                display: none !important;
+            }
+        }
+        
+        /* ============================================
            HERO SECTION
            ============================================ */
         .hero {
@@ -839,6 +909,24 @@
             }
         }
     </style>
+    
+    <!-- PWA Manifest -->
+    <link rel="manifest" href="/manifest.json">
+    
+    <!-- Service Worker Registration -->
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('/sw.js')
+                    .then((registration) => {
+                        console.log('[PWA] Service Worker registered:', registration.scope);
+                    })
+                    .catch((error) => {
+                        console.error('[PWA] Service Worker registration failed:', error);
+                    });
+            });
+        }
+    </script>
 </head>
 <body>
     <!-- Loading Screen -->
@@ -862,6 +950,13 @@
     <a href="https://github.com/Raman21676/1click" target="_blank" class="github-star" aria-label="Star on GitHub" title="Star on GitHub">
         ⭐
     </a>
+    
+    <!-- Top Banner Ad Placeholder -->
+    <div class="ad-container ad-banner-top" id="adBannerTop">
+        <div class="ad-placeholder">
+            <span>📢 Advertisement</span>
+        </div>
+    </div>
 
         <!-- Games Section -->
     <section class="games-section" id="games" style="padding-top: 2rem;">
@@ -983,6 +1078,13 @@
         </div>
     </section>
 
+    <!-- Bottom Banner Ad Placeholder -->
+    <div class="ad-container ad-banner-bottom" id="adBannerBottom">
+        <div class="ad-placeholder">
+            <span>📢 Advertisement</span>
+        </div>
+    </div>
+    
     <section class="games-section" id="games">
         <div class="container">
             <footer>
