@@ -69,6 +69,9 @@ p{
 .mode-btn:hover{background:rgba(255,255,255,.08)}
 .mode-btn.sel{border-color:#22c55e;background:rgba(34,197,94,.12)}
 
+.flip-btn:hover{background:rgba(255,255,255,.1)}
+.flip-btn.sel{border-color:#22c55e;background:rgba(34,197,94,.15)}
+
 input{
   width:100%;
   padding:12px 14px;
@@ -277,6 +280,20 @@ canvas{
     </button>
     <input type="text" id="p1name" placeholder="Player 1" value="Player 1">
     <input type="text" id="p2name" placeholder="Player 2" value="Player 2">
+    
+    <!-- Flip Mode Selection -->
+    <div style="margin:15px 0;padding:12px;background:rgba(255,255,255,0.05);border-radius:10px;border:1px solid rgba(255,255,255,0.1);">
+      <div style="font-size:0.8rem;color:#94a3b8;margin-bottom:8px;">📱 Phone Position</div>
+      <div style="display:flex;gap:10px;">
+        <button type="button" id="flipOffBtn" class="flip-btn sel" onclick="selectFlipMode(false)" style="flex:1;padding:10px;border:2px solid rgba(255,255,255,0.2);background:rgba(255,255,255,0.05);color:#fff;border-radius:8px;cursor:pointer;font-family:inherit;font-size:0.85rem;">
+          📱 On Table<br><small style="color:#94a3b8">Players opposite</small>
+        </button>
+        <button type="button" id="flipOnBtn" class="flip-btn" onclick="selectFlipMode(true)" style="flex:1;padding:10px;border:2px solid rgba(255,255,255,0.2);background:rgba(255,255,255,0.05);color:#fff;border-radius:8px;cursor:pointer;font-family:inherit;font-size:0.85rem;">
+          🔄 Pass Phone<br><small style="color:#94a3b8">Same side</small>
+        </button>
+      </div>
+    </div>
+    
     <button class="start-btn" onclick="startGame()">Start Game</button>
   </div>
 </div>
@@ -308,25 +325,6 @@ canvas{
   </div>
   
   <div id="turn-display">Turn: <b id="turnName">Player 1</b></div>
-  
-  <!-- Flip Mode Toggle -->
-  <button id="flipToggle" onclick="toggleFlipMode()" style="
-    background:rgba(255,255,255,0.1);
-    border:1px solid rgba(255,255,255,0.2);
-    color:#94a3b8;
-    padding:8px 16px;
-    border-radius:20px;
-    cursor:pointer;
-    font-family:inherit;
-    font-size:0.85rem;
-    margin:10px auto;
-    display:flex;
-    align-items:center;
-    gap:8px;
-  ">
-    <span id="flipIcon">🔄</span>
-    <span id="flipText">Flip: OFF</span>
-  </button>
   
   <!-- Bottom Slider Bar -->
   <div class="slider-container" id="sliderContainer">
@@ -1749,28 +1747,27 @@ function resetGame(){
 }
 
 // Flip mode toggle
-function toggleFlipMode(){
-  flipMode=!flipMode
-  const btn=document.getElementById("flipToggle")
-  const icon=document.getElementById("flipIcon")
-  const text=document.getElementById("flipText")
+// Flip mode selection on setup screen
+function selectFlipMode(enabled){
+  flipMode=enabled
+  const offBtn=document.getElementById("flipOffBtn")
+  const onBtn=document.getElementById("flipOnBtn")
   
-  if(flipMode){
-    btn.style.background="rgba(34,197,94,0.2)"
-    btn.style.borderColor="rgba(34,197,94,0.5)"
-    btn.style.color="#22c55e"
-    icon.textContent="🔄"
-    text.textContent="Flip: ON"
+  if(enabled){
+    onBtn.classList.add("sel")
+    onBtn.style.borderColor="#22c55e"
+    onBtn.style.background="rgba(34,197,94,0.15)"
+    offBtn.classList.remove("sel")
+    offBtn.style.borderColor="rgba(255,255,255,0.2)"
+    offBtn.style.background="rgba(255,255,255,0.05)"
   }else{
-    btn.style.background="rgba(255,255,255,0.1)"
-    btn.style.borderColor="rgba(255,255,255,0.2)"
-    btn.style.color="#94a3b8"
-    icon.textContent="🔄"
-    text.textContent="Flip: OFF"
+    offBtn.classList.add("sel")
+    offBtn.style.borderColor="#22c55e"
+    offBtn.style.background="rgba(34,197,94,0.15)"
+    onBtn.classList.remove("sel")
+    onBtn.style.borderColor="rgba(255,255,255,0.2)"
+    onBtn.style.background="rgba(255,255,255,0.05)"
   }
-  
-  // Update slider position based on new flip mode
-  updateSliderPositionForTurn()
 }
 
 // Mode selection
