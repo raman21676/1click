@@ -212,7 +212,6 @@ canvas{
   border-radius:50%;
   background:linear-gradient(135deg,#f5f5f5,#e0e0e0);
   border:3px solid #fff;
-  box-shadow:0 3px 10px rgba(0,0,0,0.4),0 0 0 2px rgba(255,255,255,0.2);
   cursor:grab;
   transition:transform 0.1s;
   z-index:10;
@@ -481,21 +480,7 @@ function drawBoard(){
   ctx.fillStyle="#f5e6c8";
   ctx.fillRect(BOARD_MARGIN, BOARD_MARGIN, W-BOARD_MARGIN*2, H-BOARD_MARGIN*2);
   
-  // 5. POCKETS (Black circles at corners)
-  ctx.fillStyle="#1a1a1a";
-  for(let p of POCKETS){
-    ctx.beginPath(); 
-    ctx.arc(p.x, p.y, POCKET_R, 0, Math.PI*2); 
-    ctx.fill();
-    // Pocket inner shadow
-    ctx.beginPath();
-    ctx.arc(p.x, p.y, POCKET_R-3, 0, Math.PI*2);
-    ctx.fillStyle="#0d0d0d";
-    ctx.fill();
-    ctx.fillStyle="#1a1a1a";
-  }
-  
-  // 6. BASELINES - Wide red lines at edges with orange circles
+  // 5. BASELINES - Wide red lines at edges with orange circles
   const baselineY=80; // Distance from edge
   const baselineWidth=28; // Width of baseline area
   
@@ -1532,22 +1517,9 @@ function draw(){
   // Draw board background
   drawBoard()
   
-  // Draw both strikers (inactive one slightly faded)
-  if(striker1){
-    if(turn===1) striker1.draw()
-    else {
-      ctx.globalAlpha=0.4  // Faded for inactive player
-      striker1.draw()
-      ctx.globalAlpha=1.0
-    }
-  }
-  if(striker2){
-    if(turn===2) striker2.draw()
-    else {
-      ctx.globalAlpha=0.4  // Faded for inactive player
-      striker2.draw()
-      ctx.globalAlpha=1.0
-    }
+  // Draw only the active striker (current player's striker)
+  if(striker&&striker.active){
+    striker.draw()
   }
   
   // Draw coins
