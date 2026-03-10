@@ -1404,9 +1404,10 @@ function update(){
   
   for(const c of coins)c.update()
   
-  // Collisions with active striker only
+  // Collisions with active striker only - ONLY when shot is in progress
+  // During positioning (turnInProgress=false), striker doesn't collide with coins
   const activeS=turn===1?striker1:striker2
-  if(activeS){
+  if(activeS&&turnInProgress){
     for(const c of coins)checkCollision(activeS,c)
   }
   for(let i=0;i<coins.length;i++){
