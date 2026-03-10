@@ -885,6 +885,8 @@ function checkPocket(disk){
     if(dist<POCKET_R){
       disk.inPocket=true
       disk.active=false
+      disk.vx=0  // Stop movement
+      disk.vy=0
       return true
     }
   }
