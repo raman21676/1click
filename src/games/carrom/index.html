@@ -360,13 +360,14 @@ const POCKETS=[
 const BASELINE_WIDTH=28
 const EDGE_GAP=BOARD_MARGIN+20
 const END_GAP=BOARD_MARGIN+60
-const BL_LEN=180
+const CIRCLE_R=18
 // Top baseline center Y
 const STRIKER_Y_TOP=EDGE_GAP+BASELINE_WIDTH/2
 // Bottom baseline center Y  
 const STRIKER_Y_BOTTOM=H-EDGE_GAP-BASELINE_WIDTH/2
-const BASELINE_X_MIN=END_GAP+35
-const BASELINE_X_MAX=W-END_GAP-35
+// Striker slides from left orange circle to right orange circle
+const BASELINE_X_MIN=END_GAP+CIRCLE_R+5
+const BASELINE_X_MAX=W-END_GAP-CIRCLE_R-5
 
 // Load images
 const IMAGES={}
