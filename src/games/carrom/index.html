@@ -1152,6 +1152,10 @@ function aiPlay(){
     striker.vx=Math.cos(aimAngle+Math.PI)*power
     striker.vy=Math.sin(aimAngle+Math.PI)*power
     
+    // Reset turn state for this shot
+    keepTurn=false
+    coinsPocketedThisTurn=[]
+    
     turnInProgress=true
     cancelAiming()
   },800)
@@ -1337,6 +1341,10 @@ function handleBoardEnd(e){
     // Shoot in OPPOSITE direction of drag (pull back to shoot forward)
     striker.vx=Math.cos(aimAngle+Math.PI)*power
     striker.vy=Math.sin(aimAngle+Math.PI)*power
+    
+    // Reset turn state for this shot
+    keepTurn=false
+    coinsPocketedThisTurn=[]
     
     turnInProgress=true
   }
