@@ -249,8 +249,12 @@
     <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎮</text></svg>">
     
     <!-- Fonts -->
+    <!-- Preconnect for faster font loading -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="dns-prefetch" href="https://fonts.googleapis.com">
+    
+    <!-- Fonts with display=swap for non-blocking load -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Poppins:wght@500;600;700;800&display=swap" rel="stylesheet">
     
     <!-- Theme Script (runs before CSS loads) -->
@@ -342,7 +346,7 @@
             
             --text-primary: #f8fafc;
             --text-secondary: #94a3b8;
-            --text-tertiary: #64748b;
+            --text-tertiary: #94a3b8;
             --text-muted: #475569;
             
             --border-color: #334155;
@@ -361,7 +365,7 @@
             
             --text-primary: #0f172a;
             --text-secondary: #475569;
-            --text-tertiary: #64748b;
+            --text-tertiary: #94a3b8;
             --text-muted: #94a3b8;
             
             --border-color: #e2e8f0;
@@ -819,7 +823,7 @@
         
         .status-new {
             background: #FFD600;
-            color: #333;
+            color: #1a1a1a;
             font-weight: 700;
             animation: pulse-badge 1.5s ease-in-out infinite;
         }
@@ -913,6 +917,27 @@
     <!-- PWA Manifest -->
     <link rel="manifest" href="/manifest.json">
     
+    <!-- Google AdSense -->
+    <!-- Replace with your AdSense Publisher ID -->
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-XXXXXXXXXXXXXXXX"
+     crossorigin="anonymous"></script>
+    
+    <!-- Google Analytics 4 -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-XXXXXXXXXX"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'G-XXXXXXXXXX');
+        
+        // Track page views
+        gtag('event', 'page_view', {
+            'page_title': document.title,
+            'page_location': window.location.href,
+            'page_path': window.location.pathname
+        });
+    </script>
+    
     <!-- Service Worker Registration -->
     <script>
         if ('serviceWorker' in navigator) {
@@ -951,11 +976,18 @@
         ⭐
     </a>
     
-    <!-- Top Banner Ad Placeholder -->
+    <!-- Google AdSense - Top Banner -->
+    <!-- Replace ca-pub-XXXXXXXXXXXXXXXX with your AdSense Publisher ID -->
     <div class="ad-container ad-banner-top" id="adBannerTop">
-        <div class="ad-placeholder">
-            <span>📢 Advertisement</span>
-        </div>
+        <ins class="adsbygoogle"
+             style="display:block"
+             data-ad-client="ca-pub-XXXXXXXXXXXXXXXX"
+             data-ad-slot="XXXXXXXXXX"
+             data-ad-format="horizontal"
+             data-full-width-responsive="true"></ins>
+        <script>
+             (adsbygoogle = window.adsbygoogle || []).push({});
+        </script>
     </div>
 
     <!-- Main Content -->
@@ -1080,11 +1112,18 @@
         </div>
     </section>
 
-    <!-- Bottom Banner Ad Placeholder -->
+    <!-- Google AdSense - Bottom Banner -->
+    <!-- Replace ca-pub-XXXXXXXXXXXXXXXX with your AdSense Publisher ID -->
     <div class="ad-container ad-banner-bottom" id="adBannerBottom">
-        <div class="ad-placeholder">
-            <span>📢 Advertisement</span>
-        </div>
+        <ins class="adsbygoogle"
+             style="display:block"
+             data-ad-client="ca-pub-XXXXXXXXXXXXXXXX"
+             data-ad-slot="XXXXXXXXXX"
+             data-ad-format="horizontal"
+             data-full-width-responsive="true"></ins>
+        <script>
+             (adsbygoogle = window.adsbygoogle || []).push({});
+        </script>
     </div>
     
     </main>
