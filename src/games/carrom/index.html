@@ -193,6 +193,12 @@ canvas{
   border-radius:35px;
   border:2px solid rgba(210,180,140,0.3);
   box-shadow:0 4px 15px rgba(0,0,0,0.4),inset 0 2px 4px rgba(255,255,255,0.1);
+  transition:order 0.3s ease;
+}
+
+.slider-container.top{
+  order:-1;
+  margin:0 auto 15px;
 }
 
 .slider-track{
@@ -1162,6 +1168,9 @@ function nextTurn(){
     document.getElementById("turnNum").textContent=turnCount
   }
   
+  // Update slider position based on turn and flip mode
+  updateSliderPositionForTurn()
+  
   // Reset for next shot
   keepTurn=false
   coinsPocketedThisTurn=[]
@@ -1363,6 +1372,27 @@ function updateSliderPosition(){
   const boardRange=BASELINE_X_MAX-BASELINE_X_MIN
   const percent=((striker.x-BASELINE_X_MIN)/boardRange)*100
   if(sliderStriker)sliderStriker.style.left=Math.max(0,Math.min(100,percent))+"%"
+}
+
+// Move slider to top or bottom based on turn and flip mode
+function updateSliderPositionForTurn(){
+  const sliderContainer=document.getElementById("sliderContainer")
+  if(!sliderContainer)return
+  
+  // In flip mode, slider always stays at bottom (board rotates instead)
+  if(flipMode){
+    sliderContainer.classList.remove("top")
+    return
+  }
+  
+  // When flip mode is OFF:
+  // Player 1 (bottom baseline) -> slider at bottom
+  // Player 2 (top baseline) -> slider at top
+  if(turn===2){
+    sliderContainer.classList.add("top")
+  }else{
+    sliderContainer.classList.remove("top")
+  }
 }
 
 // BOARD HANDLERS (Aiming)
@@ -1713,6 +1743,9 @@ function resetGame(){
   setupCoins()
   setupStriker()
   resetControls()
+  
+  // Initialize slider position
+  updateSliderPositionForTurn()
 }
 
 // Flip mode toggle
@@ -1735,6 +1768,9 @@ function toggleFlipMode(){
     icon.textContent="🔄"
     text.textContent="Flip: OFF"
   }
+  
+  // Update slider position based on new flip mode
+  updateSliderPositionForTurn()
 }
 
 // Mode selection
