@@ -801,6 +801,17 @@ function setupStriker(){
     striker2.vx=0; striker2.vy=0
   }
   
+  // Reset striker positions and states (in case they were pocketed)
+  striker1.x=W/2; striker1.y=STRIKER_Y_BOTTOM
+  striker1.vx=0; striker1.vy=0
+  striker1.inPocket=false
+  striker1.active=true
+  
+  striker2.x=W/2; striker2.y=STRIKER_Y_TOP
+  striker2.vx=0; striker2.vy=0
+  striker2.inPocket=false
+  striker2.active=true
+  
   // Set active striker based on turn
   if(turn===1){
     striker=striker1
@@ -1037,12 +1048,12 @@ function aiPlay(){
   
   // Set aim directly toward target
   aimAngle=Math.atan2(dy,dx)
-  aimPower=60+Math.random()*50  // Random power
+  aimPower=100+Math.random()*100  // Random power (using new max 250)
   
   // Small delay then shoot
   setTimeout(()=>{
     const maxPower=35  // Much stronger shots
-    const power=(aimPower/150)*maxPower
+    const power=(aimPower/250)*maxPower
     
     // Shoot in OPPOSITE direction of drag (pull back to shoot forward)
     striker.vx=Math.cos(aimAngle+Math.PI)*power
@@ -1216,7 +1227,8 @@ function handleBoardMove(e){
   const dy=dragCurrentPos.y-dragStartPos.y
   
   aimAngle=Math.atan2(dy,dx)
-  aimPower=Math.min(Math.sqrt(dx*dx+dy*dy),150)  // Max pull distance
+  const pullDistance=Math.sqrt(dx*dx+dy*dy)
+  aimPower=Math.min(pullDistance,250)  // Max pull distance increased to 250
   
   // KEEP STRIKER ON BASELINE - don't change striker.x/y during aiming
 }
@@ -1227,7 +1239,7 @@ function handleBoardEnd(e){
   // Shoot if pulled back enough
   if(aimPower>20){
     const maxPower=35  // Much stronger shots
-    const power=(aimPower/150)*maxPower
+    const power=(aimPower/250)*maxPower  // Normalized to new max pull 250
     
     // Shoot in OPPOSITE direction of drag (pull back to shoot forward)
     striker.vx=Math.cos(aimAngle+Math.PI)*power
@@ -1348,7 +1360,7 @@ function draw(){
   if(!turnInProgress&&striker&&striker.active){
     if(isAimingOnBoard&&aimPower>10){
       // When dragging to aim - show mobile-style visuals
-      const powerRatio=Math.min(aimPower/150,1)
+      const powerRatio=Math.min(aimPower/250,1)
       
       // Shooting angle is OPPOSITE of drag direction
       const shootAngle=aimAngle+Math.PI
