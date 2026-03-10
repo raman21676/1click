@@ -287,11 +287,13 @@ canvas{
   <div class="scoreboard">
     <div class="player">
       <div class="player-name" id="n1">Player 1</div>
+      <div style="font-size:.7rem;color:#fff;margin-bottom:4px;">⚪ White</div>
       <div class="player-score" id="s1">0</div>
     </div>
     <div class="vs">VS<br><span style="color:#64748b">Turn <span id="turnNum">1</span></span></div>
     <div class="player">
       <div class="player-name" id="n2">Player 2</div>
+      <div style="font-size:.7rem;color:#aaa;margin-bottom:4px;">⚫ Black</div>
       <div class="player-score" id="s2">0</div>
     </div>
   </div>
@@ -346,6 +348,18 @@ let turnCount=1
 let score1=0,score2=0
 let p1Name="Player 1",p2Name="Player 2"
 let gameOver=false
+
+// Carrom Rules State
+let firstCoinPocketed=false  // Queen can only be pocketed after first coin
+let coinsPocketedThisTurn=[] // Track what was pocketed this turn
+
+// Player coin assignments
+function getPlayerCoinType(playerNum){
+  return playerNum===1?"white":"black"
+}
+function getOpponentCoinType(playerNum){
+  return playerNum===1?"black":"white"
+}
 
 // Pockets 
 const POCKET_INSET=BOARD_MARGIN+18
@@ -887,64 +901,138 @@ let queenCovered=false
 let keepTurn=false
 
 function handlePocketing(disk){
+  const myCoinType=getPlayerCoinType(turn)
+  const oppCoinType=getOpponentCoinType(turn)
+  
   if(disk.type==="striker"){
-    // Foul - striker pocketed
-    setupStriker()
-    showMessage("Foul! Striker pocketed")
+    // Foul - striker pocketed: lose turn + penalty coin placed by opponent
+    showMessage("Foul! Striker pocketed - penalty coin returned")
     keepTurn=false
+    // Return one of player's pocketed coins to center as penalty
+    returnPenaltyCoin(myCoinType)
     return
   }
   
   if(disk.type==="queen"){
+    // Queen can only be pocketed after at least one regular coin is pocketed
+    if(!firstCoinPocketed){
+      showMessage("Cannot pocket Queen yet! Pocket a coin first")
+      // Return queen to center
+      disk.active=true
+      disk.inPocket=false
+      disk.x=W/2+(Math.random()-0.5)*30
+      disk.y=H/2+(Math.random()-0.5)*30
+      disk.vx=0;disk.vy=0
+      keepTurn=false
+      return
+    }
     queenPocketed=true
     queenPocketedBy=turn
     keepTurn=true
-    showMessage("Queen pocketed! Cover it!")
+    coinsPocketedThisTurn.push("queen")
+    showMessage("Queen pocketed! Cover it with your coin!")
     return
   }
   
   // Regular coin
-  if(turn===1){
-    if(disk.type==="white"){
-      score1++
-      keepTurn=true
-      // Check if queen is covered
-      if(queenPocketed&&queenPocketedBy===1&&!queenCovered){
-        queenCovered=true
-        score1+=3  // Bonus for queen
-        showMessage("Queen covered! +3 points")
-      }
-    }else{
-      // Foul - pocketed opponent's coin
-      score2++
-      showMessage("Foul! Opponent's coin")
+  firstCoinPocketed=true  // Mark that a coin has been pocketed
+  coinsPocketedThisTurn.push(disk.type)
+  
+  if(disk.type===myCoinType){
+    // Pocketed own coin - get another turn
+    if(turn===1) score1++
+    else score2++
+    keepTurn=true
+    showMessage(`Pocketed own coin! Another turn`)
+    
+    // Check if queen is covered (pocketed own coin right after queen)
+    if(queenPocketed&&queenPocketedBy===turn&&!queenCovered){
+      queenCovered=true
+      if(turn===1) score1+=3
+      else score2+=3
+      showMessage("Queen covered! +3 points")
     }
   }else{
-    if(disk.type==="black"){
-      score2++
-      keepTurn=true
-      if(queenPocketed&&queenPocketedBy===2&&!queenCovered){
-        queenCovered=true
-        score2+=3
-        showMessage("Queen covered! +3 points")
-      }
-    }else{
-      score2++
-      showMessage("Foul! Opponent's coin")
-    }
+    // Foul - pocketed opponent's coin: coin returned to center, lose turn
+    showMessage("Foul! Opponent's coin returned")
+    // Return opponent's coin to center
+    disk.active=true
+    disk.inPocket=false
+    disk.x=W/2+(Math.random()-0.5)*40
+    disk.y=H/2+(Math.random()-0.5)*40
+    disk.vx=0;disk.vy=0
+    keepTurn=false
   }
   
   updateScore()
   checkWin()
 }
 
+// Return a penalty coin to center when striker is pocketed
+function returnPenaltyCoin(coinType){
+  // Find a pocketed coin of the player to return as penalty
+  // For simplicity, we don't actually track which coins were pocketed
+  // We just create a new coin or reactivate one
+  const pocketedCoin=coins.find(c=>c.type===coinType&&!c.active)
+  if(pocketedCoin){
+    pocketedCoin.active=true
+    pocketedCoin.inPocket=false
+    pocketedCoin.x=W/2+(Math.random()-0.5)*40
+    pocketedCoin.y=H/2+(Math.random()-0.5)*40
+    pocketedCoin.vx=0;pocketedCoin.vy=0
+    // Adjust score
+    if(turn===1) score1=Math.max(0,score1-1)
+    else score2=Math.max(0,score2-1)
+    updateScore()
+  }
+}
+
 function checkWin(){
+  // Check if player 1 (white) has pocketed all their coins
   const whiteLeft=coins.filter(c=>c.type==="white"&&c.active).length
+  // Check if player 2 (black) has pocketed all their coins  
   const blackLeft=coins.filter(c=>c.type==="black"&&c.active).length
   
-  if(whiteLeft===0||blackLeft===0){
+  // Win condition: pocket all your coins AND cover the queen
+  let winner=null
+  
+  if(whiteLeft===0){
+    // Player 1 pocketed all white coins
+    if(queenCovered){
+      winner=p1Name
+    }else{
+      // If queen was pocketed but not covered, player loses
+      if(queenPocketed&&queenPocketedBy===1&&!queenCovered){
+        showMessage(`${p1Name} failed to cover Queen!`)
+        winner=p2Name
+      }else{
+        // Queen not involved - player 1 wins
+        winner=p1Name
+      }
+    }
+  }
+  
+  if(blackLeft===0){
+    // Player 2 pocketed all black coins
+    if(queenCovered){
+      winner=p2Name
+    }else{
+      if(queenPocketed&&queenPocketedBy===2&&!queenCovered){
+        showMessage(`${p2Name} failed to cover Queen!`)
+        winner=p1Name
+      }else{
+        winner=p2Name
+      }
+    }
+  }
+  
+  // If both finish at same time, check scores
+  if(whiteLeft===0&&blackLeft===0){
+    winner=score1>score2?p1Name:p2Name
+  }
+  
+  if(winner){
     gameOver=true
-    const winner=score1>score2?p1Name:p2Name
     showMessage(`${winner} wins!`)
     setTimeout(()=>{
       if(confirm(`${winner} wins! Play again?`)){
@@ -984,27 +1072,29 @@ function nextTurn(){
   
   if(coinsMoving)return  // Wait for movement to stop
   
-  // Return queen if not covered
+  // Check queen coverage at end of turn
   if(queenPocketed&&!queenCovered){
-    // If player didn't pocket a coin in the SAME turn they pocketed the queen,
-    // or if they had to cover it but failed.
-    // Actually, queen requires keeping the turn and then covering it. 
-    // If keepTurn is false, they failed to cover it or failed to pocket queen.
-    if(!keepTurn && queenPocketedBy===turn) {
-      // Return queen to center
-      const cx=W/2,cy=H/2
-      const queen=coins.find(c=>c.type==="queen")
-      if(queen){
-        queen.active=true
-        queen.inPocket=false
-        queen.x=cx+(Math.random()-0.5)*20
-        queen.y=cy+(Math.random()-0.5)*20
-        queen.vx=0
-        queen.vy=0
+    // Player pocketed queen but failed to cover it in this turn
+    if(queenPocketedBy===turn){
+      // Check if they pocketed their own coin this turn (which would have covered it)
+      const myCoinType=getPlayerCoinType(turn)
+      const coveredThisTurn=coinsPocketedThisTurn.includes(myCoinType)
+      
+      if(!coveredThisTurn){
+        // Return queen to center - not covered
+        const cx=W/2,cy=H/2
+        const queen=coins.find(c=>c.type==="queen")
+        if(queen){
+          queen.active=true
+          queen.inPocket=false
+          queen.x=cx+(Math.random()-0.5)*20
+          queen.y=cy+(Math.random()-0.5)*20
+          queen.vx=0;queen.vy=0
+        }
+        queenPocketed=false
+        queenPocketedBy=null
+        showMessage("Queen returned - not covered!")
       }
-      queenPocketed=false
-      queenPocketedBy=null
-      showMessage("Queen returned - not covered!")
     }
   }
   
@@ -1015,7 +1105,10 @@ function nextTurn(){
     document.getElementById("turnName").textContent=turn===1?p1Name:p2Name
     document.getElementById("turnNum").textContent=turnCount
   }
-  keepTurn=false // Reset for next shot
+  
+  // Reset for next shot
+  keepTurn=false
+  coinsPocketedThisTurn=[]
   
   // Reset striker for the current player
   setupStriker()
@@ -1527,6 +1620,14 @@ function resetGame(){
   queenPocketedBy=null
   queenCovered=false
   turnInProgress=false
+  firstCoinPocketed=false
+  coinsPocketedThisTurn=[]
+  keepTurn=false
+  
+  // Reset striker objects
+  striker1=null
+  striker2=null
+  striker=null
   
   updateScore()
   document.getElementById("turnName").textContent=p1Name
