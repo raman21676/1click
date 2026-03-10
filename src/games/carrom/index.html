@@ -212,7 +212,6 @@ canvas{
   border-radius:50%;
   background:linear-gradient(135deg,#f5f5f5,#e0e0e0);
   border:3px solid #fff;
-  box-shadow:0 3px 10px rgba(0,0,0,0.4),0 0 0 2px rgba(255,255,255,0.2);
   cursor:grab;
   transition:transform 0.1s;
   z-index:10;
@@ -549,21 +548,6 @@ function drawBoard(){
       ctx.fillStyle="#c44536";
       ctx.fill();
     });
-    
-    // Arrow indicators on baseline
-    ctx.fillStyle="#333";
-    if(isHorizontal){
-      // Center mark
-      const midX = (x1+x2)/2;
-      ctx.beginPath();
-      ctx.arc(midX, y1+baselineWidth/2, 4, 0, Math.PI*2);
-      ctx.fill();
-    } else {
-      const midY = (y1+y2)/2;
-      ctx.beginPath();
-      ctx.arc(x1+baselineWidth/2, midY, 4, 0, Math.PI*2);
-      ctx.fill();
-    }
   }
   
   // Draw 4 baselines
@@ -1532,22 +1516,9 @@ function draw(){
   // Draw board background
   drawBoard()
   
-  // Draw both strikers (inactive one slightly faded)
-  if(striker1){
-    if(turn===1) striker1.draw()
-    else {
-      ctx.globalAlpha=0.4  // Faded for inactive player
-      striker1.draw()
-      ctx.globalAlpha=1.0
-    }
-  }
-  if(striker2){
-    if(turn===2) striker2.draw()
-    else {
-      ctx.globalAlpha=0.4  // Faded for inactive player
-      striker2.draw()
-      ctx.globalAlpha=1.0
-    }
+  // Draw only the active striker (current player's striker)
+  if(striker&&striker.active){
+    striker.draw()
   }
   
   // Draw coins
