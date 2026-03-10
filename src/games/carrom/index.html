@@ -100,18 +100,22 @@ input{
 #game{
   display:none;
   flex-direction:column;
-  flex:1;
-  padding:10px;
+  height:100vh;
+  height:100dvh; /* Dynamic viewport height for mobile */
+  padding:8px;
+  overflow:hidden;
 }
 
 .g-hdr{
   display:flex;
   align-items:center;
   justify-content:space-between;
-  padding:10px 20px;
+  padding:8px 16px;
   background:rgba(0,0,0,.4);
   border-radius:10px;
-  margin-bottom:10px;
+  margin-bottom:8px;
+  flex-shrink:0;
+  font-size:0.9rem;
 }
 
 .g-hdr a{
@@ -130,43 +134,48 @@ input{
   display:flex;
   justify-content:center;
   align-items:center;
-  gap:20px;
-  margin-bottom:15px;
+  gap:10px;
+  margin-bottom:8px;
+  flex-shrink:0;
 }
 
 .player{
-  padding:10px 20px;
+  padding:8px 12px;
   background:rgba(255,255,255,.08);
   border-radius:10px;
-  min-width:120px;
+  min-width:80px;
 }
 
 .player-name{
-  font-size:.8rem;
+  font-size:.75rem;
   color:#94a3b8;
 }
 
 .player-score{
-  font-size:1.5rem;
+  font-size:1.3rem;
   font-weight:700;
 }
 
 .vs{
   color:#f59e0b;
   font-weight:700;
-  font-size:.8rem;
+  font-size:.7rem;
 }
 
 .canvas-wrap{
   position:relative;
   width:100%;
-  max-width:min(90vmin,700px);
+  max-height:calc(100vh - 220px);
+  max-height:calc(100dvh - 220px);
+  max-width:min(95vmin, calc(100vh - 220px), 700px);
+  max-width:min(95vmin, calc(100dvh - 220px), 700px);
   aspect-ratio:1;
   margin:auto;
-  background:#1a4a3e;  /* Dark forest green matching board */
+  background:#1a4a3e;
   border-radius:16px;
   box-shadow:0 0 50px rgba(0,0,0,.7);
   overflow:hidden;
+  flex-shrink:1;
 }
 
 canvas{
@@ -177,8 +186,11 @@ canvas{
 }
 
 #turn-display{
-  margin-top:15px;
+  margin-top:8px;
+  margin-bottom:8px;
   color:#94a3b8;
+  font-size:0.9rem;
+  flex-shrink:0;
 }
 
 #turn-display b{
@@ -189,19 +201,20 @@ canvas{
 .slider-container{
   position:relative;
   width:100%;
-  max-width:min(90vmin,700px);
-  margin:15px auto 0;
-  padding:20px 25px;
+  max-width:min(95vmin, 700px);
+  margin:8px auto 0;
+  padding:12px 20px;
   background:linear-gradient(180deg,rgba(139,69,19,0.4),rgba(101,67,33,0.5));
-  border-radius:35px;
+  border-radius:30px;
   border:2px solid rgba(210,180,140,0.3);
   box-shadow:0 4px 15px rgba(0,0,0,0.4),inset 0 2px 4px rgba(255,255,255,0.1);
   transition:order 0.3s ease;
+  flex-shrink:0;
 }
 
 .slider-container.top{
   order:-1;
-  margin:0 auto 15px;
+  margin:0 auto 8px;
 }
 
 .slider-track{
@@ -216,11 +229,11 @@ canvas{
   position:absolute;
   top:50%;
   transform:translate(-50%,-50%);
-  width:36px;
-  height:36px;
+  width:32px;
+  height:32px;
   border-radius:50%;
   background:linear-gradient(135deg,#f5f5f5,#e0e0e0);
-  border:3px solid #fff;
+  border:2px solid #fff;
   cursor:grab;
   transition:transform 0.1s;
   z-index:10;
@@ -237,8 +250,8 @@ canvas{
   top:50%;
   left:50%;
   transform:translate(-50%,-50%);
-  width:14px;
-  height:14px;
+  width:12px;
+  height:12px;
   border-radius:50%;
   background:#ccc;
   border:1px solid #999;
@@ -248,8 +261,10 @@ canvas{
 .slider-instruction{
   text-align:center;
   color:#94a3b8;
-  font-size:0.85rem;
-  margin-top:12px;
+  font-size:0.75rem;
+  margin-top:8px;
+  flex-shrink:0;
+  padding-bottom:4px;
 }
 
 .slider-instruction span{
