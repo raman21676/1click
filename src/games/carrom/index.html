@@ -391,7 +391,7 @@ const POCKETS=[
 
 // Baseline positions - MATCH VISUAL BASELINES
 const BASELINE_WIDTH=28
-const EDGE_GAP=BOARD_MARGIN+20
+const EDGE_GAP=BOARD_MARGIN+35  // Moved inward from border
 const END_GAP=BOARD_MARGIN+60
 const CIRCLE_R=18
 // Top baseline center Y
@@ -551,7 +551,7 @@ function drawBoard(){
   }
   
   // Draw 4 baselines
-  const edgeGap=BOARD_MARGIN+20;
+  const edgeGap=BOARD_MARGIN+35;  // Moved inward from border
   const endGap=BOARD_MARGIN+60;
   // Top
   drawBaselineArea(true, endGap, edgeGap, W-endGap, edgeGap);
