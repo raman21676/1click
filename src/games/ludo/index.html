@@ -596,12 +596,21 @@ html,body{height:100%;font-family:'Segoe UI',Arial,sans-serif;
 .face-5 .dot:nth-child(5) { grid-area: 3 / 3; }
 
 /* Face 6 -- two columns of three */
+.face-6 .dots {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  grid-template-rows: 1fr 1fr 1fr;
+  width: 100%;
+  height: 100%;
+  padding: 10px;
+  gap: 8px;
+}
 .face-6 .dot:nth-child(1) { grid-area: 1 / 1; }
-.face-6 .dot:nth-child(2) { grid-area: 1 / 3; }
+.face-6 .dot:nth-child(2) { grid-area: 1 / 2; }
 .face-6 .dot:nth-child(3) { grid-area: 2 / 1; }
-.face-6 .dot:nth-child(4) { grid-area: 2 / 3; }
+.face-6 .dot:nth-child(4) { grid-area: 2 / 2; }
 .face-6 .dot:nth-child(5) { grid-area: 3 / 1; }
-.face-6 .dot:nth-child(6) { grid-area: 3 / 3; }
+.face-6 .dot:nth-child(6) { grid-area: 3 / 2; }
 
 /* Colored dots for player turns */
 .dice.red .dot{ background: radial-gradient(circle at 35% 30%, #ff7a7a, var(--red)); }
@@ -3881,6 +3890,36 @@ window.testTokenPlacement = function(player) {
 
 // Run verification after a short delay
 setTimeout(verifyBoard, 1000);
+
+// Debug helper - call from console: debugLudo()
+window.debugLudo = function() {
+  console.log('%c🔍 LUDO DEBUG INFO', 'font-size:20px;font-weight:bold;color:#4CAF50');
+  
+  // Check entry points
+  console.log('\n%cEntry Points:', 'font-weight:bold');
+  Object.entries(ENTRY).forEach(([player, gpos]) => {
+    const [r, c] = PATH[gpos];
+    const cell = document.querySelector(`[data-gpos="${gpos}"]`);
+    console.log(`${player.toUpperCase()}: gpos=${gpos}, coords=[${r},${c}], cell=${cell?.id || 'NOT FOUND'}`);
+  });
+  
+  // Check home slots
+  console.log('\n%cHome Slots:', 'font-weight:bold');
+  ['red', 'green', 'yellow', 'blue'].forEach(player => {
+    const slots = document.querySelectorAll(`[data-home-slot="${player}"]`);
+    console.log(`${player.toUpperCase()}: ${slots.length} slots`);
+    slots.forEach((slot, i) => {
+      const token = slot.querySelector('.tok');
+      console.log(`  Slot ${i}: ${slot.id}, hasToken=${!!token}`);
+    });
+  });
+  
+  // Check tokens on board
+  console.log('\n%cTokens on Board:', 'font-weight:bold');
+  console.log('G.tokens:', JSON.parse(JSON.stringify(G.tokens)));
+  
+  return 'Debug complete! Check console above ☝️';
+};
 </script>
 <script src="../../assets/js/sound.js"></script>
 <script>

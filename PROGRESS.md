@@ -6,6 +6,44 @@
 
 ## 📋 Session History
 
+### Session 25: Ludo Fixes & Monetization Setup
+
+**Date:** 2026-03-10  
+**Time:** 17:15 - 18:00 IST  
+**Agent:** AI Agent  
+**Status:** ✅ Complete
+
+#### Summary
+
+Fixed Ludo dice CSS bug and created comprehensive documentation for Google Analytics and AdSense setup.
+
+#### Changes Made
+
+**1. Ludo Dice CSS Fix**
+- Fixed face-6 dot positioning
+- Added proper 2x3 grid layout
+- All dice faces now display correctly
+
+**2. Debug Helper**
+- Added `debugLudo()` function
+- Diagnose token entry issues
+- Check home slots and entry points
+
+**3. Documentation**
+- Created `docs/MONETIZATION_SETUP.md`
+- Google Analytics 4 setup guide
+- Google AdSense setup guide
+- Revenue optimization tips
+
+#### Files Created
+- `docs/MONETIZATION_SETUP.md`
+- `logs/session-2026-03-10-ludo-fixes-monetization.md`
+
+#### Files Modified
+- `src/games/ludo/index.html` - Dice fix, debug helper
+
+---
+
 ### Session 24: Phase 4 Final - Performance & Monetization
 
 **Date:** 2026-03-10  
