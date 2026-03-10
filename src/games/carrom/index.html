@@ -1271,15 +1271,15 @@ function initControls(){
   document.addEventListener("touchend",handleSliderEnd)
   
   // Board touch events for aiming
+  // Use document for move/end events so dragging works even outside canvas
   canvas.addEventListener("mousedown",handleBoardStart)
   canvas.addEventListener("touchstart",handleBoardStart,{passive:false})
   
-  canvas.addEventListener("mousemove",handleBoardMove)
-  canvas.addEventListener("touchmove",handleBoardMove,{passive:false})
+  document.addEventListener("mousemove",handleBoardMove)
+  document.addEventListener("touchmove",handleBoardMove,{passive:false})
   
-  canvas.addEventListener("mouseup",handleBoardEnd)
-  canvas.addEventListener("touchend",handleBoardEnd)
-  canvas.addEventListener("mouseleave",cancelAiming)
+  document.addEventListener("mouseup",handleBoardEnd)
+  document.addEventListener("touchend",handleBoardEnd)
   
   updateSliderPosition()
 }
