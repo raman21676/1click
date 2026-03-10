@@ -304,6 +304,25 @@ canvas{
   
   <div id="turn-display">Turn: <b id="turnName">Player 1</b></div>
   
+  <!-- Flip Mode Toggle -->
+  <button id="flipToggle" onclick="toggleFlipMode()" style="
+    background:rgba(255,255,255,0.1);
+    border:1px solid rgba(255,255,255,0.2);
+    color:#94a3b8;
+    padding:8px 16px;
+    border-radius:20px;
+    cursor:pointer;
+    font-family:inherit;
+    font-size:0.85rem;
+    margin:10px auto;
+    display:flex;
+    align-items:center;
+    gap:8px;
+  ">
+    <span id="flipIcon">🔄</span>
+    <span id="flipText">Flip: OFF</span>
+  </button>
+  
   <!-- Bottom Slider Bar -->
   <div class="slider-container" id="sliderContainer">
     <div class="slider-track" id="sliderTrack">
@@ -348,6 +367,7 @@ let turnCount=1
 let score1=0,score2=0
 let p1Name="Player 1",p2Name="Player 2"
 let gameOver=false
+let flipMode=false  // When true, board rotates 180° for player 2's turn
 
 // Carrom Rules State
 let firstCoinPocketed=false  // Queen can only be pocketed after first coin
@@ -1298,10 +1318,17 @@ function getCanvasPos(e){
     clientY=e.clientY
   }
   
-  return{
-    x:(clientX-rect.left)*scaleX,
-    y:(clientY-rect.top)*scaleY
+  let x=(clientX-rect.left)*scaleX
+  let y=(clientY-rect.top)*scaleY
+  
+  // In flip mode with player 2's turn, flip the coordinates
+  // because the board is drawn rotated 180°
+  if(flipMode&&turn===2){
+    x=W-x
+    y=H-y
   }
+  
+  return{x,y}
 }
 
 // SLIDER HANDLERS (Position striker)
@@ -1494,6 +1521,14 @@ function update(){
 }
 
 function draw(){
+  ctx.save()
+  
+  // In flip mode, rotate board 180° for player 2's turn
+  if(flipMode&&turn===2){
+    ctx.translate(W,H)
+    ctx.rotate(Math.PI)
+  }
+  
   // Draw board background
   drawBoard()
   
@@ -1640,6 +1675,8 @@ function draw(){
       ctx.stroke()
     }
   }
+  
+  ctx.restore()
 }
 
 function loop(){
@@ -1705,6 +1742,28 @@ function resetGame(){
   setupCoins()
   setupStriker()
   resetControls()
+}
+
+// Flip mode toggle
+function toggleFlipMode(){
+  flipMode=!flipMode
+  const btn=document.getElementById("flipToggle")
+  const icon=document.getElementById("flipIcon")
+  const text=document.getElementById("flipText")
+  
+  if(flipMode){
+    btn.style.background="rgba(34,197,94,0.2)"
+    btn.style.borderColor="rgba(34,197,94,0.5)"
+    btn.style.color="#22c55e"
+    icon.textContent="🔄"
+    text.textContent="Flip: ON"
+  }else{
+    btn.style.background="rgba(255,255,255,0.1)"
+    btn.style.borderColor="rgba(255,255,255,0.2)"
+    btn.style.color="#94a3b8"
+    icon.textContent="🔄"
+    text.textContent="Flip: OFF"
+  }
 }
 
 // Mode selection
