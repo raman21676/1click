@@ -768,6 +768,53 @@ let striker       // Current active striker
 // SETUP FUNCTIONS
 // ============================================
 
+// Find a valid striker position that doesn't overlap with coins
+function findValidStrikerPosition(targetX,targetY){
+  // Check all active coins to see if they block this position
+  const strikerR=STRIKER_R
+  
+  // Check if target position is valid (no overlap with any coin)
+  function isValidPosition(x){
+    for(const c of coins){
+      if(!c.active||c.inPocket)continue
+      // Check vertical proximity - only care about coins near the baseline
+      const dy=Math.abs(c.y-targetY)
+      if(dy>strikerR+c.r+5)continue // Coin too far vertically
+      
+      // Check horizontal overlap
+      const dx=Math.abs(c.x-x)
+      if(dx<strikerR+c.r+2){
+        return false // Overlaps with this coin
+      }
+    }
+    return true
+  }
+  
+  // If target is valid, use it
+  if(isValidPosition(targetX))return targetX
+  
+  // Otherwise, find nearest valid position by searching left and right
+  let leftX=targetX
+  let rightX=targetX
+  const step=3 // Search in small increments
+  
+  while(leftX>=BASELINE_X_MIN||rightX<=BASELINE_X_MAX){
+    // Try left
+    if(leftX>=BASELINE_X_MIN){
+      leftX-=step
+      if(isValidPosition(leftX))return leftX
+    }
+    // Try right
+    if(rightX<=BASELINE_X_MAX){
+      rightX+=step
+      if(isValidPosition(rightX))return rightX
+    }
+  }
+  
+  // If no valid position found (all blocked), return center
+  return W/2
+}
+
 function setupCoins(){
   coins=[]
   const cx=W/2
@@ -816,12 +863,15 @@ function setupStriker(){
   }
   
   // Reset striker positions and states (in case they were pocketed)
-  striker1.x=W/2; striker1.y=STRIKER_Y_BOTTOM
+  // Find valid positions that don't overlap with coins
+  striker1.x=findValidStrikerPosition(W/2,STRIKER_Y_BOTTOM)
+  striker1.y=STRIKER_Y_BOTTOM
   striker1.vx=0; striker1.vy=0
   striker1.inPocket=false
   striker1.active=true
   
-  striker2.x=W/2; striker2.y=STRIKER_Y_TOP
+  striker2.x=findValidStrikerPosition(W/2,STRIKER_Y_TOP)
+  striker2.y=STRIKER_Y_TOP
   striker2.vx=0; striker2.vy=0
   striker2.inPocket=false
   striker2.active=true
@@ -1279,13 +1329,21 @@ function updateSliderFromEvent(e){
   let percent=(pos.x/rect.width)*100
   percent=Math.max(0,Math.min(100,percent))
   
-  // Update slider visual
-  sliderStriker.style.left=percent+"%"
-  
-  // Update striker position on board
-  // Striker center moves from BASELINE_X_MIN to BASELINE_X_MAX (full red circle to red circle)
+  // Calculate proposed striker position
   const boardRange=BASELINE_X_MAX-BASELINE_X_MIN
-  striker.x=BASELINE_X_MIN+(percent/100)*boardRange
+  let newX=BASELINE_X_MIN+(percent/100)*boardRange
+  const newY=turn===1?STRIKER_Y_BOTTOM:STRIKER_Y_TOP
+  
+  // Check if this position overlaps with any coin on the baseline
+  // If so, find the nearest valid position
+  newX=findValidStrikerPosition(newX,newY)
+  
+  // Recalculate percent from the valid X position
+  percent=((newX-BASELINE_X_MIN)/boardRange)*100
+  
+  // Update slider visual and striker position
+  sliderStriker.style.left=percent+"%"
+  striker.x=newX
 }
 
 function updateSliderPosition(){
