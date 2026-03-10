@@ -1,1 +1,23 @@
+# macOS
 .DS_Store
+
+# Node.js
+node_modules/
+package-lock.json
+package.json
+
+# Lighthouse
+lighthouse-report.json
+
+# Logs
+*.log
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Temporary files
+*.tmp
+*.temp

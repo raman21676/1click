@@ -933,7 +933,7 @@ html,body{height:100%;font-family:'Segoe UI',Arial,sans-serif;
     <label class="setup-label">Select Game Mode</label>
     <div class="mode-grid">
       <button class="mode-btn active" data-mode="ai">
-        <img src="assets/ai-bot.png" class="mode-icon" alt="AI" style="width:32px;height:32px;object-fit:contain">
+        <img src="assets/ai-bot.webp" class="mode-icon" alt="AI" style="width:32px;height:32px;object-fit:contain" loading="lazy">
         <div>
           <span class="mode-title">Play with AI</span>
           <span class="mode-desc">Play against AI opponent</span>
@@ -1396,10 +1396,10 @@ function placeHouseAnimals() {
   // White panel is 4x4 cells, center is at 2 cells offset from top-left of panel
   // For each house, calculate exact center coordinates
   const houses = [
-    {name: 'red',    img: 'cat.png',   row: 1, col: 1},   // White panel starts at row 1, col 1
-    {name: 'green',  img: 'panda.png', row: 1, col: 10},  // White panel starts at row 1, col 10
-    {name: 'yellow', img: 'tiger.png', row: 10, col: 10}, // White panel starts at row 10, col 10
-    {name: 'blue',   img: 'eagle.png', row: 10, col: 1}   // White panel starts at row 10, col 1
+    {name: 'red',    img: 'cat.webp',   row: 1, col: 1},   // White panel starts at row 1, col 1
+    {name: 'green',  img: 'panda.webp', row: 1, col: 10},  // White panel starts at row 1, col 10
+    {name: 'yellow', img: 'tiger.webp', row: 10, col: 10}, // White panel starts at row 10, col 10
+    {name: 'blue',   img: 'eagle.webp', row: 10, col: 1}   // White panel starts at row 10, col 1
   ];
   
   houses.forEach(house => {
@@ -2430,7 +2430,7 @@ function _updateUIImpl() {
     if (G.isOnline && curPlayer() !== G.humanColor) {
       document.getElementById('turnSub').textContent = '(waiting) Wait for opponent...';
     } else {
-      document.getElementById('turnSub').innerHTML = isAI() ? '<img src="assets/ai-bot.png" class="ai-bot-icon" alt="AI"> AI is thinking...' : '(dice) Click Roll!';
+      document.getElementById('turnSub').innerHTML = isAI() ? '<img src="assets/ai-bot.webp" class="ai-bot-icon" alt="AI"> AI is thinking...' : '(dice) Click Roll!';
     }
   } else if (G.phase==='move') {
     document.getElementById('turnSub').textContent = 'Select a token';
@@ -3585,7 +3585,7 @@ function renderSetupRows() {
       typeControl = `
         <div class="rc-types">
           <button class="type-btn ${humanActive}" data-player="${p}" data-type="human">(person) Human</button>
-          <button class="type-btn ${aiActive}" data-player="${p}" data-type="ai"><img src="assets/ai-bot.png" class="ai-bot-icon-small" alt="AI"> AI</button>
+          <button class="type-btn ${aiActive}" data-player="${p}" data-type="ai"><img src="assets/ai-bot.webp" class="ai-bot-icon-small" alt="AI"> AI</button>
         </div>
       `;
       
