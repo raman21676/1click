@@ -385,10 +385,10 @@ body.game-active{overflow:hidden}
 /* --- CONTROLS ROW ------------------------------ */
 .controls-row{width:100%;max-width:520px;display:flex;
   align-items:center;justify-content:space-between;
-  gap:4px;padding:4px 6px;flex-shrink:0;margin-top:2px}
+  gap:8px;padding:4px 8px;flex-shrink:0;margin-top:4px}
 
 /* Player panels */
-.player-panels{display:flex;gap:4px;flex:1.2;justify-content:flex-start}
+.player-panels{display:flex;gap:4px;flex:1;justify-content:flex-start}
 .player-panel{flex:1;background:rgba(255,255,255,.08);
   border-radius:6px;padding:4px 2px;border:2px solid transparent;
   transition:all .3s;text-align:center;min-width:0}
@@ -705,10 +705,11 @@ body.game-active{overflow:hidden}
 .roll-btn:disabled{opacity:.35;cursor:not-allowed}
 
 /* Dice area layout */
-.dice-area{display:flex;flex-direction:column;align-items:center;gap:4px;flex-shrink:0}
+.dice-turn-container{display:flex;align-items:center;gap:8px;flex-shrink:0}
+.dice-area{display:flex;flex-direction:column;align-items:center;gap:2px}
 
 /* --- TURN AREA --------------------------------- */
-.turn-area{text-align:center;flex:1;min-width:0;display:flex;flex-direction:column;align-items:center;justify-content:center}
+.turn-area{text-align:center;min-width:60px;display:flex;flex-direction:column;align-items:center;justify-content:center}
 .turn-text{font-size:clamp(9px,1.9vmin,12px);font-weight:700;white-space:nowrap}
 .turn-sub{font-size:clamp(8px,1.4vmin,11px);opacity:.6;margin-top:2px}
 
@@ -1172,73 +1173,28 @@ body.game-active{overflow:hidden}
 
   <!-- Controls -->
   <div class="controls-row">
-    <!-- Player panels -->
+    <!-- Player panels - left side -->
     <div class="player-panels" id="playerPanels"></div>
 
-    <!-- 3D Dice Cube -->
-    <div class="dice-area">
-      <div class="dice-scene" id="diceScene">
-        <div class="dice-cube" id="diceCube">
-          <!-- Face 1: center dot (front face, visible at rest) -->
-          <div class="face face-1">
-            <div class="dots">
-              <div class="dot"></div>
-            </div>
-          </div>
-          <!-- Face 2: top-left + bottom-right -->
-          <div class="face face-2">
-            <div class="dots">
-              <div class="dot"></div>
-              <div class="dot"></div>
-            </div>
-          </div>
-          <!-- Face 3: diagonal top-left to bottom-right -->
-          <div class="face face-3">
-            <div class="dots">
-              <div class="dot"></div>
-              <div class="dot"></div>
-              <div class="dot"></div>
-            </div>
-          </div>
-          <!-- Face 4: four corners -->
-          <div class="face face-4">
-            <div class="dots">
-              <div class="dot"></div>
-              <div class="dot"></div>
-              <div class="dot"></div>
-              <div class="dot"></div>
-            </div>
-          </div>
-          <!-- Face 5: four corners + center -->
-          <div class="face face-5">
-            <div class="dots">
-              <div class="dot"></div>
-              <div class="dot"></div>
-              <div class="dot"></div>
-              <div class="dot"></div>
-              <div class="dot"></div>
-            </div>
-          </div>
-          <!-- Face 6: two columns of three -->
-          <div class="face face-6">
-            <div class="dots">
-              <div class="dot"></div>
-              <div class="dot"></div>
-              <div class="dot"></div>
-              <div class="dot"></div>
-              <div class="dot"></div>
-              <div class="dot"></div>
-            </div>
+    <!-- Dice and Turn Info - right side -->
+    <div class="dice-turn-container">
+      <div class="dice-area">
+        <div class="dice-scene" id="diceScene">
+          <div class="dice-cube" id="diceCube">
+            <div class="face face-1"><div class="dots"><div class="dot"></div></div></div>
+            <div class="face face-2"><div class="dots"><div class="dot"></div><div class="dot"></div></div></div>
+            <div class="face face-3"><div class="dots"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div></div>
+            <div class="face face-4"><div class="dots"><div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div></div></div>
+            <div class="face face-5"><div class="dots"><div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div></div></div>
+            <div class="face face-6"><div class="dots"><div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div></div></div>
           </div>
         </div>
+        <button class="roll-btn" id="rollBtn" disabled>Roll</button>
       </div>
-      <button class="roll-btn" id="rollBtn" disabled>Roll</button>
-    </div>
-
-    <!-- Turn info -->
-    <div class="turn-area">
-      <div class="turn-text" id="turnText">Red's Turn</div>
-      <div class="turn-sub" id="turnSub">Click Roll!</div>
+      <div class="turn-area">
+        <div class="turn-text" id="turnText">Red's Turn</div>
+        <div class="turn-sub" id="turnSub">Click Roll!</div>
+      </div>
     </div>
   </div>
 
