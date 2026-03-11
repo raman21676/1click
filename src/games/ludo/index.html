@@ -390,8 +390,8 @@ body.game-active{overflow:hidden}
 /* Player panels */
 .player-panels{display:flex;gap:4px;flex:1;justify-content:flex-start}
 .player-panel{flex:1;background:rgba(255,255,255,.08);
-  border-radius:6px;padding:4px 2px;border:2px solid transparent;
-  transition:all .3s;text-align:center;min-width:0}
+  border-radius:5px;padding:3px 2px;border:2px solid transparent;
+  transition:all .3s;text-align:center;min-width:0;max-width:80px}
 .player-panel.active{border-color:var(--pc);
   background:rgba(255,255,255,.15);box-shadow:0 0 10px var(--pc)}
 .player-panel.elim{opacity:.3;filter:grayscale(.8)}
@@ -508,20 +508,20 @@ body.game-active{overflow:hidden}
 
 /* -- DICE SCENE ------------------------------------------- */
 .dice-scene {
-  width: 56px;
-  height: 56px;
-  perspective: 500px;
+  width: 44px;
+  height: 44px;
+  perspective: 400px;
   perspective-origin: 50% 40%;
   position: relative;
   z-index: 1;
 }
 
 .dice-cube {
-  width: 50px;
-  height: 50px;
+  width: 40px;
+  height: 40px;
   position: absolute;
-  top: 3px;
-  left: 3px;
+  top: 2px;
+  left: 2px;
   transform-style: preserve-3d;
   transform: rotateX(-25deg) rotateY(25deg);
   will-change: transform;
@@ -531,10 +531,10 @@ body.game-active{overflow:hidden}
 /* -- FACES ------------------------------------------------ */
 .face {
   position: absolute;
-  width: 50px;
-  height: 50px;
+  width: 40px;
+  height: 40px;
   background: linear-gradient(145deg, #fffef8, #f5f5f0);
-  border-radius: 10px;
+  border-radius: 8px;
   box-shadow:
     inset 0 2px 4px rgba(255,255,255,0.9),
     inset 0 -2px 3px rgba(0,0,0,0.06),
@@ -546,12 +546,12 @@ body.game-active{overflow:hidden}
 }
 
 /* Proper 3D cube face positioning */
-.face-1 { transform: rotateY(0deg)   translateZ(25px); }
-.face-2 { transform: rotateY(180deg) translateZ(25px); }
-.face-3 { transform: rotateY(90deg)  translateZ(25px); }
-.face-4 { transform: rotateY(-90deg) translateZ(25px); }
-.face-5 { transform: rotateX(90deg)  translateZ(25px); }
-.face-6 { transform: rotateX(-90deg) translateZ(25px); }
+.face-1 { transform: rotateY(0deg)   translateZ(20px); }
+.face-2 { transform: rotateY(180deg) translateZ(20px); }
+.face-3 { transform: rotateY(90deg)  translateZ(20px); }
+.face-4 { transform: rotateY(-90deg) translateZ(20px); }
+.face-5 { transform: rotateX(90deg)  translateZ(20px); }
+.face-6 { transform: rotateX(-90deg) translateZ(20px); }
 /* -- DOT GRID --------------------------------------------- */
 .dots {
   display: grid;
@@ -559,16 +559,16 @@ body.game-active{overflow:hidden}
   grid-template-rows:    1fr 1fr 1fr;
   width: 100%;
   height: 100%;
-  padding: 9px;
-  gap: 4px;
+  padding: 7px;
+  gap: 3px;
 }
 
 .dot {
-  width: 9px;
-  height: 9px;
+  width: 7px;
+  height: 7px;
   background: radial-gradient(circle at 35% 30%, #555, #111);
   border-radius: 50%;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.4), inset 0 -1px 1px rgba(0,0,0,0.2);
+  box-shadow: 0 1px 2px rgba(0,0,0,0.4), inset 0 -1px 1px rgba(0,0,0,0.2);
   justify-self: center;
   align-self: center;
 }
@@ -696,17 +696,17 @@ body.game-active{overflow:hidden}
 .ddY{background:var(--yellow)} .ddB{background:var(--blue)}
 .dd-def{background:#444}
 .roll-btn{background:linear-gradient(135deg,#FF6F00,#FFD600);
-  border:none;border-radius:6px;color:#000;
-  font-size:clamp(10px,1.8vmin,13px);font-weight:800;
-  padding:6px 14px;cursor:pointer;transition:all .2s;
-  box-shadow:0 3px 10px rgba(255,111,0,.4);
-  margin-top:4px}
+  border:none;border-radius:5px;color:#000;
+  font-size:clamp(9px,1.6vmin,11px);font-weight:800;
+  padding:4px 10px;cursor:pointer;transition:all .2s;
+  box-shadow:0 2px 8px rgba(255,111,0,.4);
+  margin-top:2px}
 .roll-btn:hover:not(:disabled){transform:translateY(-2px)}
 .roll-btn:disabled{opacity:.35;cursor:not-allowed}
 
 /* Dice area layout */
-.dice-turn-container{display:flex;align-items:center;gap:8px;flex-shrink:0}
-.dice-area{display:flex;flex-direction:column;align-items:center;gap:2px}
+.dice-turn-container{display:flex;align-items:center;gap:6px;flex-shrink:0}
+.dice-area{display:flex;flex-direction:column;align-items:center;gap:1px}
 
 /* --- TURN AREA --------------------------------- */
 .turn-area{text-align:center;min-width:60px;display:flex;flex-direction:column;align-items:center;justify-content:center}
