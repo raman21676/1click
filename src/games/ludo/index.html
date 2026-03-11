@@ -207,19 +207,19 @@ body.game-active{overflow:hidden}
 
 /* --- LAYOUT ----------------------------------- */
 .game-wrapper{height:100dvh;display:flex;flex-direction:column;
-  align-items:center;padding:4px;gap:4px}
+  align-items:center;padding:2px;gap:2px}
 .game-header{width:100%;display:flex;align-items:center;
-  justify-content:space-between;flex-shrink:0;padding:0 4px}
+  justify-content:space-between;flex-shrink:0;padding:2px 8px}
 .back-btn{color:#90CAF9;text-decoration:none;font-size:14px;padding:8px}
 .header-title{font-size:20px;font-weight:800;
   background:linear-gradient(135deg,#FFD700,#FF8F00);
   -webkit-background-clip:text;-webkit-text-fill-color:transparent}
 
 /* --- BOARD AREA -------------------------------- */
-.board-area{flex:1;display:flex;align-items:center;
-  justify-content:center;width:100%;min-height:0}
+.board-area{flex:1;display:flex;align-items:flex-start;justify-content:center;
+  width:100%;height:100%;padding-bottom:70px;box-sizing:border-box}
 .board-wrapper{position:relative;
-  width:min(92vmin,520px);height:min(92vmin,520px)}
+  width:98vmin;height:98vmin;max-width:600px;max-height:600px}
 
 /* 15x15 grid */
 .ludo-board{width:100%;height:100%;
@@ -383,9 +383,9 @@ body.game-active{overflow:hidden}
 .tok.selected{transform:scale(1.3);box-shadow:0 0 0 3px #fff,0 0 8px rgba(255,255,255,.7)}
 
 /* --- CONTROLS ROW ------------------------------ */
-.controls-row{width:100%;max-width:520px;display:flex;
+.controls-row{width:100%;display:flex;
   align-items:center;justify-content:space-between;
-  gap:8px;padding:4px 8px;flex-shrink:0;margin-top:4px}
+  gap:4px;padding:4px 8px;flex-shrink:0;position:absolute;bottom:0;left:0;right:0;background:rgba(0,0,0,0.3);backdrop-filter:blur(4px);z-index:10}
 
 /* Player panels */
 .player-panels{display:flex;gap:4px;flex:1;justify-content:flex-start}
