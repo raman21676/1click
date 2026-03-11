@@ -1,0 +1,10 @@
+com.games.oneclick.app-browser-1.4.0-0 /Users/kalikali/.gradle/caches/8.10/transforms/016856e2faf37bf180febca3ed575d79/transformed/browser-1.4.0/res
+com.games.oneclick.app-core-1.1.0-1 /Users/kalikali/.gradle/caches/8.10/transforms/09d4b20503128bec114b5d7a008a0bd9/transformed/core-1.1.0/res
+com.games.oneclick.app-jetified-androidbrowserhelper-2.5.0-2 /Users/kalikali/.gradle/caches/8.10/transforms/3a01dcfc3f059a1f8c6ba67e5f0d25a3/transformed/jetified-androidbrowserhelper-2.5.0/res
+com.games.oneclick.app-pngs-3 /Users/kalikali/Desktop/1click/android/app/build/generated/res/pngs/release
+com.games.oneclick.app-resValues-4 /Users/kalikali/Desktop/1click/android/app/build/generated/res/resValues/release
+com.games.oneclick.app-packageReleaseResources-5 /Users/kalikali/Desktop/1click/android/app/build/intermediates/incremental/release/packageReleaseResources/merged.dir
+com.games.oneclick.app-packageReleaseResources-6 /Users/kalikali/Desktop/1click/android/app/build/intermediates/incremental/release/packageReleaseResources/stripped.dir
+com.games.oneclick.app-merged_res-7 /Users/kalikali/Desktop/1click/android/app/build/intermediates/merged_res/release
+com.games.oneclick.app-main-8 /Users/kalikali/Desktop/1click/android/app/src/main/res
+com.games.oneclick.app-release-9 /Users/kalikali/Desktop/1click/android/app/src/release/res

@@ -3,7 +3,7 @@
     "relation": ["delegate_permission/common.handle_all_urls"],
     "target": {
       "namespace": "android_app",
-      "package_name": "com.clickgames.twa",
+      "package_name": "com.games.oneclick",
       "sha256_cert_fingerprints": [
         "99:84:28:32:80:72:A1:D7:FF:C0:E1:8E:B2:61:13:A1:EC:FB:95:E3:BC:F8:71:03:8C:70:BD:60:1B:D4:D8:84"
       ]
