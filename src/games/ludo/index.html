@@ -58,13 +58,9 @@
   font-size: 1.2rem;
 }
 .sound-toggle {
-  position: fixed;
-  bottom: 20px !important;
-  right: 20px !important;
-  top: auto !important;
-  left: auto !important;
-  width: 50px;
-  height: 50px;
+  position: relative;
+  width: 40px;
+  height: 40px;
   border-radius: 50%;
   background: linear-gradient(135deg, #14b8a6 0%, #06b6d4 100%);
   border: none;
@@ -72,10 +68,11 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 1.5rem;
+  font-size: 1.2rem;
   box-shadow: 0 4px 15px rgba(20, 184, 166, 0.4);
   transition: transform 0.3s ease;
   z-index: 50;
+  flex-shrink: 0;
 }
 .sound-toggle:hover { transform: scale(1.1); }
 .sound-toggle.muted {
@@ -210,7 +207,7 @@ body.game-active{overflow:hidden}
 
 /* --- LAYOUT ----------------------------------- */
 .game-wrapper{height:100dvh;display:flex;flex-direction:column;
-  align-items:center;padding:6px;gap:6px}
+  align-items:center;padding:4px;gap:4px}
 .game-header{width:100%;display:flex;align-items:center;
   justify-content:space-between;flex-shrink:0;padding:0 4px}
 .back-btn{color:#90CAF9;text-decoration:none;font-size:14px;padding:8px}
@@ -222,7 +219,7 @@ body.game-active{overflow:hidden}
 .board-area{flex:1;display:flex;align-items:center;
   justify-content:center;width:100%;min-height:0}
 .board-wrapper{position:relative;
-  width:min(84vmin,480px);height:min(84vmin,480px)}
+  width:min(92vmin,520px);height:min(92vmin,520px)}
 
 /* 15x15 grid */
 .ludo-board{width:100%;height:100%;
@@ -386,12 +383,12 @@ body.game-active{overflow:hidden}
 .tok.selected{transform:scale(1.3);box-shadow:0 0 0 3px #fff,0 0 8px rgba(255,255,255,.7)}
 
 /* --- CONTROLS ROW ------------------------------ */
-.controls-row{width:100%;max-width:500px;display:flex;
+.controls-row{width:100%;max-width:520px;display:flex;
   align-items:center;justify-content:space-between;
-  gap:6px;padding:0 2px;flex-shrink:0}
+  gap:8px;padding:4px 8px;flex-shrink:0}
 
 /* Player panels */
-.player-panels{display:flex;gap:4px;flex:1}
+.player-panels{display:flex;gap:6px;flex:1;justify-content:flex-start}
 .player-panel{flex:1;background:rgba(255,255,255,.08);
   border-radius:8px;padding:5px 4px;border:2px solid transparent;
   transition:all .3s;text-align:center}
@@ -706,10 +703,10 @@ body.game-active{overflow:hidden}
 .roll-btn:disabled{opacity:.35;cursor:not-allowed}
 
 /* Dice area layout */
-.dice-area{display:flex;flex-direction:column;align-items:center;gap:8px}
+.dice-area{display:flex;flex-direction:column;align-items:center;gap:4px;flex-shrink:0}
 
 /* --- TURN AREA --------------------------------- */
-.turn-area{text-align:center;flex:1;min-width:0}
+.turn-area{text-align:center;flex:1;min-width:0;display:flex;flex-direction:column;align-items:center;justify-content:center}
 .turn-text{font-size:clamp(10px,2.1vmin,14px);font-weight:700;white-space:nowrap}
 .turn-sub{font-size:clamp(8px,1.4vmin,11px);opacity:.6;margin-top:2px}
 
@@ -936,8 +933,6 @@ body.game-active{overflow:hidden}
   <div class="loading-logo">🎲</div>
   <div class="loading-text">Loading Ludo...</div>
 </div>
-<button id="soundToggle" class="sound-toggle" title="Toggle Sound">🔊</button>
-
 <!-- SETUP SCREEN -->
 <div class="setup-screen" id="setupScreen">
 <div class="setup-screen-content">
@@ -1130,12 +1125,15 @@ body.game-active{overflow:hidden}
 <div class="game-wrapper" id="gameScreen" style="display:none">
 
   <header class="game-header">
-    <a href="../../../index.html" class="back-btn"><- Back</a>
+    <a href="../../../index.html" class="back-btn">← Back</a>
     <div class="header-title">🎲 LUDO</div>
-    <!-- Connection Status Indicator -->
-    <div id="connectionStatus" class="connection-status" style="display:none">
-      <span class="conn-dot"></span>
-      <span class="conn-text">Connected</span>
+    <div style="display:flex;align-items:center;gap:8px">
+      <!-- Connection Status Indicator -->
+      <div id="connectionStatus" class="connection-status" style="display:none">
+        <span class="conn-dot"></span>
+        <span class="conn-text">Connected</span>
+      </div>
+      <button id="soundToggle" class="sound-toggle" title="Toggle Sound">🔊</button>
     </div>
   </header>
 
