@@ -385,20 +385,20 @@ body.game-active{overflow:hidden}
 /* --- CONTROLS ROW ------------------------------ */
 .controls-row{width:100%;max-width:520px;display:flex;
   align-items:center;justify-content:space-between;
-  gap:8px;padding:4px 8px;flex-shrink:0}
+  gap:4px;padding:4px 6px;flex-shrink:0;margin-top:2px}
 
 /* Player panels */
-.player-panels{display:flex;gap:6px;flex:1;justify-content:flex-start}
+.player-panels{display:flex;gap:4px;flex:1.2;justify-content:flex-start}
 .player-panel{flex:1;background:rgba(255,255,255,.08);
-  border-radius:8px;padding:5px 4px;border:2px solid transparent;
-  transition:all .3s;text-align:center}
+  border-radius:6px;padding:4px 2px;border:2px solid transparent;
+  transition:all .3s;text-align:center;min-width:0}
 .player-panel.active{border-color:var(--pc);
   background:rgba(255,255,255,.15);box-shadow:0 0 10px var(--pc)}
 .player-panel.elim{opacity:.3;filter:grayscale(.8)}
 .player-panel.finished{background:linear-gradient(135deg,rgba(255,215,0,.2),rgba(255,111,0,.2));border-color:var(--gold);animation:finishedPulse 2s ease-in-out infinite}
 @keyframes finishedPulse{0%,100%{box-shadow:0 0 5px rgba(255,215,0,.3)}50%{box-shadow:0 0 15px rgba(255,215,0,.6)}}
-.panel-name{font-size:clamp(8px,1.7vmin,12px);font-weight:700;
-  display:flex;align-items:center;justify-content:center;gap:3px}
+.panel-name{font-size:clamp(7px,1.5vmin,10px);font-weight:700;
+  display:flex;align-items:center;justify-content:center;gap:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .panel-dot{width:8px;height:8px;border-radius:50%;
   background:var(--pc);flex-shrink:0}
 .panel-tkns{display:flex;justify-content:center;gap:2px;margin-top:3px}
@@ -508,18 +508,20 @@ body.game-active{overflow:hidden}
 
 /* -- DICE SCENE ------------------------------------------- */
 .dice-scene {
-  width: 72px;
-  height: 72px;
-  perspective: 600px;
+  width: 56px;
+  height: 56px;
+  perspective: 500px;
   perspective-origin: 50% 40%;
   position: relative;
   z-index: 1;
 }
 
 .dice-cube {
-  width: 72px;
-  height: 72px;
+  width: 50px;
+  height: 50px;
   position: absolute;
+  top: 3px;
+  left: 3px;
   transform-style: preserve-3d;
   transform: rotateX(-25deg) rotateY(25deg);
   will-change: transform;
@@ -529,10 +531,10 @@ body.game-active{overflow:hidden}
 /* -- FACES ------------------------------------------------ */
 .face {
   position: absolute;
-  width: 72px;
-  height: 72px;
+  width: 50px;
+  height: 50px;
   background: linear-gradient(145deg, #fffef8, #f5f5f0);
-  border-radius: 12px;
+  border-radius: 10px;
   box-shadow:
     inset 0 2px 4px rgba(255,255,255,0.9),
     inset 0 -2px 3px rgba(0,0,0,0.06),
@@ -544,12 +546,12 @@ body.game-active{overflow:hidden}
 }
 
 /* Proper 3D cube face positioning */
-.face-1 { transform: rotateY(0deg)   translateZ(36px); }
-.face-2 { transform: rotateY(180deg) translateZ(36px); }
-.face-3 { transform: rotateY(90deg)  translateZ(36px); }
-.face-4 { transform: rotateY(-90deg) translateZ(36px); }
-.face-5 { transform: rotateX(90deg)  translateZ(36px); }
-.face-6 { transform: rotateX(-90deg) translateZ(36px); }
+.face-1 { transform: rotateY(0deg)   translateZ(25px); }
+.face-2 { transform: rotateY(180deg) translateZ(25px); }
+.face-3 { transform: rotateY(90deg)  translateZ(25px); }
+.face-4 { transform: rotateY(-90deg) translateZ(25px); }
+.face-5 { transform: rotateX(90deg)  translateZ(25px); }
+.face-6 { transform: rotateX(-90deg) translateZ(25px); }
 /* -- DOT GRID --------------------------------------------- */
 .dots {
   display: grid;
@@ -557,13 +559,13 @@ body.game-active{overflow:hidden}
   grid-template-rows:    1fr 1fr 1fr;
   width: 100%;
   height: 100%;
-  padding: 13px;
-  gap: 6px;
+  padding: 9px;
+  gap: 4px;
 }
 
 .dot {
-  width: 11px;
-  height: 11px;
+  width: 9px;
+  height: 9px;
   background: radial-gradient(circle at 35% 30%, #555, #111);
   border-radius: 50%;
   box-shadow: 0 1px 3px rgba(0,0,0,0.4), inset 0 -1px 1px rgba(0,0,0,0.2);
@@ -694,11 +696,11 @@ body.game-active{overflow:hidden}
 .ddY{background:var(--yellow)} .ddB{background:var(--blue)}
 .dd-def{background:#444}
 .roll-btn{background:linear-gradient(135deg,#FF6F00,#FFD600);
-  border:none;border-radius:8px;color:#000;
-  font-size:clamp(12px,2.2vmin,15px);font-weight:800;
-  padding:10px 20px;cursor:pointer;transition:all .2s;
-  box-shadow:0 4px 12px rgba(255,111,0,.4);
-  margin-top:12px}
+  border:none;border-radius:6px;color:#000;
+  font-size:clamp(10px,1.8vmin,13px);font-weight:800;
+  padding:6px 14px;cursor:pointer;transition:all .2s;
+  box-shadow:0 3px 10px rgba(255,111,0,.4);
+  margin-top:4px}
 .roll-btn:hover:not(:disabled){transform:translateY(-2px)}
 .roll-btn:disabled{opacity:.35;cursor:not-allowed}
 
@@ -707,7 +709,7 @@ body.game-active{overflow:hidden}
 
 /* --- TURN AREA --------------------------------- */
 .turn-area{text-align:center;flex:1;min-width:0;display:flex;flex-direction:column;align-items:center;justify-content:center}
-.turn-text{font-size:clamp(10px,2.1vmin,14px);font-weight:700;white-space:nowrap}
+.turn-text{font-size:clamp(9px,1.9vmin,12px);font-weight:700;white-space:nowrap}
 .turn-sub{font-size:clamp(8px,1.4vmin,11px);opacity:.6;margin-top:2px}
 
 /* --- SETUP SCREEN ------------------------------ */
