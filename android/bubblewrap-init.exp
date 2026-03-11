@@ -1,0 +1,87 @@
+#!/usr/bin/expect -f
+
+set timeout 300
+
+# Set environment variables
+set env(JAVA_HOME) "/Library/Frameworks/Java.framework/Versions/Current/Home"
+set env(ANDROID_HOME) "/Users/kalikali/Library/Android/sdk"
+
+# Start bubblewrap init
+spawn node ./node_modules/@bubblewrap/cli/bin/bubblewrap.js init --manifest https://1click.live/manifest.json
+
+expect "Domain:"
+send "1click.live\r"
+
+expect "URL path:"
+send "/\r"
+
+expect "Application name:"
+send "1click Games\r"
+
+expect "Short name:"
+send "1click\r"
+
+expect "Package name:"
+send "com.clickgames.twa\r"
+
+expect "Launcher name:"
+send "1click\r"
+
+expect "Theme color:"
+send "#0f172a\r"
+
+expect "Background color:"
+send "#0f172a\r"
+
+expect "Enable notifications?"
+send "Y\r"
+
+expect "Play Billing enabled?"
+send "n\r"
+
+expect "Location Delegation enabled?"
+send "n\r"
+
+expect "Start URL:"
+send "/\r"
+
+expect "Icon URL:"
+send "https://1click.live/src/assets/images/icon-512x512.png\r"
+
+expect "Maskable icon URL:"
+send "https://1click.live/src/assets/images/icon-512x512-maskable.png\r"
+
+expect "Monochrome icon URL:"
+send "\r"
+
+expect "Splash screen fade out duration:"
+send "300\r"
+
+expect "App version name:"
+send "1.0.0\r"
+
+expect "App version code:"
+send "1\r"
+
+expect "Minimum SDK version:"
+send "21\r"
+
+expect "Orientation:"
+send "portrait\r"
+
+expect "Display mode:"
+send "standalone\r"
+
+expect "Full scope URL:"
+send "https://1click.live/\r"
+
+expect "Enable site settings shortcut?"
+send "Y\r"
+
+expect "Is this a ChromeOS only app?"
+send "n\r"
+
+expect "Is this a Meta Quest app?"
+send "n\r"
+
+expect eof
