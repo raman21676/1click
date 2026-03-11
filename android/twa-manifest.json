@@ -1,0 +1,66 @@
+{
+  "packageId": "com.clickgames.twa",
+  "host": "1click.live",
+  "name": "1click Games",
+  "launcherName": "1click",
+  "display": "standalone",
+  "themeColor": "#0f172a",
+  "navigationColor": "#0f172a",
+  "navigationColorDark": "#0f172a",
+  "navigationDividerColor": "#0f172a",
+  "navigationDividerColorDark": "#0f172a",
+  "backgroundColor": "#0f172a",
+  "enableNotifications": true,
+  "startUrl": "/",
+  "iconUrl": "https://1click.live/src/assets/images/icon-512x512.png",
+  "splashScreenFadeOutDuration": 300,
+  "signingKey": {
+    "path": "1click-keystore.jks",
+    "alias": "1click"
+  },
+  "appVersionName": "1.0.0",
+  "appVersionCode": 1,
+  "shortcuts": [
+    {
+      "name": "Play Ludo",
+      "shortName": "Ludo",
+      "url": "https://1click.live/src/games/ludo/",
+      "icon": "https://1click.live/src/games/ludo/icon.png"
+    },
+    {
+      "name": "Play Chess",
+      "shortName": "Chess", 
+      "url": "https://1click.live/src/games/chess/",
+      "icon": "https://1click.live/src/games/chess/icon.png"
+    },
+    {
+      "name": "Play Snake & Ladder",
+      "shortName": "Snake & Ladder",
+      "url": "https://1click.live/src/games/snake-ladder/",
+      "icon": "https://1click.live/src/games/snake-ladder/icon.png"
+    }
+  ],
+  "generatorApp": "bubblewrap-cli",
+  "webManifestUrl": "https://1click.live/manifest.json",
+  "fallbackType": "customtabs",
+  "features": {
+    "playBilling": {
+      "enabled": false
+    },
+    "locationDelegation": {
+      "enabled": false
+    }
+  },
+  "alphaDependencies": {
+    "enabled": false
+  },
+  "enableSiteSettingsShortcut": true,
+  "isChromeOSOnly": false,
+  "isMetaQuest": false,
+  "fullScopeUrl": "https://1click.live/",
+  "minSdkVersion": 21,
+  "orientation": "portrait",
+  "displayMode": "standalone",
+  "screenshots": [],
+  "additionalTrustedOrigins": []
+}

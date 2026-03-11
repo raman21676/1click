@@ -6,6 +6,90 @@
 
 ## 📋 Session History
 
+### Session 26: Android TWA App Setup & Build
+
+**Date:** 2026-03-11  
+**Time:** 21:00 - 22:00 IST  
+**Agent:** AI Agent  
+**Status:** ✅ Complete
+
+#### Summary
+
+Complete setup for Trusted Web Activity (TWA) Android app. Generated all PWA assets, configured TWA manifest, created Android keystore, and prepared for Play Store publication.
+
+#### Changes Made
+
+**1. PWA Icon Generation**
+- Generated 11 icon sizes from 72x72 to 512x512
+- Created maskable versions for adaptive icons
+- Teal gradient design with "1" logo
+
+**2. Screenshot Generation**
+- Wide screenshot (1280x720) for desktop/tablet
+- Narrow screenshot (750x1334) for mobile
+- Both showing game cards grid
+
+**3. Service Worker Enhancement**
+- Added comprehensive game file caching
+- All 9 games cached for offline play
+- Cache-first strategy for game files
+
+**4. TWA Configuration**
+- Android keystore generated (`android/1click-keystore.jks`)
+- SHA-256 fingerprint extracted
+- `assetlinks.json` created for Digital Asset Links
+- `twa-manifest.json` configured
+
+**5. Game Shortcut Icons**
+- Ludo icon (🎲)
+- Chess icon (♟️)
+- Snake & Ladder icon (🐍)
+
+**6. Privacy Policy Page**
+- Complete privacy policy HTML page
+- GDPR and CCPA compliance sections
+- Required for Play Store submission
+
+**7. Documentation**
+- `ANDROID_APP_GUIDE.md` - Complete build & publish guide
+- `android/build-apk.sh` - Automated build script
+
+#### Files Created
+- `android/1click-keystore.jks` (⚠️ BACKUP REQUIRED)
+- `android/twa-manifest.json`
+- `android/build-apk.sh`
+- `.well-known/assetlinks.json`
+- `privacy-policy.html`
+- `ANDROID_APP_GUIDE.md`
+- `generate_icons.py`
+- `generate_screenshots.py`
+- `src/assets/images/icon-*.png` (11 icons)
+- `src/assets/images/screenshot-*.png` (2 screenshots)
+- `src/games/ludo/icon.png`
+- `src/games/chess/icon.png`
+- `src/games/snake-ladder/icon.png`
+
+#### Files Modified
+- `manifest.json` - Updated with new icon paths
+- `sw.js` - Enhanced caching for offline gaming
+
+#### Keystore Details (⚠️ SAVE THESE!)
+- **File:** `android/1click-keystore.jks`
+- **Keystore Password:** `1click2026`
+- **Key Alias:** `1click`
+- **Key Password:** `1click2026`
+- **SHA-256:** `99:84:28:32:80:72:A1:D7:FF:C0:E1:8E:B2:61:13:A1:EC:FB:95:E3:BC:F8:71:03:8C:70:BD:60:1B:D4:D8:84`
+
+#### Next Steps
+1. Push to GitHub
+2. Build APK using `android/build-apk.sh`
+3. Install on test device
+4. Test offline mode
+5. Create Play Store account
+6. Publish app
+
+---
+
 ### Session 25: Ludo Fixes & Monetization Setup
 
 **Date:** 2026-03-10  
