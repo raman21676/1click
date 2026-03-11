@@ -2795,7 +2795,9 @@ function initSetup() {
   const startLocalBtn = document.getElementById('startLocalBtn');
   
   if (startAiBtn) {
+    console.log('[DEBUG] Start AI button found, adding listener');
     startAiBtn.addEventListener('click', () => {
+      console.log('[DEBUG] Start AI button clicked');
       G.gameMode = 'ai';
       G.playerCount = G.numPlayers || 2;
       
@@ -2840,8 +2842,11 @@ function initSetup() {
       
       G.currentPlayer = 0;
       G.humanColor = G.playerColor;
+      console.log('[DEBUG] Calling startGame, G.players:', G.players);
       startGame();
     });
+  } else {
+    console.log('[DEBUG] Start AI button NOT found');
   }
   
   if (startLocalBtn) {
