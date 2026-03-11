@@ -2756,7 +2756,7 @@ function stopConfetti() {
 // ----------------------------------------------------
 
 function initSetup() {
-  console.log("[DEBUG] initSetup started");
+  
   
   // Game mode: 'local' (pass & play) or 'online'
   G.gameMode = 'local';
@@ -2795,9 +2795,7 @@ function initSetup() {
   const startLocalBtn = document.getElementById('startLocalBtn');
   
   if (startAiBtn) {
-    console.log('[DEBUG] Start AI button found, adding listener');
     startAiBtn.addEventListener('click', () => {
-      console.log('[DEBUG] Start AI button clicked');
       G.gameMode = 'ai';
       G.playerCount = G.numPlayers || 2;
       
@@ -2842,11 +2840,8 @@ function initSetup() {
       
       G.currentPlayer = 0;
       G.humanColor = G.playerColor;
-      console.log('[DEBUG] Calling startGame, G.players:', G.players);
       startGame();
     });
-  } else {
-    console.log('[DEBUG] Start AI button NOT found');
   }
   
   if (startLocalBtn) {
@@ -3812,7 +3807,7 @@ document.getElementById('menuBtn').addEventListener('click', () => {
 // ----------------------------------------------------
 // INIT
 // ----------------------------------------------------
-console.log("[DEBUG] Calling initSetup");
+// Initialize the game
 window.onerror = function(msg, url, line) { console.error("[JS ERROR] " + msg + " at line " + line); };
 initSetup();
 
