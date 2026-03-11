@@ -934,7 +934,7 @@ body.game-active{overflow:hidden}
   <div class="loading-logo">🎲</div>
   <div class="loading-text">Loading Ludo...</div>
 </div>
-<button id="soundToggle" class="sound-toggle" title="Toggle Sound" style="position:fixed;top:70px;right:20px;z-index:1000;">🔊</button>
+<button id="soundToggle" class="sound-toggle" title="Toggle Sound">🔊</button>
 
 <!-- SETUP SCREEN -->
 <div class="setup-screen" id="setupScreen">
@@ -2795,11 +2795,49 @@ function initSetup() {
   if (startAiBtn) {
     startAiBtn.addEventListener('click', () => {
       G.gameMode = 'ai';
+      G.playerCount = G.numPlayers || 2;
+      
       // Get player name from input
       const nameInput = document.getElementById('aiPlayerName');
-      if (nameInput && nameInput.value.trim()) {
-        G.playerNames[G.humanColor] = nameInput.value.trim().substring(0, 12);
+      const playerName = (nameInput && nameInput.value.trim()) ? nameInput.value.trim().substring(0, 12) : 'You';
+      
+      // Setup players for AI mode
+      G.players = [];
+      const colors = ['red', 'green', 'yellow', 'blue'];
+      const playerColorIndex = colors.indexOf(G.playerColor);
+      
+      // Add human player first
+      G.players.push({
+        color: G.playerColor,
+        name: playerName,
+        type: 'human',
+        tokens: [0, 0, 0, 0],
+        finished: false
+      });
+      G.playerNames[G.playerColor] = playerName;
+      G.ptypes[G.playerColor] = 'human';
+      
+      // Add AI players
+      let aiCount = 1;
+      for (let i = 0; i < colors.length; i++) {
+        if (G.players.length >= G.playerCount) break;
+        if (i !== playerColorIndex) {
+          const aiColor = colors[i];
+          G.players.push({
+            color: aiColor,
+            name: `AI ${aiCount}`,
+            type: 'ai',
+            tokens: [0, 0, 0, 0],
+            finished: false
+          });
+          G.playerNames[aiColor] = `AI ${aiCount}`;
+          G.ptypes[aiColor] = 'ai';
+          aiCount++;
+        }
       }
+      
+      G.currentPlayer = 0;
+      G.humanColor = G.playerColor;
       startGame();
     });
   }
@@ -2807,14 +2845,29 @@ function initSetup() {
   if (startLocalBtn) {
     startLocalBtn.addEventListener('click', () => {
       G.gameMode = 'local';
+      G.playerCount = G.numPlayers || 2;
+      
       // Get player names from inputs
       const inputs = document.querySelectorAll('#localPlayerInputs .name-input');
       const colors = ['red', 'green', 'yellow', 'blue'];
-      inputs.forEach((input, idx) => {
-        if (input.value.trim()) {
-          G.playerNames[colors[idx]] = input.value.trim().substring(0, 12);
-        }
-      });
+      
+      G.players = [];
+      for (let i = 0; i < G.playerCount; i++) {
+        const color = colors[i];
+        const name = inputs[i]?.value?.trim() || `Player ${i + 1}`;
+        G.players.push({
+          color: color,
+          name: name.substring(0, 12),
+          type: 'human',
+          tokens: [0, 0, 0, 0],
+          finished: false
+        });
+        G.playerNames[color] = name.substring(0, 12);
+        G.ptypes[color] = 'human';
+      }
+      
+      G.currentPlayer = 0;
+      G.humanColor = 'red'; // First player in local mode
       startGame();
     });
   }
@@ -2974,6 +3027,9 @@ document.addEventListener('DOMContentLoaded', () => {
       connectionRetryCount = MAX_RETRIES; // Stop retries
     });
   }
+  
+  // Initialize local player count
+  initLocalPlayerCount();
 });
 
 // AI Mode Player Count Selection
@@ -3024,73 +3080,8 @@ function initLocalPlayerCount() {
   G.numPlayers = 3;
 }
 
-// AI Start Button
-document.addEventListener('DOMContentLoaded', () => {
-  const startAiBtn = document.getElementById('startAiBtn');
-  if (startAiBtn) {
-    startAiBtn.addEventListener('click', () => {
-      // Set up AI game with player vs AI
-      G.players = [];
-      const colors = ['red', 'green', 'yellow', 'blue'];
-      const playerColorIndex = colors.indexOf(G.playerColor);
-      
-      // Add human player first
-      G.players.push({
-        color: G.playerColor,
-        name: 'You',
-        type: 'human',
-        tokens: [0, 0, 0, 0],
-        finished: false
-      });
-      
-      // Add AI players
-      let aiCount = 1;
-      for (let i = 0; i < colors.length; i++) {
-        if (G.players.length >= G.numPlayers) break;
-        if (i !== playerColorIndex) {
-          G.players.push({
-            color: colors[i],
-            name: `AI ${aiCount}`,
-            type: 'ai',
-            tokens: [0, 0, 0, 0],
-            finished: false
-          });
-          aiCount++;
-        }
-      }
-      
-      G.currentPlayer = 0;
-      startGame();
-    });
-  }
-  
-  // Local Start Button
-  const startLocalBtn = document.getElementById('startLocalBtn');
-  if (startLocalBtn) {
-    startLocalBtn.addEventListener('click', () => {
-      // Get player names from inputs
-      const inputs = document.querySelectorAll('#localPlayerInputs .name-input');
-      G.players = [];
-      const colors = ['red', 'green', 'yellow', 'blue'];
-      
-      for (let i = 0; i < G.numPlayers; i++) {
-        G.players.push({
-          color: colors[i],
-          name: inputs[i].value || `Player ${i + 1}`,
-          type: 'human',
-          tokens: [0, 0, 0, 0],
-          finished: false
-        });
-      }
-      
-      G.currentPlayer = 0;
-      startGame();
-    });
-  }
-  
-  // Initialize local player count
-  initLocalPlayerCount();
-});
+// Note: Start buttons are handled in initSetup() function
+// This DOMContentLoaded block removed to prevent duplicate event listeners
 
 function initOnlineMultiplayer() {
   // Online player count selection
