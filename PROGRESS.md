@@ -6,6 +6,54 @@
 
 ## 📋 Session History
 
+### Session 27: Ludo Pass & Play Mode Fixes
+
+**Date:** 2026-03-11  
+**Time:** 22:30 - 23:15 IST  
+**Agent:** AI Agent  
+**Status:** ✅ Complete
+
+#### Summary
+
+Fixed three critical bugs in Ludo Pass & Play mode discovered during testing:
+1. Player names overlapping animal images
+2. Dice roll button not working due to missing DOM element
+3. Empty token slots showing in inactive houses (2-player mode)
+
+#### Changes Made
+
+**1. Player Name Positioning Fix**
+- Moved player names from inside white panel to colored border area
+- Names now positioned at row 0 for top houses, row 14 for bottom houses
+- Added border styling matching player color for visibility
+- File: `src/games/ludo/index.html` (lines 1401-1445)
+
+**2. Dice Roll Button Fix**
+- Added missing `#playerPanels` element to game screen HTML
+- Element required by `updatePlayerPanels()` function
+- Was causing `TypeError: Cannot set properties of null`
+- File: `src/games/ludo/index.html` (line 1247)
+
+**3. Empty Houses Fix**
+- Modified `applyCell()` to only create token slots for active players
+- Inactive player houses (blue/yellow in 2-player mode) no longer show empty slots
+- Check: `const isActivePlayer = G.active && G.active.includes(p);`
+- File: `src/games/ludo/index.html` (lines 1473-1492)
+
+#### Testing Results
+
+- ✅ 2-player Pass & Play mode working correctly
+- ✅ Player names positioned outside white squares
+- ✅ Dice roll functional for both players
+- ✅ Only active player houses show token slots
+- ✅ JavaScript errors resolved
+
+#### Commits
+
+- `47ce31d` - Fix Ludo Pass & Play mode: player names positioning, dice roll, empty houses
+
+---
+
 ### Session 26: Android TWA App Setup & Build
 
 **Date:** 2026-03-11  

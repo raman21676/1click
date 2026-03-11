@@ -152,6 +152,9 @@
 | 3.2.7 | Add 2-3 player AI | 🟢 Done | Low | AI Agent | Computer opponents | Session 11 |
 | 3.2.8 | Player elimination countdown | 🟢 Done | Low | AI Agent | 30s disconnect timer | Session 11 |
 | 3.2.9 | Pawn-style geometric tokens | 🟢 Done | Low | AI Agent | CSS-based responsive pawns | Session 11 |
+| 3.2.10 | Fix Pass & Play mode - player names positioning | 🟢 Done | High | AI Agent | Names outside white square | 47ce31d |
+| 3.2.11 | Fix Pass & Play mode - dice roll not working | 🟢 Done | High | AI Agent | Added missing playerPanels element | 47ce31d |
+| 3.2.12 | Fix Pass & Play mode - empty houses in 2-player | 🟢 Done | High | AI Agent | Hide token slots for inactive players | 47ce31d |
 
 ### 3.3 Chess
 | # | Task | Status | Priority | Assignee | Notes | Commit |

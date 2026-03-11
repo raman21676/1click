@@ -106,3 +106,62 @@ appear at the wrong entry point. Check:
 
 Repository: https://github.com/Raman21676/1click
 File: src/games/ludo/index.html
+
+---
+
+## Fixed Bugs - March 11, 2026
+
+### Bug 1: Player Names Overlapping Animal Images
+**Status**: ✅ Fixed in commit `47ce31d`
+
+**Problem**: Player names were displayed inside the white panel, overlapping with the animal mascot images.
+
+**Solution**: Changed `placeHouseAnimals()` to place player names on the colored border area outside the white panel:
+- Names now positioned at specific border cells (row 0 for top houses, row 14 for bottom houses)
+- Added border and shadow styling for better visibility
+- Names no longer overlap with animal images
+
+**Code Change**:
+```javascript
+// Before: Name placed inside white panel at center cell
+nameEl.style.cssText = `position:absolute;top:5%;left:50%;...`;
+
+// After: Name placed on colored border
+const nameCell = document.getElementById(`C${house.namePos.row}-${house.namePos.col}`);
+nameEl.style.cssText = `position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);background:rgba(0,0,0,0.6);border:2px solid ${house.color};...`;
+```
+
+---
+
+### Bug 2: Dice Roll Button Not Working
+**Status**: ✅ Fixed in commit `47ce31d`
+
+**Problem**: The dice roll button was not working because of a JavaScript error - `playerPanels` element was missing from HTML.
+
+**Error**: `TypeError: Cannot set properties of null (setting 'innerHTML')`
+
+**Solution**: Added the missing `#playerPanels` element to the game screen HTML:
+```html
+<!-- Player Panels -->
+<div class="player-panels" id="playerPanels"></div>
+```
+
+---
+
+### Bug 3: Empty Token Slots in Inactive Houses (2-Player Mode)
+**Status**: ✅ Fixed in commit `47ce31d`
+
+**Problem**: In 2-player mode, blue and yellow houses were showing empty token slot circles even though those players weren't active.
+
+**Solution**: Modified `applyCell()` to only create token slots for active players:
+```javascript
+// Only add token slots for active players
+const isActivePlayer = G.active && G.active.includes(p);
+if (slots[slotKey] !== undefined && isActivePlayer) {
+  cell.classList.add('ts', `ts${p[0].toUpperCase()}`);
+  cell.dataset.homeSlot = p;
+  cell.dataset.slotIdx = slots[slotKey];
+}
+```
+
+**Result**: In 2-player mode, only red and green houses show token slots. Blue and yellow houses show only the animal images without empty slots.
