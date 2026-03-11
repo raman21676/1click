@@ -203,8 +203,8 @@
 html,body{min-height:100%;font-family:'Segoe UI',Arial,sans-serif;
   background:radial-gradient(ellipse at center,#283593 0%,#1a237e 50%,#0d1b6e 100%);
   color:#fff;overflow-x:hidden}
-body{overflow-y:auto;-webkit-overflow-scrolling:touch}
-body.game-active{overflow:hidden}
+body{overflow-y:auto;-webkit-overflow-scrolling:touch;touch-action:pan-y}
+body.game-active{overflow:hidden;touch-action:none}
 
 /* --- LAYOUT ----------------------------------- */
 .game-wrapper{height:100dvh;display:flex;flex-direction:column;
@@ -715,7 +715,8 @@ body.game-active{overflow:hidden}
 .setup-screen{position:fixed;inset:0;
   background:linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
   display:flex;flex-direction:column;align-items:center;
-  justify-content:flex-start;padding:20px;z-index:100;overflow-y:auto;-webkit-overflow-scrolling:touch}
+  justify-content:flex-start;padding:20px;z-index:100;overflow-y:auto;-webkit-overflow-scrolling:touch;touch-action:pan-y}
+.setup-screen *{touch-action:pan-y}
 .setup-screen-content{margin-top:auto;margin-bottom:auto}
 .setup-screen.hidden{display:none}
 .setup-title h1{font-size:clamp(28px,6vmin,40px);font-weight:900;text-align:center;
