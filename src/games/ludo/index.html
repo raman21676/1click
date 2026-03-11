@@ -383,9 +383,36 @@ body.game-active{overflow:hidden}
 .tok.selected{transform:scale(1.3);box-shadow:0 0 0 3px #fff,0 0 8px rgba(255,255,255,.7)}
 
 /* --- CONTROLS ROW ------------------------------ */
-.controls-row{width:100%;display:flex;
-  align-items:center;justify-content:space-between;
-  gap:4px;padding:6px 10px;flex-shrink:0;position:absolute;bottom:0;left:0;right:0;background:linear-gradient(to top,rgba(0,0,0,0.5),transparent);z-index:10}
+/* Center dice area (AI & Online modes) */
+.center-dice-area{position:absolute;bottom:10px;left:50%;transform:translateX(-50%);display:flex;flex-direction:column;align-items:center;gap:4px;z-index:10;background:rgba(0,0,0,0.4);padding:8px 16px;border-radius:12px;backdrop-filter:blur(4px)}
+
+/* Corner dice for Pass & Play mode */
+.corner-dice{position:absolute;z-index:10;display:flex;flex-direction:column;align-items:center;gap:2px}
+.corner-dice.red-dice{bottom:10px;left:10px}
+.corner-dice.green-dice{top:60px;right:10px}
+.corner-dice.yellow-dice{bottom:10px;right:10px}
+.corner-dice.blue-dice{top:60px;left:10px}
+
+.corner-dice-scene{width:36px;height:36px;perspective:300px;position:relative}
+.corner-dice-scene .dice-cube{width:32px;height:32px;position:absolute;top:2px;left:2px;transform-style:preserve-3d;transform:rotateX(-25deg) rotateY(25deg)}
+.corner-dice-scene .face{width:32px;height:32px;border-radius:6px;background:linear-gradient(145deg,#fffef8,#f5f5f0);box-shadow:inset 0 2px 4px rgba(255,255,255,0.9),inset 0 -2px 3px rgba(0,0,0,0.06),0 0 0 1px rgba(0,0,0,0.08);backface-visibility:hidden;display:flex;align-items:center;justify-content:center}
+.corner-dice-scene .face-1{transform:rotateY(0deg) translateZ(16px)}
+.corner-dice-scene .face-2{transform:rotateY(180deg) translateZ(16px)}
+.corner-dice-scene .face-3{transform:rotateY(90deg) translateZ(16px)}
+.corner-dice-scene .face-4{transform:rotateY(-90deg) translateZ(16px)}
+.corner-dice-scene .face-5{transform:rotateX(90deg) translateZ(16px)}
+.corner-dice-scene .face-6{transform:rotateX(-90deg) translateZ(16px)}
+.corner-dice-scene .dots{padding:5px;gap:2px}
+.corner-dice-scene .dot{width:6px;height:6px}
+
+.corner-roll-btn{background:linear-gradient(135deg,#FF6F00,#FFD600);border:none;border-radius:4px;color:#000;font-size:10px;font-weight:700;padding:3px 8px;cursor:pointer;box-shadow:0 2px 6px rgba(255,111,0,.4)}
+.corner-roll-btn:disabled{opacity:0.3;cursor:not-allowed}
+.corner-dice.active .corner-roll-btn{animation:pulseBtn 1.5s infinite}
+@keyframes pulseBtn{0%,100%{transform:scale(1)}50%{transform:scale(1.05)}}
+
+/* Hide center dice in local mode, show corner dice */
+.game-wrapper.local-mode .center-dice-area{display:none}
+.game-wrapper.local-mode .corner-dice{display:flex !important}
 
 /* Player panels */
 .player-panels{display:flex;gap:4px;flex:1;justify-content:flex-start}
@@ -1171,31 +1198,47 @@ body.game-active{overflow:hidden}
     </div>
   </div>
 
-  <!-- Controls -->
-  <div class="controls-row">
-    <!-- Player panels - left side -->
-    <div class="player-panels" id="playerPanels"></div>
-
-    <!-- Dice and Turn Info - right side -->
-    <div class="dice-turn-container">
-      <div class="dice-area">
-        <div class="dice-scene" id="diceScene">
-          <div class="dice-cube" id="diceCube">
-            <div class="face face-1"><div class="dots"><div class="dot"></div></div></div>
-            <div class="face face-2"><div class="dots"><div class="dot"></div><div class="dot"></div></div></div>
-            <div class="face face-3"><div class="dots"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div></div>
-            <div class="face face-4"><div class="dots"><div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div></div></div>
-            <div class="face face-5"><div class="dots"><div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div></div></div>
-            <div class="face face-6"><div class="dots"><div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div></div></div>
-          </div>
-        </div>
-        <button class="roll-btn" id="rollBtn" disabled>Roll</button>
-      </div>
-      <div class="turn-area">
-        <div class="turn-text" id="turnText">Red's Turn</div>
-        <div class="turn-sub" id="turnSub">Click Roll!</div>
+  <!-- Central Dice (for AI and Online modes) -->
+  <div class="center-dice-area" id="centerDiceArea">
+    <div class="dice-scene" id="diceScene">
+      <div class="dice-cube" id="diceCube">
+        <div class="face face-1"><div class="dots"><div class="dot"></div></div></div>
+        <div class="face face-2"><div class="dots"><div class="dot"></div><div class="dot"></div></div></div>
+        <div class="face face-3"><div class="dots"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div></div>
+        <div class="face face-4"><div class="dots"><div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div></div></div>
+        <div class="face face-5"><div class="dots"><div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div></div></div>
+        <div class="face face-6"><div class="dots"><div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div></div></div>
       </div>
     </div>
+    <button class="roll-btn" id="rollBtn" disabled>Roll</button>
+    <div class="turn-text" id="turnText">Red's Turn</div>
+    <div class="turn-sub" id="turnSub">Click Roll!</div>
+  </div>
+
+  <!-- Corner Dice for Pass & Play Mode -->
+  <div class="corner-dice red-dice" id="redDice" style="display:none">
+    <div class="corner-dice-scene" data-color="red">
+      <div class="dice-cube"><div class="face face-1"><div class="dots"><div class="dot"></div></div></div><div class="face face-2"><div class="dots"><div class="dot"></div><div class="dot"></div></div></div><div class="face face-3"><div class="dots"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div></div><div class="face face-4"><div class="dots"><div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div></div></div><div class="face face-5"><div class="dots"><div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div></div></div><div class="face face-6"><div class="dots"><div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div></div></div></div>
+    </div>
+    <button class="corner-roll-btn" disabled>Roll</button>
+  </div>
+  <div class="corner-dice green-dice" id="greenDice" style="display:none">
+    <div class="corner-dice-scene" data-color="green">
+      <div class="dice-cube"><div class="face face-1"><div class="dots"><div class="dot"></div></div></div><div class="face face-2"><div class="dots"><div class="dot"></div><div class="dot"></div></div></div><div class="face face-3"><div class="dots"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div></div><div class="face face-4"><div class="dots"><div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div></div></div><div class="face face-5"><div class="dots"><div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div></div></div><div class="face face-6"><div class="dots"><div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div></div></div></div>
+    </div>
+    <button class="corner-roll-btn" disabled>Roll</button>
+  </div>
+  <div class="corner-dice yellow-dice" id="yellowDice" style="display:none">
+    <div class="corner-dice-scene" data-color="yellow">
+      <div class="dice-cube"><div class="face face-1"><div class="dots"><div class="dot"></div></div></div><div class="face face-2"><div class="dots"><div class="dot"></div><div class="dot"></div></div></div><div class="face face-3"><div class="dots"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div></div><div class="face face-4"><div class="dots"><div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div></div></div><div class="face face-5"><div class="dots"><div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div></div></div><div class="face face-6"><div class="dots"><div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div></div></div></div>
+    </div>
+    <button class="corner-roll-btn" disabled>Roll</button>
+  </div>
+  <div class="corner-dice blue-dice" id="blueDice" style="display:none">
+    <div class="corner-dice-scene" data-color="blue">
+      <div class="dice-cube"><div class="face face-1"><div class="dots"><div class="dot"></div></div></div><div class="face face-2"><div class="dots"><div class="dot"></div><div class="dot"></div></div></div><div class="face face-3"><div class="dots"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div></div><div class="face face-4"><div class="dots"><div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div></div></div><div class="face face-5"><div class="dots"><div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div></div></div><div class="face face-6"><div class="dots"><div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div></div></div></div>
+    </div>
+    <button class="corner-roll-btn" disabled>Roll</button>
   </div>
 
   <div class="game-log" id="gameLog"></div>
@@ -2418,13 +2461,14 @@ function _updateUIImpl() {
 function updateDiceUI() {
   const diceScene = document.getElementById('diceScene');
   const rollBtn = document.getElementById('rollBtn');
+  const currentPlayer = curPlayer();
   
   // Check if dice should be enabled
   let enabled = G.phase==='roll' && !isAI();
   
   // In online mode, ONLY enable dice if it's MY turn
   if (G.isOnline && enabled) {
-    enabled = (curPlayer() === G.humanColor);
+    enabled = (currentPlayer === G.humanColor);
   }
 
   rollBtn.disabled = !enabled;
@@ -2439,8 +2483,28 @@ function updateDiceUI() {
     diceScene.style.pointerEvents = 'auto';
   }
 
+  // Update corner dice for Pass & Play mode
+  if (G.gameMode === 'local') {
+    const colors = ['red', 'green', 'yellow', 'blue'];
+    colors.forEach(color => {
+      const cornerDice = document.getElementById(color + 'Dice');
+      const cornerBtn = cornerDice.querySelector('.corner-roll-btn');
+      const isCurrentPlayer = (currentPlayer === color);
+      const canRoll = G.phase === 'roll' && isCurrentPlayer && !G.finished.has(color);
+      
+      cornerBtn.disabled = !canRoll;
+      cornerDice.classList.toggle('active', canRoll);
+      
+      // Sync dice face for current player
+      if (G.diceVal && isCurrentPlayer) {
+        const cornerCube = cornerDice.querySelector('.dice-cube');
+        cornerCube.style.transform = DICE_FINAL[G.diceVal];
+      }
+    });
+  }
+
   if (G.diceVal) {
-    showDiceFace(G.diceVal, curPlayer());
+    showDiceFace(G.diceVal, currentPlayer);
   }
 }
 
@@ -3714,6 +3778,14 @@ function startGame() {
   document.getElementById('setupScreen').classList.add('hidden');
   document.getElementById('gameScreen').style.display = 'flex';
   document.body.classList.add('game-active');
+  
+  // Add local-mode class for Pass & Play to show corner dice
+  const gameWrapper = document.getElementById('gameScreen');
+  if (G.gameMode === 'local') {
+    gameWrapper.classList.add('local-mode');
+  } else {
+    gameWrapper.classList.remove('local-mode');
+  }
 
   updateUI();
   renderTokens();
@@ -3735,6 +3807,36 @@ document.getElementById('diceScene').addEventListener('click', e => {
   }
   rollDice();
 });
+// Corner dice buttons for Pass & Play mode
+['red', 'green', 'yellow', 'blue'].forEach(color => {
+  const cornerDice = document.getElementById(color + 'Dice');
+  if (cornerDice) {
+    cornerDice.querySelector('.corner-roll-btn').addEventListener('click', e => {
+      e.preventDefault();
+      // Only allow if it's this player's turn
+      if (curPlayer() !== color) {
+        addLog('(info) Wait for ' + color + '\'s turn!');
+        return;
+      }
+      // Only allow in local mode and roll phase
+      if (G.gameMode !== 'local') return;
+      if (G.phase !== 'roll') return;
+      rollDice();
+    });
+    // Click on dice cube also rolls
+    cornerDice.querySelector('.corner-dice-scene').addEventListener('click', e => {
+      e.preventDefault();
+      if (curPlayer() !== color) {
+        addLog('(info) Wait for ' + color + '\'s turn!');
+        return;
+      }
+      if (G.gameMode !== 'local') return;
+      if (G.phase !== 'roll') return;
+      rollDice();
+    });
+  }
+});
+
 document.getElementById('rollBtn').addEventListener('click', e => {
   e.preventDefault();
   // Enforce turn validation in online mode
