@@ -29,7 +29,7 @@
     },
     {
       "name": "Play Chess",
-      "shortName": "Chess",
+      "shortName": "Chess", 
       "url": "https://1click.live/src/games/chess/",
       "icon": "https://1click.live/src/games/chess/icon.png"
     },
