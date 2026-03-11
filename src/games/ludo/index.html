@@ -1241,6 +1241,9 @@ body.game-active{overflow:hidden}
     <button class="corner-roll-btn" disabled>Roll</button>
   </div>
 
+  <!-- Player Panels -->
+  <div class="player-panels" id="playerPanels"></div>
+
   <div class="game-log" id="gameLog"></div>
 </div>
 
@@ -1406,14 +1409,16 @@ function placeHouseAnimals() {
   if (!board) return;
   
   // White panel is 4x4 cells, center is at 2 cells offset from top-left of panel
+  // Player names are placed on the colored border OUTSIDE the white panel
   const houses = [
-    {name: 'red',    img: 'cat.webp',   row: 1, col: 1,   color: '#E53935'},
-    {name: 'green',  img: 'panda.webp', row: 1, col: 10,  color: '#43A047'},
-    {name: 'yellow', img: 'tiger.webp', row: 10, col: 10, color: '#FDD835'},
-    {name: 'blue',   img: 'eagle.webp', row: 10, col: 1,  color: '#1E88E5'}
+    {name: 'red',    img: 'cat.webp',   row: 1, col: 1,   color: '#E53935', namePos: {row: 0, col: 2}},
+    {name: 'green',  img: 'panda.webp', row: 1, col: 10,  color: '#43A047', namePos: {row: 0, col: 11}},
+    {name: 'yellow', img: 'tiger.webp', row: 10, col: 10, color: '#FDD835', namePos: {row: 14, col: 11}},
+    {name: 'blue',   img: 'eagle.webp', row: 10, col: 1,  color: '#1E88E5', namePos: {row: 14, col: 2}}
   ];
   
   houses.forEach(house => {
+    // Place animal at center of white panel
     const placeRow = house.row + 1;
     const placeCol = house.col + 1;
     
@@ -1425,15 +1430,18 @@ function placeHouseAnimals() {
       img.className = 'house-animal';
       img.alt = house.name;
       cell.appendChild(img);
-      
-      // Add player name if this player is active
-      const playerName = G.playerNames[house.name];
-      if (playerName && G.active.includes(house.name)) {
+    }
+    
+    // Add player name on the colored border (outside white panel)
+    const playerName = G.playerNames[house.name];
+    if (playerName && G.active.includes(house.name)) {
+      const nameCell = document.getElementById(`C${house.namePos.row}-${house.namePos.col}`);
+      if (nameCell) {
         const nameEl = document.createElement('div');
         nameEl.className = 'house-player-name';
         nameEl.textContent = playerName;
-        nameEl.style.cssText = `position:absolute;top:5%;left:50%;transform:translateX(-50%);background:${house.color};color:white;padding:2px 8px;border-radius:10px;font-size:clamp(8px,1.5vmin,12px);font-weight:700;white-space:nowrap;z-index:20;text-shadow:0 1px 2px rgba(0,0,0,0.5);box-shadow:0 2px 4px rgba(0,0,0,0.3);`;
-        cell.appendChild(nameEl);
+        nameEl.style.cssText = `position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);background:rgba(0,0,0,0.6);color:white;padding:4px 10px;border-radius:12px;font-size:clamp(10px,1.8vmin,14px);font-weight:700;white-space:nowrap;z-index:20;text-shadow:0 1px 2px rgba(0,0,0,0.5);box-shadow:0 2px 6px rgba(0,0,0,0.4);border:2px solid ${house.color};`;
+        nameCell.appendChild(nameEl);
       }
     }
   });
@@ -1469,7 +1477,9 @@ function applyCell(cell, r, c, info) {
     // Token slot positions within each home
     const slots = homeSlots(p);
     const slotKey = `${r}-${c}`;
-    if (slots[slotKey] !== undefined) {
+    // Only add token slots for active players
+    const isActivePlayer = G.active && G.active.includes(p);
+    if (slots[slotKey] !== undefined && isActivePlayer) {
       cell.classList.add('ts', `ts${p[0].toUpperCase()}`);
       cell.dataset.homeSlot = p;          // used as selector [data-home-slot]
       cell.dataset.slotIdx  = slots[slotKey]; // used as selector [data-slot-idx]
