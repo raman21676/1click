@@ -2856,7 +2856,7 @@ function initSetup() {
       G.players = [];
       for (let i = 0; i < G.playerCount; i++) {
         const color = colors[i];
-        const name = inputs[i]?.value?.trim() || `Player ${i + 1}`;
+        const name = (inputs[i] && inputs[i].value && inputs[i].value.trim()) ? inputs[i].value.trim() : `Player ${i + 1}`;
         G.players.push({
           color: color,
           name: name.substring(0, 12),
@@ -2984,7 +2984,7 @@ function initOfflineDetection() {
 }
 
 function isConnected() {
-  if (peerConnection?.open) return true;
+  if (peerConnection && peerConnection.open) return true;
   if (peerConnections.some(c => c.open)) return true;
   return false;
 }
@@ -3294,7 +3294,7 @@ function copyRoomCode() {
 
 function startOnlineGame() {
   const maxPlayers = G.onlinePlayerCount || 2;
-  const hasConnection = peerConnection?.open || peerConnections.some(c => c.open);
+  const hasConnection = (peerConnection && peerConnection.open) || peerConnections.some(c => c.open);
   
   if (!hasConnection) {
     alert('Waiting for players to connect...');
@@ -3314,7 +3314,7 @@ function startOnlineGame() {
   
   // Notify all peers with game state - include their assigned color
   // For 2-player mode
-  if (peerConnection?.open) {
+  if (peerConnection && peerConnection.open) {
     const guestColor = peerColors.get(peerConnection) || 'green';
     peerConnection.send({ 
       type: 'gameStart',
@@ -3901,7 +3901,7 @@ window.debugLudo = function() {
   Object.entries(ENTRY).forEach(([player, gpos]) => {
     const [r, c] = PATH[gpos];
     const cell = document.querySelector(`[data-gpos="${gpos}"]`);
-    console.log(`${player.toUpperCase()}: gpos=${gpos}, coords=[${r},${c}], cell=${cell?.id || 'NOT FOUND'}`);
+    console.log(`${player.toUpperCase()}: gpos=${gpos}, coords=[${r},${c}], cell=${cell ? cell.id : 'NOT FOUND'}`);
   });
   
   // Check home slots
