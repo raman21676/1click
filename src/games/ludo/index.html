@@ -388,6 +388,7 @@ body.game-active{overflow:hidden}
 
 /* Corner dice for Pass & Play mode */
 .corner-dice{position:absolute;z-index:10;display:none;flex-direction:column;align-items:center;gap:2px}
+.corner-dice.active-player{display:flex}
 .corner-dice.red-dice{bottom:10px;left:10px}
 .corner-dice.green-dice{top:50px;right:10px}
 .corner-dice.yellow-dice{bottom:10px;right:10px}
@@ -1215,25 +1216,25 @@ body.game-active{overflow:hidden}
   </div>
 
   <!-- Corner Dice for Pass & Play Mode -->
-  <div class="corner-dice red-dice" id="redDice" style="display:none">
+  <div class="corner-dice red-dice" id="redDice">
     <div class="corner-dice-scene" data-color="red">
       <div class="dice-cube"><div class="face face-1"><div class="dots"><div class="dot"></div></div></div><div class="face face-2"><div class="dots"><div class="dot"></div><div class="dot"></div></div></div><div class="face face-3"><div class="dots"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div></div><div class="face face-4"><div class="dots"><div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div></div></div><div class="face face-5"><div class="dots"><div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div></div></div><div class="face face-6"><div class="dots"><div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div></div></div></div>
     </div>
     <button class="corner-roll-btn" disabled>Roll</button>
   </div>
-  <div class="corner-dice green-dice" id="greenDice" style="display:none">
+  <div class="corner-dice green-dice" id="greenDice">
     <div class="corner-dice-scene" data-color="green">
       <div class="dice-cube"><div class="face face-1"><div class="dots"><div class="dot"></div></div></div><div class="face face-2"><div class="dots"><div class="dot"></div><div class="dot"></div></div></div><div class="face face-3"><div class="dots"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div></div><div class="face face-4"><div class="dots"><div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div></div></div><div class="face face-5"><div class="dots"><div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div></div></div><div class="face face-6"><div class="dots"><div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div></div></div></div>
     </div>
     <button class="corner-roll-btn" disabled>Roll</button>
   </div>
-  <div class="corner-dice yellow-dice" id="yellowDice" style="display:none">
+  <div class="corner-dice yellow-dice" id="yellowDice">
     <div class="corner-dice-scene" data-color="yellow">
       <div class="dice-cube"><div class="face face-1"><div class="dots"><div class="dot"></div></div></div><div class="face face-2"><div class="dots"><div class="dot"></div><div class="dot"></div></div></div><div class="face face-3"><div class="dots"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div></div><div class="face face-4"><div class="dots"><div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div></div></div><div class="face face-5"><div class="dots"><div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div></div></div><div class="face face-6"><div class="dots"><div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div></div></div></div>
     </div>
     <button class="corner-roll-btn" disabled>Roll</button>
   </div>
-  <div class="corner-dice blue-dice" id="blueDice" style="display:none">
+  <div class="corner-dice blue-dice" id="blueDice">
     <div class="corner-dice-scene" data-color="blue">
       <div class="dice-cube"><div class="face face-1"><div class="dots"><div class="dot"></div></div></div><div class="face face-2"><div class="dots"><div class="dot"></div><div class="dot"></div></div></div><div class="face face-3"><div class="dots"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div></div><div class="face face-4"><div class="dots"><div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div></div></div><div class="face face-5"><div class="dots"><div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div></div></div><div class="face face-6"><div class="dots"><div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div></div></div></div>
     </div>
@@ -2490,20 +2491,21 @@ function updateDiceUI() {
     const colors = ['red', 'green', 'yellow', 'blue'];
     colors.forEach(color => {
       const cornerDice = document.getElementById(color + 'Dice');
+      if (!cornerDice) return;
       const cornerBtn = cornerDice.querySelector('.corner-roll-btn');
       const isCurrentPlayer = (currentPlayer === color);
       const isActivePlayer = G.active.includes(color);
       const canRoll = G.phase === 'roll' && isCurrentPlayer && !G.finished.has(color);
       
       // Only show corner dice for active players in this game
-      cornerDice.style.display = isActivePlayer ? 'flex' : 'none';
-      cornerBtn.disabled = !canRoll;
+      cornerDice.classList.toggle('active-player', isActivePlayer);
+      if (cornerBtn) cornerBtn.disabled = !canRoll;
       cornerDice.classList.toggle('active', canRoll);
       
       // Sync dice face for current player
       if (G.diceVal && isCurrentPlayer) {
         const cornerCube = cornerDice.querySelector('.dice-cube');
-        cornerCube.style.transform = DICE_FINAL[G.diceVal];
+        if (cornerCube) cornerCube.style.transform = DICE_FINAL[G.diceVal];
       }
     });
   }
