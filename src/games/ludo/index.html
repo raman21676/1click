@@ -217,7 +217,7 @@ body.game-active{overflow:hidden}
 
 /* --- BOARD AREA -------------------------------- */
 .board-area{flex:1;display:flex;align-items:center;justify-content:center;
-  width:100%;height:100%;padding:0;padding-bottom:60px;box-sizing:border-box}
+  width:100%;height:100%;padding:40px 0 80px;box-sizing:border-box}
 .board-wrapper{position:relative;
   width:100vmin;height:100vmin;max-width:none;max-height:none}
 
@@ -387,10 +387,10 @@ body.game-active{overflow:hidden}
 .center-dice-area{position:absolute;bottom:10px;left:50%;transform:translateX(-50%);display:flex;flex-direction:column;align-items:center;gap:4px;z-index:10;background:rgba(0,0,0,0.4);padding:8px 16px;border-radius:12px;backdrop-filter:blur(4px)}
 
 /* Corner dice for Pass & Play mode */
-.corner-dice{position:absolute;z-index:10;display:flex;flex-direction:column;align-items:center;gap:2px}
-.corner-dice.red-dice{bottom:10px;left:10px}
+.corner-dice{position:absolute;z-index:10;display:none;flex-direction:column;align-items:center;gap:2px}
+.corner-dice.red-dice{bottom:80px;left:10px}
 .corner-dice.green-dice{top:60px;right:10px}
-.corner-dice.yellow-dice{bottom:10px;right:10px}
+.corner-dice.yellow-dice{bottom:80px;right:10px}
 .corner-dice.blue-dice{top:60px;left:10px}
 
 .corner-dice-scene{width:36px;height:36px;perspective:300px;position:relative}
@@ -1399,39 +1399,42 @@ function buildBoard() {
 }
 
 function placeHouseAnimals() {
-  // Remove existing animals
-  document.querySelectorAll('.house-animal').forEach(el => el.remove());
+  // Remove existing animals and player names
+  document.querySelectorAll('.house-animal, .house-player-name').forEach(el => el.remove());
   
-  // Calculate exact center positions
   const board = document.getElementById('ludoBoard');
   if (!board) return;
   
-  const boardRect = board.getBoundingClientRect();
-  const cellSize = boardRect.width / 15; // 15x15 grid
-  
   // White panel is 4x4 cells, center is at 2 cells offset from top-left of panel
-  // For each house, calculate exact center coordinates
   const houses = [
-    {name: 'red',    img: 'cat.webp',   row: 1, col: 1},   // White panel starts at row 1, col 1
-    {name: 'green',  img: 'panda.webp', row: 1, col: 10},  // White panel starts at row 1, col 10
-    {name: 'yellow', img: 'tiger.webp', row: 10, col: 10}, // White panel starts at row 10, col 10
-    {name: 'blue',   img: 'eagle.webp', row: 10, col: 1}   // White panel starts at row 10, col 1
+    {name: 'red',    img: 'cat.webp',   row: 1, col: 1,   color: '#E53935'},
+    {name: 'green',  img: 'panda.webp', row: 1, col: 10,  color: '#43A047'},
+    {name: 'yellow', img: 'tiger.webp', row: 10, col: 10, color: '#FDD835'},
+    {name: 'blue',   img: 'eagle.webp', row: 10, col: 1,  color: '#1E88E5'}
   ];
   
   houses.forEach(house => {
-    // White panel: rows house.row to house.row+3, cols house.col to house.col+3
-    // Center is at house.row+1.5, house.col+1.5 (between cells)
-    // Place at top-left of center (house.row+1, house.col+1) so 260% spans cover center
-    const placeRow = house.row + 1; // Top of center 2x2
-    const placeCol = house.col + 1; // Left of center 2x2
+    const placeRow = house.row + 1;
+    const placeCol = house.col + 1;
     
     const cell = document.getElementById(`C${placeRow}-${placeCol}`);
     if (cell) {
+      // Add animal image
       const img = document.createElement('img');
       img.src = `assets/${house.img}`;
       img.className = 'house-animal';
       img.alt = house.name;
       cell.appendChild(img);
+      
+      // Add player name if this player is active
+      const playerName = G.playerNames[house.name];
+      if (playerName && G.active.includes(house.name)) {
+        const nameEl = document.createElement('div');
+        nameEl.className = 'house-player-name';
+        nameEl.textContent = playerName;
+        nameEl.style.cssText = `position:absolute;top:5%;left:50%;transform:translateX(-50%);background:${house.color};color:white;padding:2px 8px;border-radius:10px;font-size:clamp(8px,1.5vmin,12px);font-weight:700;white-space:nowrap;z-index:20;text-shadow:0 1px 2px rgba(0,0,0,0.5);box-shadow:0 2px 4px rgba(0,0,0,0.3);`;
+        cell.appendChild(nameEl);
+      }
     }
   });
 }
@@ -2490,8 +2493,11 @@ function updateDiceUI() {
       const cornerDice = document.getElementById(color + 'Dice');
       const cornerBtn = cornerDice.querySelector('.corner-roll-btn');
       const isCurrentPlayer = (currentPlayer === color);
+      const isActivePlayer = G.active.includes(color);
       const canRoll = G.phase === 'roll' && isCurrentPlayer && !G.finished.has(color);
       
+      // Only show corner dice for active players in this game
+      cornerDice.style.display = isActivePlayer ? 'flex' : 'none';
       cornerBtn.disabled = !canRoll;
       cornerDice.classList.toggle('active', canRoll);
       
@@ -3786,6 +3792,9 @@ function startGame() {
   } else {
     gameWrapper.classList.remove('local-mode');
   }
+  
+  // Refresh house animals with player names
+  placeHouseAnimals();
 
   updateUI();
   renderTokens();
