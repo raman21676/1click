@@ -217,9 +217,9 @@ body.game-active{overflow:hidden}
 
 /* --- BOARD AREA -------------------------------- */
 .board-area{flex:1;display:flex;align-items:center;justify-content:center;
-  width:100%;height:100%;padding:80px 0 80px;box-sizing:border-box}
+  width:100%;height:100%;padding:45px 0 45px;box-sizing:border-box}
 .board-wrapper{position:relative;
-  width:100vmin;height:100vmin;max-width:none;max-height:none}
+  width:calc(100vmin - 10px);height:calc(100vmin - 10px);max-width:none;max-height:none}
 
 /* 15x15 grid */
 .ludo-board{width:100%;height:100%;
@@ -369,14 +369,13 @@ body.game-active{overflow:hidden}
   display:flex;align-items:center;justify-content:center;
   font-size:clamp(6px,1.3vmin,10px);font-weight:800;color:#fff;
   cursor:pointer;z-index:10;text-shadow:0 1px 2px rgba(0,0,0,.5);
-  transition:transform .15s,box-shadow .15s;user-select:none;
-  box-shadow:0 2px 5px rgba(0,0,0,.4)}
+  transition:transform .15s,box-shadow .15s;user-select:none}
 .tok-home{width:clamp(18px,5vmin,30px);height:clamp(18px,5vmin,30px)}
 .tok-path{width:clamp(13px,3.5vmin,22px);height:clamp(13px,3.5vmin,22px)}
-.tokR{background:radial-gradient(circle at 35% 35%,#EF5350,#B71C1C)}
-.tokG{background:radial-gradient(circle at 35% 35%,#66BB6A,#1B5E20)}
-.tokY{background:radial-gradient(circle at 35% 35%,#FFF176,#F57F17);color:#333;text-shadow:none}
-.tokB{background:radial-gradient(circle at 35% 35%,#42A5F5,#0D47A1)}
+.tokR{background:#EF5350;box-shadow:inset -3px -3px 8px rgba(0,0,0,0.3),inset 3px 3px 8px rgba(255,255,255,0.3),0 2px 5px rgba(0,0,0,0.4)}
+.tokG{background:#66BB6A;box-shadow:inset -3px -3px 8px rgba(0,0,0,0.3),inset 3px 3px 8px rgba(255,255,255,0.3),0 2px 5px rgba(0,0,0,0.4)}
+.tokY{background:#FDD835;box-shadow:inset -3px -3px 8px rgba(0,0,0,0.3),inset 3px 3px 8px rgba(255,255,255,0.3),0 2px 5px rgba(0,0,0,0.4);color:#333;text-shadow:none}
+.tokB{background:#42A5F5;box-shadow:inset -3px -3px 8px rgba(0,0,0,0.3),inset 3px 3px 8px rgba(255,255,255,0.3),0 2px 5px rgba(0,0,0,0.4)}
 .tok.movable{animation:tokBounce .6s ease-in-out infinite;
   box-shadow:0 0 0 3px gold,0 2px 5px rgba(0,0,0,.4)}
 @keyframes tokBounce{0%,100%{transform:translateY(0)}50%{transform:translateY(-3px)}}
@@ -384,15 +383,20 @@ body.game-active{overflow:hidden}
 
 /* --- CONTROLS ROW ------------------------------ */
 /* Center dice area (AI & Online modes) */
-.center-dice-area{position:absolute;bottom:10px;left:50%;transform:translateX(-50%);display:flex;flex-direction:column;align-items:center;gap:4px;z-index:10;background:rgba(0,0,0,0.4);padding:8px 16px;border-radius:12px;backdrop-filter:blur(4px)}
+.center-dice-area{position:absolute;bottom:5px;left:50%;transform:translateX(-50%);display:flex;flex-direction:column;align-items:center;gap:4px;z-index:10;background:rgba(0,0,0,0.4);padding:6px 12px;border-radius:12px;backdrop-filter:blur(4px)}
 
 /* Corner dice for Pass & Play mode */
 .corner-dice{position:absolute;z-index:10;display:none;flex-direction:column;align-items:center;gap:2px}
 .corner-dice.active-player{display:flex}
-.corner-dice.red-dice{bottom:10px;left:10px}
-.corner-dice.green-dice{top:50px;right:10px}
-.corner-dice.yellow-dice{bottom:10px;right:10px}
-.corner-dice.blue-dice{top:50px;left:10px}
+/* Dice positions match their house positions:
+   Red house: Top-Left (rows 0-5, cols 0-5) -> Red dice: Top-Left
+   Green house: Top-Right (rows 0-5, cols 9-14) -> Green dice: Top-Right
+   Yellow house: Bottom-Right (rows 9-14, cols 9-14) -> Yellow dice: Bottom-Right
+   Blue house: Bottom-Left (rows 9-14, cols 0-5) -> Blue dice: Bottom-Left */
+.corner-dice.red-dice{top:5px;left:5px}
+.corner-dice.green-dice{top:5px;right:5px}
+.corner-dice.yellow-dice{bottom:5px;right:5px}
+.corner-dice.blue-dice{bottom:5px;left:5px}
 
 .corner-dice-scene{width:36px;height:36px;perspective:300px;position:relative}
 .corner-dice-scene .dice-cube{width:32px;height:32px;position:absolute;top:2px;left:2px;transform-style:preserve-3d;transform:rotateX(-25deg) rotateY(25deg)}
@@ -709,6 +713,10 @@ body.game-active{overflow:hidden}
 .dice-scene.rolling {
   animation: diceThrow 0.85s cubic-bezier(0.22, 0.61, 0.36, 1) forwards;
 }
+/* Also apply throw animation to corner dice scenes */
+.corner-dice-scene.rolling {
+  animation: diceThrow 0.85s cubic-bezier(0.22, 0.61, 0.36, 1) forwards;
+}
 @keyframes diceThrow {
   0%   { transform: translateY(0)     scale(1.00); }
   25%  { transform: translateY(-18px) scale(1.06); }
@@ -1022,26 +1030,45 @@ body.game-active{overflow:hidden}
   <!-- LOCAL (PASS & PLAY) SETTINGS -->
   <div id="localSettings" class="setup-card" style="display:none">
     <label class="setup-label" style="font-size:13px;color:#94a3b8;margin-bottom:10px;display:block">Number of Players</label>
-    <div class="count-row" style="display:flex;gap:8px;margin-bottom:20px">
+    <div class="count-row" style="display:flex;gap:8px;margin-bottom:15px">
       <button class="count-btn" data-n="2">2</button>
       <button class="count-btn active" data-n="3">3</button>
       <button class="count-btn" data-n="4">4</button>
     </div>
+    
+    <!-- House Selection -->
+    <label class="setup-label" style="font-size:13px;color:#94a3b8;margin-bottom:8px;display:block">Select Houses (<span id="houseSelectCount">3</span> of <span id="houseRequiredCount">3</span>)</label>
+    <div class="house-select" id="houseSelect" style="display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-bottom:15px">
+      <button class="house-btn active" data-house="red" data-color="#E53935" style="padding:12px;border:2px solid #E53935;background:rgba(229,57,53,.2);border-radius:10px;color:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;font-weight:600;transition:all .2s">
+        <span style="font-size:20px">🏠</span> 🔴 Red
+      </button>
+      <button class="house-btn active" data-house="green" data-color="#43A047" style="padding:12px;border:2px solid #43A047;background:rgba(67,160,71,.2);border-radius:10px;color:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;font-weight:600;transition:all .2s">
+        <span style="font-size:20px">🏠</span> 🟢 Green
+      </button>
+      <button class="house-btn active" data-house="yellow" data-color="#FDD835" style="padding:12px;border:2px solid #FDD835;background:rgba(253,216,53,.2);border-radius:10px;color:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;font-weight:600;transition:all .2s">
+        <span style="font-size:20px">🏠</span> 🟡 Yellow
+      </button>
+      <button class="house-btn active" data-house="blue" data-color="#1E88E5" style="padding:12px;border:2px solid #1E88E5;background:rgba(30,136,229,.2);border-radius:10px;color:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;font-weight:600;transition:all .2s">
+        <span style="font-size:20px">🏠</span> 🔵 Blue
+      </button>
+    </div>
+    <p id="houseSelectError" style="color:#ef5350;font-size:12px;margin:-10px 0 15px;display:none">⚠️ Please select exactly the required number of houses</p>
+    
     <label class="setup-label" style="font-size:13px;color:#94a3b8;margin-bottom:10px;display:block">Player Names</label>
     <div class="player-inputs" id="localPlayerInputs" style="margin-bottom:20px">
-      <div class="input-row" style="display:flex;align-items:center;gap:10px;margin-bottom:10px">
+      <div class="input-row" data-house="red" style="display:flex;align-items:center;gap:10px;margin-bottom:10px">
         <div style="width:16px;height:16px;border-radius:50%;background:#E53935;flex-shrink:0"></div>
         <input class="name-input" data-pi="0" placeholder="Player 1" value="Player 1" style="flex:1;padding:10px 14px;border:1px solid rgba(255,255,255,.18);background:rgba(0,0,0,.3);color:#fff;border-radius:8px;font-size:14px">
       </div>
-      <div class="input-row" style="display:flex;align-items:center;gap:10px;margin-bottom:10px">
+      <div class="input-row" data-house="green" style="display:flex;align-items:center;gap:10px;margin-bottom:10px">
         <div style="width:16px;height:16px;border-radius:50%;background:#43A047;flex-shrink:0"></div>
         <input class="name-input" data-pi="1" placeholder="Player 2" value="Player 2" style="flex:1;padding:10px 14px;border:1px solid rgba(255,255,255,.18);background:rgba(0,0,0,.3);color:#fff;border-radius:8px;font-size:14px">
       </div>
-      <div class="input-row" style="display:flex;align-items:center;gap:10px;margin-bottom:10px">
+      <div class="input-row" data-house="yellow" style="display:flex;align-items:center;gap:10px;margin-bottom:10px">
         <div style="width:16px;height:16px;border-radius:50%;background:#FDD835;flex-shrink:0"></div>
         <input class="name-input" data-pi="2" placeholder="Player 3" value="Player 3" style="flex:1;padding:10px 14px;border:1px solid rgba(255,255,255,.18);background:rgba(0,0,0,.3);color:#fff;border-radius:8px;font-size:14px">
       </div>
-      <div class="input-row" style="display:none;align-items:center;gap:10px;margin-bottom:10px">
+      <div class="input-row" data-house="blue" style="display:none;align-items:center;gap:10px;margin-bottom:10px">
         <div style="width:16px;height:16px;border-radius:50%;background:#1E88E5;flex-shrink:0"></div>
         <input class="name-input" data-pi="3" placeholder="Player 4" value="Player 4" style="flex:1;padding:10px 14px;border:1px solid rgba(255,255,255,.18);background:rgba(0,0,0,.3);color:#fff;border-radius:8px;font-size:14px">
       </div>
@@ -1833,32 +1860,66 @@ function performRoll() {
   const diceCube  = document.getElementById('diceCube');
   const diceScene = document.getElementById('diceScene');
   
+  // Get active player's corner dice (for Pass & Play mode)
+  const p = curPlayer();
+  const cornerDice = document.getElementById(p + 'Dice');
+  const cornerCube = cornerDice ? cornerDice.querySelector('.dice-cube') : null;
+  const cornerScene = cornerDice ? cornerDice.querySelector('.corner-dice-scene') : null;
+  
   // Generate result
   G.diceVal = Math.floor(Math.random() * 6) + 1;
-  const p = curPlayer();
   
   // Broadcast roll to opponent in online mode
   if (G.isOnline) {
     sendToPeer({ type: 'roll', player: p, value: G.diceVal });
   }
   
-  // 1. Strip all animation classes and inline transform
+  // 1. Strip all animation classes and inline transform (center dice)
   diceCube.className  = 'dice-cube';
   diceCube.style.transform = '';
   diceScene.classList.remove('rolling');
   
+  // 1b. Strip animation classes from corner dice too
+  if (cornerCube) {
+    cornerCube.className = 'dice-cube';
+    cornerCube.style.transform = '';
+  }
+  if (cornerScene) {
+    cornerScene.classList.remove('rolling');
+  }
+  
   // 2. Force a reflow
   void diceCube.offsetWidth;
+  if (cornerCube) void cornerCube.offsetWidth;
   
-  // 3. Add the rolling class -- animation fires
+  // 3. Add the rolling class -- animation fires (both center and corner)
   diceCube.classList.add('rolling-' + G.diceVal);
   diceScene.classList.add('rolling');
   
+  // Also animate corner dice for the active player
+  if (cornerCube) {
+    cornerCube.classList.add('rolling-' + G.diceVal);
+  }
+  if (cornerScene) {
+    cornerScene.classList.add('rolling');
+  }
+  
   // 4. After animation ends, lock to final transform and continue
   setTimeout(() => {
+    // Update center dice
     diceCube.style.transform = DICE_FINAL[G.diceVal];
     diceCube.classList.remove('rolling-' + G.diceVal);
     diceScene.classList.remove('rolling');
+    
+    // Update corner dice with final result
+    if (cornerCube) {
+      cornerCube.style.transform = DICE_FINAL[G.diceVal];
+      cornerCube.classList.remove('rolling-' + G.diceVal);
+    }
+    if (cornerScene) {
+      cornerScene.classList.remove('rolling');
+    }
+    
     diceRolling = false;
     
     afterRoll();
@@ -2512,8 +2573,8 @@ function updateDiceUI() {
       if (cornerBtn) cornerBtn.disabled = !canRoll;
       cornerDice.classList.toggle('active', canRoll);
       
-      // Sync dice face for current player
-      if (G.diceVal && isCurrentPlayer) {
+      // Sync dice face for all players (show last rolled value)
+      if (G.diceVal) {
         const cornerCube = cornerDice.querySelector('.dice-cube');
         if (cornerCube) cornerCube.style.transform = DICE_FINAL[G.diceVal];
       }
@@ -2792,6 +2853,122 @@ function stopConfetti() {
 // SETUP
 // ----------------------------------------------------
 
+// House selection for Pass & Play mode
+function initHouseSelection() {
+  const houseBtns = document.querySelectorAll('.house-btn');
+  const countBtns = document.querySelectorAll('#localSettings .count-btn');
+  const houseSelectCount = document.getElementById('houseSelectCount');
+  const houseRequiredCount = document.getElementById('houseRequiredCount');
+  const houseSelectError = document.getElementById('houseSelectError');
+  
+  let selectedHouses = ['red', 'green', 'yellow', 'blue']; // Default all selected
+  let requiredHouses = 3; // Default 3 players
+  
+  // Update required count when player count changes
+  countBtns.forEach(btn => {
+    btn.addEventListener('click', () => {
+      requiredHouses = parseInt(btn.dataset.n);
+      if (houseRequiredCount) houseRequiredCount.textContent = requiredHouses;
+      updateHouseSelectionUI();
+    });
+  });
+  
+  // Handle house button clicks
+  houseBtns.forEach(btn => {
+    btn.addEventListener('click', () => {
+      const house = btn.dataset.house;
+      
+      if (btn.classList.contains('active')) {
+        // Don't allow deselecting if it would go below required
+        if (selectedHouses.length <= requiredHouses) {
+          showHouseError(`You must select exactly ${requiredHouses} houses`);
+          return;
+        }
+        selectedHouses = selectedHouses.filter(h => h !== house);
+        btn.classList.remove('active');
+        btn.style.opacity = '0.5';
+        btn.style.borderStyle = 'dashed';
+      } else {
+        selectedHouses.push(house);
+        btn.classList.add('active');
+        btn.style.opacity = '1';
+        btn.style.borderStyle = 'solid';
+      }
+      
+      updateHouseSelectionUI();
+      updatePlayerInputsOrder();
+    });
+  });
+  
+  function updateHouseSelectionUI() {
+    if (houseSelectCount) houseSelectCount.textContent = selectedHouses.length;
+    if (houseSelectError) houseSelectError.style.display = 'none';
+    
+    // Update start button state
+    const startBtn = document.getElementById('startLocalBtn');
+    if (startBtn) {
+      if (selectedHouses.length === requiredHouses) {
+        startBtn.disabled = false;
+        startBtn.style.opacity = '1';
+        startBtn.style.cursor = 'pointer';
+      } else {
+        startBtn.disabled = true;
+        startBtn.style.opacity = '0.5';
+        startBtn.style.cursor = 'not-allowed';
+      }
+    }
+  }
+  
+  function showHouseError(msg) {
+    if (houseSelectError) {
+      houseSelectError.textContent = '⚠️ ' + msg;
+      houseSelectError.style.display = 'block';
+      setTimeout(() => {
+        if (houseSelectError) houseSelectError.style.display = 'none';
+      }, 3000);
+    }
+  }
+  
+  function updatePlayerInputsOrder() {
+    const inputRows = document.querySelectorAll('#localPlayerInputs .input-row');
+    inputRows.forEach((row, idx) => {
+      if (idx < selectedHouses.length) {
+        row.style.display = 'flex';
+        const house = selectedHouses[idx];
+        row.dataset.house = house;
+        const dot = row.querySelector('div');
+        const input = row.querySelector('input');
+        if (dot) {
+          const colorMap = {
+            red: '#E53935',
+            green: '#43A047',
+            yellow: '#FDD835',
+            blue: '#1E88E5'
+          };
+          dot.style.background = colorMap[house];
+        }
+        if (input) {
+          input.placeholder = `Player ${idx + 1} (${house.charAt(0).toUpperCase() + house.slice(1)})`;
+        }
+      } else {
+        row.style.display = 'none';
+      }
+    });
+  }
+  
+  // Initialize
+  updateHouseSelectionUI();
+  updatePlayerInputsOrder();
+  
+  // Expose selected houses for game start
+  window.getSelectedHouses = () => selectedHouses;
+  window.setRequiredHouses = (n) => {
+    requiredHouses = n;
+    if (houseRequiredCount) houseRequiredCount.textContent = n;
+    updateHouseSelectionUI();
+  };
+}
+
 function initSetup() {
   
   
@@ -2826,6 +3003,9 @@ function initSetup() {
       btn.classList.add('active');
     });
   });
+  
+  // House selection for Pass & Play mode
+  initHouseSelection();
 
   // Start buttons for different modes
   const startAiBtn = document.getElementById('startAiBtn');
@@ -2886,14 +3066,23 @@ function initSetup() {
       G.gameMode = 'local';
       G.playerCount = G.numPlayers || 2;
       
-      // Get player names from inputs
-      const inputs = document.querySelectorAll('#localPlayerInputs .name-input');
-      const colors = ['red', 'green', 'yellow', 'blue'];
+      // Get selected houses
+      const selectedHouses = window.getSelectedHouses ? window.getSelectedHouses() : ['red', 'green', 'yellow', 'blue'].slice(0, G.playerCount);
+      
+      // Validate house selection
+      if (selectedHouses.length !== G.playerCount) {
+        alert(`Please select exactly ${G.playerCount} houses`);
+        return;
+      }
+      
+      // Get player names from inputs based on selected houses
+      const inputRows = document.querySelectorAll('#localPlayerInputs .input-row');
       
       G.players = [];
-      for (let i = 0; i < G.playerCount; i++) {
-        const color = colors[i];
-        const name = (inputs[i] && inputs[i].value && inputs[i].value.trim()) ? inputs[i].value.trim() : `Player ${i + 1}`;
+      selectedHouses.forEach((color, i) => {
+        const row = Array.from(inputRows).find(r => r.dataset.house === color);
+        const input = row ? row.querySelector('.name-input') : null;
+        const name = (input && input.value && input.value.trim()) ? input.value.trim() : `Player ${i + 1}`;
         G.players.push({
           color: color,
           name: name.substring(0, 12),
@@ -2903,7 +3092,7 @@ function initSetup() {
         });
         G.playerNames[color] = name.substring(0, 12);
         G.ptypes[color] = 'human';
-      }
+      });
       
       G.currentPlayer = 0;
       G.humanColor = 'red'; // First player in local mode
