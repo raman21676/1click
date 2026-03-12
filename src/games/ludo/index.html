@@ -217,9 +217,9 @@ body.game-active{overflow:hidden}
 
 /* --- BOARD AREA -------------------------------- */
 .board-area{flex:1;display:flex;align-items:center;justify-content:center;
-  width:100%;height:100%;padding:55px 0 55px;box-sizing:border-box}
+  width:100%;height:100%;padding:10px 0;box-sizing:border-box}
 .board-wrapper{position:relative;
-  width:calc(100vmin - 70px);height:calc(100vmin - 70px);max-width:none;max-height:none}
+  width:calc(100vmin - 140px);height:calc(100vmin - 140px);max-width:none;max-height:none}
 
 /* 15x15 grid */
 .ludo-board{width:100%;height:100%;
@@ -388,16 +388,12 @@ body.game-active{overflow:hidden}
 /* Corner dice for Pass & Play mode */
 .corner-dice{position:absolute;z-index:10;display:none;flex-direction:column;align-items:center;gap:2px}
 .corner-dice.active-player{display:flex}
-/* Dice positions match their house positions:
-   Red house: Top-Left (rows 0-5, cols 0-5) -> Red dice: Top-Left
-   Green house: Top-Right (rows 0-5, cols 9-14) -> Green dice: Top-Right
-   Yellow house: Bottom-Right (rows 9-14, cols 9-14) -> Yellow dice: Bottom-Right
-   Blue house: Bottom-Left (rows 9-14, cols 0-5) -> Blue dice: Bottom-Left */
-/* Dice positions - placed right next to board corners */
-.corner-dice.red-dice{top:2px;left:2px}
-.corner-dice.green-dice{top:2px;right:2px}
-.corner-dice.yellow-dice{bottom:2px;right:2px}
-.corner-dice.blue-dice{bottom:2px;left:2px}
+/* Dice positions - placed at board corners, not screen corners */
+/* Dice are inside board-wrapper which has position:relative */
+.corner-dice.red-dice{top:-50px;left:-50px}
+.corner-dice.green-dice{top:-50px;right:-50px}
+.corner-dice.yellow-dice{bottom:-50px;right:-50px}
+.corner-dice.blue-dice{bottom:-50px;left:-50px}
 
 .corner-dice-scene{width:36px;height:36px;perspective:300px;position:relative}
 .corner-dice-scene .dice-cube{width:32px;height:32px;position:absolute;top:2px;left:2px;transform-style:preserve-3d;transform:rotateX(-25deg) rotateY(25deg)}
@@ -1223,6 +1219,32 @@ body.game-active{overflow:hidden}
           <div style="margin-top:12px;font-size:12px;color:#94a3b8">Auto-playing turn...</div>
         </div>
       </div>
+      
+      <!-- Corner Dice for Pass & Play Mode -->
+      <div class="corner-dice red-dice" id="redDice">
+        <div class="corner-dice-scene" data-color="red">
+          <div class="dice-cube"><div class="face face-1"><div class="dots"><div class="dot"></div></div></div><div class="face face-2"><div class="dots"><div class="dot"></div><div class="dot"></div></div></div><div class="face face-3"><div class="dots"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div></div><div class="face face-4"><div class="dots"><div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div></div></div><div class="face face-5"><div class="dots"><div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div></div></div><div class="face face-6"><div class="dots"><div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div></div></div></div>
+        </div>
+        <button class="corner-roll-btn" disabled>Roll</button>
+      </div>
+      <div class="corner-dice green-dice" id="greenDice">
+        <div class="corner-dice-scene" data-color="green">
+          <div class="dice-cube"><div class="face face-1"><div class="dots"><div class="dot"></div></div></div><div class="face face-2"><div class="dots"><div class="dot"></div><div class="dot"></div></div></div><div class="face face-3"><div class="dots"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div></div><div class="face face-4"><div class="dots"><div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div></div></div><div class="face face-5"><div class="dots"><div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div></div></div><div class="face face-6"><div class="dots"><div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div></div></div></div>
+        </div>
+        <button class="corner-roll-btn" disabled>Roll</button>
+      </div>
+      <div class="corner-dice yellow-dice" id="yellowDice">
+        <div class="corner-dice-scene" data-color="yellow">
+          <div class="dice-cube"><div class="face face-1"><div class="dots"><div class="dot"></div></div></div><div class="face face-2"><div class="dots"><div class="dot"></div><div class="dot"></div></div></div><div class="face face-3"><div class="dots"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div></div><div class="face face-4"><div class="dots"><div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div></div></div><div class="face face-5"><div class="dots"><div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div></div></div><div class="face face-6"><div class="dots"><div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div></div></div></div>
+        </div>
+        <button class="corner-roll-btn" disabled>Roll</button>
+      </div>
+      <div class="corner-dice blue-dice" id="blueDice">
+        <div class="corner-dice-scene" data-color="blue">
+          <div class="dice-cube"><div class="face face-1"><div class="dots"><div class="dot"></div></div></div><div class="face face-2"><div class="dots"><div class="dot"></div><div class="dot"></div></div></div><div class="face face-3"><div class="dots"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div></div><div class="face face-4"><div class="dots"><div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div></div></div><div class="face face-5"><div class="dots"><div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div></div></div><div class="face face-6"><div class="dots"><div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div></div></div></div>
+        </div>
+        <button class="corner-roll-btn" disabled>Roll</button>
+      </div>
     </div>
   </div>
 
@@ -1241,32 +1263,6 @@ body.game-active{overflow:hidden}
     <button class="roll-btn" id="rollBtn" disabled>Roll</button>
     <div class="turn-text" id="turnText">Red's Turn</div>
     <div class="turn-sub" id="turnSub">Click Roll!</div>
-  </div>
-
-  <!-- Corner Dice for Pass & Play Mode -->
-  <div class="corner-dice red-dice" id="redDice">
-    <div class="corner-dice-scene" data-color="red">
-      <div class="dice-cube"><div class="face face-1"><div class="dots"><div class="dot"></div></div></div><div class="face face-2"><div class="dots"><div class="dot"></div><div class="dot"></div></div></div><div class="face face-3"><div class="dots"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div></div><div class="face face-4"><div class="dots"><div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div></div></div><div class="face face-5"><div class="dots"><div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div></div></div><div class="face face-6"><div class="dots"><div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div></div></div></div>
-    </div>
-    <button class="corner-roll-btn" disabled>Roll</button>
-  </div>
-  <div class="corner-dice green-dice" id="greenDice">
-    <div class="corner-dice-scene" data-color="green">
-      <div class="dice-cube"><div class="face face-1"><div class="dots"><div class="dot"></div></div></div><div class="face face-2"><div class="dots"><div class="dot"></div><div class="dot"></div></div></div><div class="face face-3"><div class="dots"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div></div><div class="face face-4"><div class="dots"><div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div></div></div><div class="face face-5"><div class="dots"><div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div></div></div><div class="face face-6"><div class="dots"><div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div></div></div></div>
-    </div>
-    <button class="corner-roll-btn" disabled>Roll</button>
-  </div>
-  <div class="corner-dice yellow-dice" id="yellowDice">
-    <div class="corner-dice-scene" data-color="yellow">
-      <div class="dice-cube"><div class="face face-1"><div class="dots"><div class="dot"></div></div></div><div class="face face-2"><div class="dots"><div class="dot"></div><div class="dot"></div></div></div><div class="face face-3"><div class="dots"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div></div><div class="face face-4"><div class="dots"><div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div></div></div><div class="face face-5"><div class="dots"><div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div></div></div><div class="face face-6"><div class="dots"><div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div></div></div></div>
-    </div>
-    <button class="corner-roll-btn" disabled>Roll</button>
-  </div>
-  <div class="corner-dice blue-dice" id="blueDice">
-    <div class="corner-dice-scene" data-color="blue">
-      <div class="dice-cube"><div class="face face-1"><div class="dots"><div class="dot"></div></div></div><div class="face face-2"><div class="dots"><div class="dot"></div><div class="dot"></div></div></div><div class="face face-3"><div class="dots"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div></div><div class="face face-4"><div class="dots"><div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div></div></div><div class="face face-5"><div class="dots"><div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div></div></div><div class="face face-6"><div class="dots"><div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div></div></div></div>
-    </div>
-    <button class="corner-roll-btn" disabled>Roll</button>
   </div>
 
   <!-- Player Panels -->
