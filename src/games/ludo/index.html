@@ -217,9 +217,9 @@ body.game-active{overflow:hidden}
 
 /* --- BOARD AREA -------------------------------- */
 .board-area{flex:1;display:flex;align-items:center;justify-content:center;
-  width:100%;height:100%;padding:45px 0 45px;box-sizing:border-box}
+  width:100%;height:100%;padding:55px 0 55px;box-sizing:border-box}
 .board-wrapper{position:relative;
-  width:calc(100vmin - 10px);height:calc(100vmin - 10px);max-width:none;max-height:none}
+  width:calc(100vmin - 70px);height:calc(100vmin - 70px);max-width:none;max-height:none}
 
 /* 15x15 grid */
 .ludo-board{width:100%;height:100%;
@@ -393,10 +393,11 @@ body.game-active{overflow:hidden}
    Green house: Top-Right (rows 0-5, cols 9-14) -> Green dice: Top-Right
    Yellow house: Bottom-Right (rows 9-14, cols 9-14) -> Yellow dice: Bottom-Right
    Blue house: Bottom-Left (rows 9-14, cols 0-5) -> Blue dice: Bottom-Left */
-.corner-dice.red-dice{top:5px;left:5px}
-.corner-dice.green-dice{top:5px;right:5px}
-.corner-dice.yellow-dice{bottom:5px;right:5px}
-.corner-dice.blue-dice{bottom:5px;left:5px}
+/* Dice positions - placed near board corners without overlapping */
+.corner-dice.red-dice{top:15px;left:15px}
+.corner-dice.green-dice{top:15px;right:15px}
+.corner-dice.yellow-dice{bottom:15px;right:15px}
+.corner-dice.blue-dice{bottom:15px;left:15px}
 
 .corner-dice-scene{width:36px;height:36px;perspective:300px;position:relative}
 .corner-dice-scene .dice-cube{width:32px;height:32px;position:absolute;top:2px;left:2px;transform-style:preserve-3d;transform:rotateX(-25deg) rotateY(25deg)}
