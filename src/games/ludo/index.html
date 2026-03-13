@@ -189,12 +189,12 @@
 html,body{min-height:100%;font-family:'Segoe UI',Arial,sans-serif;
   background:radial-gradient(ellipse at center,#283593 0%,#1a237e 50%,#0d1b6e 100%);
   color:#fff;overflow-x:hidden}
-body{overflow-y:auto;-webkit-overflow-scrolling:touch}
-body.game-active{overflow:hidden}
+body{overflow-y:auto;-webkit-overflow-scrolling:touch;touch-action:pan-y}
+body.game-active{overflow-y:auto;touch-action:pan-y}
 
 /* --- LAYOUT ----------------------------------- */
-.game-wrapper{height:100dvh;display:flex;flex-direction:column;
-  align-items:center;padding:2px;gap:2px}
+.game-wrapper{min-height:100dvh;display:flex;flex-direction:column;
+  align-items:center;padding:2px;gap:2px;padding-bottom:100px}
 .game-header{width:100%;display:flex;align-items:center;
   justify-content:space-between;flex-shrink:0;padding:4px 8px 2px;position:relative;z-index:20}
 .back-btn{color:#90CAF9;text-decoration:none;font-size:14px;padding:8px}
@@ -206,12 +206,13 @@ body.game-active{overflow:hidden}
 .board-area{flex:1;display:flex;align-items:center;justify-content:center;
   width:100%;height:100%;padding:0;box-sizing:border-box}
 .board-wrapper{position:relative;
-  /* Board must be SQUARE - use vw for both dimensions */
-  /* Further reduced to 85vw to ensure all 4 dice fully visible */
-  width:85vw;
-  height:85vw;
-  max-width:85vw;
-  max-height:85vw;}
+  /* Board must be SQUARE - use vmin for both dimensions to fit within viewport */
+  /* Reduced to 72vmin to ensure all 4 dice fully visible even with URL bar */
+  width:72vmin;
+  height:72vmin;
+  max-width:72vmin;
+  max-height:72vmin;
+  margin:auto;}
 
 /* 15x15 grid */
 .ludo-board{width:100%;height:100%;
@@ -384,10 +385,11 @@ body.game-active{overflow:hidden}
 /* Dice positions - moved closer to board to ensure visibility */
 /* Top dice moved down (less negative), bottom dice moved up (less negative) */
 /* All dice now fit within browser visible area with smaller board */
-.corner-dice.red-dice{top:-55px;left:10px}
-.corner-dice.green-dice{top:-55px;right:10px}
-.corner-dice.yellow-dice{bottom:-55px;right:10px}
-.corner-dice.blue-dice{bottom:-55px;left:10px}
+/* Dice positions - closer to board to stay visible on small screens */
+.corner-dice.red-dice{top:-45px;left:5px}
+.corner-dice.green-dice{top:-45px;right:5px}
+.corner-dice.yellow-dice{bottom:-45px;right:5px}
+.corner-dice.blue-dice{bottom:-45px;left:5px}
 
 .corner-dice-scene{width:36px;height:36px;perspective:300px;position:relative}
 .corner-dice-scene .dice-cube{width:32px;height:32px;position:absolute;top:2px;left:2px;transform-style:preserve-3d;transform:rotateX(-25deg) rotateY(25deg)}
