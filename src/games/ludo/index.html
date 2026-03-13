@@ -3,9 +3,6 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
-<meta http-equiv="Pragma" content="no-cache">
-<meta http-equiv="Expires" content="0">
 <meta name="description" content="Play Ludo online for FREE! 🎲 Classic board game with 2-4 players. Play against AI or friends. No download, instant play on mobile & desktop. Best free Ludo game!">
 <meta name="keywords" content="ludo, ludo game, ludo online, play ludo, free ludo, ludo board game, ludo multiplayer, ludo with friends, ludo vs computer, online ludo game, luddo, ludo king, indian ludo, ludo star, dice game, board game online, 2 player ludo, 4 player ludo, family game, classic ludo, ludo app, ludo mobile, instant ludo, no download ludo">
 <meta name="subject" content="Ludo Board Game">
@@ -61,8 +58,21 @@
   font-size: 1.2rem;
 }
 .sound-toggle {
-  /* Sound toggle hidden - overlapping with dice */
-  display: none !important;
+  position: relative;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #14b8a6 0%, #06b6d4 100%);
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.2rem;
+  box-shadow: 0 4px 15px rgba(20, 184, 166, 0.4);
+  transition: transform 0.3s ease;
+  z-index: 50;
+  flex-shrink: 0;
 }
 .sound-toggle:hover { transform: scale(1.1); }
 .sound-toggle.muted {
@@ -192,14 +202,14 @@
 html,body{min-height:100%;font-family:'Segoe UI',Arial,sans-serif;
   background:radial-gradient(ellipse at center,#283593 0%,#1a237e 50%,#0d1b6e 100%);
   color:#fff;overflow-x:hidden}
-body{overflow-y:auto;-webkit-overflow-scrolling:touch;touch-action:pan-y}
-body.game-active{overflow-y:auto;touch-action:pan-y}
+body{overflow-y:auto;-webkit-overflow-scrolling:touch}
+body.game-active{overflow:hidden}
 
 /* --- LAYOUT ----------------------------------- */
-.game-wrapper{min-height:100dvh;display:flex;flex-direction:column;
-  align-items:center;padding:2px;gap:2px;padding-bottom:100px}
+.game-wrapper{height:100dvh;display:flex;flex-direction:column;
+  align-items:center;padding:2px;gap:2px}
 .game-header{width:100%;display:flex;align-items:center;
-  justify-content:space-between;flex-shrink:0;padding:4px 8px 2px;position:relative;z-index:20}
+  justify-content:space-between;flex-shrink:0;padding:4px 8px 2px}
 .back-btn{color:#90CAF9;text-decoration:none;font-size:14px;padding:8px}
 .header-title{font-size:18px;font-weight:800;
   background:linear-gradient(135deg,#FFD700,#FF8F00);
@@ -207,15 +217,9 @@ body.game-active{overflow-y:auto;touch-action:pan-y}
 
 /* --- BOARD AREA -------------------------------- */
 .board-area{flex:1;display:flex;align-items:center;justify-content:center;
-  width:100%;height:100%;padding:0;box-sizing:border-box}
+  width:100%;height:100%;padding:0;padding-bottom:60px;box-sizing:border-box}
 .board-wrapper{position:relative;
-  /* Board must be SQUARE - use vw for width, auto height */
-  /* Scaled to fill width with gaps for dice on sides */
-  width:92vw;
-  height:92vw;
-  max-width:600px;
-  max-height:600px;
-  margin:70px auto 70px auto;}
+  width:100vmin;height:100vmin;max-width:none;max-height:none}
 
 /* 15x15 grid */
 .ludo-board{width:100%;height:100%;
@@ -311,10 +315,10 @@ body.game-active{overflow-y:auto;touch-action:pan-y}
 .hrY{background:#FFF9C4;border:.5px solid #ccc}
 .hrB{background:#BBDEFB;border:.5px solid #ccc}
 
-/* Safe star - visible but not too big */
-.safe::after{content:'★';font-size:clamp(18px,4vmin,28px) !important;
-  color:var(--gold);text-shadow:0 0 8px rgba(255,215,0,.8), 0 0 16px rgba(255,215,0,.4);
-  position:absolute;pointer-events:none;z-index:10;font-weight:bold;}
+/* Safe star - default */
+.safe::after{content:'*';font-size:clamp(10px,2.2vmin,18px);
+  color:var(--gold);text-shadow:0 0 6px rgba(255,215,0,.6);
+  position:absolute;pointer-events:none;z-index:1}
 
 /* Safe star colors by position */
 .safe-red::after{color:var(--red);text-shadow:0 0 6px rgba(229,57,53,.6)}
@@ -365,62 +369,29 @@ body.game-active{overflow-y:auto;touch-action:pan-y}
   display:flex;align-items:center;justify-content:center;
   font-size:clamp(6px,1.3vmin,10px);font-weight:800;color:#fff;
   cursor:pointer;z-index:10;text-shadow:0 1px 2px rgba(0,0,0,.5);
-  transition:transform .15s,box-shadow .15s;user-select:none}
+  transition:transform .15s,box-shadow .15s;user-select:none;
+  box-shadow:0 2px 5px rgba(0,0,0,.4)}
 .tok-home{width:clamp(18px,5vmin,30px);height:clamp(18px,5vmin,30px)}
 .tok-path{width:clamp(13px,3.5vmin,22px);height:clamp(13px,3.5vmin,22px)}
-.tokR{background:#EF5350;box-shadow:inset -3px -3px 8px rgba(0,0,0,0.3),inset 3px 3px 8px rgba(255,255,255,0.3),0 2px 5px rgba(0,0,0,0.4)}
-.tokG{background:#66BB6A;box-shadow:inset -3px -3px 8px rgba(0,0,0,0.3),inset 3px 3px 8px rgba(255,255,255,0.3),0 2px 5px rgba(0,0,0,0.4)}
-.tokY{background:#FDD835;box-shadow:inset -3px -3px 8px rgba(0,0,0,0.3),inset 3px 3px 8px rgba(255,255,255,0.3),0 2px 5px rgba(0,0,0,0.4);color:#333;text-shadow:none}
-.tokB{background:#42A5F5;box-shadow:inset -3px -3px 8px rgba(0,0,0,0.3),inset 3px 3px 8px rgba(255,255,255,0.3),0 2px 5px rgba(0,0,0,0.4)}
+.tokR{background:radial-gradient(circle at 35% 35%,#EF5350,#B71C1C)}
+.tokG{background:radial-gradient(circle at 35% 35%,#66BB6A,#1B5E20)}
+.tokY{background:radial-gradient(circle at 35% 35%,#FFF176,#F57F17);color:#333;text-shadow:none}
+.tokB{background:radial-gradient(circle at 35% 35%,#42A5F5,#0D47A1)}
 .tok.movable{animation:tokBounce .6s ease-in-out infinite;
   box-shadow:0 0 0 3px gold,0 2px 5px rgba(0,0,0,.4)}
 @keyframes tokBounce{0%,100%{transform:translateY(0)}50%{transform:translateY(-3px)}}
 .tok.selected{transform:scale(1.3);box-shadow:0 0 0 3px #fff,0 0 8px rgba(255,255,255,.7)}
 
 /* --- CONTROLS ROW ------------------------------ */
-/* Center dice area (AI & Online modes) */
-/* Changed to absolute positioning to stay with board, not fixed to viewport */
-.center-dice-area{position:absolute;bottom:-100px;left:50%;transform:translateX(-50%);display:flex;flex-direction:column;align-items:center;gap:4px;z-index:100;background:rgba(0,0,0,0.5);padding:8px 16px;border-radius:12px;backdrop-filter:blur(4px)}
+.controls-row{width:100%;display:flex;
+  align-items:center;justify-content:space-between;
+  gap:4px;padding:6px 10px;flex-shrink:0;position:absolute;bottom:0;left:0;right:0;background:linear-gradient(to top,rgba(0,0,0,0.5),transparent);z-index:10}
 
-/* Corner dice for Pass & Play mode */
-.corner-dice{position:absolute;z-index:10;display:none;flex-direction:column;align-items:center;gap:2px}
-.corner-dice.active-player{display:flex}
-/* Dice positions - moved closer to board to ensure visibility */
-/* Top dice moved down (less negative), bottom dice moved up (less negative) */
-/* All dice now fit within browser visible area with smaller board */
-/* Dice positions - closer to board to stay visible on small screens */
-/* Dice positions - FAR from board to prevent overlap */
-.corner-dice.red-dice{top:-80px;left:10px}
-.corner-dice.green-dice{top:-80px;right:10px}
-.corner-dice.yellow-dice{bottom:-80px;right:10px}
-.corner-dice.blue-dice{bottom:-80px;left:10px}
-
-.corner-dice-scene{width:40px;height:40px;perspective:300px;position:relative}
-.corner-dice-scene .dice-cube{width:36px;height:36px;position:absolute;top:2px;left:2px;transform-style:preserve-3d;transform:rotateX(-25deg) rotateY(25deg)}
-.corner-dice-scene .face{width:36px;height:36px;border-radius:6px;background:linear-gradient(145deg,#fffef8,#f5f5f0);box-shadow:inset 0 2px 4px rgba(255,255,255,0.9),inset 0 -2px 3px rgba(0,0,0,0.06),0 0 0 1px rgba(0,0,0,0.08);backface-visibility:hidden;display:flex;align-items:center;justify-content:center}
-.corner-dice-scene .face-1{transform:rotateY(0deg) translateZ(18px)}
-.corner-dice-scene .face-2{transform:rotateY(180deg) translateZ(18px)}
-.corner-dice-scene .face-3{transform:rotateY(90deg) translateZ(18px)}
-.corner-dice-scene .face-4{transform:rotateY(-90deg) translateZ(18px)}
-.corner-dice-scene .face-5{transform:rotateX(90deg) translateZ(18px)}
-.corner-dice-scene .face-6{transform:rotateX(-90deg) translateZ(18px)}
-.corner-dice-scene .dots{padding:5px;gap:2px}
-.corner-dice-scene .dot{width:6px;height:6px}
-
-.corner-roll-btn{background:linear-gradient(135deg,#FF6F00,#FFD600);border:none;border-radius:4px;color:#000;font-size:10px;font-weight:700;padding:3px 8px;cursor:pointer;box-shadow:0 2px 6px rgba(255,111,0,.4)}
-.corner-roll-btn:disabled{opacity:0.3;cursor:not-allowed}
-.corner-dice.active .corner-roll-btn{animation:pulseBtn 1.5s infinite}
-@keyframes pulseBtn{0%,100%{transform:scale(1)}50%{transform:scale(1.05)}}
-
-/* Hide center dice in local mode, show corner dice */
-.game-wrapper.local-mode .center-dice-area{display:none}
-
-/* Game log area - HIDDEN to prevent interference with gameplay */
-/* Player panels removed as requested - dark bar was covering board */
-.player-panels{display:none !important;}
-.player-panels::-webkit-scrollbar{width:4px}
-.player-panels::-webkit-scrollbar-thumb{background:rgba(255,255,255,.3);border-radius:2px}
-.player-panel{display:none}
+/* Player panels */
+.player-panels{display:flex;gap:4px;flex:1;justify-content:flex-start}
+.player-panel{flex:1;background:rgba(255,255,255,.08);
+  border-radius:5px;padding:3px 2px;border:2px solid transparent;
+  transition:all .3s;text-align:center;min-width:0;max-width:80px}
 .player-panel.active{border-color:var(--pc);
   background:rgba(255,255,255,.15);box-shadow:0 0 10px var(--pc)}
 .player-panel.elim{opacity:.3;filter:grayscale(.8)}
@@ -711,10 +682,6 @@ body.game-active{overflow-y:auto;touch-action:pan-y}
 .dice-scene.rolling {
   animation: diceThrow 0.85s cubic-bezier(0.22, 0.61, 0.36, 1) forwards;
 }
-/* Also apply throw animation to corner dice scenes */
-.corner-dice-scene.rolling {
-  animation: diceThrow 0.85s cubic-bezier(0.22, 0.61, 0.36, 1) forwards;
-}
 @keyframes diceThrow {
   0%   { transform: translateY(0)     scale(1.00); }
   25%  { transform: translateY(-18px) scale(1.06); }
@@ -927,8 +894,7 @@ body.game-active{overflow-y:auto;touch-action:pan-y}
 .cd-fill{height:100%;background:linear-gradient(90deg,#EF5350,#FF6F00);
   border-radius:3px;transition:width 1s linear}
 
-/* --- GAME LOG (now visible in player-panels) ----------- */
-/* Game log - hidden as player-panels now handles the game log display */
+/* --- GAME LOG (hidden but functional) ----------- */
 .game-log{display:none}
 </style>
 <script src="https://unpkg.com/peerjs@1.5.2/dist/peerjs.min.js"></script>
@@ -1029,45 +995,26 @@ body.game-active{overflow-y:auto;touch-action:pan-y}
   <!-- LOCAL (PASS & PLAY) SETTINGS -->
   <div id="localSettings" class="setup-card" style="display:none">
     <label class="setup-label" style="font-size:13px;color:#94a3b8;margin-bottom:10px;display:block">Number of Players</label>
-    <div class="count-row" style="display:flex;gap:8px;margin-bottom:15px">
+    <div class="count-row" style="display:flex;gap:8px;margin-bottom:20px">
       <button class="count-btn" data-n="2">2</button>
       <button class="count-btn active" data-n="3">3</button>
       <button class="count-btn" data-n="4">4</button>
     </div>
-    
-    <!-- House Selection -->
-    <label class="setup-label" style="font-size:13px;color:#94a3b8;margin-bottom:8px;display:block">Select Houses (<span id="houseSelectCount">3</span> of <span id="houseRequiredCount">3</span>)</label>
-    <div class="house-select" id="houseSelect" style="display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-bottom:15px">
-      <button class="house-btn active" data-house="red" data-color="#E53935" style="padding:12px;border:2px solid #E53935;background:rgba(229,57,53,.2);border-radius:10px;color:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;font-weight:600;transition:all .2s">
-        <span style="font-size:20px">🏠</span> 🔴 Red
-      </button>
-      <button class="house-btn active" data-house="green" data-color="#43A047" style="padding:12px;border:2px solid #43A047;background:rgba(67,160,71,.2);border-radius:10px;color:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;font-weight:600;transition:all .2s">
-        <span style="font-size:20px">🏠</span> 🟢 Green
-      </button>
-      <button class="house-btn active" data-house="yellow" data-color="#FDD835" style="padding:12px;border:2px solid #FDD835;background:rgba(253,216,53,.2);border-radius:10px;color:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;font-weight:600;transition:all .2s">
-        <span style="font-size:20px">🏠</span> 🟡 Yellow
-      </button>
-      <button class="house-btn active" data-house="blue" data-color="#1E88E5" style="padding:12px;border:2px solid #1E88E5;background:rgba(30,136,229,.2);border-radius:10px;color:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;font-weight:600;transition:all .2s">
-        <span style="font-size:20px">🏠</span> 🔵 Blue
-      </button>
-    </div>
-    <p id="houseSelectError" style="color:#ef5350;font-size:12px;margin:-10px 0 15px;display:none">⚠️ Please select exactly the required number of houses</p>
-    
     <label class="setup-label" style="font-size:13px;color:#94a3b8;margin-bottom:10px;display:block">Player Names</label>
     <div class="player-inputs" id="localPlayerInputs" style="margin-bottom:20px">
-      <div class="input-row" data-house="red" style="display:flex;align-items:center;gap:10px;margin-bottom:10px">
+      <div class="input-row" style="display:flex;align-items:center;gap:10px;margin-bottom:10px">
         <div style="width:16px;height:16px;border-radius:50%;background:#E53935;flex-shrink:0"></div>
         <input class="name-input" data-pi="0" placeholder="Player 1" value="Player 1" style="flex:1;padding:10px 14px;border:1px solid rgba(255,255,255,.18);background:rgba(0,0,0,.3);color:#fff;border-radius:8px;font-size:14px">
       </div>
-      <div class="input-row" data-house="green" style="display:flex;align-items:center;gap:10px;margin-bottom:10px">
+      <div class="input-row" style="display:flex;align-items:center;gap:10px;margin-bottom:10px">
         <div style="width:16px;height:16px;border-radius:50%;background:#43A047;flex-shrink:0"></div>
         <input class="name-input" data-pi="1" placeholder="Player 2" value="Player 2" style="flex:1;padding:10px 14px;border:1px solid rgba(255,255,255,.18);background:rgba(0,0,0,.3);color:#fff;border-radius:8px;font-size:14px">
       </div>
-      <div class="input-row" data-house="yellow" style="display:flex;align-items:center;gap:10px;margin-bottom:10px">
+      <div class="input-row" style="display:flex;align-items:center;gap:10px;margin-bottom:10px">
         <div style="width:16px;height:16px;border-radius:50%;background:#FDD835;flex-shrink:0"></div>
         <input class="name-input" data-pi="2" placeholder="Player 3" value="Player 3" style="flex:1;padding:10px 14px;border:1px solid rgba(255,255,255,.18);background:rgba(0,0,0,.3);color:#fff;border-radius:8px;font-size:14px">
       </div>
-      <div class="input-row" data-house="blue" style="display:none;align-items:center;gap:10px;margin-bottom:10px">
+      <div class="input-row" style="display:none;align-items:center;gap:10px;margin-bottom:10px">
         <div style="width:16px;height:16px;border-radius:50%;background:#1E88E5;flex-shrink:0"></div>
         <input class="name-input" data-pi="3" placeholder="Player 4" value="Player 4" style="flex:1;padding:10px 14px;border:1px solid rgba(255,255,255,.18);background:rgba(0,0,0,.3);color:#fff;border-radius:8px;font-size:14px">
       </div>
@@ -1221,54 +1168,35 @@ body.game-active{overflow-y:auto;touch-action:pan-y}
           <div style="margin-top:12px;font-size:12px;color:#94a3b8">Auto-playing turn...</div>
         </div>
       </div>
-      
-      <!-- Corner Dice for Pass & Play Mode -->
-      <div class="corner-dice red-dice" id="redDice">
-        <div class="corner-dice-scene" data-color="red">
-          <div class="dice-cube"><div class="face face-1"><div class="dots"><div class="dot"></div></div></div><div class="face face-2"><div class="dots"><div class="dot"></div><div class="dot"></div></div></div><div class="face face-3"><div class="dots"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div></div><div class="face face-4"><div class="dots"><div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div></div></div><div class="face face-5"><div class="dots"><div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div></div></div><div class="face face-6"><div class="dots"><div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div></div></div></div>
-        </div>
-        <button class="corner-roll-btn" disabled>Roll</button>
-      </div>
-      <div class="corner-dice green-dice" id="greenDice">
-        <div class="corner-dice-scene" data-color="green">
-          <div class="dice-cube"><div class="face face-1"><div class="dots"><div class="dot"></div></div></div><div class="face face-2"><div class="dots"><div class="dot"></div><div class="dot"></div></div></div><div class="face face-3"><div class="dots"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div></div><div class="face face-4"><div class="dots"><div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div></div></div><div class="face face-5"><div class="dots"><div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div></div></div><div class="face face-6"><div class="dots"><div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div></div></div></div>
-        </div>
-        <button class="corner-roll-btn" disabled>Roll</button>
-      </div>
-      <div class="corner-dice yellow-dice" id="yellowDice">
-        <div class="corner-dice-scene" data-color="yellow">
-          <div class="dice-cube"><div class="face face-1"><div class="dots"><div class="dot"></div></div></div><div class="face face-2"><div class="dots"><div class="dot"></div><div class="dot"></div></div></div><div class="face face-3"><div class="dots"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div></div><div class="face face-4"><div class="dots"><div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div></div></div><div class="face face-5"><div class="dots"><div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div></div></div><div class="face face-6"><div class="dots"><div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div></div></div></div>
-        </div>
-        <button class="corner-roll-btn" disabled>Roll</button>
-      </div>
-      <div class="corner-dice blue-dice" id="blueDice">
-        <div class="corner-dice-scene" data-color="blue">
-          <div class="dice-cube"><div class="face face-1"><div class="dots"><div class="dot"></div></div></div><div class="face face-2"><div class="dots"><div class="dot"></div><div class="dot"></div></div></div><div class="face face-3"><div class="dots"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div></div><div class="face face-4"><div class="dots"><div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div></div></div><div class="face face-5"><div class="dots"><div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div></div></div><div class="face face-6"><div class="dots"><div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div></div></div></div>
-        </div>
-        <button class="corner-roll-btn" disabled>Roll</button>
-      </div>
     </div>
   </div>
 
-  <!-- Central Dice (for AI and Online modes) -->
-  <div class="center-dice-area" id="centerDiceArea">
-    <div class="dice-scene" id="diceScene">
-      <div class="dice-cube" id="diceCube">
-        <div class="face face-1"><div class="dots"><div class="dot"></div></div></div>
-        <div class="face face-2"><div class="dots"><div class="dot"></div><div class="dot"></div></div></div>
-        <div class="face face-3"><div class="dots"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div></div>
-        <div class="face face-4"><div class="dots"><div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div></div></div>
-        <div class="face face-5"><div class="dots"><div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div></div></div>
-        <div class="face face-6"><div class="dots"><div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div></div></div>
+  <!-- Controls -->
+  <div class="controls-row">
+    <!-- Player panels - left side -->
+    <div class="player-panels" id="playerPanels"></div>
+
+    <!-- Dice and Turn Info - right side -->
+    <div class="dice-turn-container">
+      <div class="dice-area">
+        <div class="dice-scene" id="diceScene">
+          <div class="dice-cube" id="diceCube">
+            <div class="face face-1"><div class="dots"><div class="dot"></div></div></div>
+            <div class="face face-2"><div class="dots"><div class="dot"></div><div class="dot"></div></div></div>
+            <div class="face face-3"><div class="dots"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div></div>
+            <div class="face face-4"><div class="dots"><div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div></div></div>
+            <div class="face face-5"><div class="dots"><div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div></div></div>
+            <div class="face face-6"><div class="dots"><div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div></div></div>
+          </div>
+        </div>
+        <button class="roll-btn" id="rollBtn" disabled>Roll</button>
+      </div>
+      <div class="turn-area">
+        <div class="turn-text" id="turnText">Red's Turn</div>
+        <div class="turn-sub" id="turnSub">Click Roll!</div>
       </div>
     </div>
-    <button class="roll-btn" id="rollBtn" disabled>Roll</button>
-    <div class="turn-text" id="turnText">Red's Turn</div>
-    <div class="turn-sub" id="turnSub">Click Roll!</div>
   </div>
-
-  <!-- Player Panels -->
-  <div class="player-panels" id="playerPanels"></div>
 
   <div class="game-log" id="gameLog"></div>
 </div>
@@ -1428,47 +1356,39 @@ function buildBoard() {
 }
 
 function placeHouseAnimals() {
-  // Remove existing animals and player names
-  document.querySelectorAll('.house-animal, .house-player-name').forEach(el => el.remove());
+  // Remove existing animals
+  document.querySelectorAll('.house-animal').forEach(el => el.remove());
   
+  // Calculate exact center positions
   const board = document.getElementById('ludoBoard');
   if (!board) return;
   
+  const boardRect = board.getBoundingClientRect();
+  const cellSize = boardRect.width / 15; // 15x15 grid
+  
   // White panel is 4x4 cells, center is at 2 cells offset from top-left of panel
-  // Player names are placed on the colored border OUTSIDE the white panel
+  // For each house, calculate exact center coordinates
   const houses = [
-    {name: 'red',    img: 'cat.webp',   row: 1, col: 1,   color: '#E53935', namePos: {row: 0, col: 2}},
-    {name: 'green',  img: 'panda.webp', row: 1, col: 10,  color: '#43A047', namePos: {row: 0, col: 11}},
-    {name: 'yellow', img: 'tiger.webp', row: 10, col: 10, color: '#FDD835', namePos: {row: 14, col: 11}},
-    {name: 'blue',   img: 'eagle.webp', row: 10, col: 1,  color: '#1E88E5', namePos: {row: 14, col: 2}}
+    {name: 'red',    img: 'cat.webp',   row: 1, col: 1},   // White panel starts at row 1, col 1
+    {name: 'green',  img: 'panda.webp', row: 1, col: 10},  // White panel starts at row 1, col 10
+    {name: 'yellow', img: 'tiger.webp', row: 10, col: 10}, // White panel starts at row 10, col 10
+    {name: 'blue',   img: 'eagle.webp', row: 10, col: 1}   // White panel starts at row 10, col 1
   ];
   
   houses.forEach(house => {
-    // Place animal at center of white panel
-    const placeRow = house.row + 1;
-    const placeCol = house.col + 1;
+    // White panel: rows house.row to house.row+3, cols house.col to house.col+3
+    // Center is at house.row+1.5, house.col+1.5 (between cells)
+    // Place at top-left of center (house.row+1, house.col+1) so 260% spans cover center
+    const placeRow = house.row + 1; // Top of center 2x2
+    const placeCol = house.col + 1; // Left of center 2x2
     
     const cell = document.getElementById(`C${placeRow}-${placeCol}`);
     if (cell) {
-      // Add animal image
       const img = document.createElement('img');
       img.src = `assets/${house.img}`;
       img.className = 'house-animal';
       img.alt = house.name;
       cell.appendChild(img);
-    }
-    
-    // Add player name on the colored border (outside white panel)
-    const playerName = G.playerNames[house.name];
-    if (playerName && G.active.includes(house.name)) {
-      const nameCell = document.getElementById(`C${house.namePos.row}-${house.namePos.col}`);
-      if (nameCell) {
-        const nameEl = document.createElement('div');
-        nameEl.className = 'house-player-name';
-        nameEl.textContent = playerName;
-        nameEl.style.cssText = `position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);background:rgba(0,0,0,0.6);color:white;padding:4px 10px;border-radius:12px;font-size:clamp(10px,1.8vmin,14px);font-weight:700;white-space:nowrap;z-index:20;text-shadow:0 1px 2px rgba(0,0,0,0.5);box-shadow:0 2px 6px rgba(0,0,0,0.4);border:2px solid ${house.color};`;
-        nameCell.appendChild(nameEl);
-      }
     }
   });
 }
@@ -1503,9 +1423,7 @@ function applyCell(cell, r, c, info) {
     // Token slot positions within each home
     const slots = homeSlots(p);
     const slotKey = `${r}-${c}`;
-    // Only add token slots for active players
-    const isActivePlayer = G.active && G.active.includes(p);
-    if (slots[slotKey] !== undefined && isActivePlayer) {
+    if (slots[slotKey] !== undefined) {
       cell.classList.add('ts', `ts${p[0].toUpperCase()}`);
       cell.dataset.homeSlot = p;          // used as selector [data-home-slot]
       cell.dataset.slotIdx  = slots[slotKey]; // used as selector [data-slot-idx]
@@ -1859,66 +1777,32 @@ function performRoll() {
   const diceCube  = document.getElementById('diceCube');
   const diceScene = document.getElementById('diceScene');
   
-  // Get active player's corner dice (for Pass & Play mode)
-  const p = curPlayer();
-  const cornerDice = document.getElementById(p + 'Dice');
-  const cornerCube = cornerDice ? cornerDice.querySelector('.dice-cube') : null;
-  const cornerScene = cornerDice ? cornerDice.querySelector('.corner-dice-scene') : null;
-  
   // Generate result
   G.diceVal = Math.floor(Math.random() * 6) + 1;
+  const p = curPlayer();
   
   // Broadcast roll to opponent in online mode
   if (G.isOnline) {
     sendToPeer({ type: 'roll', player: p, value: G.diceVal });
   }
   
-  // 1. Strip all animation classes and inline transform (center dice)
+  // 1. Strip all animation classes and inline transform
   diceCube.className  = 'dice-cube';
   diceCube.style.transform = '';
   diceScene.classList.remove('rolling');
   
-  // 1b. Strip animation classes from corner dice too
-  if (cornerCube) {
-    cornerCube.className = 'dice-cube';
-    cornerCube.style.transform = '';
-  }
-  if (cornerScene) {
-    cornerScene.classList.remove('rolling');
-  }
-  
   // 2. Force a reflow
   void diceCube.offsetWidth;
-  if (cornerCube) void cornerCube.offsetWidth;
   
-  // 3. Add the rolling class -- animation fires (both center and corner)
+  // 3. Add the rolling class -- animation fires
   diceCube.classList.add('rolling-' + G.diceVal);
   diceScene.classList.add('rolling');
   
-  // Also animate corner dice for the active player
-  if (cornerCube) {
-    cornerCube.classList.add('rolling-' + G.diceVal);
-  }
-  if (cornerScene) {
-    cornerScene.classList.add('rolling');
-  }
-  
   // 4. After animation ends, lock to final transform and continue
   setTimeout(() => {
-    // Update center dice
     diceCube.style.transform = DICE_FINAL[G.diceVal];
     diceCube.classList.remove('rolling-' + G.diceVal);
     diceScene.classList.remove('rolling');
-    
-    // Update corner dice with final result
-    if (cornerCube) {
-      cornerCube.style.transform = DICE_FINAL[G.diceVal];
-      cornerCube.classList.remove('rolling-' + G.diceVal);
-    }
-    if (cornerScene) {
-      cornerScene.classList.remove('rolling');
-    }
-    
     diceRolling = false;
     
     afterRoll();
@@ -2534,14 +2418,13 @@ function _updateUIImpl() {
 function updateDiceUI() {
   const diceScene = document.getElementById('diceScene');
   const rollBtn = document.getElementById('rollBtn');
-  const currentPlayer = curPlayer();
   
   // Check if dice should be enabled
   let enabled = G.phase==='roll' && !isAI();
   
   // In online mode, ONLY enable dice if it's MY turn
   if (G.isOnline && enabled) {
-    enabled = (currentPlayer === G.humanColor);
+    enabled = (curPlayer() === G.humanColor);
   }
 
   rollBtn.disabled = !enabled;
@@ -2556,32 +2439,8 @@ function updateDiceUI() {
     diceScene.style.pointerEvents = 'auto';
   }
 
-  // Update corner dice for Pass & Play mode
-  if (G.gameMode === 'local') {
-    const colors = ['red', 'green', 'yellow', 'blue'];
-    colors.forEach(color => {
-      const cornerDice = document.getElementById(color + 'Dice');
-      if (!cornerDice) return;
-      const cornerBtn = cornerDice.querySelector('.corner-roll-btn');
-      const isCurrentPlayer = (currentPlayer === color);
-      const isActivePlayer = G.active.includes(color);
-      const canRoll = G.phase === 'roll' && isCurrentPlayer && !G.finished.has(color);
-      
-      // Only show corner dice for active players in this game
-      cornerDice.classList.toggle('active-player', isActivePlayer);
-      if (cornerBtn) cornerBtn.disabled = !canRoll;
-      cornerDice.classList.toggle('active', canRoll);
-      
-      // Sync dice face for all players (show last rolled value)
-      if (G.diceVal) {
-        const cornerCube = cornerDice.querySelector('.dice-cube');
-        if (cornerCube) cornerCube.style.transform = DICE_FINAL[G.diceVal];
-      }
-    });
-  }
-
   if (G.diceVal) {
-    showDiceFace(G.diceVal, currentPlayer);
+    showDiceFace(G.diceVal, curPlayer());
   }
 }
 
@@ -2852,122 +2711,6 @@ function stopConfetti() {
 // SETUP
 // ----------------------------------------------------
 
-// House selection for Pass & Play mode
-function initHouseSelection() {
-  const houseBtns = document.querySelectorAll('.house-btn');
-  const countBtns = document.querySelectorAll('#localSettings .count-btn');
-  const houseSelectCount = document.getElementById('houseSelectCount');
-  const houseRequiredCount = document.getElementById('houseRequiredCount');
-  const houseSelectError = document.getElementById('houseSelectError');
-  
-  let selectedHouses = ['red', 'green', 'yellow', 'blue']; // Default all selected
-  let requiredHouses = 3; // Default 3 players
-  
-  // Update required count when player count changes
-  countBtns.forEach(btn => {
-    btn.addEventListener('click', () => {
-      requiredHouses = parseInt(btn.dataset.n);
-      if (houseRequiredCount) houseRequiredCount.textContent = requiredHouses;
-      updateHouseSelectionUI();
-    });
-  });
-  
-  // Handle house button clicks
-  houseBtns.forEach(btn => {
-    btn.addEventListener('click', () => {
-      const house = btn.dataset.house;
-      
-      if (btn.classList.contains('active')) {
-        // Don't allow deselecting if it would go below required
-        if (selectedHouses.length <= requiredHouses) {
-          showHouseError(`You must select exactly ${requiredHouses} houses`);
-          return;
-        }
-        selectedHouses = selectedHouses.filter(h => h !== house);
-        btn.classList.remove('active');
-        btn.style.opacity = '0.5';
-        btn.style.borderStyle = 'dashed';
-      } else {
-        selectedHouses.push(house);
-        btn.classList.add('active');
-        btn.style.opacity = '1';
-        btn.style.borderStyle = 'solid';
-      }
-      
-      updateHouseSelectionUI();
-      updatePlayerInputsOrder();
-    });
-  });
-  
-  function updateHouseSelectionUI() {
-    if (houseSelectCount) houseSelectCount.textContent = selectedHouses.length;
-    if (houseSelectError) houseSelectError.style.display = 'none';
-    
-    // Update start button state
-    const startBtn = document.getElementById('startLocalBtn');
-    if (startBtn) {
-      if (selectedHouses.length === requiredHouses) {
-        startBtn.disabled = false;
-        startBtn.style.opacity = '1';
-        startBtn.style.cursor = 'pointer';
-      } else {
-        startBtn.disabled = true;
-        startBtn.style.opacity = '0.5';
-        startBtn.style.cursor = 'not-allowed';
-      }
-    }
-  }
-  
-  function showHouseError(msg) {
-    if (houseSelectError) {
-      houseSelectError.textContent = '⚠️ ' + msg;
-      houseSelectError.style.display = 'block';
-      setTimeout(() => {
-        if (houseSelectError) houseSelectError.style.display = 'none';
-      }, 3000);
-    }
-  }
-  
-  function updatePlayerInputsOrder() {
-    const inputRows = document.querySelectorAll('#localPlayerInputs .input-row');
-    inputRows.forEach((row, idx) => {
-      if (idx < selectedHouses.length) {
-        row.style.display = 'flex';
-        const house = selectedHouses[idx];
-        row.dataset.house = house;
-        const dot = row.querySelector('div');
-        const input = row.querySelector('input');
-        if (dot) {
-          const colorMap = {
-            red: '#E53935',
-            green: '#43A047',
-            yellow: '#FDD835',
-            blue: '#1E88E5'
-          };
-          dot.style.background = colorMap[house];
-        }
-        if (input) {
-          input.placeholder = `Player ${idx + 1} (${house.charAt(0).toUpperCase() + house.slice(1)})`;
-        }
-      } else {
-        row.style.display = 'none';
-      }
-    });
-  }
-  
-  // Initialize
-  updateHouseSelectionUI();
-  updatePlayerInputsOrder();
-  
-  // Expose selected houses for game start
-  window.getSelectedHouses = () => selectedHouses;
-  window.setRequiredHouses = (n) => {
-    requiredHouses = n;
-    if (houseRequiredCount) houseRequiredCount.textContent = n;
-    updateHouseSelectionUI();
-  };
-}
-
 function initSetup() {
   
   
@@ -3002,9 +2745,6 @@ function initSetup() {
       btn.classList.add('active');
     });
   });
-  
-  // House selection for Pass & Play mode
-  initHouseSelection();
 
   // Start buttons for different modes
   const startAiBtn = document.getElementById('startAiBtn');
@@ -3065,23 +2805,14 @@ function initSetup() {
       G.gameMode = 'local';
       G.playerCount = G.numPlayers || 2;
       
-      // Get selected houses
-      const selectedHouses = window.getSelectedHouses ? window.getSelectedHouses() : ['red', 'green', 'yellow', 'blue'].slice(0, G.playerCount);
-      
-      // Validate house selection
-      if (selectedHouses.length !== G.playerCount) {
-        alert(`Please select exactly ${G.playerCount} houses`);
-        return;
-      }
-      
-      // Get player names from inputs based on selected houses
-      const inputRows = document.querySelectorAll('#localPlayerInputs .input-row');
+      // Get player names from inputs
+      const inputs = document.querySelectorAll('#localPlayerInputs .name-input');
+      const colors = ['red', 'green', 'yellow', 'blue'];
       
       G.players = [];
-      selectedHouses.forEach((color, i) => {
-        const row = Array.from(inputRows).find(r => r.dataset.house === color);
-        const input = row ? row.querySelector('.name-input') : null;
-        const name = (input && input.value && input.value.trim()) ? input.value.trim() : `Player ${i + 1}`;
+      for (let i = 0; i < G.playerCount; i++) {
+        const color = colors[i];
+        const name = (inputs[i] && inputs[i].value && inputs[i].value.trim()) ? inputs[i].value.trim() : `Player ${i + 1}`;
         G.players.push({
           color: color,
           name: name.substring(0, 12),
@@ -3091,11 +2822,10 @@ function initSetup() {
         });
         G.playerNames[color] = name.substring(0, 12);
         G.ptypes[color] = 'human';
-      });
+      }
       
       G.currentPlayer = 0;
       G.humanColor = 'red'; // First player in local mode
-      G.active = selectedHouses; // Set active players to selected houses only
       startGame();
     });
   }
@@ -3938,10 +3668,9 @@ function renderSetupRows() {
 }
 
 function startGame() {
-  // Build active players starting from human color (only for AI mode)
-  // In online mode OR local mode, G.active is already set before calling startGame
-  // Only build G.active automatically for AI mode when it's not set
-  if ((!G.isOnline && G.gameMode !== 'local') || G.active.length === 0) {
+  // Build active players starting from human color (only for local/pass & play)
+  // In online mode, G.active is already set by the host before calling startGame
+  if (!G.isOnline || G.active.length === 0) {
     const humanIdx = PLAYERS.indexOf(G.humanColor);
     G.active = [];
     for (let i = 0; i < G.playerCount; i++) {
@@ -3985,17 +3714,6 @@ function startGame() {
   document.getElementById('setupScreen').classList.add('hidden');
   document.getElementById('gameScreen').style.display = 'flex';
   document.body.classList.add('game-active');
-  
-  // Add local-mode class for Pass & Play to show corner dice
-  const gameWrapper = document.getElementById('gameScreen');
-  if (G.gameMode === 'local') {
-    gameWrapper.classList.add('local-mode');
-  } else {
-    gameWrapper.classList.remove('local-mode');
-  }
-  
-  // Refresh house animals with player names
-  placeHouseAnimals();
 
   updateUI();
   renderTokens();
@@ -4017,36 +3735,6 @@ document.getElementById('diceScene').addEventListener('click', e => {
   }
   rollDice();
 });
-// Corner dice buttons for Pass & Play mode
-['red', 'green', 'yellow', 'blue'].forEach(color => {
-  const cornerDice = document.getElementById(color + 'Dice');
-  if (cornerDice) {
-    cornerDice.querySelector('.corner-roll-btn').addEventListener('click', e => {
-      e.preventDefault();
-      // Only allow if it's this player's turn
-      if (curPlayer() !== color) {
-        addLog('(info) Wait for ' + color + '\'s turn!');
-        return;
-      }
-      // Only allow in local mode and roll phase
-      if (G.gameMode !== 'local') return;
-      if (G.phase !== 'roll') return;
-      rollDice();
-    });
-    // Click on dice cube also rolls
-    cornerDice.querySelector('.corner-dice-scene').addEventListener('click', e => {
-      e.preventDefault();
-      if (curPlayer() !== color) {
-        addLog('(info) Wait for ' + color + '\'s turn!');
-        return;
-      }
-      if (G.gameMode !== 'local') return;
-      if (G.phase !== 'roll') return;
-      rollDice();
-    });
-  }
-});
-
 document.getElementById('rollBtn').addEventListener('click', e => {
   e.preventDefault();
   // Enforce turn validation in online mode
@@ -4209,20 +3897,6 @@ window.debugLudo = function() {
     if (SoundManager.enabled) SoundManager.playClick();
   });
   updateSoundIcon();
-  
-  // Force override cached styles
-  (function() {
-    const style = document.createElement('style');
-    style.textContent = `
-      .board-wrapper { margin: 70px auto !important; }
-      .corner-dice.red-dice { top: -80px !important; }
-      .corner-dice.green-dice { top: -80px !important; }
-      .corner-dice.yellow-dice { bottom: -80px !important; }
-      .corner-dice.blue-dice { bottom: -80px !important; }
-      .safe::after { font-size: clamp(18px, 4vmin, 28px) !important; z-index: 10 !important; }
-    `;
-    document.head.appendChild(style);
-  })();
 </script>
 <!-- SEO Keywords -->
 <div style="position:absolute;left:-9999px;top:-9999px;width:1px;height:1px;overflow:hidden;" aria-hidden="true">
