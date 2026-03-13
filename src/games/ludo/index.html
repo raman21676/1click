@@ -3260,15 +3260,23 @@ document.addEventListener('DOMContentLoaded', () => {
   initLocalPlayerCount();
   
   // Set initial state: show mode selection and AI settings (default mode)
-  const modeSelection = document.getElementById('modeSelection');
-  const aiSettings = document.getElementById('aiSettings');
-  const localSettings = document.getElementById('localSettings');
-  const onlineSettings = document.getElementById('onlineSettings');
-  
-  if (modeSelection) modeSelection.style.display = 'block';
-  if (aiSettings) aiSettings.style.display = 'block';
-  if (localSettings) localSettings.style.display = 'none';
-  if (onlineSettings) onlineSettings.style.display = 'none';
+  // Use setTimeout to ensure this runs after all other initialization
+  setTimeout(() => {
+    const modeSelection = document.getElementById('modeSelection');
+    const aiSettings = document.getElementById('aiSettings');
+    const localSettings = document.getElementById('localSettings');
+    const onlineSettings = document.getElementById('onlineSettings');
+    
+    if (modeSelection) modeSelection.style.display = 'block';
+    if (aiSettings) aiSettings.style.display = 'block';
+    if (localSettings) localSettings.style.display = 'none';
+    if (onlineSettings) onlineSettings.style.display = 'none';
+    
+    // Reset mode buttons to show AI as active
+    document.querySelectorAll('.mode-btn').forEach(b => b.classList.remove('active'));
+    const aiBtn = document.querySelector('.mode-btn[data-mode="ai"]');
+    if (aiBtn) aiBtn.classList.add('active');
+  }, 100);
 });
 
 // AI Mode Player Count Selection
