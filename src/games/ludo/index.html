@@ -4209,6 +4209,20 @@ window.debugLudo = function() {
     if (SoundManager.enabled) SoundManager.playClick();
   });
   updateSoundIcon();
+  
+  // Force override cached styles
+  (function() {
+    const style = document.createElement('style');
+    style.textContent = `
+      .board-wrapper { margin: 70px auto !important; }
+      .corner-dice.red-dice { top: -80px !important; }
+      .corner-dice.green-dice { top: -80px !important; }
+      .corner-dice.yellow-dice { bottom: -80px !important; }
+      .corner-dice.blue-dice { bottom: -80px !important; }
+      .safe::after { font-size: clamp(32px, 8vmin, 56px) !important; z-index: 10 !important; }
+    `;
+    document.head.appendChild(style);
+  })();
 </script>
 <!-- SEO Keywords -->
 <div style="position:absolute;left:-9999px;top:-9999px;width:1px;height:1px;overflow:hidden;" aria-hidden="true">
