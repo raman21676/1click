@@ -58,9 +58,11 @@
   font-size: 1.2rem;
 }
 .sound-toggle {
-  position: relative;
-  width: 40px;
-  height: 40px;
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  width: 50px;
+  height: 50px;
   border-radius: 50%;
   background: linear-gradient(135deg, #14b8a6 0%, #06b6d4 100%);
   border: none;
@@ -68,11 +70,10 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 1.2rem;
+  font-size: 1.5rem;
   box-shadow: 0 4px 15px rgba(20, 184, 166, 0.4);
-  transition: transform 0.3s ease;
-  z-index: 50;
-  flex-shrink: 0;
+  transition: all 0.3s ease;
+  z-index: 1000;
 }
 .sound-toggle:hover { transform: scale(1.1); }
 .sound-toggle.muted {
@@ -199,27 +200,25 @@
 }
 
 *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-html,body{min-height:100%;font-family:'Segoe UI',Arial,sans-serif;
+html,body{height:100%;font-family:'Segoe UI',Arial,sans-serif;
   background:radial-gradient(ellipse at center,#283593 0%,#1a237e 50%,#0d1b6e 100%);
-  color:#fff;overflow-x:hidden}
-body{overflow-y:auto;-webkit-overflow-scrolling:touch}
-body.game-active{overflow:hidden}
+  color:#fff;overflow:hidden}
 
 /* --- LAYOUT ----------------------------------- */
 .game-wrapper{height:100dvh;display:flex;flex-direction:column;
-  align-items:center;padding:2px;gap:2px}
+  align-items:center;padding:6px;gap:6px}
 .game-header{width:100%;display:flex;align-items:center;
-  justify-content:space-between;flex-shrink:0;padding:4px 8px 2px}
+  justify-content:space-between;flex-shrink:0;padding:0 4px}
 .back-btn{color:#90CAF9;text-decoration:none;font-size:14px;padding:8px}
-.header-title{font-size:18px;font-weight:800;
+.header-title{font-size:20px;font-weight:800;
   background:linear-gradient(135deg,#FFD700,#FF8F00);
   -webkit-background-clip:text;-webkit-text-fill-color:transparent}
 
 /* --- BOARD AREA -------------------------------- */
-.board-area{flex:1;display:flex;align-items:center;justify-content:center;
-  width:100%;height:100%;padding:0;padding-bottom:60px;box-sizing:border-box}
+.board-area{flex:1;display:flex;align-items:center;
+  justify-content:center;width:100%;min-height:0}
 .board-wrapper{position:relative;
-  width:100vmin;height:100vmin;max-width:none;max-height:none}
+  width:min(84vmin,480px);height:min(84vmin,480px)}
 
 /* 15x15 grid */
 .ludo-board{width:100%;height:100%;
@@ -383,22 +382,22 @@ body.game-active{overflow:hidden}
 .tok.selected{transform:scale(1.3);box-shadow:0 0 0 3px #fff,0 0 8px rgba(255,255,255,.7)}
 
 /* --- CONTROLS ROW ------------------------------ */
-.controls-row{width:100%;display:flex;
+.controls-row{width:100%;max-width:500px;display:flex;
   align-items:center;justify-content:space-between;
-  gap:4px;padding:6px 10px;flex-shrink:0;position:absolute;bottom:0;left:0;right:0;background:linear-gradient(to top,rgba(0,0,0,0.5),transparent);z-index:10}
+  gap:6px;padding:0 2px;flex-shrink:0}
 
 /* Player panels */
-.player-panels{display:flex;gap:4px;flex:1;justify-content:flex-start}
+.player-panels{display:flex;gap:4px;flex:1}
 .player-panel{flex:1;background:rgba(255,255,255,.08);
-  border-radius:5px;padding:3px 2px;border:2px solid transparent;
-  transition:all .3s;text-align:center;min-width:0;max-width:80px}
+  border-radius:8px;padding:5px 4px;border:2px solid transparent;
+  transition:all .3s;text-align:center}
 .player-panel.active{border-color:var(--pc);
   background:rgba(255,255,255,.15);box-shadow:0 0 10px var(--pc)}
 .player-panel.elim{opacity:.3;filter:grayscale(.8)}
 .player-panel.finished{background:linear-gradient(135deg,rgba(255,215,0,.2),rgba(255,111,0,.2));border-color:var(--gold);animation:finishedPulse 2s ease-in-out infinite}
 @keyframes finishedPulse{0%,100%{box-shadow:0 0 5px rgba(255,215,0,.3)}50%{box-shadow:0 0 15px rgba(255,215,0,.6)}}
-.panel-name{font-size:clamp(7px,1.5vmin,10px);font-weight:700;
-  display:flex;align-items:center;justify-content:center;gap:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.panel-name{font-size:clamp(8px,1.7vmin,12px);font-weight:700;
+  display:flex;align-items:center;justify-content:center;gap:3px}
 .panel-dot{width:8px;height:8px;border-radius:50%;
   background:var(--pc);flex-shrink:0}
 .panel-tkns{display:flex;justify-content:center;gap:2px;margin-top:3px}
@@ -508,20 +507,18 @@ body.game-active{overflow:hidden}
 
 /* -- DICE SCENE ------------------------------------------- */
 .dice-scene {
-  width: 44px;
-  height: 44px;
-  perspective: 400px;
+  width: 72px;
+  height: 72px;
+  perspective: 600px;
   perspective-origin: 50% 40%;
   position: relative;
   z-index: 1;
 }
 
 .dice-cube {
-  width: 40px;
-  height: 40px;
+  width: 72px;
+  height: 72px;
   position: absolute;
-  top: 2px;
-  left: 2px;
   transform-style: preserve-3d;
   transform: rotateX(-25deg) rotateY(25deg);
   will-change: transform;
@@ -531,10 +528,10 @@ body.game-active{overflow:hidden}
 /* -- FACES ------------------------------------------------ */
 .face {
   position: absolute;
-  width: 40px;
-  height: 40px;
+  width: 72px;
+  height: 72px;
   background: linear-gradient(145deg, #fffef8, #f5f5f0);
-  border-radius: 8px;
+  border-radius: 12px;
   box-shadow:
     inset 0 2px 4px rgba(255,255,255,0.9),
     inset 0 -2px 3px rgba(0,0,0,0.06),
@@ -546,12 +543,12 @@ body.game-active{overflow:hidden}
 }
 
 /* Proper 3D cube face positioning */
-.face-1 { transform: rotateY(0deg)   translateZ(20px); }
-.face-2 { transform: rotateY(180deg) translateZ(20px); }
-.face-3 { transform: rotateY(90deg)  translateZ(20px); }
-.face-4 { transform: rotateY(-90deg) translateZ(20px); }
-.face-5 { transform: rotateX(90deg)  translateZ(20px); }
-.face-6 { transform: rotateX(-90deg) translateZ(20px); }
+.face-1 { transform: rotateY(0deg)   translateZ(36px); }
+.face-2 { transform: rotateY(180deg) translateZ(36px); }
+.face-3 { transform: rotateY(90deg)  translateZ(36px); }
+.face-4 { transform: rotateY(-90deg) translateZ(36px); }
+.face-5 { transform: rotateX(90deg)  translateZ(36px); }
+.face-6 { transform: rotateX(-90deg) translateZ(36px); }
 /* -- DOT GRID --------------------------------------------- */
 .dots {
   display: grid;
@@ -559,16 +556,16 @@ body.game-active{overflow:hidden}
   grid-template-rows:    1fr 1fr 1fr;
   width: 100%;
   height: 100%;
-  padding: 7px;
-  gap: 3px;
+  padding: 13px;
+  gap: 6px;
 }
 
 .dot {
-  width: 7px;
-  height: 7px;
+  width: 11px;
+  height: 11px;
   background: radial-gradient(circle at 35% 30%, #555, #111);
   border-radius: 50%;
-  box-shadow: 0 1px 2px rgba(0,0,0,0.4), inset 0 -1px 1px rgba(0,0,0,0.2);
+  box-shadow: 0 1px 3px rgba(0,0,0,0.4), inset 0 -1px 1px rgba(0,0,0,0.2);
   justify-self: center;
   align-self: center;
 }
@@ -696,30 +693,27 @@ body.game-active{overflow:hidden}
 .ddY{background:var(--yellow)} .ddB{background:var(--blue)}
 .dd-def{background:#444}
 .roll-btn{background:linear-gradient(135deg,#FF6F00,#FFD600);
-  border:none;border-radius:5px;color:#000;
-  font-size:clamp(9px,1.6vmin,11px);font-weight:800;
-  padding:4px 10px;cursor:pointer;transition:all .2s;
-  box-shadow:0 2px 8px rgba(255,111,0,.4);
-  margin-top:2px}
+  border:none;border-radius:8px;color:#000;
+  font-size:clamp(12px,2.2vmin,15px);font-weight:800;
+  padding:10px 20px;cursor:pointer;transition:all .2s;
+  box-shadow:0 4px 12px rgba(255,111,0,.4);
+  margin-top:12px}
 .roll-btn:hover:not(:disabled){transform:translateY(-2px)}
 .roll-btn:disabled{opacity:.35;cursor:not-allowed}
 
 /* Dice area layout */
-.dice-turn-container{display:flex;align-items:center;gap:6px;flex-shrink:0}
-.dice-area{display:flex;flex-direction:column;align-items:center;gap:1px}
+.dice-area{display:flex;flex-direction:column;align-items:center;gap:8px}
 
 /* --- TURN AREA --------------------------------- */
-.turn-area{text-align:center;min-width:60px;display:flex;flex-direction:column;align-items:center;justify-content:center}
-.turn-text{font-size:clamp(9px,1.9vmin,12px);font-weight:700;white-space:nowrap}
+.turn-area{text-align:center;flex:1;min-width:0}
+.turn-text{font-size:clamp(10px,2.1vmin,14px);font-weight:700;white-space:nowrap}
 .turn-sub{font-size:clamp(8px,1.4vmin,11px);opacity:.6;margin-top:2px}
 
 /* --- SETUP SCREEN ------------------------------ */
-.setup-screen{position:absolute;top:0;left:0;right:0;min-height:100vh;
+.setup-screen{position:fixed;inset:0;
   background:linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
   display:flex;flex-direction:column;align-items:center;
-  justify-content:flex-start;padding:20px;z-index:100}
-.setup-screen-content{width:100%;max-width:420px;padding-bottom:40px}
-.setup-screen.hidden{display:none}
+  justify-content:center;padding:20px;z-index:100;overflow-y:auto}
 .setup-screen.hidden{display:none}
 .setup-title h1{font-size:clamp(28px,6vmin,40px);font-weight:900;text-align:center;
   background:linear-gradient(135deg,#FFD700,#FF8F00);
@@ -936,9 +930,10 @@ body.game-active{overflow:hidden}
   <div class="loading-logo">🎲</div>
   <div class="loading-text">Loading Ludo...</div>
 </div>
+<button id="soundToggle" class="sound-toggle" title="Toggle Sound" style="position:fixed;top:70px;right:20px;z-index:1000;">🔊</button>
+
 <!-- SETUP SCREEN -->
 <div class="setup-screen" id="setupScreen">
-<div class="setup-screen-content">
   <h1 class="setup-title" style="font-size:clamp(2rem,8vw,3.2rem);font-weight:800;background:linear-gradient(135deg,#E53935,#FDD835,#43A047,#1E88E5);-webkit-background-clip:text;-webkit-text-fill-color:transparent;text-align:center;margin-bottom:.4rem">🎲 Ludo 🎲</h1>
   <p style="color:#94a3b8;margin-bottom:2rem;text-align:center">Roll dice, move tokens, capture opponents!</p>
   
@@ -1109,7 +1104,6 @@ body.game-active{overflow:hidden}
   </div>
   
 </div>
-</div>
 
 <!-- Loading Overlay -->
 <div id="loadingOverlay" class="loading-overlay">
@@ -1128,15 +1122,12 @@ body.game-active{overflow:hidden}
 <div class="game-wrapper" id="gameScreen" style="display:none">
 
   <header class="game-header">
-    <a href="../../../index.html" class="back-btn">← Back</a>
+    <a href="../../../index.html" class="back-btn"><- Back</a>
     <div class="header-title">🎲 LUDO</div>
-    <div style="display:flex;align-items:center;gap:8px">
-      <!-- Connection Status Indicator -->
-      <div id="connectionStatus" class="connection-status" style="display:none">
-        <span class="conn-dot"></span>
-        <span class="conn-text">Connected</span>
-      </div>
-      <button id="soundToggle" class="sound-toggle" title="Toggle Sound">🔊</button>
+    <!-- Connection Status Indicator -->
+    <div id="connectionStatus" class="connection-status" style="display:none">
+      <span class="conn-dot"></span>
+      <span class="conn-text">Connected</span>
     </div>
   </header>
 
@@ -1173,28 +1164,73 @@ body.game-active{overflow:hidden}
 
   <!-- Controls -->
   <div class="controls-row">
-    <!-- Player panels - left side -->
+    <!-- Player panels -->
     <div class="player-panels" id="playerPanels"></div>
 
-    <!-- Dice and Turn Info - right side -->
-    <div class="dice-turn-container">
-      <div class="dice-area">
-        <div class="dice-scene" id="diceScene">
-          <div class="dice-cube" id="diceCube">
-            <div class="face face-1"><div class="dots"><div class="dot"></div></div></div>
-            <div class="face face-2"><div class="dots"><div class="dot"></div><div class="dot"></div></div></div>
-            <div class="face face-3"><div class="dots"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div></div>
-            <div class="face face-4"><div class="dots"><div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div></div></div>
-            <div class="face face-5"><div class="dots"><div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div></div></div>
-            <div class="face face-6"><div class="dots"><div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div></div></div>
+    <!-- 3D Dice Cube -->
+    <div class="dice-area">
+      <div class="dice-scene" id="diceScene">
+        <div class="dice-cube" id="diceCube">
+          <!-- Face 1: center dot (front face, visible at rest) -->
+          <div class="face face-1">
+            <div class="dots">
+              <div class="dot"></div>
+            </div>
+          </div>
+          <!-- Face 2: top-left + bottom-right -->
+          <div class="face face-2">
+            <div class="dots">
+              <div class="dot"></div>
+              <div class="dot"></div>
+            </div>
+          </div>
+          <!-- Face 3: diagonal top-left to bottom-right -->
+          <div class="face face-3">
+            <div class="dots">
+              <div class="dot"></div>
+              <div class="dot"></div>
+              <div class="dot"></div>
+            </div>
+          </div>
+          <!-- Face 4: four corners -->
+          <div class="face face-4">
+            <div class="dots">
+              <div class="dot"></div>
+              <div class="dot"></div>
+              <div class="dot"></div>
+              <div class="dot"></div>
+            </div>
+          </div>
+          <!-- Face 5: four corners + center -->
+          <div class="face face-5">
+            <div class="dots">
+              <div class="dot"></div>
+              <div class="dot"></div>
+              <div class="dot"></div>
+              <div class="dot"></div>
+              <div class="dot"></div>
+            </div>
+          </div>
+          <!-- Face 6: two columns of three -->
+          <div class="face face-6">
+            <div class="dots">
+              <div class="dot"></div>
+              <div class="dot"></div>
+              <div class="dot"></div>
+              <div class="dot"></div>
+              <div class="dot"></div>
+              <div class="dot"></div>
+            </div>
           </div>
         </div>
-        <button class="roll-btn" id="rollBtn" disabled>Roll</button>
       </div>
-      <div class="turn-area">
-        <div class="turn-text" id="turnText">Red's Turn</div>
-        <div class="turn-sub" id="turnSub">Click Roll!</div>
-      </div>
+      <button class="roll-btn" id="rollBtn" disabled>Roll</button>
+    </div>
+
+    <!-- Turn info -->
+    <div class="turn-area">
+      <div class="turn-text" id="turnText">Red's Turn</div>
+      <div class="turn-sub" id="turnSub">Click Roll!</div>
     </div>
   </div>
 
@@ -2712,7 +2748,7 @@ function stopConfetti() {
 // ----------------------------------------------------
 
 function initSetup() {
-  
+  console.log("[DEBUG] initSetup started");
   
   // Game mode: 'local' (pass & play) or 'online'
   G.gameMode = 'local';
@@ -2753,49 +2789,11 @@ function initSetup() {
   if (startAiBtn) {
     startAiBtn.addEventListener('click', () => {
       G.gameMode = 'ai';
-      G.playerCount = G.numPlayers || 2;
-      
       // Get player name from input
       const nameInput = document.getElementById('aiPlayerName');
-      const playerName = (nameInput && nameInput.value.trim()) ? nameInput.value.trim().substring(0, 12) : 'You';
-      
-      // Setup players for AI mode
-      G.players = [];
-      const colors = ['red', 'green', 'yellow', 'blue'];
-      const playerColorIndex = colors.indexOf(G.playerColor);
-      
-      // Add human player first
-      G.players.push({
-        color: G.playerColor,
-        name: playerName,
-        type: 'human',
-        tokens: [0, 0, 0, 0],
-        finished: false
-      });
-      G.playerNames[G.playerColor] = playerName;
-      G.ptypes[G.playerColor] = 'human';
-      
-      // Add AI players
-      let aiCount = 1;
-      for (let i = 0; i < colors.length; i++) {
-        if (G.players.length >= G.playerCount) break;
-        if (i !== playerColorIndex) {
-          const aiColor = colors[i];
-          G.players.push({
-            color: aiColor,
-            name: `AI ${aiCount}`,
-            type: 'ai',
-            tokens: [0, 0, 0, 0],
-            finished: false
-          });
-          G.playerNames[aiColor] = `AI ${aiCount}`;
-          G.ptypes[aiColor] = 'ai';
-          aiCount++;
-        }
+      if (nameInput && nameInput.value.trim()) {
+        G.playerNames[G.humanColor] = nameInput.value.trim().substring(0, 12);
       }
-      
-      G.currentPlayer = 0;
-      G.humanColor = G.playerColor;
       startGame();
     });
   }
@@ -2803,29 +2801,14 @@ function initSetup() {
   if (startLocalBtn) {
     startLocalBtn.addEventListener('click', () => {
       G.gameMode = 'local';
-      G.playerCount = G.numPlayers || 2;
-      
       // Get player names from inputs
       const inputs = document.querySelectorAll('#localPlayerInputs .name-input');
       const colors = ['red', 'green', 'yellow', 'blue'];
-      
-      G.players = [];
-      for (let i = 0; i < G.playerCount; i++) {
-        const color = colors[i];
-        const name = (inputs[i] && inputs[i].value && inputs[i].value.trim()) ? inputs[i].value.trim() : `Player ${i + 1}`;
-        G.players.push({
-          color: color,
-          name: name.substring(0, 12),
-          type: 'human',
-          tokens: [0, 0, 0, 0],
-          finished: false
-        });
-        G.playerNames[color] = name.substring(0, 12);
-        G.ptypes[color] = 'human';
-      }
-      
-      G.currentPlayer = 0;
-      G.humanColor = 'red'; // First player in local mode
+      inputs.forEach((input, idx) => {
+        if (input.value.trim()) {
+          G.playerNames[colors[idx]] = input.value.trim().substring(0, 12);
+        }
+      });
       startGame();
     });
   }
@@ -2940,7 +2923,7 @@ function initOfflineDetection() {
 }
 
 function isConnected() {
-  if (peerConnection && peerConnection.open) return true;
+  if (peerConnection?.open) return true;
   if (peerConnections.some(c => c.open)) return true;
   return false;
 }
@@ -2985,9 +2968,6 @@ document.addEventListener('DOMContentLoaded', () => {
       connectionRetryCount = MAX_RETRIES; // Stop retries
     });
   }
-  
-  // Initialize local player count
-  initLocalPlayerCount();
 });
 
 // AI Mode Player Count Selection
@@ -3038,8 +3018,73 @@ function initLocalPlayerCount() {
   G.numPlayers = 3;
 }
 
-// Note: Start buttons are handled in initSetup() function
-// This DOMContentLoaded block removed to prevent duplicate event listeners
+// AI Start Button
+document.addEventListener('DOMContentLoaded', () => {
+  const startAiBtn = document.getElementById('startAiBtn');
+  if (startAiBtn) {
+    startAiBtn.addEventListener('click', () => {
+      // Set up AI game with player vs AI
+      G.players = [];
+      const colors = ['red', 'green', 'yellow', 'blue'];
+      const playerColorIndex = colors.indexOf(G.playerColor);
+      
+      // Add human player first
+      G.players.push({
+        color: G.playerColor,
+        name: 'You',
+        type: 'human',
+        tokens: [0, 0, 0, 0],
+        finished: false
+      });
+      
+      // Add AI players
+      let aiCount = 1;
+      for (let i = 0; i < colors.length; i++) {
+        if (G.players.length >= G.numPlayers) break;
+        if (i !== playerColorIndex) {
+          G.players.push({
+            color: colors[i],
+            name: `AI ${aiCount}`,
+            type: 'ai',
+            tokens: [0, 0, 0, 0],
+            finished: false
+          });
+          aiCount++;
+        }
+      }
+      
+      G.currentPlayer = 0;
+      startGame();
+    });
+  }
+  
+  // Local Start Button
+  const startLocalBtn = document.getElementById('startLocalBtn');
+  if (startLocalBtn) {
+    startLocalBtn.addEventListener('click', () => {
+      // Get player names from inputs
+      const inputs = document.querySelectorAll('#localPlayerInputs .name-input');
+      G.players = [];
+      const colors = ['red', 'green', 'yellow', 'blue'];
+      
+      for (let i = 0; i < G.numPlayers; i++) {
+        G.players.push({
+          color: colors[i],
+          name: inputs[i].value || `Player ${i + 1}`,
+          type: 'human',
+          tokens: [0, 0, 0, 0],
+          finished: false
+        });
+      }
+      
+      G.currentPlayer = 0;
+      startGame();
+    });
+  }
+  
+  // Initialize local player count
+  initLocalPlayerCount();
+});
 
 function initOnlineMultiplayer() {
   // Online player count selection
@@ -3250,7 +3295,7 @@ function copyRoomCode() {
 
 function startOnlineGame() {
   const maxPlayers = G.onlinePlayerCount || 2;
-  const hasConnection = (peerConnection && peerConnection.open) || peerConnections.some(c => c.open);
+  const hasConnection = peerConnection?.open || peerConnections.some(c => c.open);
   
   if (!hasConnection) {
     alert('Waiting for players to connect...');
@@ -3270,7 +3315,7 @@ function startOnlineGame() {
   
   // Notify all peers with game state - include their assigned color
   // For 2-player mode
-  if (peerConnection && peerConnection.open) {
+  if (peerConnection?.open) {
     const guestColor = peerColors.get(peerConnection) || 'green';
     peerConnection.send({ 
       type: 'gameStart',
@@ -3713,7 +3758,6 @@ function startGame() {
 
   document.getElementById('setupScreen').classList.add('hidden');
   document.getElementById('gameScreen').style.display = 'flex';
-  document.body.classList.add('game-active');
 
   updateUI();
   renderTokens();
@@ -3756,14 +3800,13 @@ document.getElementById('menuBtn').addEventListener('click', () => {
   stopConfetti();
   document.getElementById('gameScreen').style.display = 'none';
   document.getElementById('setupScreen').classList.remove('hidden');
-  document.body.classList.remove('game-active');
   if (cdInterval) { clearInterval(cdInterval); cdInterval=null; }
 });
 
 // ----------------------------------------------------
 // INIT
 // ----------------------------------------------------
-// Initialize the game
+console.log("[DEBUG] Calling initSetup");
 window.onerror = function(msg, url, line) { console.error("[JS ERROR] " + msg + " at line " + line); };
 initSetup();
 
@@ -3857,7 +3900,7 @@ window.debugLudo = function() {
   Object.entries(ENTRY).forEach(([player, gpos]) => {
     const [r, c] = PATH[gpos];
     const cell = document.querySelector(`[data-gpos="${gpos}"]`);
-    console.log(`${player.toUpperCase()}: gpos=${gpos}, coords=[${r},${c}], cell=${cell ? cell.id : 'NOT FOUND'}`);
+    console.log(`${player.toUpperCase()}: gpos=${gpos}, coords=[${r},${c}], cell=${cell?.id || 'NOT FOUND'}`);
   });
   
   // Check home slots
