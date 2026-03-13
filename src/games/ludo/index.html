@@ -311,9 +311,9 @@ body.game-active{overflow-y:auto;touch-action:pan-y}
 .hrY{background:#FFF9C4;border:.5px solid #ccc}
 .hrB{background:#BBDEFB;border:.5px solid #ccc}
 
-/* Safe star - BIG and visible */
-.safe::after{content:'★';font-size:clamp(32px,8vmin,56px) !important;
-  color:var(--gold);text-shadow:0 0 15px rgba(255,215,0,1), 0 0 30px rgba(255,215,0,.7);
+/* Safe star - visible but not too big */
+.safe::after{content:'★';font-size:clamp(18px,4vmin,28px) !important;
+  color:var(--gold);text-shadow:0 0 8px rgba(255,215,0,.8), 0 0 16px rgba(255,215,0,.4);
   position:absolute;pointer-events:none;z-index:10;font-weight:bold;}
 
 /* Safe star colors by position */
@@ -4219,7 +4219,7 @@ window.debugLudo = function() {
       .corner-dice.green-dice { top: -80px !important; }
       .corner-dice.yellow-dice { bottom: -80px !important; }
       .corner-dice.blue-dice { bottom: -80px !important; }
-      .safe::after { font-size: clamp(32px, 8vmin, 56px) !important; z-index: 10 !important; }
+      .safe::after { font-size: clamp(18px, 4vmin, 28px) !important; z-index: 10 !important; }
     `;
     document.head.appendChild(style);
   })();
