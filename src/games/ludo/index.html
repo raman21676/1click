@@ -3,6 +3,9 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
 <meta name="description" content="Play Ludo online for FREE! 🎲 Classic board game with 2-4 players. Play against AI or friends. No download, instant play on mobile & desktop. Best free Ludo game!">
 <meta name="keywords" content="ludo, ludo game, ludo online, play ludo, free ludo, ludo board game, ludo multiplayer, ludo with friends, ludo vs computer, online ludo game, luddo, ludo king, indian ludo, ludo star, dice game, board game online, 2 player ludo, 4 player ludo, family game, classic ludo, ludo app, ludo mobile, instant ludo, no download ludo">
 <meta name="subject" content="Ludo Board Game">
@@ -309,9 +312,9 @@ body.game-active{overflow-y:auto;touch-action:pan-y}
 .hrB{background:#BBDEFB;border:.5px solid #ccc}
 
 /* Safe star - BIG and visible */
-.safe::after{content:'★';font-size:clamp(24px,6vmin,40px) !important;
-  color:var(--gold);text-shadow:0 0 10px rgba(255,215,0,.9), 0 0 20px rgba(255,215,0,.5);
-  position:absolute;pointer-events:none;z-index:5;font-weight:bold;transform:scale(1.5);}
+.safe::after{content:'★';font-size:clamp(32px,8vmin,56px) !important;
+  color:var(--gold);text-shadow:0 0 15px rgba(255,215,0,1), 0 0 30px rgba(255,215,0,.7);
+  position:absolute;pointer-events:none;z-index:10;font-weight:bold;}
 
 /* Safe star colors by position */
 .safe-red::after{color:var(--red);text-shadow:0 0 6px rgba(229,57,53,.6)}
@@ -386,12 +389,11 @@ body.game-active{overflow-y:auto;touch-action:pan-y}
 /* Top dice moved down (less negative), bottom dice moved up (less negative) */
 /* All dice now fit within browser visible area with smaller board */
 /* Dice positions - closer to board to stay visible on small screens */
-/* Dice positions - positioned at corners with gap from board */
-/* Top dice above board, bottom dice below board - no overlap */
-.corner-dice.red-dice{top:-60px;left:5px}
-.corner-dice.green-dice{top:-60px;right:5px}
-.corner-dice.yellow-dice{bottom:-60px;right:5px}
-.corner-dice.blue-dice{bottom:-60px;left:5px}
+/* Dice positions - FAR from board to prevent overlap */
+.corner-dice.red-dice{top:-80px;left:10px}
+.corner-dice.green-dice{top:-80px;right:10px}
+.corner-dice.yellow-dice{bottom:-80px;right:10px}
+.corner-dice.blue-dice{bottom:-80px;left:10px}
 
 .corner-dice-scene{width:40px;height:40px;perspective:300px;position:relative}
 .corner-dice-scene .dice-cube{width:36px;height:36px;position:absolute;top:2px;left:2px;transform-style:preserve-3d;transform:rotateX(-25deg) rotateY(25deg)}
