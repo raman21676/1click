@@ -58,21 +58,8 @@
   font-size: 1.2rem;
 }
 .sound-toggle {
-  position: relative;
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
-  background: linear-gradient(135deg, #14b8a6 0%, #06b6d4 100%);
-  border: none;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 1.2rem;
-  box-shadow: 0 4px 15px rgba(20, 184, 166, 0.4);
-  transition: transform 0.3s ease;
-  z-index: 50;
-  flex-shrink: 0;
+  /* Sound toggle hidden - overlapping with dice */
+  display: none !important;
 }
 .sound-toggle:hover { transform: scale(1.1); }
 .sound-toggle.muted {
@@ -219,13 +206,13 @@ body.game-active{overflow:hidden}
 .board-area{flex:1;display:flex;align-items:center;justify-content:center;
   width:100%;height:100%;padding:5px 0 5px;box-sizing:border-box}
 .board-wrapper{position:relative;
-  /* Maximize board size - use almost full available space */
-  /* Account for: header (~50px) + player-panels (~70px) + dice area (~130px) + margins */
-  /* Total reserved space: ~250px, leaving rest for board */
-  width:min(calc(100vw - 16px), calc(100vh - 250px));
-  height:min(calc(100vw - 16px), calc(100vh - 250px));
-  max-width:min(100vw - 16px, 100vh - 250px);
-  max-height:min(100vw - 16px, 100vh - 250px);}
+  /* Reduced board size to ensure all dice fit in visible area */
+  /* Account for: header (~50px) + dice area (~180px) + margins */
+  /* Total reserved space: ~230px, leaving rest for board */
+  width:min(calc(100vw - 16px), calc(100vh - 300px));
+  height:min(calc(100vw - 16px), calc(100vh - 300px));
+  max-width:min(100vw - 16px, 100vh - 300px);
+  max-height:min(100vw - 16px, 100vh - 300px);}
 
 /* 15x15 grid */
 .ludo-board{width:100%;height:100%;
@@ -395,13 +382,13 @@ body.game-active{overflow:hidden}
 /* Corner dice for Pass & Play mode */
 .corner-dice{position:absolute;z-index:10;display:none;flex-direction:column;align-items:center;gap:2px}
 .corner-dice.active-player{display:flex}
-/* Dice positions - placed further from board corners to prevent overlap */
-/* Dice are inside board-wrapper which has position:relative */
-/* Increased to provide more space for larger board - asymmetric to account for bottom panel */
-.corner-dice.red-dice{top:-120px;left:15px}
-.corner-dice.green-dice{top:-120px;right:15px}
-.corner-dice.yellow-dice{bottom:-125px;right:15px}
-.corner-dice.blue-dice{bottom:-125px;left:15px}
+/* Dice positions - moved closer to board to ensure visibility */
+/* Top dice moved down (less negative), bottom dice moved up (less negative) */
+/* All dice now fit within browser visible area with smaller board */
+.corner-dice.red-dice{top:-90px;left:15px}
+.corner-dice.green-dice{top:-90px;right:15px}
+.corner-dice.yellow-dice{bottom:-90px;right:15px}
+.corner-dice.blue-dice{bottom:-90px;left:15px}
 
 .corner-dice-scene{width:36px;height:36px;perspective:300px;position:relative}
 .corner-dice-scene .dice-cube{width:32px;height:32px;position:absolute;top:2px;left:2px;transform-style:preserve-3d;transform:rotateX(-25deg) rotateY(25deg)}
@@ -423,9 +410,9 @@ body.game-active{overflow:hidden}
 /* Hide center dice in local mode, show corner dice */
 .game-wrapper.local-mode .center-dice-area{display:none}
 
-/* Game log area - replaces player panels */
-/* Changed to position inside game-screen with proper spacing from board */
-.player-panels{position:fixed;bottom:8px;left:8px;right:8px;height:60px;background:rgba(0,0,0,.6);border-radius:10px;padding:6px;overflow-y:auto;z-index:15;font-size:11px;line-height:1.3}
+/* Game log area - HIDDEN to prevent interference with gameplay */
+/* Player panels removed as requested - dark bar was covering board */
+.player-panels{display:none !important;}
 .player-panels::-webkit-scrollbar{width:4px}
 .player-panels::-webkit-scrollbar-thumb{background:rgba(255,255,255,.3);border-radius:2px}
 .player-panel{display:none}
