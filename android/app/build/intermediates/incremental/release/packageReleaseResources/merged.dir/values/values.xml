@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">1click Games</string>
+    <string name="asset_statements">[{
+        "relation": ["delegate_permission/common.handle_all_urls"],
+        "target": {
+            "namespace": "web",
+            "site": "https://1click.live"
+        }
+    }]</string>
+    <style name="AppTheme" parent="android:Theme.Material.Light.DarkActionBar">
+        <item name="android:colorPrimary">#0f172a</item>
+        <item name="android:colorPrimaryDark">#0f172a</item>
+        <item name="android:colorAccent">#14b8a6</item>
+        <item name="android:windowBackground">#0f172a</item>
+    </style>
+</resources>

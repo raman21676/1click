@@ -4,7 +4,7 @@
             "outputFile": "com.games.oneclick.app-mergeReleaseResources-5:/values-es-rUS/values-es-rUS.xml",
             "map": [
                 {
-                    "source": "/Users/kalikali/.gradle/caches/8.10/transforms/09d4b20503128bec114b5d7a008a0bd9/transformed/core-1.1.0/res/values-es-rUS/values-es-rUS.xml",
+                    "source": "/Users/kalikali/.gradle/caches/transforms-3/65462c3b92b0ac9fa879868e9aa990dc/transformed/core-1.1.0/res/values-es-rUS/values-es-rUS.xml",
                     "from": {
                         "startLines": "2",
                         "startColumns": "4",
@@ -21,7 +21,7 @@
                     }
                 },
                 {
-                    "source": "/Users/kalikali/.gradle/caches/8.10/transforms/016856e2faf37bf180febca3ed575d79/transformed/browser-1.4.0/res/values-es-rUS/values-es-rUS.xml",
+                    "source": "/Users/kalikali/.gradle/caches/transforms-3/2c16d8b438ef33e4f1240df7e9c55ed1/transformed/browser-1.4.0/res/values-es-rUS/values-es-rUS.xml",
                     "from": {
                         "startLines": "2,3,4,5",
                         "startColumns": "4,4,4,4",

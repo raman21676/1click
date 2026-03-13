@@ -13,9 +13,9 @@
 11-->/Users/kalikali/Desktop/1click/android/app/src/main/AndroidManifest.xml:5:22-64
 12
 13    <queries>
-13-->[com.google.androidbrowserhelper:androidbrowserhelper:2.5.0] /Users/kalikali/.gradle/caches/8.10/transforms/3a01dcfc3f059a1f8c6ba67e5f0d25a3/transformed/jetified-androidbrowserhelper-2.5.0/AndroidManifest.xml:26:5-34:15
+13-->[com.google.androidbrowserhelper:androidbrowserhelper:2.5.0] /Users/kalikali/.gradle/caches/transforms-3/db6741b591ed68fb68e714260aa2fa56/transformed/jetified-androidbrowserhelper-2.5.0/AndroidManifest.xml:26:5-34:15
 14        <intent>
-14-->[com.google.androidbrowserhelper:androidbrowserhelper:2.5.0] /Users/kalikali/.gradle/caches/8.10/transforms/3a01dcfc3f059a1f8c6ba67e5f0d25a3/transformed/jetified-androidbrowserhelper-2.5.0/AndroidManifest.xml:27:9-33:18
+14-->[com.google.androidbrowserhelper:androidbrowserhelper:2.5.0] /Users/kalikali/.gradle/caches/transforms-3/db6741b591ed68fb68e714260aa2fa56/transformed/jetified-androidbrowserhelper-2.5.0/AndroidManifest.xml:27:9-33:18
 15            <action android:name="android.intent.action.VIEW" />
 15-->/Users/kalikali/Desktop/1click/android/app/src/main/AndroidManifest.xml:33:17-69
 15-->/Users/kalikali/Desktop/1click/android/app/src/main/AndroidManifest.xml:33:25-66
@@ -35,7 +35,7 @@
 24        android:allowBackup="true"
 24-->/Users/kalikali/Desktop/1click/android/app/src/main/AndroidManifest.xml:8:9-35
 25        android:appComponentFactory="androidx.core.app.CoreComponentFactory"
-25-->[androidx.core:core:1.1.0] /Users/kalikali/.gradle/caches/8.10/transforms/09d4b20503128bec114b5d7a008a0bd9/transformed/core-1.1.0/AndroidManifest.xml:24:18-86
+25-->[androidx.core:core:1.1.0] /Users/kalikali/.gradle/caches/transforms-3/65462c3b92b0ac9fa879868e9aa990dc/transformed/core-1.1.0/AndroidManifest.xml:24:18-86
 26        android:extractNativeLibs="true"
 27        android:icon="@mipmap/ic_launcher"
 27-->/Users/kalikali/Desktop/1click/android/app/src/main/AndroidManifest.xml:9:9-43

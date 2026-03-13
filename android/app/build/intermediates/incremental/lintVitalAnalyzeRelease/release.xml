@@ -6,7 +6,7 @@
     mergedManifest="build/intermediates/merged_manifest/release/AndroidManifest.xml"
     proguardFiles="build/intermediates/default_proguard_files/global/proguard-android-optimize.txt-8.1.0:proguard-rules.pro"
     partialResultsDir="build/intermediates/lint_vital_partial_results/release/out"
-    desugaredMethodsFiles="/Users/kalikali/.gradle/caches/8.10/transforms/ac886e685db3dcb455c854d05aa7c3ed/transformed/D8BackportedDesugaredMethods.txt">
+    desugaredMethodsFiles="/Users/kalikali/.gradle/caches/transforms-3/5fa9ea46352b159361b0ff8d1be74d84/transformed/D8BackportedDesugaredMethods.txt">
   <buildFeatures
       namespacing="REQUIRED"/>
   <sourceProviders>
@@ -25,6 +25,6 @@
       applicationId="com.games.oneclick"
       generatedSourceFolders="build/generated/ap_generated_sources/release/out"
       generatedResourceFolders="build/generated/res/resValues/release"
-      desugaredMethodsFiles="/Users/kalikali/.gradle/caches/8.10/transforms/ac886e685db3dcb455c854d05aa7c3ed/transformed/D8BackportedDesugaredMethods.txt">
+      desugaredMethodsFiles="/Users/kalikali/.gradle/caches/transforms-3/5fa9ea46352b159361b0ff8d1be74d84/transformed/D8BackportedDesugaredMethods.txt">
   </mainArtifact>
 </variant>

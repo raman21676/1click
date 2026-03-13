@@ -1,9 +1,9 @@
 <libraries>
   <library
       name="com.google.androidbrowserhelper:androidbrowserhelper:2.5.0@aar"
-      jars="/Users/kalikali/.gradle/caches/8.10/transforms/3a01dcfc3f059a1f8c6ba67e5f0d25a3/transformed/jetified-androidbrowserhelper-2.5.0/jars/classes.jar"
+      jars="/Users/kalikali/.gradle/caches/transforms-3/db6741b591ed68fb68e714260aa2fa56/transformed/jetified-androidbrowserhelper-2.5.0/jars/classes.jar"
       resolved="com.google.androidbrowserhelper:androidbrowserhelper:2.5.0"
-      folder="/Users/kalikali/.gradle/caches/8.10/transforms/3a01dcfc3f059a1f8c6ba67e5f0d25a3/transformed/jetified-androidbrowserhelper-2.5.0"
+      folder="/Users/kalikali/.gradle/caches/transforms-3/db6741b591ed68fb68e714260aa2fa56/transformed/jetified-androidbrowserhelper-2.5.0"
       manifest="AndroidManifest.xml"
       resFolder="res"
       assetsFolder="assets"
@@ -14,9 +14,9 @@
       proguardRules="proguard.txt"/>
   <library
       name="androidx.browser:browser:1.4.0@aar"
-      jars="/Users/kalikali/.gradle/caches/8.10/transforms/016856e2faf37bf180febca3ed575d79/transformed/browser-1.4.0/jars/classes.jar"
+      jars="/Users/kalikali/.gradle/caches/transforms-3/2c16d8b438ef33e4f1240df7e9c55ed1/transformed/browser-1.4.0/jars/classes.jar"
       resolved="androidx.browser:browser:1.4.0"
-      folder="/Users/kalikali/.gradle/caches/8.10/transforms/016856e2faf37bf180febca3ed575d79/transformed/browser-1.4.0"
+      folder="/Users/kalikali/.gradle/caches/transforms-3/2c16d8b438ef33e4f1240df7e9c55ed1/transformed/browser-1.4.0"
       manifest="AndroidManifest.xml"
       resFolder="res"
       assetsFolder="assets"
@@ -27,9 +27,9 @@
       proguardRules="proguard.txt"/>
   <library
       name="androidx.core:core:1.1.0@aar"
-      jars="/Users/kalikali/.gradle/caches/8.10/transforms/09d4b20503128bec114b5d7a008a0bd9/transformed/core-1.1.0/jars/classes.jar"
+      jars="/Users/kalikali/.gradle/caches/transforms-3/65462c3b92b0ac9fa879868e9aa990dc/transformed/core-1.1.0/jars/classes.jar"
       resolved="androidx.core:core:1.1.0"
-      folder="/Users/kalikali/.gradle/caches/8.10/transforms/09d4b20503128bec114b5d7a008a0bd9/transformed/core-1.1.0"
+      folder="/Users/kalikali/.gradle/caches/transforms-3/65462c3b92b0ac9fa879868e9aa990dc/transformed/core-1.1.0"
       manifest="AndroidManifest.xml"
       resFolder="res"
       assetsFolder="assets"
@@ -40,9 +40,9 @@
       proguardRules="proguard.txt"/>
   <library
       name="androidx.versionedparcelable:versionedparcelable:1.1.0@aar"
-      jars="/Users/kalikali/.gradle/caches/8.10/transforms/28431e773c4a5a27a83047f136e03e27/transformed/versionedparcelable-1.1.0/jars/classes.jar"
+      jars="/Users/kalikali/.gradle/caches/transforms-3/28560c75ffa2bcd3eaec90a659d05f26/transformed/versionedparcelable-1.1.0/jars/classes.jar"
       resolved="androidx.versionedparcelable:versionedparcelable:1.1.0"
-      folder="/Users/kalikali/.gradle/caches/8.10/transforms/28431e773c4a5a27a83047f136e03e27/transformed/versionedparcelable-1.1.0"
+      folder="/Users/kalikali/.gradle/caches/transforms-3/28560c75ffa2bcd3eaec90a659d05f26/transformed/versionedparcelable-1.1.0"
       manifest="AndroidManifest.xml"
       resFolder="res"
       assetsFolder="assets"
@@ -61,9 +61,9 @@
       resolved="androidx.annotation:annotation:1.1.0"/>
   <library
       name="androidx.lifecycle:lifecycle-runtime:2.0.0@aar"
-      jars="/Users/kalikali/.gradle/caches/8.10/transforms/147ac8b119bf33ddc3aef390e976ddb2/transformed/lifecycle-runtime-2.0.0/jars/classes.jar"
+      jars="/Users/kalikali/.gradle/caches/transforms-3/16519485a92e6d7f0778118c30da60f1/transformed/lifecycle-runtime-2.0.0/jars/classes.jar"
       resolved="androidx.lifecycle:lifecycle-runtime:2.0.0"
-      folder="/Users/kalikali/.gradle/caches/8.10/transforms/147ac8b119bf33ddc3aef390e976ddb2/transformed/lifecycle-runtime-2.0.0"
+      folder="/Users/kalikali/.gradle/caches/transforms-3/16519485a92e6d7f0778118c30da60f1/transformed/lifecycle-runtime-2.0.0"
       manifest="AndroidManifest.xml"
       resFolder="res"
       assetsFolder="assets"
@@ -90,9 +90,9 @@
       resolved="androidx.concurrent:concurrent-futures:1.0.0"/>
   <library
       name="androidx.interpolator:interpolator:1.0.0@aar"
-      jars="/Users/kalikali/.gradle/caches/8.10/transforms/44351cbb1554e23a994e027a3d2e36a7/transformed/interpolator-1.0.0/jars/classes.jar"
+      jars="/Users/kalikali/.gradle/caches/transforms-3/80689ffe30e20cad402feee7371758b4/transformed/interpolator-1.0.0/jars/classes.jar"
       resolved="androidx.interpolator:interpolator:1.0.0"
-      folder="/Users/kalikali/.gradle/caches/8.10/transforms/44351cbb1554e23a994e027a3d2e36a7/transformed/interpolator-1.0.0"
+      folder="/Users/kalikali/.gradle/caches/transforms-3/80689ffe30e20cad402feee7371758b4/transformed/interpolator-1.0.0"
       manifest="AndroidManifest.xml"
       resFolder="res"
       assetsFolder="assets"

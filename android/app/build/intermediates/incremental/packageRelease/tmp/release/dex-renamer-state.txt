@@ -1,4 +1,4 @@
-#Wed Mar 11 22:38:19 IST 2026
+#Fri Mar 13 19:33:48 IST 2026
 base.0=/Users/kalikali/Desktop/1click/android/app/build/intermediates/dex/release/mergeDexRelease/classes.dex
-renamed.0=classes.dex
 path.0=classes.dex
+renamed.0=classes.dex

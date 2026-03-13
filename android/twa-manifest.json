@@ -11,7 +11,7 @@
   "navigationDividerColorDark": "#0f172a",
   "backgroundColor": "#0f172a",
   "enableNotifications": true,
-  "startUrl": "/?v=4",
+  "startUrl": "/?v=6",
   "iconUrl": "https://1click.live/src/assets/images/icon-512x512.png",
   "splashScreenFadeOutDuration": 300,
   "signingKey": {
