@@ -312,7 +312,7 @@ body.game-active{overflow-y:auto;touch-action:pan-y}
 .hrB{background:#BBDEFB;border:.5px solid #ccc}
 
 /* Safe star - visible but not too big */
-.safe::after{content:'★';font-size:12px !important;
+.safe::after{content:'★';font-size:clamp(18px,4vmin,28px) !important;
   color:var(--gold);text-shadow:0 0 8px rgba(255,215,0,.8), 0 0 16px rgba(255,215,0,.4);
   position:absolute;pointer-events:none;z-index:10;font-weight:bold;}
 
@@ -390,8 +390,8 @@ body.game-active{overflow-y:auto;touch-action:pan-y}
 /* All dice now fit within browser visible area with smaller board */
 /* Dice positions - closer to board to stay visible on small screens */
 /* Dice positions - FAR from board to prevent overlap */
-.corner-dice.red-dice{top:-60px;left:10px}
-.corner-dice.green-dice{top:-60px;right:10px}
+.corner-dice.red-dice{top:-80px;left:10px}
+.corner-dice.green-dice{top:-80px;right:10px}
 .corner-dice.yellow-dice{bottom:-80px;right:10px}
 .corner-dice.blue-dice{bottom:-80px;left:10px}
 
@@ -1181,7 +1181,7 @@ body.game-active{overflow-y:auto;touch-action:pan-y}
 <div class="game-wrapper" id="gameScreen" style="display:none">
 
   <header class="game-header">
-    <button class="back-btn" onclick="confirmBack()" style="background:none;border:none;cursor:pointer;font:inherit;color:inherit">← Back</button>
+    <a href="../../../index.html" class="back-btn">← Back</a>
     <div class="header-title">🎲 LUDO</div>
     <div style="display:flex;align-items:center;gap:8px">
       <!-- Connection Status Indicator -->
@@ -4215,45 +4215,19 @@ window.debugLudo = function() {
     const style = document.createElement('style');
     style.textContent = `
       .board-wrapper { margin: 70px auto !important; }
-      .corner-dice.red-dice { top: -60px !important; }
-      .corner-dice.green-dice { top: -60px !important; }
+      .corner-dice.red-dice { top: -80px !important; }
+      .corner-dice.green-dice { top: -80px !important; }
       .corner-dice.yellow-dice { bottom: -80px !important; }
       .corner-dice.blue-dice { bottom: -80px !important; }
-      .safe::after { font-size: 12px !important; z-index: 5 !important; }
+      .safe::after { font-size: clamp(18px, 4vmin, 28px) !important; z-index: 10 !important; }
     `;
     document.head.appendChild(style);
   })();
-
-// Exit confirmation dialog functions
-function confirmBack() {
-  document.getElementById('exitConfirmDialog').style.display = 'flex';
-}
-function confirmExitYes() {
-  document.getElementById('exitConfirmDialog').style.display = 'none';
-  window.location.href = '../../../index.html';
-}
-function confirmExitNo() {
-  document.getElementById('exitConfirmDialog').style.display = 'none';
-}
-
 </script>
 <!-- SEO Keywords -->
 <div style="position:absolute;left:-9999px;top:-9999px;width:1px;height:1px;overflow:hidden;" aria-hidden="true">
 ludo, ludo game, ludo online, play ludo, free ludo, ludo board game, ludo multiplayer, ludo with friends, ludo vs computer, online ludo game, luddo, ludo king, indian ludo, ludo star, dice game, board game online, 2 player ludo, 4 player ludo, family game, classic ludo, ludo app, ludo mobile, instant ludo, no download ludo, ludo tricks, ludo hacks, ludo winning strategy, ludo tips and tricks, how to win ludo, ludo champion tips, ludo master guide, ludo tournament, ludo championship, ludo league, ludo vs friends, ludo family game, ludo party game, parcheesi, pachisi, indian dice game, ancient indian game, games similar to ludo, ludo alternatives, better than ludo king, ludo for kids, ludo for family, ludo for parties, online ludo without download, play ludo now, instant ludo, ludo board online, virtual ludo, digital ludo, ludo star vs ludo king, best ludo game, top ludo game, ludo club, ludo world, ludo supreme, ludo gold, ludo master, ludo empire, ludo superstar, ludo classic, ludo legend, ludo champion, ludo pro, ludo 2024, new ludo game, ludo download free, ludo play store, ludo app download, ludo online play, ludo game online, ludo multiplayer online, ludo with voice chat, ludo tournament online, ludo cash game, ludo real money, ludo betting, ludo strategy guide, ludo rules, how to play ludo, ludo game rules, ludo instructions, ludo gameplay, ludo video game, ludo simulator, ludo 3d, ludo hd, ludo offline, ludo no internet, ludo wifi game, ludo bluetooth, ludo local multiplayer, ludo pass and play, ludo hotseat, ludo computer opponent, ludo ai, ludo bot, ludo easy mode, ludo hard mode, ludo challenge, ludo daily bonus, ludo rewards, ludo coins, ludo gems, ludo skins, ludo themes, ludo board themes, ludo dice themes, ludo avatar, ludo profile, ludo friends list, ludo chat, ludo emojis, ludo quick chat, ludo history, ludo statistics, ludo leaderboard, ludo ranking, ludo rating, ludo elo, ludo seasons, ludo events, ludo missions, ludo achievements, ludo quests, ludo spin wheel, ludo scratch card, ludo daily login, ludo referral, ludo invite friends, ludo share, ludo facebook, ludo instagram, ludo twitter, ludo youtube, ludo discord, ludo reddit, ludo review, ludo rating app, ludo 5 star, ludo best review, ludo popular game, ludo trending game, ludo viral game, ludo most played, ludo top rated, ludo editor choice, ludo featured game, ludo new update, ludo latest version, ludo bug fix, ludo performance, ludo optimization, ludo smooth gameplay, ludo no lag, ludo hd graphics, ludo beautiful design, ludo user friendly, ludo easy controls, ludo tutorial, ludo help, ludo support, ludo faq, ludo contact, ludo feedback, ludo suggestion, ludo report bug, ludo community, ludo fan page, ludo fan club, ludo merchandise, ludo tshirt, ludo mug, ludo sticker, ludo wallpaper, ludo ringtone, ludo notification sound, ludo music, ludo sound effects, ludo mute, ludo unmute, ludo vibration, ludo settings, ludo preferences, ludo language, ludo english, ludo hindi, ludo tamil, ludo telugu, ludo kannada, ludo malayalam, ludo marathi, ludo gujarati, ludo bengali, ludo punjabi, ludo urdu, ludo spanish, ludo french, ludo german, ludo portuguese, ludo arabic, ludo indonesian, ludo turkish, ludo philippines, ludo nigeria, ludo india, ludo pakistan, ludo bangladesh, ludo nepal, ludo sri lanka, ludo usa, ludo uk, ludo canada, ludo australia, ludo new zealand, ludo south africa, ludo kenya, ludo ghana, ludo egypt, ludo morocco, ludo uae, ludo saudi arabia, ludo qatar, ludo kuwait, ludo bahrain, ludo oman, ludo jordan, ludo lebanon, ludo malaysia, ludo singapore, ludo thailand, ludo vietnam, ludo myanmar, ludo cambodia, ludo laos, ludo brunei, ludo game night, ludo weekend fun, ludo holiday game, ludo christmas, ludo new year, ludo diwali, ludo eid, ludo birthday party, ludo sleepover, ludo camping, ludo road trip, ludo waiting room, ludo queue game, ludo break time, ludo lunch break, ludo coffee break, ludo before bed, ludo morning routine, ludo evening relaxation, ludo stress relief, ludo mind game, ludo brain training, ludo concentration, ludo focus, ludo patience, ludo luck, ludo skill, ludo probability, ludo mathematics, ludo counting, ludo numbers, ludo color matching, ludo pattern recognition, ludo decision making, ludo planning, ludo strategy, ludo tactics, ludo competition, ludo sportsmanship, ludo fair play, ludo anti cheat, ludo fair gaming, ludo secure, ludo safe, ludo privacy, ludo data protection, ludo gdpr, ludo terms of service, ludo privacy policy, ludo responsible gaming, ludo parental control, ludo kid friendly, ludo family safe, ludo no violence, ludo educational, ludo learning game, ludo math game, ludo counting game, ludo color game,
 ludo brain training, ludo memory game, ludo puzzle solving, ludo daily challenge, ludo weekly tournament, ludo monthly event
 </div>
-
-<!-- Exit Confirmation Dialog -->
-<div id="exitConfirmDialog" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.8);z-index:99999;align-items:center;justify-content:center">
-  <div style="background:linear-gradient(145deg,#1e293b,#0f172a);border-radius:16px;padding:24px;max-width:85vw;width:300px;text-align:center;border:1px solid rgba(255,255,255,0.1);box-shadow:0 20px 60px rgba(0,0,0,0.5)">
-    <div style="color:white;font-size:18px;font-weight:700;margin-bottom:12px">Quit Game?</div>
-    <div style="color:#94a3b8;font-size:14px;margin-bottom:20px;line-height:1.5">Are you sure you want to quit? Your progress will be lost.</div>
-    <div style="display:flex;gap:12px;justify-content:center">
-      <button onclick="confirmExitYes()" style="flex:1;padding:12px;border-radius:10px;border:none;background:linear-gradient(135deg,#ef4444,#dc2626);color:white;font-size:14px;font-weight:700;cursor:pointer;text-transform:uppercase;letter-spacing:0.5px;box-shadow:0 4px 12px rgba(239,68,68,0.3)">Yes, Quit</button>
-      <button onclick="confirmExitNo()" style="flex:1;padding:12px;border-radius:10px;border:1px solid rgba(255,255,255,0.2);background:rgba(255,255,255,0.1);color:white;font-size:14px;font-weight:700;cursor:pointer;text-transform:uppercase;letter-spacing:0.5px">No, Stay</button>
-    </div>
-  </div>
-</div>
-
 </body>
 </html>
