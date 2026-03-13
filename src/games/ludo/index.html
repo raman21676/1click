@@ -3950,13 +3950,12 @@ ludo, ludo game, ludo online, play ludo, free ludo, ludo board game, ludo multip
 ludo brain training, ludo memory game, ludo puzzle solving, ludo daily challenge, ludo weekly tournament, ludo monthly event
 </div>
 <script>
-// FORCE SHOW MODE SELECTION ON LOAD
-window.addEventListener("load", function() { alert("LOADED");
+// Ensure mode selection is visible on load
+window.addEventListener("load", function() {
   document.getElementById("modeSelection").style.cssText = "display: block !important";
   document.getElementById("aiSettings").style.cssText = "display: block !important";
   document.getElementById("localSettings").style.cssText = "display: none !important";
   document.getElementById("onlineSettings").style.cssText = "display: none !important";
-  console.log("[DEBUG] Mode selection forced");
 });
 </script>
 </body>
