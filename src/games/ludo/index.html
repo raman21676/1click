@@ -217,9 +217,15 @@ body.game-active{overflow:hidden}
 
 /* --- BOARD AREA -------------------------------- */
 .board-area{flex:1;display:flex;align-items:center;justify-content:center;
-  width:100%;height:100%;padding:80px 0 100px;box-sizing:border-box}
+  width:100%;height:100%;padding:5px 0 5px;box-sizing:border-box}
 .board-wrapper{position:relative;
-  width:calc(100vmin - 20px);height:calc(100vmin - 20px);max-width:none;max-height:none}
+  /* Maximize board size - use almost full available space */
+  /* Account for: header (~50px) + player-panels (~70px) + dice area (~130px) + margins */
+  /* Total reserved space: ~250px, leaving rest for board */
+  width:min(calc(100vw - 16px), calc(100vh - 250px));
+  height:min(calc(100vw - 16px), calc(100vh - 250px));
+  max-width:min(100vw - 16px, 100vh - 250px);
+  max-height:min(100vw - 16px, 100vh - 250px);}
 
 /* 15x15 grid */
 .ludo-board{width:100%;height:100%;
@@ -383,17 +389,19 @@ body.game-active{overflow:hidden}
 
 /* --- CONTROLS ROW ------------------------------ */
 /* Center dice area (AI & Online modes) */
-.center-dice-area{position:absolute;bottom:5px;left:50%;transform:translateX(-50%);display:flex;flex-direction:column;align-items:center;gap:4px;z-index:10;background:rgba(0,0,0,0.4);padding:6px 12px;border-radius:12px;backdrop-filter:blur(4px)}
+/* Changed to absolute positioning to stay with board, not fixed to viewport */
+.center-dice-area{position:absolute;bottom:-100px;left:50%;transform:translateX(-50%);display:flex;flex-direction:column;align-items:center;gap:4px;z-index:100;background:rgba(0,0,0,0.5);padding:8px 16px;border-radius:12px;backdrop-filter:blur(4px)}
 
 /* Corner dice for Pass & Play mode */
 .corner-dice{position:absolute;z-index:10;display:none;flex-direction:column;align-items:center;gap:2px}
 .corner-dice.active-player{display:flex}
-/* Dice positions - placed at board corners, not screen corners */
+/* Dice positions - placed further from board corners to prevent overlap */
 /* Dice are inside board-wrapper which has position:relative */
-.corner-dice.red-dice{top:-70px;left:10px}
-.corner-dice.green-dice{top:-70px;right:10px}
-.corner-dice.yellow-dice{bottom:-70px;right:10px}
-.corner-dice.blue-dice{bottom:-70px;left:10px}
+/* Increased to provide more space for larger board - asymmetric to account for bottom panel */
+.corner-dice.red-dice{top:-120px;left:15px}
+.corner-dice.green-dice{top:-120px;right:15px}
+.corner-dice.yellow-dice{bottom:-125px;right:15px}
+.corner-dice.blue-dice{bottom:-125px;left:15px}
 
 .corner-dice-scene{width:36px;height:36px;perspective:300px;position:relative}
 .corner-dice-scene .dice-cube{width:32px;height:32px;position:absolute;top:2px;left:2px;transform-style:preserve-3d;transform:rotateX(-25deg) rotateY(25deg)}
@@ -416,7 +424,8 @@ body.game-active{overflow:hidden}
 .game-wrapper.local-mode .center-dice-area{display:none}
 
 /* Game log area - replaces player panels */
-.player-panels{position:fixed;bottom:10px;left:10px;right:10px;height:80px;background:rgba(0,0,0,.6);border-radius:10px;padding:8px;overflow-y:auto;z-index:15;font-size:12px;line-height:1.4}
+/* Changed to position inside game-screen with proper spacing from board */
+.player-panels{position:fixed;bottom:8px;left:8px;right:8px;height:60px;background:rgba(0,0,0,.6);border-radius:10px;padding:6px;overflow-y:auto;z-index:15;font-size:11px;line-height:1.3}
 .player-panels::-webkit-scrollbar{width:4px}
 .player-panels::-webkit-scrollbar-thumb{background:rgba(255,255,255,.3);border-radius:2px}
 .player-panel{display:none}
@@ -927,7 +936,8 @@ body.game-active{overflow:hidden}
   border-radius:3px;transition:width 1s linear}
 
 /* --- GAME LOG (now visible in player-panels) ----------- */
-.game-log{width:100%}
+/* Game log - hidden as player-panels now handles the game log display */
+.game-log{display:none}
 </style>
 <script src="https://unpkg.com/peerjs@1.5.2/dist/peerjs.min.js"></script>
 <!-- Schema.org Structured Data -->
@@ -3093,6 +3103,7 @@ function initSetup() {
       
       G.currentPlayer = 0;
       G.humanColor = 'red'; // First player in local mode
+      G.active = selectedHouses; // Set active players to selected houses only
       startGame();
     });
   }
@@ -3935,9 +3946,10 @@ function renderSetupRows() {
 }
 
 function startGame() {
-  // Build active players starting from human color (only for local/pass & play)
-  // In online mode, G.active is already set by the host before calling startGame
-  if (!G.isOnline || G.active.length === 0) {
+  // Build active players starting from human color (only for AI mode)
+  // In online mode OR local mode, G.active is already set before calling startGame
+  // Only build G.active automatically for AI mode when it's not set
+  if ((!G.isOnline && G.gameMode !== 'local') || G.active.length === 0) {
     const humanIdx = PLAYERS.indexOf(G.humanColor);
     G.active = [];
     for (let i = 0; i < G.playerCount; i++) {
