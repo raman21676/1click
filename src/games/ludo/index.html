@@ -311,11 +311,10 @@ body.game-active{overflow-y:auto;touch-action:pan-y}
 .hrY{background:#FFF9C4;border:.5px solid #ccc}
 .hrB{background:#BBDEFB;border:.5px solid #ccc}
 
-/* Safe star - small and centered inside cell */
+/* Safe star - visible but not too big */
 .safe::after{content:'★';font-size:12px !important;
-  color:var(--gold);text-shadow:0 0 4px rgba(255,215,0,.5);
-  position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
-  pointer-events:none;z-index:5;font-weight:normal;overflow:hidden}
+  color:var(--gold);text-shadow:0 0 8px rgba(255,215,0,.8), 0 0 16px rgba(255,215,0,.4);
+  position:absolute;pointer-events:none;z-index:10;font-weight:bold;}
 
 /* Safe star colors by position */
 .safe-red::after{color:var(--red);text-shadow:0 0 6px rgba(229,57,53,.6)}
@@ -1182,7 +1181,7 @@ body.game-active{overflow-y:auto;touch-action:pan-y}
 <div class="game-wrapper" id="gameScreen" style="display:none">
 
   <header class="game-header">
-    <button class="back-btn" onclick="confirmBack()">← Back</button>
+    <button class="back-btn" onclick="confirmBack()" style="background:none;border:none;cursor:pointer;font:inherit;color:inherit">← Back</button>
     <div class="header-title">🎲 LUDO</div>
     <div style="display:flex;align-items:center;gap:8px">
       <!-- Connection Status Indicator -->
@@ -4190,21 +4189,6 @@ window.debugLudo = function() {
   
   return 'Debug complete! Check console above ☝️';
 };
-
-// Exit confirmation dialog functions
-function confirmBack() {
-  document.getElementById('exitConfirmDialog').style.display = 'flex';
-}
-
-function confirmExitYes() {
-  document.getElementById('exitConfirmDialog').style.display = 'none';
-  window.location.href = '../../../index.html';
-}
-
-function confirmExitNo() {
-  document.getElementById('exitConfirmDialog').style.display = 'none';
-}
-
 </script>
 <script src="../../assets/js/sound.js"></script>
 <script>
@@ -4235,10 +4219,23 @@ function confirmExitNo() {
       .corner-dice.green-dice { top: -60px !important; }
       .corner-dice.yellow-dice { bottom: -80px !important; }
       .corner-dice.blue-dice { bottom: -80px !important; }
-      .safe::after { font-size: 12px !important; z-index: 5 !important; inset: 0 !important; display: flex !important; align-items: center !important; justify-content: center !important; }
+      .safe::after { font-size: 12px !important; z-index: 5 !important; }
     `;
     document.head.appendChild(style);
   })();
+
+// Exit confirmation dialog functions
+function confirmBack() {
+  document.getElementById('exitConfirmDialog').style.display = 'flex';
+}
+function confirmExitYes() {
+  document.getElementById('exitConfirmDialog').style.display = 'none';
+  window.location.href = '../../../index.html';
+}
+function confirmExitNo() {
+  document.getElementById('exitConfirmDialog').style.display = 'none';
+}
+
 </script>
 <!-- SEO Keywords -->
 <div style="position:absolute;left:-9999px;top:-9999px;width:1px;height:1px;overflow:hidden;" aria-hidden="true">
