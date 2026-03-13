@@ -3258,6 +3258,17 @@ document.addEventListener('DOMContentLoaded', () => {
   
   // Initialize local player count
   initLocalPlayerCount();
+  
+  // Set initial state: show mode selection and AI settings (default mode)
+  const modeSelection = document.getElementById('modeSelection');
+  const aiSettings = document.getElementById('aiSettings');
+  const localSettings = document.getElementById('localSettings');
+  const onlineSettings = document.getElementById('onlineSettings');
+  
+  if (modeSelection) modeSelection.style.display = 'block';
+  if (aiSettings) aiSettings.style.display = 'block';
+  if (localSettings) localSettings.style.display = 'none';
+  if (onlineSettings) onlineSettings.style.display = 'none';
 });
 
 // AI Mode Player Count Selection
