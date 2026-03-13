@@ -4274,5 +4274,24 @@ ludo brain training, ludo memory game, ludo puzzle solving, ludo daily challenge
   </div>
 </div>
 
+<script>
+  // FORCE INITIAL STATE: Show mode selection first
+  (function() {
+    const modeSelection = document.getElementById('modeSelection');
+    const aiSettings = document.getElementById('aiSettings');
+    const localSettings = document.getElementById('localSettings');
+    const onlineSettings = document.getElementById('onlineSettings');
+    
+    if (modeSelection) modeSelection.style.display = 'block';
+    if (aiSettings) aiSettings.style.display = 'block';
+    if (localSettings) localSettings.style.display = 'none';
+    if (onlineSettings) onlineSettings.style.display = 'none';
+    
+    // Ensure AI mode button is marked as active
+    document.querySelectorAll('.mode-btn').forEach(b => b.classList.remove('active'));
+    const aiBtn = document.querySelector('.mode-btn[data-mode="ai"]');
+    if (aiBtn) aiBtn.classList.add('active');
+  })();
+</script>
 </body>
 </html>
