@@ -212,7 +212,8 @@ body.game-active{overflow-y:auto;touch-action:pan-y}
   height:92vw;
   max-width:600px;
   max-height:600px;
-  margin:auto;}
+  margin:auto;
+  margin-top:50px;}
 
 /* 15x15 grid */
 .ludo-board{width:100%;height:100%;
@@ -386,12 +387,12 @@ body.game-active{overflow-y:auto;touch-action:pan-y}
 /* Top dice moved down (less negative), bottom dice moved up (less negative) */
 /* All dice now fit within browser visible area with smaller board */
 /* Dice positions - closer to board to stay visible on small screens */
-/* Dice positions - positioned at corners like iPhone Safari view */
-/* Top dice moved down slightly, bottom dice moved up slightly to fit */
-.corner-dice.red-dice{top:-48px;left:5px}
-.corner-dice.green-dice{top:-48px;right:5px}
-.corner-dice.yellow-dice{bottom:-48px;right:5px}
-.corner-dice.blue-dice{bottom:-48px;left:5px}
+/* Dice positions - positioned at corners with gap from board */
+/* Top dice above board, bottom dice below board - no overlap */
+.corner-dice.red-dice{top:-55px;left:5px}
+.corner-dice.green-dice{top:-55px;right:5px}
+.corner-dice.yellow-dice{bottom:-55px;right:5px}
+.corner-dice.blue-dice{bottom:-55px;left:5px}
 
 .corner-dice-scene{width:40px;height:40px;perspective:300px;position:relative}
 .corner-dice-scene .dice-cube{width:36px;height:36px;position:absolute;top:2px;left:2px;transform-style:preserve-3d;transform:rotateX(-25deg) rotateY(25deg)}
