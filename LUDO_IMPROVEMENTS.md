@@ -287,5 +287,51 @@ Dice now stay near their respective house corners on ALL screen sizes - mobile, 
 
 ---
 
+### Task 8: Fix Dice Roll Animation (Pass & Play Mode)
+**Status:** ✅ COMPLETED
+**Date:** 2026-03-14
+**Priority:** HIGH
+
+**Problem:**
+Dice roll animation was not working for corner dice in Pass & Play mode. The `performRoll()` function only animated the center dice cube (for AI/Online mode), completely ignoring the corner dice elements.
+
+**Solution:**
+Modified `performRoll()` to also animate the corner dice when in Pass & Play mode:
+
+```javascript
+// Animate corner dice for Pass & Play mode
+const cornerDice = document.getElementById(p + 'Dice');
+if (cornerDice) {
+  const cornerCube = cornerDice.querySelector('.dice-cube');
+  if (cornerCube) {
+    // Reset animation
+    cornerCube.className = 'dice-cube';
+    cornerCube.style.transform = '';
+    
+    // Force reflow
+    void cornerCube.offsetWidth;
+    
+    // Add rolling animation
+    cornerCube.classList.add('rolling-' + G.diceVal);
+    
+    // Set final transform after animation
+    setTimeout(() => {
+      cornerCube.style.transform = DICE_FINAL[G.diceVal];
+      cornerCube.classList.remove('rolling-' + G.diceVal);
+    }, 850);
+  }
+}
+```
+
+**Changes:**
+1. Separated center dice and corner dice animation logic
+2. Added null checks to prevent errors when elements don't exist
+3. Both center and corner dice now use the same `rolling-X` animation classes
+4. Both dice types now settle to the same `DICE_FINAL` transforms
+
+**Files Modified:** `src/games/ludo/index.html` (performRoll function)
+
+---
+
 **Last Updated:** 2026-03-14
-**Status:** All tasks completed - Dice positioning fixed for all devices
+**Status:** All tasks completed - Dice positioning and animation fixed for all devices
