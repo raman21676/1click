@@ -2959,6 +2959,27 @@ function initModeSelection() {
   
   // Initialize color selection for AI mode
   initAiColorSelect();
+  
+  // Sync UI with initial G.gameMode (default is 'local' for Pass & Play)
+  const initialMode = G.gameMode || 'local';
+  const initialBtn = document.querySelector(`.mode-btn[data-mode="${initialMode}"]`);
+  if (initialBtn) {
+    modeBtns.forEach(b => b.classList.remove('active'));
+    initialBtn.classList.add('active');
+    
+    // Show correct settings panel
+    if (aiSettings) aiSettings.style.display = 'none';
+    if (localSettings) localSettings.style.display = 'none';
+    if (onlineSettings) onlineSettings.style.display = 'none';
+    
+    if (initialMode === 'ai' && aiSettings) {
+      aiSettings.style.display = 'block';
+    } else if (initialMode === 'local' && localSettings) {
+      localSettings.style.display = 'block';
+    } else if (initialMode === 'online' && onlineSettings) {
+      onlineSettings.style.display = 'block';
+    }
+  }
 }
 
 // Online multiplayer room logic
