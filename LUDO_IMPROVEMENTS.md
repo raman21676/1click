@@ -333,5 +333,38 @@ if (cornerDice) {
 
 ---
 
+### Task 9: Fix Pass & Play Mode - AI Taking Control
+**Status:** ✅ COMPLETED
+**Date:** 2026-03-14
+**Priority:** CRITICAL
+
+**Problem:**
+In Pass & Play mode, the AI/system was controlling the players instead of allowing humans to play. When clicking Roll, the AI would automatically roll and move tokens. This happened because `G.ptypes` was not being reset when switching from AI mode to Pass & Play mode.
+
+**Root Cause:**
+When a color is selected in AI mode (line 2874-2876), the code sets:
+```javascript
+PLAYERS.forEach(p => { G.ptypes[p] = 'ai'; });
+G.ptypes[selectedColor] = 'human';
+```
+
+When switching to Pass & Play mode and starting the game, this `G.ptypes` configuration was NOT being reset. So if Red was selected as human in AI mode, the other players (Green, Yellow, Blue) remained as 'ai' types, causing the AI to control them in Pass & Play mode.
+
+**Solution:**
+Added code to explicitly set ALL players to 'human' when starting Pass & Play mode:
+
+```javascript
+addTouchHandler(startLocalBtn, () => {
+  G.gameMode = 'local';
+  // CRITICAL: Set ALL players to human in Pass & Play mode
+  PLAYERS.forEach(p => { G.ptypes[p] = 'human'; });
+  // ... rest of the code
+});
+```
+
+**Files Modified:** `src/games/ludo/index.html` (startLocalBtn handler)
+
+---
+
 **Last Updated:** 2026-03-14
-**Status:** All tasks completed - Dice positioning and animation fixed for all devices
+**Status:** All tasks completed - Pass & Play mode now works correctly for human players
