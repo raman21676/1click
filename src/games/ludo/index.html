@@ -1865,25 +1865,54 @@ function performRoll() {
     sendToPeer({ type: 'roll', player: p, value: G.diceVal });
   }
   
-  // 1. Strip all animation classes and inline transform
-  diceCube.className  = 'dice-cube';
-  diceCube.style.transform = '';
-  diceScene.classList.remove('rolling');
-  
-  // 2. Force a reflow
-  void diceCube.offsetWidth;
-  
-  // 3. Add the rolling class -- animation fires
-  diceCube.classList.add('rolling-' + G.diceVal);
-  diceScene.classList.add('rolling');
-  
-  // 4. After animation ends, lock to final transform and continue
-  setTimeout(() => {
-    diceCube.style.transform = DICE_FINAL[G.diceVal];
-    diceCube.classList.remove('rolling-' + G.diceVal);
+  // Animate center dice (for AI/Online mode)
+  if (diceCube && diceScene) {
+    // 1. Strip all animation classes and inline transform
+    diceCube.className  = 'dice-cube';
+    diceCube.style.transform = '';
     diceScene.classList.remove('rolling');
-    diceRolling = false;
     
+    // 2. Force a reflow
+    void diceCube.offsetWidth;
+    
+    // 3. Add the rolling class -- animation fires
+    diceCube.classList.add('rolling-' + G.diceVal);
+    diceScene.classList.add('rolling');
+    
+    // 4. After animation ends, lock to final transform
+    setTimeout(() => {
+      diceCube.style.transform = DICE_FINAL[G.diceVal];
+      diceCube.classList.remove('rolling-' + G.diceVal);
+      diceScene.classList.remove('rolling');
+    }, 850);
+  }
+  
+  // Animate corner dice for Pass & Play mode
+  const cornerDice = document.getElementById(p + 'Dice');
+  if (cornerDice) {
+    const cornerCube = cornerDice.querySelector('.dice-cube');
+    if (cornerCube) {
+      // 1. Reset animation
+      cornerCube.className = 'dice-cube';
+      cornerCube.style.transform = '';
+      
+      // 2. Force reflow
+      void cornerCube.offsetWidth;
+      
+      // 3. Add rolling animation
+      cornerCube.classList.add('rolling-' + G.diceVal);
+      
+      // 4. Set final transform after animation
+      setTimeout(() => {
+        cornerCube.style.transform = DICE_FINAL[G.diceVal];
+        cornerCube.classList.remove('rolling-' + G.diceVal);
+      }, 850);
+    }
+  }
+  
+  // Continue game after animation
+  setTimeout(() => {
+    diceRolling = false;
     afterRoll();
   }, 850);
 }
