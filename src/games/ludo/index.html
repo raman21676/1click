@@ -2240,6 +2240,12 @@ function handleTokenClick(player, idx) {
   console.log(`[DEBUG] Token clicked: player=${player}, idx=${idx}, pos=${G.tokens[player][idx]}`);
   console.log(`[DEBUG] Current player: ${curPlayer()}, phase: ${G.phase}, dice: ${G.diceVal}`);
   
+  // CRITICAL FIX: In online mode, can only move your OWN tokens
+  if (G.isOnline && player !== G.humanColor) {
+    addLog('(error) You can only move your own tokens!');
+    return;
+  }
+  
   // In online mode, only current player can move
   if (G.isOnline && player !== curPlayer()) {
     addLog('(waiting) Wait for your turn!');
@@ -2428,7 +2434,7 @@ document.addEventListener('keydown', e => {
 // ONLINE MODE AUTO-TURN SYSTEM (10 seconds, 5 lives)
 // ----------------------------------------------------
 
-const AUTO_TURN_SECONDS = 10;
+const AUTO_TURN_SECONDS = 60; // 60 seconds for casual play with friends
 const MAX_LIVES = 5;
 
 // Initialize lives for all players in online mode
@@ -2441,8 +2447,9 @@ function initLives() {
 
 // Start auto-turn countdown for current player (online mode only)
 function startAutoTurnCountdown() {
-  // Only in online mode
+  // Only in online mode AND only for 3+ players (not for 1v1 friend games)
   if (!G.isOnline) return;
+  if (G.playerCount <= 2) return; // Disable for 2-player games
   
   // Clear any existing timer
   stopAutoTurnCountdown();
@@ -4388,7 +4395,7 @@ console.log("[DEBUG] Calling initSetup");
 window.onerror = function(msg, url, line) { console.error("[JS ERROR] " + msg + " at line " + line); };
 
 // VERSION CHECK - to verify code is updated
-const BUILD_VERSION = "v10046-conn-fix";
+const BUILD_VERSION = "v10047-token-fix";
 console.log(`%c[BUILD] ${BUILD_VERSION}`, 'color:green;font-size:14px;font-weight:bold');
 
 // Update version in UI
