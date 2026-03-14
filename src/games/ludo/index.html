@@ -1204,10 +1204,22 @@ html,body{height:100%;font-family:'Segoe UI',Arial,sans-serif;
         <span id="guestStatusText">Enter code and click Join</span>
       </div>
       
-      <!-- Guest House Assignment (shown after host selects) -->
+      <!-- Guest House Selection (shown after connection) -->
+      <div id="guestHouseSelection" style="display:none;margin:16px 0">
+        <label style="display:block;font-size:12px;color:rgba(255,255,255,.6);margin-bottom:12px;text-transform:uppercase;letter-spacing:0.05em">Select Your House</label>
+        <div style="display:flex;gap:10px;justify-content:center">
+          <button class="guest-house-btn" data-house="red" style="width:60px;height:60px;border-radius:12px;border:3px solid transparent;background:#E53935;cursor:pointer;transition:all .2s;display:flex;align-items:center;justify-content:center;font-size:24px">🏠</button>
+          <button class="guest-house-btn" data-house="green" style="width:60px;height:60px;border-radius:12px;border:3px solid transparent;background:#43A047;cursor:pointer;transition:all .2s;display:flex;align-items:center;justify-content:center;font-size:24px">🏠</button>
+          <button class="guest-house-btn" data-house="yellow" style="width:60px;height:60px;border-radius:12px;border:3px solid transparent;background:#FDD835;cursor:pointer;transition:all .2s;display:flex;align-items:center;justify-content:center;font-size:24px">🏠</button>
+          <button class="guest-house-btn" data-house="blue" style="width:60px;height:60px;border-radius:12px;border:3px solid transparent;background:#1E88E5;cursor:pointer;transition:all .2s;display:flex;align-items:center;justify-content:center;font-size:24px">🏠</button>
+        </div>
+        <div id="guestSelectedHouse" style="margin-top:10px;text-align:center;font-size:14px;color:rgba(255,255,255,.7)">Select an available house</div>
+      </div>
+      
+      <!-- Guest House Assignment Display (shown after selection) -->
       <div id="guestHouseAssignment" style="display:none;margin:12px 0;padding:12px;background:rgba(76,175,80,.1);border:1px solid rgba(76,175,80,.3);border-radius:8px;text-align:center">
         <div style="font-size:12px;color:rgba(255,255,255,.6);margin-bottom:8px;text-transform:uppercase;letter-spacing:0.05em">Your House</div>
-        <div id="guestHouseColor" style="font-size:20px;font-weight:700">Waiting for host...</div>
+        <div id="guestHouseColor" style="font-size:20px;font-weight:700">Waiting...</div>
       </div>
       
       <div class="room-buttons" style="margin-top:16px;display:flex;gap:10px">
@@ -3394,13 +3406,7 @@ function initOnlineMultiplayer() {
     btn.addEventListener('click', () => {
       const house = btn.dataset.house;
       G.humanColor = house;
-      
-      // Calculate guest's house (first available)
-      const houses = ['red', 'green', 'yellow', 'blue'];
-      const guestHouse = houses.find(h => h !== house);
-      
-      // Store guest house for use in startOnlineGame
-      G.guestHouse = guestHouse;
+      G.hostHouse = house; // Store which house host took
       
       // Update UI
       document.querySelectorAll('#hostHouseSelection .house-btn').forEach(b => {
@@ -3409,17 +3415,48 @@ function initOnlineMultiplayer() {
       });
       btn.style.borderColor = '#fff';
       btn.style.transform = 'scale(1.1)';
-      document.getElementById('hostSelectedHouse').textContent = `You: ${house.toUpperCase()} | Guest: ${guestHouse.toUpperCase()}`;
+      document.getElementById('hostSelectedHouse').textContent = `You: ${house.toUpperCase()} | Waiting for guest...`;
       
-      // Notify guest of house selection and their assigned house
+      // Notify guest that host selected a house - guest can now choose from remaining
       if (peerConnection?.open) {
-        peerConnection.send({ type: 'houseSelected', house: house, guestHouse: guestHouse, player: 'host' });
+        peerConnection.send({ type: 'hostHouseSelected', house: house, player: 'host' });
+      }
+    });
+  });
+  
+  // House selection for guest
+  document.querySelectorAll('#guestHouseSelection .guest-house-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const house = btn.dataset.house;
+      
+      // Check if this house is available (not taken by host)
+      if (G.hostHouse && G.hostHouse === house) {
+        document.getElementById('guestSelectedHouse').textContent = '❌ This house is taken by host';
+        return;
       }
       
-      // Also store in peerColors for consistency
+      G.humanColor = house;
+      
+      // Update UI
+      document.querySelectorAll('#guestHouseSelection .guest-house-btn').forEach(b => {
+        b.style.borderColor = 'transparent';
+        b.style.transform = 'scale(1)';
+        b.style.opacity = (G.hostHouse && b.dataset.house === G.hostHouse) ? '0.3' : '1';
+      });
+      btn.style.borderColor = '#fff';
+      btn.style.transform = 'scale(1.1)';
+      btn.style.opacity = '1';
+      document.getElementById('guestSelectedHouse').textContent = `You selected: ${house.toUpperCase()}`;
+      
+      // Notify host of guest's house selection
       if (peerConnection?.open) {
-        peerColors.set(peerConnection, guestHouse);
+        peerConnection.send({ type: 'guestHouseSelected', house: house, player: 'guest' });
       }
+      
+      // Show the assignment display
+      document.getElementById('guestHouseSelection').style.display = 'none';
+      document.getElementById('guestHouseAssignment').style.display = 'block';
+      document.getElementById('guestHouseColor').innerHTML = `<span style="color:${COLORS[house].main}">●</span> ${cap(house)}`;
     });
   });
 }
@@ -3605,11 +3642,15 @@ function startOnlineGame() {
   }
   
   // Ensure host has selected a house
-  if (!G.humanColor || G.humanColor === 'red') {
-    // Default to red if no selection, but show warning
-    if (!G.humanColor) {
-      G.humanColor = 'red';
-    }
+  if (!G.humanColor) {
+    alert('Please select your house first!');
+    return;
+  }
+  
+  // Ensure guest has selected a house (for 2-player mode)
+  if (maxPlayers === 2 && !G.guestHouse) {
+    alert('Waiting for guest to select their house...');
+    return;
   }
   
   // For 3-4 players, check if enough players connected
@@ -3851,30 +3892,46 @@ function handlePeerData(data) {
         }
       }
       break;
-    case 'houseSelected':
-      // Guest receives host's house selection - assign guest to remaining house
+    case 'hostHouseSelected':
+      // Guest receives host's house selection - now guest can choose from remaining houses
       if (!isHost && data.house) {
-        // Use the guestHouse sent by host, or calculate it
-        if (data.guestHouse) {
-          G.humanColor = data.guestHouse;
-        } else {
-          const houses = ['red', 'green', 'yellow', 'blue'];
-          const takenHouse = data.house;
-          const availableHouses = houses.filter(h => h !== takenHouse);
-          G.humanColor = availableHouses[0];
-        }
+        G.hostHouse = data.house; // Store which house host took
         
-        // Update UI to show assignment
-        addLog(`(game) Host selected ${cap(data.house)}. You are ${cap(G.humanColor)}.`);
+        // Update UI to show available houses for guest
+        addLog(`(game) Host selected ${cap(data.house)}. Choose your house!`);
         document.getElementById('guestStatusText').textContent = 
-          `(game) Connected! Waiting for host to start...`;
+          `(game) Host chose ${cap(data.house)}. Select your house!`;
         
-        // Show guest their house assignment visually
-        const guestHouseAssignment = document.getElementById('guestHouseAssignment');
-        const guestHouseColor = document.getElementById('guestHouseColor');
-        if (guestHouseAssignment && guestHouseColor) {
-          guestHouseAssignment.style.display = 'block';
-          guestHouseColor.innerHTML = `<span style="color:${COLORS[G.humanColor].main}">●</span> ${cap(G.humanColor)}`;
+        // Show guest house selection UI
+        document.getElementById('guestHouseSelection').style.display = 'block';
+        
+        // Disable the host's house in guest's selection
+        document.querySelectorAll('#guestHouseSelection .guest-house-btn').forEach(btn => {
+          if (btn.dataset.house === data.house) {
+            btn.style.opacity = '0.3';
+            btn.style.cursor = 'not-allowed';
+            btn.disabled = true;
+          } else {
+            btn.style.opacity = '1';
+            btn.style.cursor = 'pointer';
+            btn.disabled = false;
+          }
+        });
+      }
+      break;
+    case 'guestHouseSelected':
+      // Host receives guest's house selection
+      if (isHost && data.house) {
+        G.guestHouse = data.house;
+        
+        // Update host UI
+        addLog(`(game) Guest selected ${cap(data.house)}`);
+        document.getElementById('hostSelectedHouse').textContent = 
+          `You: ${cap(G.humanColor)} | Guest: ${cap(data.house)}`;
+        
+        // Store in peerColors
+        if (peerConnection?.open) {
+          peerColors.set(peerConnection, data.house);
         }
       }
       break;
@@ -4315,7 +4372,7 @@ console.log("[DEBUG] Calling initSetup");
 window.onerror = function(msg, url, line) { console.error("[JS ERROR] " + msg + " at line " + line); };
 
 // VERSION CHECK - to verify code is updated
-const BUILD_VERSION = "v10043-dice-fix";
+const BUILD_VERSION = "v10044-guest-house";
 console.log(`%c[BUILD] ${BUILD_VERSION}`, 'color:green;font-size:14px;font-weight:bold');
 
 // Update version in UI
