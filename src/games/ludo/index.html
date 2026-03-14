@@ -3806,10 +3806,16 @@ function setupConnection(conn) {
     } else {
       document.getElementById('guestStatusText').textContent = '(game) Connected! Waiting for host to select house...';
       document.getElementById('guestStatus').querySelector('.status-dot').style.background = '#4CAF50';
-      // Hide join button and show connected state
-      document.getElementById('joinRoomBtnFinal').style.display = 'none';
-      document.getElementById('joinRoomCodeInput').disabled = true;
-      document.getElementById('guestNameInput').disabled = true;
+      // Hide join button and disable inputs
+      const joinBtn = document.getElementById('joinRoomBtnFinal');
+      if (joinBtn) {
+        joinBtn.style.display = 'none';
+        joinBtn.disabled = true;
+      }
+      const codeInput = document.getElementById('joinRoomCodeInput');
+      if (codeInput) codeInput.disabled = true;
+      const nameInput = document.getElementById('guestNameInput');
+      if (nameInput) nameInput.disabled = true;
     }
     
     // Update connection status indicator
@@ -3896,7 +3902,12 @@ function handlePeerData(data) {
         if (isHost) {
           document.getElementById('hostConnectedPlayers').style.display = 'block';
           document.getElementById('guestPlayerRow').style.display = 'flex';
-          document.getElementById('guestPlayerName').textContent = data.name || 'Guest';
+          const guestNameEl = document.getElementById('guestPlayerName');
+          if (guestNameEl && data.name) {
+            guestNameEl.textContent = data.name;
+          } else if (guestNameEl) {
+            guestNameEl.textContent = 'Guest';
+          }
           
           // Also update host name if set
           const hostNameInput = document.getElementById('hostNameInput');
@@ -3930,7 +3941,8 @@ function handlePeerData(data) {
         document.getElementById('guestStatusText').textContent = 
           `(game) Host chose ${cap(data.house)}. Select your house!`;
         
-        // Show guest house selection UI
+        // Show guest house selection UI - HIDE assignment first
+        document.getElementById('guestHouseAssignment').style.display = 'none';
         document.getElementById('guestHouseSelection').style.display = 'block';
         
         // Disable the host's house in guest's selection
@@ -4417,7 +4429,7 @@ console.log("[DEBUG] Calling initSetup");
 window.onerror = function(msg, url, line) { console.error("[JS ERROR] " + msg + " at line " + line); };
 
 // VERSION CHECK - to verify code is updated
-const BUILD_VERSION = "v10048-guest-fixes";
+const BUILD_VERSION = "v10049-guest-ui-fix";
 console.log(`%c[BUILD] ${BUILD_VERSION}`, 'color:green;font-size:14px;font-weight:bold');
 
 // Update version in UI
