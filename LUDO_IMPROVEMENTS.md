@@ -366,5 +366,63 @@ addTouchHandler(startLocalBtn, () => {
 
 ---
 
+### Task 10: Add Exit Confirmation Modal
+**Status:** ✅ COMPLETED
+**Date:** 2026-03-14
+**Priority:** MEDIUM
+
+**Problem:**
+Players could accidentally click the Back button and lose their game progress without warning. No confirmation was shown before exiting the game.
+
+**Solution:**
+Added an exit confirmation modal that appears when the Back button is clicked:
+
+**Features:**
+- Modal with message: "Are you sure you want to quit? Your progress will be lost."
+- Two buttons: "Yes, Quit" (red) and "No, Stay" (gray)
+- Clicking outside the modal closes it (cancels exit)
+- Clean, modern design matching the game's UI
+
+**Implementation:**
+```html
+<!-- Exit Confirmation Modal -->
+<div class="exit-modal" id="exitModal">
+  <div class="exit-content">
+    <div class="exit-icon">🚪</div>
+    <div class="exit-title">Leave Game?</div>
+    <div class="exit-text">Are you sure you want to quit?<br>Your progress will be lost.</div>
+    <div class="exit-buttons">
+      <button class="exit-btn yes" id="exitYesBtn">Yes, Quit</button>
+      <button class="exit-btn no" id="exitNoBtn">No, Stay</button>
+    </div>
+  </div>
+</div>
+```
+
+**JavaScript Logic:**
+```javascript
+// Show modal when back button clicked
+backBtn.addEventListener('click', (e) => {
+  e.preventDefault();
+  exitModal.classList.add('active');
+});
+
+// Yes - Navigate to home page
+exitYesBtn.addEventListener('click', () => {
+  exitModal.classList.remove('active');
+  window.location.href = '../../../index.html';
+});
+
+// No - Close modal, stay in game
+exitNoBtn.addEventListener('click', () => {
+  exitModal.classList.remove('active');
+});
+```
+
+**Files Modified:**
+- `src/games/ludo/index.html` (CSS, HTML, JavaScript)
+
+---
+
 **Last Updated:** 2026-03-14
-**Status:** All tasks completed - Pass & Play mode now works correctly for human players
+**Status:** All tasks completed - Exit confirmation added
