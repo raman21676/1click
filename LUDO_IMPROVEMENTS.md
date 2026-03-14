@@ -424,5 +424,55 @@ exitNoBtn.addEventListener('click', () => {
 
 ---
 
+### Task 11: Add House Selection for Pass & Play Mode
+**Status:** ✅ COMPLETED
+**Date:** 2026-03-14
+**Priority:** HIGH
+
+**Problem:**
+In Pass & Play mode, players were assigned fixed houses (Player 1 = Red, Player 2 = Green, etc.). Users couldn't choose which house they wanted to play as - for example, if Player 1 wanted Yellow and Player 2 wanted Red, this wasn't possible.
+
+**Solution:**
+Added house selection dropdown for each player in Pass & Play mode:
+
+**Features:**
+- Dropdown for each player to select house: 🔴 Red, 🟢 Green, 🟡 Yellow, 🔵 Blue
+- Automatically prevents duplicate house selections (disables already-selected houses)
+- Validates that all players have different houses before starting
+- Shows error message if duplicate houses are selected
+
+**Implementation:**
+```html
+<div class="input-row" data-player-idx="0">
+  <select class="house-select" data-player-idx="0">
+    <option value="red">🔴 Red</option>
+    <option value="green">🟢 Green</option>
+    <option value="yellow">🟡 Yellow</option>
+    <option value="blue">🔵 Blue</option>
+  </select>
+  <input class="name-input" placeholder="Player 1" value="Player 1">
+</div>
+```
+
+**JavaScript Logic:**
+```javascript
+// Update available options when house selection changes
+function updateHouseOptions() {
+  // Disable houses already selected by other players
+  options.forEach(option => {
+    const isSelectedElsewhere = selectedHouses.includes(house) && currentValue !== house;
+    option.disabled = isSelectedElsewhere;
+  });
+}
+
+// Start game with selected houses
+G.active = selectedHouses; // ['red', 'yellow', 'green'] etc.
+```
+
+**Files Modified:**
+- `src/games/ludo/index.html` (HTML structure, CSS, JavaScript)
+
+---
+
 **Last Updated:** 2026-03-14
-**Status:** All tasks completed - Exit confirmation added
+**Status:** All tasks completed - House selection added
