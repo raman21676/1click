@@ -2870,6 +2870,7 @@ function initSetup() {
   G.roomPassword = null;
   
   initModeSelection();
+  initLocalPlayerCount();
   initOnlineMultiplayer();
   initOfflineDetection();
 
@@ -2951,6 +2952,8 @@ function initModeSelection() {
         if (aiSettings) aiSettings.style.display = 'block';
       } else if (mode === 'local') {
         if (localSettings) localSettings.style.display = 'block';
+        // Sync player count inputs when switching to local mode
+        syncPlayerCountInputs();
       } else if (mode === 'online') {
         if (onlineSettings) onlineSettings.style.display = 'block';
         showOnlineMenu();
@@ -2980,9 +2983,23 @@ function initModeSelection() {
       aiSettings.style.display = 'block';
     } else if (initialMode === 'local' && localSettings) {
       localSettings.style.display = 'block';
+      // Sync player count inputs when local mode is shown
+      syncPlayerCountInputs();
     } else if (initialMode === 'online' && onlineSettings) {
       onlineSettings.style.display = 'block';
     }
+  }
+}
+
+// Sync player name inputs with currently selected player count
+function syncPlayerCountInputs() {
+  const activeBtn = document.querySelector('#localSettings .count-btn.active');
+  if (activeBtn) {
+    const n = parseInt(activeBtn.dataset.n);
+    G.numPlayers = n;
+    const inputs = document.querySelectorAll('#localPlayerInputs .input-row');
+    if (inputs[2]) inputs[2].style.display = n >= 3 ? 'flex' : 'none';
+    if (inputs[3]) inputs[3].style.display = n >= 4 ? 'flex' : 'none';
   }
 }
 
