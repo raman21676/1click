@@ -3795,7 +3795,7 @@ function setupConnection(conn) {
         console.error('[PeerJS] House selection element not found!');
       }
     } else {
-      document.getElementById('guestStatusText').textContent = '(game) Connected! Waiting for host...';
+      document.getElementById('guestStatusText').textContent = '(game) Connected! Waiting for host to select house...';
       document.getElementById('guestStatus').querySelector('.status-dot').style.background = '#4CAF50';
     }
     
@@ -3888,6 +3888,16 @@ function handlePeerData(data) {
           if (hostNameInput && hostNameInput.value.trim()) {
             document.getElementById('hostPlayerName').textContent = hostNameInput.value.trim() + ' (Host)';
             G.playerNames[G.humanColor] = hostNameInput.value.trim();
+          }
+          
+          // CRITICAL: If host already selected a house, tell the newly connected guest
+          if (G.hostHouse) {
+            console.log('[PeerJS] Host already selected house, notifying guest:', G.hostHouse);
+            sendToPeer({
+              type: 'hostHouseSelected',
+              house: G.hostHouse,
+              player: 'host'
+            });
           }
         }
       }
@@ -4372,7 +4382,7 @@ console.log("[DEBUG] Calling initSetup");
 window.onerror = function(msg, url, line) { console.error("[JS ERROR] " + msg + " at line " + line); };
 
 // VERSION CHECK - to verify code is updated
-const BUILD_VERSION = "v10044-guest-house";
+const BUILD_VERSION = "v10045-fix-guest-house";
 console.log(`%c[BUILD] ${BUILD_VERSION}`, 'color:green;font-size:14px;font-weight:bold');
 
 // Update version in UI
