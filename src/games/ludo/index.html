@@ -2898,6 +2898,8 @@ function initSetup() {
   
   addTouchHandler(startLocalBtn, () => {
     G.gameMode = 'local';
+    // CRITICAL: Set ALL players to human in Pass & Play mode
+    PLAYERS.forEach(p => { G.ptypes[p] = 'human'; });
     // Get player names from inputs
     const inputs = document.querySelectorAll('#localPlayerInputs .name-input');
     const colors = ['red', 'green', 'yellow', 'blue'];
