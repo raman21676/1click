@@ -188,6 +188,8 @@
 }
 
 *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html{touch-action:manipulation}
+button,.mode-btn,.count-btn,.color-btn,.start-btn,.roll-btn,.corner-roll-btn{touch-action:manipulation;cursor:pointer}
 html,body{height:100%;font-family:'Segoe UI',Arial,sans-serif;
   background:radial-gradient(ellipse at center,#283593 0%,#1a237e 50%,#0d1b6e 100%);
   color:#fff;overflow:hidden}
@@ -2853,6 +2855,39 @@ function stopConfetti() {
 // SETUP
 // ----------------------------------------------------
 
+// Helper to add click/touch handlers for TWA compatibility
+function addTouchHandler(element, handler) {
+  if (!element) return;
+  let touchStarted = false;
+  
+  // Use click for desktop
+  element.addEventListener('click', (e) => {
+    if (!touchStarted) {
+      handler(e);
+    }
+    touchStarted = false;
+  });
+  
+  // Use touchend for mobile/TWA (faster response)
+  element.addEventListener('touchstart', (e) => {
+    touchStarted = true;
+    element.style.transform = 'scale(0.95)';
+  }, {passive: true});
+  
+  element.addEventListener('touchend', (e) => {
+    element.style.transform = '';
+    handler(e);
+    touchStarted = true;
+    // Prevent the following click event
+    setTimeout(() => { touchStarted = false; }, 100);
+  });
+  
+  element.addEventListener('touchcancel', () => {
+    element.style.transform = '';
+    touchStarted = false;
+  });
+}
+
 function initSetup() {
   console.log("[DEBUG] initSetup started");
   
@@ -2888,38 +2923,34 @@ function initSetup() {
     });
   });
 
-  // Start buttons for different modes
+  // Start buttons for different modes - use addTouchHandler for TWA compatibility
   const startAiBtn = document.getElementById('startAiBtn');
   const startLocalBtn = document.getElementById('startLocalBtn');
   
-  if (startAiBtn) {
-    startAiBtn.addEventListener('click', (e) => {
-      e.preventDefault();
-      e.stopPropagation();
-      G.gameMode = 'ai';
-      // Get player name from input
-      const nameInput = document.getElementById('aiPlayerName');
-      if (nameInput && nameInput.value.trim()) {
-        G.playerNames[G.humanColor] = nameInput.value.trim().substring(0, 12);
-      }
-      startGame();
-    });
-  }
+  addTouchHandler(startAiBtn, (e) => {
+    if (e && e.preventDefault) e.preventDefault();
+    if (e && e.stopPropagation) e.stopPropagation();
+    G.gameMode = 'ai';
+    // Get player name from input
+    const nameInput = document.getElementById('aiPlayerName');
+    if (nameInput && nameInput.value.trim()) {
+      G.playerNames[G.humanColor] = nameInput.value.trim().substring(0, 12);
+    }
+    startGame();
+  });
   
-  if (startLocalBtn) {
-    startLocalBtn.addEventListener('click', () => {
-      G.gameMode = 'local';
-      // Get player names from inputs
-      const inputs = document.querySelectorAll('#localPlayerInputs .name-input');
-      const colors = ['red', 'green', 'yellow', 'blue'];
-      inputs.forEach((input, idx) => {
-        if (input.value.trim()) {
-          G.playerNames[colors[idx]] = input.value.trim().substring(0, 12);
-        }
-      });
-      startGame();
+  addTouchHandler(startLocalBtn, () => {
+    G.gameMode = 'local';
+    // Get player names from inputs
+    const inputs = document.querySelectorAll('#localPlayerInputs .name-input');
+    const colors = ['red', 'green', 'yellow', 'blue'];
+    inputs.forEach((input, idx) => {
+      if (input.value.trim()) {
+        G.playerNames[colors[idx]] = input.value.trim().substring(0, 12);
+      }
     });
-  }
+    startGame();
+  });
 }
 
 // Mode selection (AI vs Pass & Play vs Online)
@@ -2930,8 +2961,8 @@ function initModeSelection() {
   const onlineSettings = document.getElementById('onlineSettings');
   
   modeBtns.forEach(btn => {
-    btn.addEventListener('click', () => {
-      const mode = btn.dataset.mode;
+    const mode = btn.dataset.mode;
+    addTouchHandler(btn, () => {
       G.gameMode = mode;
       
       // Update UI
