@@ -2858,33 +2858,33 @@ function stopConfetti() {
 // Helper to add click/touch handlers for TWA compatibility
 function addTouchHandler(element, handler) {
   if (!element) return;
-  let touchStarted = false;
+  let handled = false;
   
-  // Use click for desktop
+  // Use pointer events for better TWA support (Chrome 61+)
+  element.addEventListener('pointerdown', (e) => {
+    element.style.transform = 'scale(0.95)';
+    element.setPointerCapture(e.pointerId);
+  });
+  
+  element.addEventListener('pointerup', (e) => {
+    element.style.transform = '';
+    if (!handled) {
+      handled = true;
+      handler(e);
+      setTimeout(() => { handled = false; }, 100);
+    }
+  });
+  
+  element.addEventListener('pointercancel', () => {
+    element.style.transform = '';
+    handled = false;
+  });
+  
+  // Fallback to click for desktop
   element.addEventListener('click', (e) => {
-    if (!touchStarted) {
+    if (!handled) {
       handler(e);
     }
-    touchStarted = false;
-  });
-  
-  // Use touchend for mobile/TWA (faster response)
-  element.addEventListener('touchstart', (e) => {
-    touchStarted = true;
-    element.style.transform = 'scale(0.95)';
-  }, {passive: true});
-  
-  element.addEventListener('touchend', (e) => {
-    element.style.transform = '';
-    handler(e);
-    touchStarted = true;
-    // Prevent the following click event
-    setTimeout(() => { touchStarted = false; }, 100);
-  });
-  
-  element.addEventListener('touchcancel', () => {
-    element.style.transform = '';
-    touchStarted = false;
   });
 }
 
