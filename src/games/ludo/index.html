@@ -3149,6 +3149,16 @@ function initLocalPlayerCount() {
   
   // Initialize with 3 players
   G.numPlayers = 3;
+  
+  // Sync input visibility with initially active button
+  const activeBtn = document.querySelector('#localSettings .count-btn.active');
+  if (activeBtn) {
+    const n = parseInt(activeBtn.dataset.n);
+    G.numPlayers = n;
+    const inputs = document.querySelectorAll('#localPlayerInputs .input-row');
+    inputs[2].style.display = n >= 3 ? 'flex' : 'none';
+    inputs[3].style.display = n >= 4 ? 'flex' : 'none';
+  }
 }
 
 function initOnlineMultiplayer() {
