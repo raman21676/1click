@@ -1204,6 +1204,12 @@ html,body{height:100%;font-family:'Segoe UI',Arial,sans-serif;
         <span id="guestStatusText">Enter code and click Join</span>
       </div>
       
+      <!-- Guest House Assignment (shown after host selects) -->
+      <div id="guestHouseAssignment" style="display:none;margin:12px 0;padding:12px;background:rgba(76,175,80,.1);border:1px solid rgba(76,175,80,.3);border-radius:8px;text-align:center">
+        <div style="font-size:12px;color:rgba(255,255,255,.6);margin-bottom:8px;text-transform:uppercase;letter-spacing:0.05em">Your House</div>
+        <div id="guestHouseColor" style="font-size:20px;font-weight:700">Waiting for host...</div>
+      </div>
+      
       <div class="room-buttons" style="margin-top:16px;display:flex;gap:10px">
         <button class="back-btn-small" id="backFromJoin" style="flex:1">Back</button>
         <button class="start-btn-small" id="joinRoomBtnFinal" style="flex:2">🔗 Join Room</button>
@@ -3861,16 +3867,15 @@ function handlePeerData(data) {
         // Update UI to show assignment
         addLog(`(game) Host selected ${cap(data.house)}. You are ${cap(G.humanColor)}.`);
         document.getElementById('guestStatusText').textContent = 
-          `(game) You are playing as ${cap(G.humanColor)}!`;
+          `(game) Connected! Waiting for host to start...`;
         
         // Show guest their house assignment visually
-        const guestHouseDiv = document.createElement('div');
-        guestHouseDiv.id = 'guestHouseDisplay';
-        guestHouseDiv.style.cssText = 'margin-top:12px;padding:12px;background:rgba(76,175,80,.1);border:1px solid rgba(76,175,80,.3);border-radius:8px;text-align:center;';
-        guestHouseDiv.innerHTML = `<div style="font-size:12px;color:rgba(255,255,255,.6);margin-bottom:4px">Your House</div><div style="font-size:18px;font-weight:700;color:${COLORS[G.humanColor].main}">${cap(G.humanColor)}</div>`;
-        const existingDiv = document.getElementById('guestHouseDisplay');
-        if (existingDiv) existingDiv.remove();
-        document.getElementById('guestStatus').insertAdjacentElement('afterend', guestHouseDiv);
+        const guestHouseAssignment = document.getElementById('guestHouseAssignment');
+        const guestHouseColor = document.getElementById('guestHouseColor');
+        if (guestHouseAssignment && guestHouseColor) {
+          guestHouseAssignment.style.display = 'block';
+          guestHouseColor.innerHTML = `<span style="color:${COLORS[G.humanColor].main}">●</span> ${cap(G.humanColor)}`;
+        }
       }
       break;
     case 'gameStart':
@@ -4203,7 +4208,7 @@ document.getElementById('diceScene').addEventListener('click', e => {
   rollDice();
 });
 
-// Corner dice buttons for Pass & Play mode
+// Corner dice buttons for Pass & Play and Online mode
 ['red', 'green', 'yellow', 'blue'].forEach(color => {
   const cornerDice = document.getElementById(color + 'Dice');
   if (cornerDice) {
@@ -4214,8 +4219,11 @@ document.getElementById('diceScene').addEventListener('click', e => {
         addLog('(info) Wait for ' + color + "'s turn!");
         return;
       }
-      // Only allow in local mode and roll phase
-      if (G.gameMode !== 'local') return;
+      // In online mode, only allow if it's the human's color
+      if (G.isOnline && G.humanColor !== color) {
+        addLog('(waiting) Not your dice!');
+        return;
+      }
       if (G.phase !== 'roll') return;
       rollDice();
     });
@@ -4226,7 +4234,11 @@ document.getElementById('diceScene').addEventListener('click', e => {
         addLog('(info) Wait for ' + color + "'s turn!");
         return;
       }
-      if (G.gameMode !== 'local') return;
+      // In online mode, only allow if it's the human's color
+      if (G.isOnline && G.humanColor !== color) {
+        addLog('(waiting) Not your dice!');
+        return;
+      }
       if (G.phase !== 'roll') return;
       rollDice();
     });
@@ -4303,7 +4315,7 @@ console.log("[DEBUG] Calling initSetup");
 window.onerror = function(msg, url, line) { console.error("[JS ERROR] " + msg + " at line " + line); };
 
 // VERSION CHECK - to verify code is updated
-const BUILD_VERSION = "v10042-fix-online";
+const BUILD_VERSION = "v10043-dice-fix";
 console.log(`%c[BUILD] ${BUILD_VERSION}`, 'color:green;font-size:14px;font-weight:bold');
 
 // Update version in UI
