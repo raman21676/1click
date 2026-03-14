@@ -3147,34 +3147,6 @@ function initLocalPlayerCount() {
   G.numPlayers = 3;
 }
 
-// Local Start Button
-  const startLocalBtn = document.getElementById('startLocalBtn');
-  if (startLocalBtn) {
-    startLocalBtn.addEventListener('click', () => {
-      // Get player names from inputs
-      const inputs = document.querySelectorAll('#localPlayerInputs .name-input');
-      G.players = [];
-      const colors = ['red', 'green', 'yellow', 'blue'];
-      
-      for (let i = 0; i < G.numPlayers; i++) {
-        G.players.push({
-          color: colors[i],
-          name: inputs[i].value || `Player ${i + 1}`,
-          type: 'human',
-          tokens: [0, 0, 0, 0],
-          finished: false
-        });
-      }
-      
-      G.currentPlayer = 0;
-      startGame();
-    });
-  }
-  
-  // Initialize local player count
-  initLocalPlayerCount();
-});
-
 function initOnlineMultiplayer() {
   // Online player count selection
   document.querySelectorAll('#onlinePlayerCount .count-btn').forEach(btn => {
