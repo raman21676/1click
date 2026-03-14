@@ -3669,6 +3669,7 @@ function startOnlineGame() {
   }
   
   G.isOnline = true;
+  G.gameMode = 'online'; // CRITICAL: Set game mode for dice visibility
   G.playerCount = maxPlayers;
   
   // Set up ptypes for online: all AI except host and connected guests
@@ -3805,6 +3806,10 @@ function setupConnection(conn) {
     } else {
       document.getElementById('guestStatusText').textContent = '(game) Connected! Waiting for host to select house...';
       document.getElementById('guestStatus').querySelector('.status-dot').style.background = '#4CAF50';
+      // Hide join button and show connected state
+      document.getElementById('joinRoomBtnFinal').style.display = 'none';
+      document.getElementById('joinRoomCodeInput').disabled = true;
+      document.getElementById('guestNameInput').disabled = true;
     }
     
     // Update connection status indicator
@@ -3961,16 +3966,33 @@ function handlePeerData(data) {
     case 'gameStart':
       // Guest receives game start from host
       G.isOnline = true;
+      G.gameMode = 'online'; // CRITICAL: Set game mode for dice visibility
       G.playerCount = data.playerCount || 2;
       G.ptypes = data.ptypes || {red:'human',green:'human',yellow:'ai',blue:'ai'};
       G.playerNames = data.playerNames || G.playerNames;
       G.active = data.active || ['red','green'];
-      // CRITICAL: Set guest's assigned color
-      if (data.yourColor) {
+      
+      // CRITICAL: Keep guest's selected color, don't override with host's choice
+      // The guest already selected their house, so we use that
+      if (G.humanColor) {
+        // Guest already selected a house - verify it matches what host sent
+        if (data.yourColor && data.yourColor !== G.humanColor) {
+          console.warn(`[PeerJS] Host assigned ${data.yourColor} but guest selected ${G.humanColor}`);
+          // Keep guest's choice and notify
+          addLog(`(game) You are playing as ${cap(G.humanColor)}!`);
+        }
+        // Ensure ptypes is set for guest's color
+        G.ptypes[G.humanColor] = 'human';
+        // Update player name
+        if (G.guestName) {
+          G.playerNames[G.humanColor] = G.guestName;
+        } else if (!G.playerNames[G.humanColor] || G.playerNames[G.humanColor].startsWith('AI ')) {
+          G.playerNames[G.humanColor] = 'You';
+        }
+      } else if (data.yourColor) {
+        // Guest didn't select a house - use what host sent
         G.humanColor = data.yourColor;
-        // ALSO set ptypes for guest's color to 'human' so dice is enabled
         G.ptypes[data.yourColor] = 'human';
-        // Update player name - use guest's chosen name or default to 'You'
         if (G.guestName) {
           G.playerNames[data.yourColor] = G.guestName;
         } else if (!G.playerNames[data.yourColor] || G.playerNames[data.yourColor].startsWith('AI ')) {
@@ -4395,7 +4417,7 @@ console.log("[DEBUG] Calling initSetup");
 window.onerror = function(msg, url, line) { console.error("[JS ERROR] " + msg + " at line " + line); };
 
 // VERSION CHECK - to verify code is updated
-const BUILD_VERSION = "v10047-token-fix";
+const BUILD_VERSION = "v10048-guest-fixes";
 console.log(`%c[BUILD] ${BUILD_VERSION}`, 'color:green;font-size:14px;font-weight:bold');
 
 // Update version in UI
