@@ -3147,6 +3147,7 @@ let connectedPlayers = 0;
 let myPeerId = null; // This player's peer ID
 let connectionRetryCount = 0;
 const MAX_RETRIES = 3;
+let currentConn = null; // Current connection being processed
 
 /* --- CONNECTION STATUS & OFFLINE DETECTION ------------------- */
 
@@ -3829,7 +3830,9 @@ function setupConnection(conn) {
   });
   
   conn.on('data', (data) => {
+    currentConn = conn; // Store current connection for response
     handlePeerData(data);
+    currentConn = null;
   });
   
   conn.on('close', () => {
@@ -3893,11 +3896,14 @@ function handlePeerData(data) {
           // CRITICAL: If host already selected a house, tell the newly connected guest
           if (G.hostHouse) {
             console.log('[PeerJS] Host already selected house, notifying guest:', G.hostHouse);
-            sendToPeer({
-              type: 'hostHouseSelected',
-              house: G.hostHouse,
-              player: 'host'
-            });
+            // Send directly to the connection that sent the handshake
+            if (currentConn && currentConn.open) {
+              currentConn.send({
+                type: 'hostHouseSelected',
+                house: G.hostHouse,
+                player: 'host'
+              });
+            }
           }
         }
       }
@@ -4382,7 +4388,7 @@ console.log("[DEBUG] Calling initSetup");
 window.onerror = function(msg, url, line) { console.error("[JS ERROR] " + msg + " at line " + line); };
 
 // VERSION CHECK - to verify code is updated
-const BUILD_VERSION = "v10045-fix-guest-house";
+const BUILD_VERSION = "v10046-conn-fix";
 console.log(`%c[BUILD] ${BUILD_VERSION}`, 'color:green;font-size:14px;font-weight:bold');
 
 // Update version in UI
