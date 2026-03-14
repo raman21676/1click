@@ -209,7 +209,8 @@ html,body{height:100%;font-family:'Segoe UI',Arial,sans-serif;
   justify-content:center;width:100%;min-height:0}
 .board-wrapper{position:relative;
   /* Increased board size to fill side gaps - maintains square aspect ratio */
-  width:min(98vmin,580px);height:min(98vmin,580px)}
+  width:min(98vmin,580px);height:min(98vmin,580px);
+  overflow:visible !important}
 
 /* 15x15 grid */
 .ludo-board{width:100%;height:100%;
@@ -303,7 +304,7 @@ html,body{height:100%;font-family:'Segoe UI',Arial,sans-serif;
 
 /* Path cells */
 /* Path cells - white background, grey grid lines */
-.pc{background:#fff;border:.5px solid #999}
+.pc{background:#fff !important;border:.5px solid #999 !important}
 
 /* Home run strips */
 .hrR{background:#FFCDD2;border:.5px solid #ccc}
@@ -677,11 +678,11 @@ html,body{height:100%;font-family:'Segoe UI',Arial,sans-serif;
 /* Wrapper bounce -- simulates physical throw */
 
 /* Corner dice for Pass & Play mode - each player rolls from their side */
-.corner-dice{position:absolute;z-index:100;display:none;flex-direction:column;align-items:center;gap:4px}
-.corner-dice.red-dice{top:-55px;left:8px}
-.corner-dice.green-dice{top:-55px;right:8px}
-.corner-dice.yellow-dice{bottom:-55px;right:8px}
-.corner-dice.blue-dice{bottom:-55px;left:8px}
+.corner-dice{position:absolute;z-index:1000;display:none;flex-direction:column;align-items:center;gap:4px}
+.corner-dice.red-dice{top:-50px;left:8px}
+.corner-dice.green-dice{top:-50px;right:8px}
+.corner-dice.yellow-dice{bottom:-50px;right:8px}
+.corner-dice.blue-dice{bottom:-50px;left:8px}
 
 .corner-dice-scene{width:36px;height:36px;perspective:300px;position:relative}
 .corner-dice-scene .dice-cube{width:32px;height:32px;position:absolute;top:2px;left:2px;transform-style:preserve-3d;transform:rotateX(-25deg) rotateY(25deg)}
@@ -1172,7 +1173,7 @@ html,body{height:100%;font-family:'Segoe UI',Arial,sans-serif;
       <div class="room-buttons" style="margin-top:16px;display:flex;gap:10px">
         <button class="back-btn-small" id="backFromCreate" style="flex:1">Back</button>
         <button class="generate-btn" id="generateRoomCodeBtn" style="flex:2">🎲 Generate Code</button>
-        <button class="start-btn-small" id="startOnlineGame" style="flex:2;display:none" disabled>▶ Start Game</button>
+        <button class="start-btn-small" id="startOnlineGame" style="flex:2;display:none">▶ Start Game</button>
       </div>
     </div>
     
@@ -3380,6 +3381,40 @@ function initOnlineMultiplayer() {
   
   // Join room (guest)
   document.getElementById('joinRoomBtnFinal').addEventListener('click', joinRoom);
+  
+  // House selection for host
+  document.querySelectorAll('#hostHouseSelection .house-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const house = btn.dataset.house;
+      G.humanColor = house;
+      
+      // Calculate guest's house (first available)
+      const houses = ['red', 'green', 'yellow', 'blue'];
+      const guestHouse = houses.find(h => h !== house);
+      
+      // Store guest house for use in startOnlineGame
+      G.guestHouse = guestHouse;
+      
+      // Update UI
+      document.querySelectorAll('#hostHouseSelection .house-btn').forEach(b => {
+        b.style.borderColor = 'transparent';
+        b.style.transform = 'scale(1)';
+      });
+      btn.style.borderColor = '#fff';
+      btn.style.transform = 'scale(1.1)';
+      document.getElementById('hostSelectedHouse').textContent = `You: ${house.toUpperCase()} | Guest: ${guestHouse.toUpperCase()}`;
+      
+      // Notify guest of house selection and their assigned house
+      if (peerConnection?.open) {
+        peerConnection.send({ type: 'houseSelected', house: house, guestHouse: guestHouse, player: 'host' });
+      }
+      
+      // Also store in peerColors for consistency
+      if (peerConnection?.open) {
+        peerColors.set(peerConnection, guestHouse);
+      }
+    });
+  });
 }
 
 function showOnlineMenu() {
@@ -3402,6 +3437,19 @@ function resetOnlineGame() {
   document.getElementById('startOnlineGame').style.display = 'none';
   document.getElementById('hostStatusText').textContent = 'Click "Generate" to create room';
   document.getElementById('hostStatus').querySelector('.status-dot').style.background = '#999';
+  
+  // Hide house selection and reset it
+  const houseSelection = document.getElementById('hostHouseSelection');
+  if (houseSelection) {
+    houseSelection.style.display = 'none';
+    // Reset house buttons
+    document.querySelectorAll('#hostHouseSelection .house-btn').forEach(b => {
+      b.style.borderColor = 'transparent';
+      b.style.transform = 'scale(1)';
+    });
+    const selectedHouseText = document.getElementById('hostSelectedHouse');
+    if (selectedHouseText) selectedHouseText.textContent = 'Select a house to continue';
+  }
   
   // Reset guest UI
   document.getElementById('joinRoomCodeInput').value = '';
@@ -3538,12 +3586,23 @@ function copyRoomCode() {
 }
 
 function startOnlineGame() {
+  console.log('[startOnlineGame] Starting...');
   const maxPlayers = G.onlinePlayerCount || 2;
   const hasConnection = peerConnection?.open || peerConnections.some(c => c.open);
+  
+  console.log('[startOnlineGame] hasConnection:', hasConnection, 'peerConnection:', peerConnection);
   
   if (!hasConnection) {
     alert('Waiting for players to connect...');
     return;
+  }
+  
+  // Ensure host has selected a house
+  if (!G.humanColor || G.humanColor === 'red') {
+    // Default to red if no selection, but show warning
+    if (!G.humanColor) {
+      G.humanColor = 'red';
+    }
   }
   
   // For 3-4 players, check if enough players connected
@@ -3555,6 +3614,29 @@ function startOnlineGame() {
   
   G.isOnline = true;
   G.playerCount = maxPlayers;
+  
+  // Set up ptypes for online: all AI except host and connected guests
+  G.ptypes = {red:'ai', green:'ai', yellow:'ai', blue:'ai'};
+  G.ptypes[G.humanColor] = 'human'; // Host
+  
+  // Set peer colors for guests (host is already set)
+  // Use pre-selected guest house if available, otherwise use first available
+  const houses = ['red', 'green', 'yellow', 'blue'];
+  const guestHouse = G.guestHouse || houses.find(h => h !== G.humanColor);
+  
+  if (peerConnection?.open) {
+    peerColors.set(peerConnection, guestHouse);
+    G.ptypes[guestHouse] = 'human';
+  }
+  
+  peerConnections.forEach((conn, idx) => {
+    if (conn.open) {
+      const connGuestHouse = G.guestHouse || houses.find(h => h !== G.humanColor && h !== guestHouse);
+      peerColors.set(conn, connGuestHouse);
+      G.ptypes[connGuestHouse] = 'human';
+    }
+  });
+  
   startGame();
   
   // Notify all peers with game state - include their assigned color
@@ -3647,14 +3729,23 @@ function setupConnection(conn) {
   }
   
   conn.on('open', () => {
-    console.log('[PeerJS] Connected!');
+    console.log('[PeerJS] Connected! isHost:', isHost);
     hideLoading();
     connectionRetryCount = 0; // Reset retry count on successful connection
     
     if (isHost) {
-      document.getElementById('hostStatusText').textContent = '(game) Opponent connected!';
+      console.log('[PeerJS] Host: showing house selection and start button');
+      document.getElementById('hostStatusText').textContent = '(game) Opponent connected! Select your house:';
       document.getElementById('startOnlineGame').style.display = 'inline-block';
       document.getElementById('hostStatus').querySelector('.status-dot').style.background = '#4CAF50';
+      // Show house selection UI for host
+      const houseSelection = document.getElementById('hostHouseSelection');
+      if (houseSelection) {
+        houseSelection.style.display = 'block';
+        console.log('[PeerJS] House selection UI shown');
+      } else {
+        console.error('[PeerJS] House selection element not found!');
+      }
     } else {
       document.getElementById('guestStatusText').textContent = '(game) Connected! Waiting for host...';
       document.getElementById('guestStatus').querySelector('.status-dot').style.background = '#4CAF50';
@@ -3665,9 +3756,23 @@ function setupConnection(conn) {
     
     // Send handshake
     let displayName = G.playerNames[G.humanColor];
-    if (!isHost && G.guestName) {
+    if (isHost) {
+      // Get host name from input
+      const hostNameInput = document.getElementById('hostNameInput');
+      if (hostNameInput && hostNameInput.value.trim()) {
+        displayName = hostNameInput.value.trim();
+        G.playerNames[G.humanColor] = displayName;
+      }
+    } else if (G.guestName) {
       displayName = G.guestName;
     }
+    
+    // Update host UI with their name
+    if (isHost) {
+      document.getElementById('hostConnectedPlayers').style.display = 'block';
+      document.getElementById('hostPlayerName').textContent = (displayName || 'You') + ' (Host)';
+    }
+    
     sendToPeer({
       type: 'handshake',
       player: G.humanColor,
@@ -3723,10 +3828,48 @@ function handlePeerData(data) {
       // Store guest name in playerNames (guest's color is determined by connection)
       if (data.player && data.name) {
         G.playerNames[data.player] = data.name;
-        // Update UI if game hasn't started yet
-        if (document.getElementById('gameScreen').style.display !== 'flex') {
-          renderSetupRows();
+        
+        // Update online UI for host
+        if (isHost) {
+          document.getElementById('hostConnectedPlayers').style.display = 'block';
+          document.getElementById('guestPlayerRow').style.display = 'flex';
+          document.getElementById('guestPlayerName').textContent = data.name || 'Guest';
+          
+          // Also update host name if set
+          const hostNameInput = document.getElementById('hostNameInput');
+          if (hostNameInput && hostNameInput.value.trim()) {
+            document.getElementById('hostPlayerName').textContent = hostNameInput.value.trim() + ' (Host)';
+            G.playerNames[G.humanColor] = hostNameInput.value.trim();
+          }
         }
+      }
+      break;
+    case 'houseSelected':
+      // Guest receives host's house selection - assign guest to remaining house
+      if (!isHost && data.house) {
+        // Use the guestHouse sent by host, or calculate it
+        if (data.guestHouse) {
+          G.humanColor = data.guestHouse;
+        } else {
+          const houses = ['red', 'green', 'yellow', 'blue'];
+          const takenHouse = data.house;
+          const availableHouses = houses.filter(h => h !== takenHouse);
+          G.humanColor = availableHouses[0];
+        }
+        
+        // Update UI to show assignment
+        addLog(`(game) Host selected ${cap(data.house)}. You are ${cap(G.humanColor)}.`);
+        document.getElementById('guestStatusText').textContent = 
+          `(game) You are playing as ${cap(G.humanColor)}!`;
+        
+        // Show guest their house assignment visually
+        const guestHouseDiv = document.createElement('div');
+        guestHouseDiv.id = 'guestHouseDisplay';
+        guestHouseDiv.style.cssText = 'margin-top:12px;padding:12px;background:rgba(76,175,80,.1);border:1px solid rgba(76,175,80,.3);border-radius:8px;text-align:center;';
+        guestHouseDiv.innerHTML = `<div style="font-size:12px;color:rgba(255,255,255,.6);margin-bottom:4px">Your House</div><div style="font-size:18px;font-weight:700;color:${COLORS[G.humanColor].main}">${cap(G.humanColor)}</div>`;
+        const existingDiv = document.getElementById('guestHouseDisplay');
+        if (existingDiv) existingDiv.remove();
+        document.getElementById('guestStatus').insertAdjacentElement('afterend', guestHouseDiv);
       }
       break;
     case 'gameStart':
