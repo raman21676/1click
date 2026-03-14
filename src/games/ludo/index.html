@@ -1095,6 +1095,7 @@ html,body{height:100%;font-family:'Segoe UI',Arial,sans-serif;
     <div id="onlineMenu">
       <h3>🌐 Online Multiplayer</h3>
       <p style="color:rgba(255,255,255,.5);font-size:12px;margin-bottom:12px">Play with 2-4 friends using a simple code</p>
+      <div id="buildVersion" style="color:#4CAF50;font-size:10px;margin-bottom:8px;text-align:center">Build: loading...</div>
       
       <!-- Player Count Selection for Online -->
       <h4 style="margin:12px 0 8px;font-size:13px;color:rgba(255,255,255,.7)">Number of Players</h4>
@@ -4300,6 +4301,17 @@ if (exitModal) {
 // ----------------------------------------------------
 console.log("[DEBUG] Calling initSetup");
 window.onerror = function(msg, url, line) { console.error("[JS ERROR] " + msg + " at line " + line); };
+
+// VERSION CHECK - to verify code is updated
+const BUILD_VERSION = "v10042-fix-online";
+console.log(`%c[BUILD] ${BUILD_VERSION}`, 'color:green;font-size:14px;font-weight:bold');
+
+// Update version in UI
+setTimeout(() => {
+  const versionEl = document.getElementById('buildVersion');
+  if (versionEl) versionEl.textContent = 'Build: ' + BUILD_VERSION;
+}, 100);
+
 initSetup();
 
 // DEBUG: Verify board cell positions
