@@ -1040,25 +1040,50 @@ html,body{height:100%;font-family:'Segoe UI',Arial,sans-serif;
       <button class="count-btn active" data-n="3">3</button>
       <button class="count-btn" data-n="4">4</button>
     </div>
-    <label class="setup-label" style="font-size:13px;color:#94a3b8;margin-bottom:10px;display:block">Player Names</label>
+    <label class="setup-label" style="font-size:13px;color:#94a3b8;margin-bottom:10px;display:block">Player Names & Houses</label>
     <div class="player-inputs" id="localPlayerInputs" style="margin-bottom:20px">
-      <div class="input-row" style="display:flex;align-items:center;gap:10px;margin-bottom:10px">
-        <div style="width:16px;height:16px;border-radius:50%;background:#E53935;flex-shrink:0"></div>
+      <!-- Player 1 Row -->
+      <div class="input-row" data-player-idx="0" style="display:flex;align-items:center;gap:8px;margin-bottom:10px">
+        <select class="house-select" data-player-idx="0" style="padding:8px 10px;border:1px solid rgba(255,255,255,.2);background:rgba(0,0,0,.3);color:#fff;border-radius:8px;font-size:13px;cursor:pointer;outline:none">
+          <option value="red" style="background:#1a1a2e">🔴 Red</option>
+          <option value="green" style="background:#1a1a2e">🟢 Green</option>
+          <option value="yellow" style="background:#1a1a2e">🟡 Yellow</option>
+          <option value="blue" style="background:#1a1a2e">🔵 Blue</option>
+        </select>
         <input class="name-input" data-pi="0" placeholder="Player 1" value="Player 1" style="flex:1;padding:10px 14px;border:1px solid rgba(255,255,255,.18);background:rgba(0,0,0,.3);color:#fff;border-radius:8px;font-size:14px">
       </div>
-      <div class="input-row" style="display:flex;align-items:center;gap:10px;margin-bottom:10px">
-        <div style="width:16px;height:16px;border-radius:50%;background:#43A047;flex-shrink:0"></div>
+      <!-- Player 2 Row -->
+      <div class="input-row" data-player-idx="1" style="display:flex;align-items:center;gap:8px;margin-bottom:10px">
+        <select class="house-select" data-player-idx="1" style="padding:8px 10px;border:1px solid rgba(255,255,255,.2);background:rgba(0,0,0,.3);color:#fff;border-radius:8px;font-size:13px;cursor:pointer;outline:none">
+          <option value="red" style="background:#1a1a2e">🔴 Red</option>
+          <option value="green" selected style="background:#1a1a2e">🟢 Green</option>
+          <option value="yellow" style="background:#1a1a2e">🟡 Yellow</option>
+          <option value="blue" style="background:#1a1a2e">🔵 Blue</option>
+        </select>
         <input class="name-input" data-pi="1" placeholder="Player 2" value="Player 2" style="flex:1;padding:10px 14px;border:1px solid rgba(255,255,255,.18);background:rgba(0,0,0,.3);color:#fff;border-radius:8px;font-size:14px">
       </div>
-      <div class="input-row" style="display:flex;align-items:center;gap:10px;margin-bottom:10px">
-        <div style="width:16px;height:16px;border-radius:50%;background:#FDD835;flex-shrink:0"></div>
+      <!-- Player 3 Row -->
+      <div class="input-row" data-player-idx="2" style="display:flex;align-items:center;gap:8px;margin-bottom:10px">
+        <select class="house-select" data-player-idx="2" style="padding:8px 10px;border:1px solid rgba(255,255,255,.2);background:rgba(0,0,0,.3);color:#fff;border-radius:8px;font-size:13px;cursor:pointer;outline:none">
+          <option value="red" style="background:#1a1a2e">🔴 Red</option>
+          <option value="green" style="background:#1a1a2e">🟢 Green</option>
+          <option value="yellow" selected style="background:#1a1a2e">🟡 Yellow</option>
+          <option value="blue" style="background:#1a1a2e">🔵 Blue</option>
+        </select>
         <input class="name-input" data-pi="2" placeholder="Player 3" value="Player 3" style="flex:1;padding:10px 14px;border:1px solid rgba(255,255,255,.18);background:rgba(0,0,0,.3);color:#fff;border-radius:8px;font-size:14px">
       </div>
-      <div class="input-row" style="display:none;align-items:center;gap:10px;margin-bottom:10px">
-        <div style="width:16px;height:16px;border-radius:50%;background:#1E88E5;flex-shrink:0"></div>
+      <!-- Player 4 Row -->
+      <div class="input-row" data-player-idx="3" style="display:none;align-items:center;gap:8px;margin-bottom:10px">
+        <select class="house-select" data-player-idx="3" style="padding:8px 10px;border:1px solid rgba(255,255,255,.2);background:rgba(0,0,0,.3);color:#fff;border-radius:8px;font-size:13px;cursor:pointer;outline:none">
+          <option value="red" style="background:#1a1a2e">🔴 Red</option>
+          <option value="green" style="background:#1a1a2e">🟢 Green</option>
+          <option value="yellow" style="background:#1a1a2e">🟡 Yellow</option>
+          <option value="blue" selected style="background:#1a1a2e">🔵 Blue</option>
+        </select>
         <input class="name-input" data-pi="3" placeholder="Player 4" value="Player 4" style="flex:1;padding:10px 14px;border:1px solid rgba(255,255,255,.18);background:rgba(0,0,0,.3);color:#fff;border-radius:8px;font-size:14px">
       </div>
     </div>
+    <div id="houseError" style="color:#ff6b6b;font-size:12px;margin-bottom:10px;display:none">⚠️ Each player must have a different house!</div>
     <button class="start-btn" id="startLocalBtn" style="width:100%;padding:14px;background:linear-gradient(135deg,#E53935,#FDD835);border:none;border-radius:10px;color:#fff;font-size:1.1rem;font-weight:600;cursor:pointer">🎮 Start Game</button>
   </div>
   
@@ -2930,14 +2955,47 @@ function initSetup() {
     G.gameMode = 'local';
     // CRITICAL: Set ALL players to human in Pass & Play mode
     PLAYERS.forEach(p => { G.ptypes[p] = 'human'; });
-    // Get player names from inputs
-    const inputs = document.querySelectorAll('#localPlayerInputs .name-input');
-    const colors = ['red', 'green', 'yellow', 'blue'];
-    inputs.forEach((input, idx) => {
-      if (input.value.trim()) {
-        G.playerNames[colors[idx]] = input.value.trim().substring(0, 12);
+    
+    // Get selected houses and validate no duplicates
+    const houseSelects = document.querySelectorAll('#localPlayerInputs .house-select');
+    const selectedHouses = [];
+    let hasDuplicate = false;
+    
+    houseSelects.forEach((select, idx) => {
+      const row = select.closest('.input-row');
+      if (row && row.style.display !== 'none') {
+        const house = select.value;
+        if (selectedHouses.includes(house)) {
+          hasDuplicate = true;
+        }
+        selectedHouses.push(house);
       }
     });
+    
+    // Show error if duplicate houses selected
+    if (hasDuplicate) {
+      document.getElementById('houseError').style.display = 'block';
+      return;
+    }
+    document.getElementById('houseError').style.display = 'none';
+    
+    // Get player names from inputs mapped to selected houses
+    const inputs = document.querySelectorAll('#localPlayerInputs .name-input');
+    inputs.forEach((input, idx) => {
+      const row = input.closest('.input-row');
+      if (row && row.style.display !== 'none') {
+        const houseSelect = row.querySelector('.house-select');
+        const house = houseSelect ? houseSelect.value : PLAYERS[idx];
+        if (input.value.trim()) {
+          G.playerNames[house] = input.value.trim().substring(0, 12);
+        }
+      }
+    });
+    
+    // Set active players based on selected houses
+    G.active = selectedHouses;
+    G.playerCount = selectedHouses.length;
+    
     startGame();
   });
 }
@@ -3190,6 +3248,49 @@ function initLocalPlayerCount() {
     const inputs = document.querySelectorAll('#localPlayerInputs .input-row');
     inputs[2].style.display = n >= 3 ? 'flex' : 'none';
     inputs[3].style.display = n >= 4 ? 'flex' : 'none';
+  }
+  
+  // Handle house selection changes
+  const houseSelects = document.querySelectorAll('#localPlayerInputs .house-select');
+  houseSelects.forEach(select => {
+    select.addEventListener('change', updateHouseOptions);
+  });
+}
+
+// Update available house options to prevent duplicates
+function updateHouseOptions() {
+  const houseSelects = document.querySelectorAll('#localPlayerInputs .house-select');
+  const selectedHouses = [];
+  
+  // Get all currently selected houses
+  houseSelects.forEach(select => {
+    const row = select.closest('.input-row');
+    if (row && row.style.display !== 'none') {
+      selectedHouses.push(select.value);
+    }
+  });
+  
+  // Update each select to disable already-selected houses
+  houseSelects.forEach(select => {
+    const row = select.closest('.input-row');
+    if (row && row.style.display !== 'none') {
+      const currentValue = select.value;
+      const options = select.querySelectorAll('option');
+      
+      options.forEach(option => {
+        const house = option.value;
+        // Disable if selected by another player, enable otherwise
+        const isSelectedElsewhere = selectedHouses.includes(house) && currentValue !== house;
+        option.disabled = isSelectedElsewhere;
+        option.style.opacity = isSelectedElsewhere ? '0.3' : '1';
+      });
+    }
+  });
+  
+  // Hide error message when houses are valid
+  const uniqueHouses = [...new Set(selectedHouses)];
+  if (uniqueHouses.length === selectedHouses.length) {
+    document.getElementById('houseError').style.display = 'none';
   }
 }
 
@@ -3824,14 +3925,28 @@ function startGame() {
   const panels = document.getElementById('playerPanels');
   if (panels) panels.style.display = 'none';
   
-  // Build active players starting from human color (only for local/pass & play)
+  // Build active players starting from human color (only for AI mode)
   // In online mode, G.active is already set by the host before calling startGame
-  if (!G.isOnline || G.active.length === 0) {
+  // In Pass & Play (local) mode, G.active is set by house selection before calling startGame
+  if (G.isOnline && G.active.length === 0) {
+    // Online mode - host sets active players
     const humanIdx = PLAYERS.indexOf(G.humanColor);
     G.active = [];
     for (let i = 0; i < G.playerCount; i++) {
       G.active.push(PLAYERS[(humanIdx + i) % 4]);
     }
+  } else if (G.gameMode === 'ai') {
+    // AI mode - build active based on selected human color
+    const humanIdx = PLAYERS.indexOf(G.humanColor);
+    G.active = [];
+    for (let i = 0; i < G.playerCount; i++) {
+      G.active.push(PLAYERS[(humanIdx + i) % 4]);
+    }
+  }
+  // For Pass & Play (local) mode, G.active is already set by house selection
+  // If G.active is still empty, fall back to default order
+  if (G.active.length === 0) {
+    G.active = PLAYERS.slice(0, G.playerCount);
   }
   G.tokens = {};
   G.active.forEach(p => { G.tokens[p] = [0,0,0,0]; });
