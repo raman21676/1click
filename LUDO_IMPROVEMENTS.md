@@ -207,5 +207,85 @@ All 5 tasks have been completed with a **complete rewrite** of the Ludo game:
 
 ---
 
-**Last Updated:** 2026-03-01
-**Status:** All tasks completed - ready for testing
+### Task 6: Fix Dice Positioning (Pass & Play Mode)
+**Status:** ✅ COMPLETED
+**Date:** 2026-03-14
+**Priority:** HIGH
+
+**Problem:**
+Dice were positioned at extreme screen edges (top-left, top-right, bottom-left, bottom-right corners), far from their respective player houses, making them hard to see and interact with.
+
+**Solution:**
+Adjusted CSS to position dice near their respective house corners:
+
+```css
+/* Final dice positions - aligned to house corners */
+.corner-dice.red-dice{top:75px;left:35px}      /* Above Red house */
+.corner-dice.green-dice{top:75px;right:35px}   /* Above Green house */
+.corner-dice.yellow-dice{bottom:35px;right:35px} /* Below Yellow house */
+.corner-dice.blue-dice{bottom:35px;left:35px}   /* Below Blue house */
+```
+
+**Iteration Process:**
+- Started: `top:-8px;left:-8px` (at screen corners, partially hidden)
+- Step 1: `top:15px;left:15px` (moved inward)
+- Step 2: `top:25px;left:25px` (closer to board)
+- Step 3: `top:35px;left:35px` (bottom dice perfect)
+- Step 4: `top:55px` for top dice (still too high)
+- Step 5: `top:75px` for top dice (perfect alignment)
+- Final: Top dice at 75px, Bottom dice at 35px
+
+**Result:**
+All 4 dice now positioned just outside their respective house corners, clearly visible and easily tappable.
+
+**Files Modified:** `src/games/ludo/index.html` (line ~681-684)
+
+---
+
+### Task 7: Fix Dice Positioning for Desktop/Responsive
+**Status:** ✅ COMPLETED
+**Date:** 2026-03-14
+**Priority:** HIGH
+
+**Problem:**
+On desktop and larger screens, the dice were positioned at the extreme corners of the screen (far from the board), making them hard to see and interact with. The pixel-based positioning worked for mobile but failed on desktop where the board is centered.
+
+**Solution:**
+1. Moved dice elements inside `board-wrapper` div (previously outside)
+2. Changed positioning from positive offsets (from screen edges) to negative offsets (from board corners)
+3. Dice now position relative to the board, not the screen
+
+```css
+/* Desktop/Responsive dice positions - relative to board */
+.corner-dice.red-dice{top:-45px;left:-45px}      /* Outside Red house */
+.corner-dice.green-dice{top:-45px;right:-45px}   /* Outside Green house */
+.corner-dice.yellow-dice{bottom:-45px;right:-45px} /* Outside Yellow house */
+.corner-dice.blue-dice{bottom:-45px;left:-45px}   /* Outside Blue house */
+```
+
+**HTML Structure Change:**
+```html
+<!-- Before: Dice outside board-wrapper -->
+<div class="board-wrapper">
+  <div class="ludo-board"></div>
+</div>
+<div class="corner-dice red-dice"></div> <!-- Positioned relative to screen -->
+
+<!-- After: Dice inside board-wrapper -->
+<div class="board-wrapper">
+  <div class="ludo-board"></div>
+  <div class="corner-dice red-dice"></div> <!-- Positioned relative to board -->
+</div>
+```
+
+**Result:**
+Dice now stay near their respective house corners on ALL screen sizes - mobile, tablet, and desktop.
+
+**Files Modified:** 
+- `src/games/ludo/index.html` (dice HTML structure)
+- `src/games/ludo/index.html` (CSS positioning)
+
+---
+
+**Last Updated:** 2026-03-14
+**Status:** All tasks completed - Dice positioning fixed for all devices
