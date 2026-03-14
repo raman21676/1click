@@ -678,10 +678,10 @@ html,body{height:100%;font-family:'Segoe UI',Arial,sans-serif;
 
 /* Corner dice for Pass & Play mode - each player rolls from their side */
 .corner-dice{position:absolute;z-index:10;display:none;flex-direction:column;align-items:center;gap:4px}
-.corner-dice.red-dice{top:75px;left:35px}
-.corner-dice.green-dice{top:75px;right:35px}
-.corner-dice.yellow-dice{bottom:35px;right:35px}
-.corner-dice.blue-dice{bottom:35px;left:35px}
+.corner-dice.red-dice{top:-45px;left:-45px}
+.corner-dice.green-dice{top:-45px;right:-45px}
+.corner-dice.yellow-dice{bottom:-45px;right:-45px}
+.corner-dice.blue-dice{bottom:-45px;left:-45px}
 
 .corner-dice-scene{width:36px;height:36px;perspective:300px;position:relative}
 .corner-dice-scene .dice-cube{width:32px;height:32px;position:absolute;top:2px;left:2px;transform-style:preserve-3d;transform:rotateX(-25deg) rotateY(25deg)}
@@ -1187,84 +1187,9 @@ html,body{height:100%;font-family:'Segoe UI',Arial,sans-serif;
           <div style="margin-top:12px;font-size:12px;color:#94a3b8">Auto-playing turn...</div>
         </div>
       </div>
-    </div>
-  </div>
-
-  <!-- Controls -->
-  <div class="controls-row">
-    <!-- Player panels -->
-    <div class="player-panels" id="playerPanels"></div>
-
-    <!-- 3D Dice Cube -->
-    <div class="dice-area">
-      <div class="dice-scene" id="diceScene">
-        <div class="dice-cube" id="diceCube">
-          <!-- Face 1: center dot (front face, visible at rest) -->
-          <div class="face face-1">
-            <div class="dots">
-              <div class="dot"></div>
-            </div>
-          </div>
-          <!-- Face 2: top-left + bottom-right -->
-          <div class="face face-2">
-            <div class="dots">
-              <div class="dot"></div>
-              <div class="dot"></div>
-            </div>
-          </div>
-          <!-- Face 3: diagonal top-left to bottom-right -->
-          <div class="face face-3">
-            <div class="dots">
-              <div class="dot"></div>
-              <div class="dot"></div>
-              <div class="dot"></div>
-            </div>
-          </div>
-          <!-- Face 4: four corners -->
-          <div class="face face-4">
-            <div class="dots">
-              <div class="dot"></div>
-              <div class="dot"></div>
-              <div class="dot"></div>
-              <div class="dot"></div>
-            </div>
-          </div>
-          <!-- Face 5: four corners + center -->
-          <div class="face face-5">
-            <div class="dots">
-              <div class="dot"></div>
-              <div class="dot"></div>
-              <div class="dot"></div>
-              <div class="dot"></div>
-              <div class="dot"></div>
-            </div>
-          </div>
-          <!-- Face 6: two columns of three -->
-          <div class="face face-6">
-            <div class="dots">
-              <div class="dot"></div>
-              <div class="dot"></div>
-              <div class="dot"></div>
-              <div class="dot"></div>
-              <div class="dot"></div>
-              <div class="dot"></div>
-            </div>
-          </div>
-        </div>
-      </div>
-      <button class="roll-btn" id="rollBtn" disabled>Roll</button>
-    </div>
-
-    <!-- Turn info -->
-    <div class="turn-area">
-      <div class="turn-text" id="turnText">Red's Turn</div>
-      <div class="turn-sub" id="turnSub">Click Roll!</div>
-    </div>
-  </div>
-
-  
-  <!-- Corner Dice for Pass & Play Mode -->
-  <div class="corner-dice red-dice" id="redDice">
+      
+      <!-- Corner Dice for Pass & Play Mode - positioned relative to board -->
+      <div class="corner-dice red-dice" id="redDice">
     <div class="corner-dice-scene" data-color="red">
       <div class="dice-cube"><div class="face face-1"><div class="dots"><div class="dot"></div></div></div><div class="face face-2"><div class="dots"><div class="dot"></div><div class="dot"></div></div></div><div class="face face-3"><div class="dots"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div></div><div class="face face-4"><div class="dots"><div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div></div></div><div class="face face-5"><div class="dots"><div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div></div></div><div class="face face-6"><div class="dots"><div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div></div></div></div>
     </div>
@@ -1288,9 +1213,38 @@ html,body{height:100%;font-family:'Segoe UI',Arial,sans-serif;
     </div>
     <button class="corner-roll-btn" disabled>Roll!</button>
   </div>
+    </div><!-- /board-wrapper -->
+  </div><!-- /board-area -->
+
+  <!-- Controls -->
+  <div class="controls-row">
+    <!-- Player panels -->
+    <div class="player-panels" id="playerPanels"></div>
+
+    <!-- 3D Dice Cube -->
+    <div class="dice-area">
+      <div class="dice-scene" id="diceScene">
+        <div class="dice-cube" id="diceCube">
+          <div class="face face-1"><div class="dots"><div class="dot"></div></div></div>
+          <div class="face face-2"><div class="dots"><div class="dot"></div><div class="dot"></div></div></div>
+          <div class="face face-3"><div class="dots"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div></div>
+          <div class="face face-4"><div class="dots"><div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div></div></div>
+          <div class="face face-5"><div class="dots"><div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div></div></div>
+          <div class="face face-6"><div class="dots"><div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div></div></div>
+        </div>
+      </div>
+      <button class="roll-btn" id="rollBtn" disabled>Roll</button>
+    </div>
+
+    <!-- Turn info -->
+    <div class="turn-area">
+      <div class="turn-text" id="turnText">Red's Turn</div>
+      <div class="turn-sub" id="turnSub">Click Roll!</div>
+    </div>
+  </div>
 
   <div class="game-log" id="gameLog"></div>
-</div>
+</div><!-- /game-wrapper -->
 
 <!-- WIN MODAL -->
 <div class="win-modal" id="winModal">
