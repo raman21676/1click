@@ -1820,3 +1820,4 @@ Fixed critical UI/UX issues in Sudoku and completely rebuilt Baagchal according 
 - [x] Fixed SVG aspect-ratio mismatch in Snake & Ladder
 - [x] Fixed Snake & Ladder token sizes
 - [x] Fixed incorrect Snake & Ladder maps in index.html to reflect visual board art
+- [x] Realigned tokens vertically to sit above painted cell numbers
