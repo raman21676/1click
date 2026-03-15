@@ -501,7 +501,7 @@
       <button class="mode-btn active" data-mode="ai">
         <img src="assets/AI-Bot.webp" class="mode-icon" alt="AI" loading="lazy">
         <div>
-          <span class="mode-title">vs Computer</span>
+          <span class="mode-title">With AI</span>
           <span class="mode-desc">Play against AI opponent</span>
         </div>
       </button>
@@ -521,8 +521,8 @@
       </button>
     </div>
 
-    <!-- LOCAL SETTINGS -->
-    <div id="localSettings">
+    <!-- LOCAL SETTINGS (used for both AI and Pass & Play) -->
+    <div id="localSettings" style="display:block">
       <label class="setup-label">Number of Players</label>
       <div class="count-row" id="countRow">
         <button class="count-btn active" data-n="2">2</button>
@@ -552,7 +552,7 @@
     </div>
 
     <!-- ONLINE SETTINGS -->
-    <div id="onlineSettings">
+    <div id="onlineSettings" style="display:none">
       <!-- Menu -->
       <div id="onlineMenu">
         <label class="setup-label">Number of Players</label>
@@ -842,10 +842,20 @@ function initSetup() {
 }
 
 function updateModeDisplay() {
-  const isLocal = G.mode === 'local';
-  document.getElementById('localSettings').style.display = isLocal ? 'block' : 'none';
-  document.getElementById('onlineSettings').style.display = isLocal ? 'none' : 'block';
-  if (!isLocal) showOnlineMenu();
+  // CRITICAL FIX: Show correct settings panel based on mode
+  const localSettings = document.getElementById('localSettings');
+  const onlineSettings = document.getElementById('onlineSettings');
+  
+  if (G.mode === 'ai' || G.mode === 'local') {
+    // Both AI and Pass & Play use local settings
+    localSettings.style.display = 'block';
+    onlineSettings.style.display = 'none';
+  } else if (G.mode === 'online') {
+    // Online mode uses online settings
+    localSettings.style.display = 'none';
+    onlineSettings.style.display = 'block';
+    showOnlineMenu();
+  }
 }
 
 function refreshInputRows() {
