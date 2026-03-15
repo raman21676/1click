@@ -1818,3 +1818,4 @@ Fixed critical UI/UX issues in Sudoku and completely rebuilt Baagchal according 
 - [x] Fix Snake & Ladder token alignment
 - [x] Calibrated Snake & Ladder grid using board parameters
 - [x] Fixed SVG aspect-ratio mismatch in Snake & Ladder
+- [x] Fixed Snake & Ladder token sizes
