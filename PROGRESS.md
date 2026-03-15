@@ -1815,3 +1815,6 @@ Fixed critical UI/UX issues in Sudoku and completely rebuilt Baagchal according 
 **Games Completed:** 4/8 (50%)
 
 **Next: Phase 3 - Advanced Games (Truth or Dare, Ludo, Chess, Snake & Ladder)**
+- [x] Fix Snake & Ladder token alignment
+- [x] Calibrated Snake & Ladder grid using board parameters
+- [x] Fixed SVG aspect-ratio mismatch in Snake & Ladder

@@ -361,7 +361,6 @@
       position:absolute; inset:0;
       pointer-events:none;
       z-index:20;
-      border:2px solid red;
     }
 
     /* ── PLAYER PANELS ── */
@@ -644,7 +643,7 @@
 
     <div class="board-wrap">
       <img class="board-img" src="assets/board.webp" alt="Snake and Ladder Board" loading="eager">
-      <svg id="tokensSvg" viewBox="0 0 100 100" preserveAspectRatio="none"></svg>
+      <svg id="tokensSvg" viewBox="0 0 100 100" preserveAspectRatio="xMidYMid meet"></svg>
     </div>
 
     <div class="controls-row">
@@ -755,15 +754,46 @@ let loadingCancelCallback = null;
 //  COORDINATE HELPER
 // ═══════════════════════════════════════════════════
 function cellCenter(num) {
-  const gridRow = Math.floor((100 - num) / 10);
-  const posInRow = (100 - num) % 10;
-  let col;
-  if (gridRow % 2 === 0) {
-    col = posInRow;
-  } else {
-    col = 9 - posInRow;
-  }
-  return { x: col * 10 + 5, y: gridRow * 10 + 5 };
+  // Based on precise pixel calibration of the 640x640 board image
+  // Exact column centers calibrated from the image (0-100% SVG coordinates)
+  const colCenters = [
+    4.84,  // Col 0
+    14.84, // Col 1
+    24.84, // Col 2
+    34.84, // Col 3
+    44.84, // Col 4
+    55.00, // Col 5
+    65.00, // Col 6
+    75.00, // Col 7
+    85.00, // Col 8
+    95.00  // Col 9
+  ];
+  
+  // Exact row centers calibrated from the image (0-100% SVG coordinates)
+  // Row 0 is the bottom row (cells 1-10), Row 9 is the top row (cells 91-100)
+  const rowCenters = [
+    95.31, // Row 0 (bottom)
+    85.94, // Row 1
+    76.25, // Row 2
+    66.41, // Row 3
+    56.41, // Row 4
+    46.25, // Row 5
+    36.09, // Row 6
+    25.63, // Row 7
+    15.31, // Row 8
+    5.00   // Row 9 (top)
+  ];
+
+  const row = Math.floor((num - 1) / 10);
+  const colInRow = (num - 1) % 10;
+  
+  // Zig-zag pattern: even rows go left-to-right, odd rows go right-to-left
+  const col = (row % 2 === 0) ? colInRow : 9 - colInRow;
+  
+  const x = colCenters[col];
+  const y = rowCenters[row];
+  
+  return { x, y };
 }
 
 // ═══════════════════════════════════════════════════
@@ -1335,6 +1365,11 @@ function startLocalGame() {
   const inputs = document.querySelectorAll('#playerInputs .name-input');
   G.players = [];
   
+  // Get the currently selected mode from UI
+  const activeModeBtn = document.querySelector('.mode-btn.active');
+  const selectedMode = activeModeBtn ? activeModeBtn.dataset.mode : 'local';
+  G.mode = selectedMode;
+  
   // AI Mode: 2 players (human vs AI)
   if (G.mode === 'ai') {
     G.count = 2;
@@ -1535,12 +1570,13 @@ function endTurnWithSync(pi, extraTurn = false) {
     document.getElementById('rollBtn').disabled = (G.current !== G.myPlayerIndex);
   } else if (G.mode === 'ai') {
     // AI mode: only human (player 0) can use the button
-    document.getElementById('rollBtn').disabled = (G.current === 1);
+    const isAITurn = (G.current === 1);
+    document.getElementById('rollBtn').disabled = isAITurn;
     
     // AI Turn: Auto-roll for computer player
-    if (G.current === 1 && !G.over) {
+    if (isAITurn && !G.over) {
       setTimeout(() => {
-        if (!G.busy && !G.over) {
+        if (!G.busy && !G.over && G.current === 1) {
           performAIRoll();
         }
       }, 1500);
