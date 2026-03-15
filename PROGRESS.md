@@ -1822,3 +1822,4 @@ Fixed critical UI/UX issues in Sudoku and completely rebuilt Baagchal according 
 - [x] Fixed incorrect Snake & Ladder maps in index.html to reflect visual board art
 - [x] Realigned tokens vertically to sit above painted cell numbers
 - [x] Fix Safari specific overlay bounding box calculation using CSS Grid
+- [x] Restored perfect vertical mathematical center coordinates
