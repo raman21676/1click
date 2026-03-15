@@ -4,7 +4,7 @@
  * @version 2.0.0 - TWA Ready
  */
 
-const CACHE_VERSION = 'v2';
+const CACHE_VERSION = 'v3-' + new Date().toISOString().slice(0,10);
 const STATIC_CACHE = `1click-static-${CACHE_VERSION}`;
 const GAME_CACHE = `1click-games-${CACHE_VERSION}`;
 const ASSETS_CACHE = `1click-assets-${CACHE_VERSION}`;
