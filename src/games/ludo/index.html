@@ -979,6 +979,26 @@ html,body{height:100%;font-family:'Segoe UI',Arial,sans-serif;
 </script>
 </head>
 <body>
+<!-- CRITICAL: Force correct mode visibility before any scripts run -->
+<script>
+(function() {
+  // Wait for DOM to be ready
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', forceModeVisibility);
+  } else {
+    forceModeVisibility();
+  }
+  function forceModeVisibility() {
+    var ai = document.getElementById('aiSettings');
+    var local = document.getElementById('localSettings');
+    var online = document.getElementById('onlineSettings');
+    if (ai) ai.style.display = 'block';
+    if (local) local.style.display = 'none';
+    if (online) online.style.display = 'none';
+    console.log('[FORCE] Mode visibility set: ai=block, local=none, online=none');
+  }
+})();
+</script>
 <div id="loadingScreen" class="loading-screen">
   <div class="loading-logo">🎲</div>
   <div class="loading-text">Loading Ludo...</div>
