@@ -17,6 +17,8 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
+<link rel="icon" type="image/png" href="../../assets/images/1click.png">
+<link rel="apple-touch-icon" href="../../assets/images/1click.png">
 <link rel="canonical" href="https://1click.live/src/games/ludo/">
 <meta property="og:type" content="website">
 <meta property="og:url" content="https://1click.live/src/games/ludo/">
@@ -4471,7 +4473,7 @@ console.log("[DEBUG] Calling initSetup");
 window.onerror = function(msg, url, line) { console.error("[JS ERROR] " + msg + " at line " + line); };
 
 // VERSION CHECK - to verify code is updated
-const BUILD_VERSION = "v10051-cache-bust";
+const BUILD_VERSION = "v10052-" + Date.now();
 console.log(`%c[BUILD] ${BUILD_VERSION}`, 'color:green;font-size:14px;font-weight:bold');
 
 // Update version in UI
