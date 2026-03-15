@@ -344,7 +344,7 @@
 
     /* ── BOARD ── */
     .board-wrap {
-      position:relative;
+      display:grid; /* Ensures bulletproof Safari bounding box match for SVG */
       width:100%; max-width:520px;
       aspect-ratio:1;
       border-radius:8px;
@@ -352,13 +352,15 @@
       box-shadow:0 8px 40px rgba(0,0,0,.6), 0 0 0 3px rgba(255,255,255,.08);
     }
     .board-wrap img.board-img {
+      grid-area:1 / 1;
       width:100%; height:100%;
       object-fit:contain;
       display:block;
       border-radius:8px;
     }
     #tokensSvg {
-      position:absolute; inset:0;
+      grid-area:1 / 1;
+      width:100%; height:100%; display:block;
       pointer-events:none;
       z-index:20;
     }
