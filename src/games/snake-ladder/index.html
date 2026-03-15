@@ -1559,10 +1559,7 @@ function endTurnWithSync(pi, extraTurn = false) {
   G.current = nextPlayer;
   G.busy = false;
   
-  // Reset dice
-  const cube = document.getElementById('diceCube');
-  cube.className = 'dice-cube';
-  cube.style.transform = 'rotateX(-25deg) rotateY(25deg)';
+  // Dice reset removed so the final output number stays visible until the next roll
   
   renderUI();
   
