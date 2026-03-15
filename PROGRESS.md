@@ -6,6 +6,119 @@
 
 ## 📋 Session History
 
+### Session 29: Ludo Online Multiplayer Fixes
+
+**Date:** 2026-03-15  
+**Time:** 15:30 IST  
+**Agent:** AI Agent  
+**Status:** ✅ Complete
+
+#### Summary
+
+Fixed critical issues in Ludo's online multiplayer mode:
+1. **CRITICAL**: Mode panels were leaking into each other due to browser caching
+2. **CRITICAL**: vs Computer mode was incorrectly showing Create Room/Join Room UI from Online mode
+3. Default player name was "You" instead of "Player 1"/"Player 2" when name input was empty
+4. Roll button not activating (enabling) when it becomes the player's turn remotely
+5. Renamed "vs Computer" to "With AI"
+
+#### Changes Made
+
+**1. Mode Display Fix (CRITICAL)**
+- Added `data-mode` attributes to all settings panels for better tracking
+- Added **forced visibility initialization** in `initSetup()` to override any cached state
+- Fixed `aiSettings` to have proper `style="display:block"` by default
+- Changed default `G.gameMode` from `'local'` to `'ai'` to match HTML default
+- Added cache-busting meta tags to prevent future caching issues
+- Updated build version to force cache refresh
+- File: `src/games/ludo/index.html`
+
+**2. UI Text Update**
+- Renamed mode button from "Play with AI" to "With AI"
+- File: `src/games/ludo/index.html`
+
+**2. Default Player Names Fix**
+- Changed default name from "You" to "Player 1" for host and "Player 2" for guest
+- Updated `setupConnection()` to set default host name as "Player 1"
+- Updated `handlePeerData()` (gameStart case) to set default guest name as "Player 2"
+- Updated `startGame()` to use "Player 1"/"Player 2" for online mode based on player order
+- For local/AI mode, uses "Player Red"/"Player Green" etc. based on color
+- File: `src/games/ludo/index.html`
+
+**2. Roll Button Activation Fix**
+- Fixed UI throttling that was preventing roll button from enabling on remote turn changes
+- Reset `lastUIState` and `uiUpdatePending` when receiving 'turn' message from peer
+- Added delayed `updateDiceUI()` call to ensure button state is correctly updated
+- Added explicit roll button enable check with opacity/pointer-events fix
+- File: `src/games/ludo/index.html`
+
+#### Testing Checklist
+
+- [ ] Create online room without entering name → should show "Player 1"
+- [ ] Join online room without entering name → should show "Player 2"
+- [ ] Roll button enables when turn changes to current player
+- [ ] Roll button disables when turn changes to opponent
+- [ ] Custom names still work when entered
+
+---
+
+### Session 28: Snake & Ladder - AI & Game Rules Fix
+
+**Date:** 2026-03-15  
+**Time:** 14:45 IST  
+**Agent:** AI Agent  
+**Status:** ✅ Complete
+
+#### Summary
+
+Fixed critical bugs in Snake & Ladder game affecting the "vs Computer" mode and core game rules:
+1. AI not playing/responding in vs Computer mode
+2. Missing extra turn mechanics (roll 6 = extra turn, ladder = extra turn)
+3. Improved turn synchronization for online mode
+
+#### Changes Made
+
+**1. AI Mode Fix**
+- Added check in `onRoll()` to prevent human from rolling during AI's turn
+- Created dedicated `performAIRoll()` function for AI turns
+- Fixed turn state management to properly trigger AI after human's turn
+- File: `src/games/snake-ladder/index.html`
+
+**2. Extra Turn Rules Implementation**
+- **Roll a 6**: Player gets another turn (message: "🎲 Rolled 6! Extra turn!")
+- **Climb a ladder**: Player gets another turn (message: "🪜 Ladder! Extra turn!")
+- **Snake bite**: Turn ends, no extra roll
+- **Overshoot (bounce back)**: Turn ends, no extra roll
+- Modified `handleMove()` to pass extra turn flag
+- Modified `endTurnWithSync()` to handle extra turns
+
+**3. Online Mode Enhancement**
+- Added `extraTurn` field to moveComplete peer message
+- Host shows message when opponent gets extra turn
+- Maintains sync between players
+
+#### Snake & Ladder Rules (Now Implemented)
+
+| Event | Action | Extra Turn |
+|-------|--------|------------|
+| Roll 1-5, normal move | Move forward | No |
+| Roll 6 | Move forward | **Yes** |
+| Land on ladder bottom | Climb to top | **Yes** |
+| Land on snake head | Slide to tail | No |
+| Overshoot 100 | Bounce back | No |
+| Exact 100 | Win! | Game Over |
+
+#### Testing Checklist
+
+- [ ] vs Computer mode: AI rolls after human
+- [ ] Roll 6: Get another turn
+- [ ] Climb ladder: Get another turn
+- [ ] Snake bite: Turn ends normally
+- [ ] Pass & Play: Extra turns work for all players
+- [ ] Online mode: Extra turn sync works
+
+---
+
 ### Session 27: Ludo Pass & Play Mode Fixes
 
 **Date:** 2026-03-11  

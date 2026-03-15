@@ -14,6 +14,9 @@
 <meta name="DC.description" content="Play Ludo online free">
 <meta name="robots" content="index, follow">
 <meta name="theme-color" content="#0f172a">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
 <link rel="canonical" href="https://1click.live/src/games/ludo/">
 <meta property="og:type" content="website">
 <meta property="og:url" content="https://1click.live/src/games/ludo/">
@@ -992,7 +995,7 @@ html,body{height:100%;font-family:'Segoe UI',Arial,sans-serif;
       <button class="mode-btn active" data-mode="ai">
         <img src="assets/ai-bot.webp" class="mode-icon" alt="AI" style="width:32px;height:32px;object-fit:contain" loading="lazy">
         <div>
-          <span class="mode-title">Play with AI</span>
+          <span class="mode-title">With AI</span>
           <span class="mode-desc">Play against AI opponent</span>
         </div>
       </button>
@@ -1013,8 +1016,8 @@ html,body{height:100%;font-family:'Segoe UI',Arial,sans-serif;
     </div>
   </div>
   
-  <!-- AI SETTINGS -->
-  <div id="aiSettings" class="setup-card">
+  <!-- AI SETTINGS (With AI Mode) -->
+  <div id="aiSettings" class="setup-card" style="display:block" data-mode="ai">
     <label class="setup-label">Number of Players</label>
     <div class="count-row" style="display:flex;gap:8px;margin-bottom:20px">
       <button class="count-btn active" data-n="2">2</button>
@@ -1023,7 +1026,7 @@ html,body{height:100%;font-family:'Segoe UI',Arial,sans-serif;
     </div>
     <label class="setup-label">Your Name</label>
     <div class="name-input-wrap" style="margin-bottom:20px">
-      <input type="text" id="aiPlayerName" class="name-input" placeholder="Enter your name" value="You" maxlength="12" style="width:100%;padding:12px 16px;border-radius:9px;border:1px solid rgba(255,255,255,.2);background:rgba(0,0,0,.25);color:#fff;font-size:15px;outline:none;transition:all .2s">
+      <input type="text" id="aiPlayerName" class="name-input" placeholder="Player 1" value="" maxlength="12" style="width:100%;padding:12px 16px;border-radius:9px;border:1px solid rgba(255,255,255,.2);background:rgba(0,0,0,.25);color:#fff;font-size:15px;outline:none;transition:all .2s">
     </div>
     <label class="setup-label">Your Color</label>
     <div class="color-select" id="aiColorSelect" style="display:flex;gap:8px;margin-bottom:20px">
@@ -1036,7 +1039,7 @@ html,body{height:100%;font-family:'Segoe UI',Arial,sans-serif;
   </div>
   
   <!-- LOCAL (PASS & PLAY) SETTINGS -->
-  <div id="localSettings" class="setup-card" style="display:none">
+  <div id="localSettings" class="setup-card" style="display:none" data-mode="local">
     <label class="setup-label" style="font-size:13px;color:#94a3b8;margin-bottom:10px;display:block">Number of Players</label>
     <div class="count-row" style="display:flex;gap:8px;margin-bottom:20px">
       <button class="count-btn" data-n="2">2</button>
@@ -1091,7 +1094,7 @@ html,body{height:100%;font-family:'Segoe UI',Arial,sans-serif;
   </div>
   
   <!-- ONLINE MULTIPLAYER SETTINGS -->
-  <div id="onlineSettings" class="setup-card" style="display:none">
+  <div id="onlineSettings" class="setup-card" style="display:none" data-mode="online">
     <div id="onlineMenu">
       <h3>🌐 Online Multiplayer</h3>
       <p style="color:rgba(255,255,255,.5);font-size:12px;margin-bottom:12px">Play with 2-4 friends using a simple code</p>
@@ -1477,7 +1480,7 @@ let G = {
   finished: new Set(), // Players who finished all 4 tokens
   rankings: [], // Order of finish: ['red', 'green', ...]
   winner: null,
-  playerNames: {red:'You',green:'AI 1',yellow:'AI 2',blue:'AI 3'}, // Default names
+  playerNames: {red:'Player 1',green:'AI 1',yellow:'AI 2',blue:'AI 3'}, // Default names
   playerEmojis: {}, // {red:'(boy)', green:'(girl)', ...}
   // Online mode auto-play system
   lives: {}, // {red:5, green:5, ...} - 5 lives per player in online mode
@@ -2965,8 +2968,18 @@ function addTouchHandler(element, handler) {
 function initSetup() {
   console.log("[DEBUG] initSetup started");
   
-  // Game mode: 'local' (pass & play) or 'online'
-  G.gameMode = 'local';
+  // CRITICAL: Force correct initial visibility of mode panels
+  // This prevents cached state from showing wrong panels
+  const aiSettings = document.getElementById('aiSettings');
+  const localSettings = document.getElementById('localSettings');
+  const onlineSettings = document.getElementById('onlineSettings');
+  
+  if (aiSettings) aiSettings.style.display = 'block';
+  if (localSettings) localSettings.style.display = 'none';
+  if (onlineSettings) onlineSettings.style.display = 'none';
+  
+  // Game mode: 'ai' (vs computer), 'local' (pass & play), or 'online'
+  G.gameMode = 'ai';
   G.roomId = null;
   G.roomPassword = null;
   
@@ -3103,8 +3116,8 @@ function initModeSelection() {
   // Initialize color selection for AI mode
   initAiColorSelect();
   
-  // Sync UI with initial G.gameMode (default is 'local' for Pass & Play)
-  const initialMode = G.gameMode || 'local';
+  // Sync UI with initial G.gameMode (default is 'ai' for vs Computer)
+  const initialMode = G.gameMode || 'ai';
   const initialBtn = document.querySelector(`.mode-btn[data-mode="${initialMode}"]`);
   if (initialBtn) {
     modeBtns.forEach(b => b.classList.remove('active'));
@@ -3837,7 +3850,10 @@ function setupConnection(conn) {
     // Update host UI with their name
     if (isHost) {
       document.getElementById('hostConnectedPlayers').style.display = 'block';
-      document.getElementById('hostPlayerName').textContent = (displayName || 'You') + ' (Host)';
+      // Default to 'Player 1' if no name entered
+      const finalDisplayName = displayName || 'Player 1';
+      G.playerNames[G.humanColor] = finalDisplayName;
+      document.getElementById('hostPlayerName').textContent = finalDisplayName + ' (Host)';
     }
     
     sendToPeer({
@@ -3995,20 +4011,21 @@ function handlePeerData(data) {
         }
         // Ensure ptypes is set for guest's color
         G.ptypes[G.humanColor] = 'human';
-        // Update player name
+        // Update player name - default to 'Player 2' if no name entered
         if (G.guestName) {
           G.playerNames[G.humanColor] = G.guestName;
         } else if (!G.playerNames[G.humanColor] || G.playerNames[G.humanColor].startsWith('AI ')) {
-          G.playerNames[G.humanColor] = 'You';
+          G.playerNames[G.humanColor] = 'Player 2';
         }
       } else if (data.yourColor) {
         // Guest didn't select a house - use what host sent
         G.humanColor = data.yourColor;
         G.ptypes[data.yourColor] = 'human';
+        // Default to 'Player 2' if no name entered
         if (G.guestName) {
           G.playerNames[data.yourColor] = G.guestName;
         } else if (!G.playerNames[data.yourColor] || G.playerNames[data.yourColor].startsWith('AI ')) {
-          G.playerNames[data.yourColor] = 'You';
+          G.playerNames[data.yourColor] = 'Player 2';
         }
         addLog(`(game) You are playing as ${cap(data.yourColor)}!`);
       }
@@ -4051,7 +4068,23 @@ function handlePeerData(data) {
       G.curIdx = data.curIdx;
       G.diceVal = null;
       G.phase = 'roll';
+      // Reset UI state to force update (important for roll button enable/disable)
+      lastUIState = '';
+      uiUpdatePending = false;
       updateUI();
+      // Force dice UI update after a short delay to ensure state is synced
+      setTimeout(() => {
+        updateDiceUI();
+        // Additional check to ensure roll button is properly enabled
+        if (G.isOnline && curPlayer() === G.humanColor && G.phase === 'roll') {
+          const rollBtn = document.getElementById('rollBtn');
+          if (rollBtn) {
+            rollBtn.disabled = false;
+            document.getElementById('diceScene').style.opacity = '1';
+            document.getElementById('diceScene').style.pointerEvents = 'auto';
+          }
+        }
+      }, 100);
       // Start auto-turn countdown in online mode
       if (G.isOnline) {
         startAutoTurnCountdown();
@@ -4266,13 +4299,22 @@ function startGame() {
   
   // Assign names to players (preserve already set names)
   G.playerEmojis = {};
-  G.active.forEach(p => {
+  G.active.forEach((p, idx) => {
     // If name not set or is default, assign appropriate name
     if (!G.playerNames[p] || G.playerNames[p] === '') {
       if (G.ptypes[p] === 'ai') {
         G.playerNames[p] = getRandomAIName();
       } else {
-        G.playerNames[p] = 'You';
+        // For online mode, use Player 1/2 based on whether they're first human player
+        // For AI/local mode, use 'Player' with capitalized color name
+        if (G.isOnline) {
+          // Find the index of this human player among all human players
+          const humanPlayers = G.active.filter(player => G.ptypes[player] === 'human');
+          const playerIndex = humanPlayers.indexOf(p);
+          G.playerNames[p] = playerIndex === 0 ? 'Player 1' : `Player ${playerIndex + 1}`;
+        } else {
+          G.playerNames[p] = `Player ${cap(p)}`;
+        }
       }
     }
     G.playerEmojis[p] = getPlayerEmoji(G.playerNames[p]);
@@ -4429,7 +4471,7 @@ console.log("[DEBUG] Calling initSetup");
 window.onerror = function(msg, url, line) { console.error("[JS ERROR] " + msg + " at line " + line); };
 
 // VERSION CHECK - to verify code is updated
-const BUILD_VERSION = "v10049-guest-ui-fix";
+const BUILD_VERSION = "v10051-cache-bust";
 console.log(`%c[BUILD] ${BUILD_VERSION}`, 'color:green;font-size:14px;font-weight:bold');
 
 // Update version in UI

@@ -1111,6 +1111,11 @@ function handlePeerData(data) {
         renderTokens();
         renderUI();
         document.getElementById('rollBtn').disabled = (G.current !== G.myPlayerIndex);
+        
+        // Show message if opponent got extra turn
+        if (data.extraTurn) {
+          setMsg(`${G.players[data.playerIndex].name} got an extra turn!`);
+        }
       }
       break;
       
@@ -1351,6 +1356,7 @@ function initGame() {
   G.current = 0;
   G.busy = false;
   G.over = false;
+  G.lastRoll = 0;  // Track the last dice roll
 
   document.getElementById('setupScreen').style.display = 'none';
   document.getElementById('gameScreen').style.display = 'flex';
@@ -1360,6 +1366,7 @@ function initGame() {
   if (G.isOnline) {
     document.getElementById('rollBtn').disabled = (G.current !== G.myPlayerIndex);
   } else if (G.mode === 'ai') {
+    // Human (player 0) starts, AI is player 1
     document.getElementById('rollBtn').disabled = false;
   } else {
     document.getElementById('rollBtn').disabled = false;
@@ -1381,10 +1388,16 @@ function onRoll() {
     return;
   }
   
+  // AI mode: only human can initiate roll
+  if (G.mode === 'ai' && G.current === 1) {
+    return; // AI turn is handled automatically
+  }
+  
   G.busy = true;
   document.getElementById('rollBtn').disabled = true;
 
   const val = Math.floor(Math.random() * 6) + 1;
+  G.lastRoll = val;  // Store the roll value
   
   // Broadcast to peer in online mode
   if (G.isOnline) {
@@ -1427,28 +1440,34 @@ function handleMove(pi, steps) {
   if (raw > 100) {
     const bounce = 100 - (raw - 100);
     setMsg(`Need exactly ${100 - cur} to win!`);
-    animSteps(pi, cur, bounce, () => endTurn());
+    animSteps(pi, cur, bounce, () => {
+      // Overshoot: no extra turn, switch to next player
+      endTurnWithSync(pi, false);
+    });
     return;
   }
 
   animSteps(pi, cur, raw, () => {
     if (SNAKES[raw] !== undefined) {
+      // Snake bite: lose turn, no extra roll
       setMsg('🐍 Oh no! Snake bite!');
       trySound(() => SoundManager.playLose());
       setTimeout(() => {
         G.positions[pi] = SNAKES[raw];
         renderTokens();
-        setTimeout(() => endTurnWithSync(pi), 500);
+        setTimeout(() => endTurnWithSync(pi, false), 500);
       }, 700);
     } else if (LADDERS[raw] !== undefined) {
-      setMsg('🪜 Ladder! Climb up!');
+      // Ladder: get extra turn!
+      setMsg('🪜 Ladder! Extra turn!');
       trySound(() => SoundManager.playLevelUp());
       setTimeout(() => {
         G.positions[pi] = LADDERS[raw];
         renderTokens();
-        setTimeout(() => endTurnWithSync(pi), 500);
+        setTimeout(() => endTurnWithSync(pi, true), 500);
       }, 700);
     } else if (raw === 100) {
+      // Win!
       trySound(() => SoundManager.playWin());
       showWin(pi);
       // Sync win
@@ -1456,14 +1475,27 @@ function handleMove(pi, steps) {
         sendToPeer({ type: 'moveComplete', playerIndex: pi, position: 100, nextPlayer: pi, won: true });
       }
     } else {
+      // Normal move: check for 6
       trySound(() => SoundManager.playMove());
-      endTurnWithSync(pi);
+      const rolledSix = (steps === 6);
+      if (rolledSix) {
+        setMsg('🎲 Rolled 6! Extra turn!');
+      }
+      endTurnWithSync(pi, rolledSix);
     }
   });
 }
 
-function endTurnWithSync(pi) {
-  const nextPlayer = (pi + 1) % G.count;
+function endTurnWithSync(pi, extraTurn = false) {
+  // Determine next player
+  let nextPlayer;
+  if (extraTurn) {
+    // Same player gets another turn
+    nextPlayer = pi;
+  } else {
+    // Move to next player
+    nextPlayer = (pi + 1) % G.count;
+  }
   
   // Sync with peer
   if (G.isOnline) {
@@ -1471,19 +1503,13 @@ function endTurnWithSync(pi) {
       type: 'moveComplete',
       playerIndex: pi,
       position: G.positions[pi],
-      nextPlayer: nextPlayer
+      nextPlayer: nextPlayer,
+      extraTurn: extraTurn
     });
   }
   
   G.current = nextPlayer;
   G.busy = false;
-  
-  // In online mode, only enable roll if it's my turn
-  if (G.isOnline) {
-    document.getElementById('rollBtn').disabled = (G.current !== G.myPlayerIndex);
-  } else {
-    document.getElementById('rollBtn').disabled = false;
-  }
   
   // Reset dice
   const cube = document.getElementById('diceCube');
@@ -1492,11 +1518,39 @@ function endTurnWithSync(pi) {
   
   renderUI();
   
-  // AI Turn: Auto-roll for computer player
-  if (!G.isOnline && G.mode === 'ai' && G.current === 1 && !G.over) {
-    document.getElementById('rollBtn').disabled = true;
-    setTimeout(() => onRoll(), 1000);
+  // Handle roll button state based on game mode
+  if (G.isOnline) {
+    // Online: only enable if it's my turn
+    document.getElementById('rollBtn').disabled = (G.current !== G.myPlayerIndex);
+  } else if (G.mode === 'ai') {
+    // AI mode: only human (player 0) can use the button
+    document.getElementById('rollBtn').disabled = (G.current === 1);
+    
+    // AI Turn: Auto-roll for computer player
+    if (G.current === 1 && !G.over) {
+      setTimeout(() => {
+        if (!G.busy && !G.over) {
+          performAIRoll();
+        }
+      }, 1500);
+    }
+  } else {
+    // Local multiplayer: always enable for current player
+    document.getElementById('rollBtn').disabled = false;
   }
+}
+
+// AI-specific roll function
+function performAIRoll() {
+  if (G.busy || G.over) return;
+  
+  G.busy = true;
+  document.getElementById('rollBtn').disabled = true;
+
+  const val = Math.floor(Math.random() * 6) + 1;
+  G.lastRoll = val;
+  
+  performRollAnimation(val, true);
 }
 
 function endTurn() {
