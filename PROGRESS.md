@@ -1823,3 +1823,4 @@ Fixed critical UI/UX issues in Sudoku and completely rebuilt Baagchal according 
 - [x] Realigned tokens vertically to sit above painted cell numbers
 - [x] Fix Safari specific overlay bounding box calculation using CSS Grid
 - [x] Restored perfect vertical mathematical center coordinates
+- [x] Fixed rightmost bottom ladder mapping (moved base from 9 to 10)
