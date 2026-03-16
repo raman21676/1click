@@ -193,7 +193,19 @@
       background:rgba(0,0,0,.35);
       border-bottom:1px solid rgba(255,255,255,.08);
     }
-    .gh-back { color:#94a3b8; text-decoration:none; font-size:14px; padding:4px; }
+    .gh-back { color:#94a3b8; text-decoration:none; font-size:14px; padding:4px; background:none; border:none; cursor:pointer; font-family:inherit; }
+    .exit-modal{position:fixed;inset:0;background:rgba(0,0,0,.8);display:none;align-items:center;justify-content:center;z-index:9000}
+    .exit-modal.active{display:flex}
+    .exit-content{background:linear-gradient(135deg,#1e3a5f 0%,#0f172a 100%);border-radius:20px;padding:35px 45px;text-align:center;border:2px solid rgba(255,255,255,.2);box-shadow:0 20px 60px rgba(0,0,0,.5);max-width:320px;width:90%}
+    .exit-icon{font-size:clamp(48px,10vmin,72px);margin-bottom:15px}
+    .exit-title{font-size:clamp(20px,5vmin,28px);font-weight:800;margin-bottom:12px;color:#fff}
+    .exit-text{color:rgba(255,255,255,.7);margin-bottom:25px;font-size:clamp(14px,3vmin,16px);line-height:1.5}
+    .exit-buttons{display:flex;gap:12px;justify-content:center}
+    .exit-btn{padding:14px 30px;border-radius:10px;border:none;font-weight:700;cursor:pointer;font-size:15px;transition:all .2s;flex:1}
+    .exit-btn.yes{background:linear-gradient(135deg,#E53935,#ff6b6b);color:#fff}
+    .exit-btn.yes:hover{transform:translateY(-2px)}
+    .exit-btn.no{background:rgba(255,255,255,.1);color:#fff;border:1px solid rgba(255,255,255,.3)}
+    .exit-btn.no:hover{background:rgba(255,255,255,.2)}
     .gh-title { font-weight:700; font-size:1.1rem; }
     .gh-spacer { width:50px; }
 
@@ -718,7 +730,7 @@
 <!-- ════ GAME SCREEN ════ -->
 <div id="gameScreen">
   <header class="game-header">
-    <a class="gh-back" href="../../../index.html">← Back</a>
+    <button class="gh-back" id="backBtn">← Back</button>
     <div class="gh-title">🐍 Snake &amp; Ladder</div>
     <div class="connection-status disconnected" id="connectionStatus">
       <span class="conn-dot"></span>
@@ -1973,7 +1985,30 @@ function initSoundBtn() {
   });
   update();
 }
+
+// Exit confirmation modal
+const _exitModal = document.getElementById('exitModal');
+const _backBtn = document.getElementById('backBtn');
+const _exitYesBtn = document.getElementById('exitYesBtn');
+const _exitNoBtn = document.getElementById('exitNoBtn');
+if (_backBtn) _backBtn.addEventListener('click', (e) => { e.preventDefault(); _exitModal.classList.add('active'); });
+if (_exitYesBtn) _exitYesBtn.addEventListener('click', () => { window.location.href = '../../../index.html'; });
+if (_exitNoBtn) _exitNoBtn.addEventListener('click', () => { _exitModal.classList.remove('active'); });
+if (_exitModal) _exitModal.addEventListener('click', (e) => { if (e.target === _exitModal) _exitModal.classList.remove('active'); });
 </script>
+
+<!-- EXIT CONFIRMATION MODAL -->
+<div class="exit-modal" id="exitModal">
+  <div class="exit-content">
+    <div class="exit-icon">🚪</div>
+    <div class="exit-title">Leave Game?</div>
+    <div class="exit-text">Are you sure you want to quit?<br>Your progress will be lost.</div>
+    <div class="exit-buttons">
+      <button class="exit-btn yes" id="exitYesBtn">Yes, Quit</button>
+      <button class="exit-btn no" id="exitNoBtn">No, Stay</button>
+    </div>
+  </div>
+</div>
 <div style="position:absolute;left:-9999px;top:-9999px;width:1px;height:1px;overflow:hidden;" aria-hidden="true">
   snake and ladder, snakes and ladders, snake n ladder, chutes and ladders, sankes and ladder, sanks and ladder, 
   snake ladder online, play snake ladder, snakes ladders free, sankes and ladders, snake and ladder game, 
