@@ -858,6 +858,23 @@ function escapeHtml(text) {
 const PLAYER_COLORS = ['#E53935','#1E88E5','#43A047','#FDD835'];
 const PLAYER_TXT    = ['#fff',   '#fff',   '#fff',   '#222'  ];
 
+// In 2-player local mode, use Red+Green at diagonal corner slots [0, 2]
+// so both players sit comfortably facing each other across the table.
+const LOCAL_2P_COLORS = ['#E53935', '#43A047'];
+const LOCAL_2P_TXT    = ['#fff',    '#fff'   ];
+// Corner slot mapping per player count (which physical corner each player uses)
+const LOCAL_CORNER_MAP = {
+  2: [0, 2],        // top-left, bottom-right (diagonal)
+  3: [0, 1, 2],     // top-left, top-right, bottom-right
+  4: [0, 1, 2, 3],  // all four corners
+};
+
+// Returns the corner dice element index (0-3) for playerIdx in local Pass&Play mode
+function getLocalCornerPos(playerIdx) {
+  const map = LOCAL_CORNER_MAP[G.count] || [0,1,2,3];
+  return map[playerIdx] ?? playerIdx;
+}
+
 const SNAKES = { 99:42, 92:73, 83:63, 66:47, 36:15, 32:11, 23:17 };
 const LADDERS = { 2:23, 10:29, 14:35, 24:45, 33:52, 42:61, 53:74, 64:85 };
 
@@ -1537,12 +1554,13 @@ function startLocalGame() {
       });
     }
   } else {
-    // Local multiplayer
+    // Local Pass & Play
     for (let i = 0; i < G.count; i++) {
+      const is2p = (G.count === 2);
       G.players.push({
         name: inputs[i].value.trim() || `Player ${i+1}`,
-        color: PLAYER_COLORS[i],
-        text: PLAYER_TXT[i],
+        color: is2p ? LOCAL_2P_COLORS[i] : PLAYER_COLORS[i],
+        text:  is2p ? LOCAL_2P_TXT[i]    : PLAYER_TXT[i],
       });
     }
   }
@@ -1623,9 +1641,10 @@ function performRollAnimation(val, shouldProcess) {
   let cube, scene;
   
   if (G.mode === 'local') {
-    // Pass & Play mode: Use corner dice
-    cube = document.getElementById(`p${G.current}DiceCube`);
-    scene = document.getElementById(`p${G.current}DiceScene`);
+    // Pass & Play mode: Use the correct corner dice slot
+    const slot = getLocalCornerPos(G.current);
+    cube = document.getElementById(`p${slot}DiceCube`);
+    scene = document.getElementById(`p${slot}DiceScene`);
   } else {
     // AI/Online mode: Use central dice
     cube = document.getElementById('diceCube');
@@ -1823,22 +1842,27 @@ function renderUI() {
   
   // Update corner dice UI if in local Pass & Play mode
   if (G.mode === 'local') {
-    // Hide all corners first
-    for (let i = 0; i < 4; i++) {
-        const diceEl = document.getElementById(`p${i}Dice`);
-        const btnEl = document.getElementById(`p${i}RollBtn`);
-        if (diceEl) {
-            diceEl.classList.remove('active');
-            diceEl.style.display = (i < G.count) ? 'flex' : 'none';
-        }
-        if (btnEl) btnEl.disabled = true;
+    // Hide all 4 corner slots first
+    for (let slot = 0; slot < 4; slot++) {
+      const diceEl = document.getElementById(`p${slot}Dice`);
+      const btnEl  = document.getElementById(`p${slot}RollBtn`);
+      if (diceEl) { diceEl.classList.remove('active'); diceEl.style.display = 'none'; }
+      if (btnEl)  { btnEl.disabled = true; }
     }
-    // Enable active player's corner
-    const activeDice = document.getElementById(`p${G.current}Dice`);
-    const activeBtn = document.getElementById(`p${G.current}RollBtn`);
+    // Show only the slots used by active players
+    for (let pi = 0; pi < G.count; pi++) {
+      const slot = getLocalCornerPos(pi);
+      const diceEl = document.getElementById(`p${slot}Dice`);
+      const btnEl  = document.getElementById(`p${slot}RollBtn`);
+      if (diceEl) diceEl.style.display = 'flex';
+    }
+    // Enable the active player's corner
+    const activeSlot = getLocalCornerPos(G.current);
+    const activeDice = document.getElementById(`p${activeSlot}Dice`);
+    const activeBtn  = document.getElementById(`p${activeSlot}RollBtn`);
     if (activeDice && !G.busy && !G.over) {
-        activeDice.classList.add('active');
-        activeBtn.disabled = false;
+      activeDice.classList.add('active');
+      activeBtn.disabled = false;
     }
   }
   
