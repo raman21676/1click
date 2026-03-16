@@ -1825,3 +1825,5 @@ Fixed critical UI/UX issues in Sudoku and completely rebuilt Baagchal according 
 - [x] Restored perfect vertical mathematical center coordinates
 - [x] Fixed rightmost bottom ladder mapping (moved base from 9 to 10)
 - [x] Prevented dice from resetting so the rolled number persists until next turn
+
+- [x] Fixed Snake & Ladder dice visual mismatch (DICE_FINAL mappings were incorrect and displayed wrong faces for given numbers)
