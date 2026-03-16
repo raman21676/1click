@@ -671,6 +671,9 @@
 
       <!-- Create Room -->
       <div id="createRoomForm">
+        <label class="setup-label">Your Name</label>
+        <input type="text" id="hostNameInput" maxlength="12" placeholder="Player 1" value="Player 1"
+          style="width:100%; padding:12px; margin-bottom:12px; background:rgba(0,0,0,.3); border:1px solid rgba(255,255,255,.2); border-radius:8px; color:#fff; font-size:16px;">
         <label class="setup-label">Your Room Code</label>
         <div class="room-code-display" id="roomCodeDisplay">------</div>
         <div style="display: flex; justify-content: center; margin: 8px 0;">
@@ -1506,10 +1509,10 @@ function startOnlineGame() {
   G.myPlayerIndex = 0;
   G.count = 2; // For simplicity, online is 2 players
   
-  // Initialize players
-  const inputs = document.querySelectorAll('#playerInputs .name-input');
+  // Initialize players — read host name from the dedicated hostNameInput
+  const hostName = (document.getElementById('hostNameInput')?.value.trim()) || 'Player 1';
   G.players = [
-    { name: inputs[0].value.trim() || 'Player 1', color: PLAYER_COLORS[0], text: PLAYER_TXT[0] },
+    { name: hostName, color: PLAYER_COLORS[0], text: PLAYER_TXT[0] },
     { name: G.players[1]?.name || 'Player 2', color: PLAYER_COLORS[1], text: PLAYER_TXT[1] }
   ];
   
