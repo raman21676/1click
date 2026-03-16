@@ -1372,20 +1372,23 @@ function startLocalGame() {
   const selectedMode = activeModeBtn ? activeModeBtn.dataset.mode : 'local';
   G.mode = selectedMode;
   
-  // AI Mode: 2 players (human vs AI)
+  // AI Mode: 1 human vs (G.count - 1) AIs
   if (G.mode === 'ai') {
-    G.count = 2;
+    // Add human player
     G.players.push({
       name: inputs[0].value.trim() || 'Player 1',
       color: PLAYER_COLORS[0],
       text: PLAYER_TXT[0],
     });
-    G.players.push({
-      name: 'Computer',
-      color: PLAYER_COLORS[1],
-      text: PLAYER_TXT[1],
-      isAI: true
-    });
+    // Add AI players for the remaining count
+    for (let i = 1; i < G.count; i++) {
+      G.players.push({
+        name: `Computer ${i}`,
+        color: PLAYER_COLORS[i],
+        text: PLAYER_TXT[i],
+        isAI: true
+      });
+    }
   } else {
     // Local multiplayer
     for (let i = 0; i < G.count; i++) {
@@ -1437,7 +1440,7 @@ function onRoll() {
   }
   
   // AI mode: only human can initiate roll
-  if (G.mode === 'ai' && G.current === 1) {
+  if (G.mode === 'ai' && G.current > 0) {
     return; // AI turn is handled automatically
   }
   
@@ -1569,13 +1572,13 @@ function endTurnWithSync(pi, extraTurn = false) {
     document.getElementById('rollBtn').disabled = (G.current !== G.myPlayerIndex);
   } else if (G.mode === 'ai') {
     // AI mode: only human (player 0) can use the button
-    const isAITurn = (G.current === 1);
+    const isAITurn = (G.current > 0);
     document.getElementById('rollBtn').disabled = isAITurn;
     
     // AI Turn: Auto-roll for computer player
     if (isAITurn && !G.over) {
       setTimeout(() => {
-        if (!G.busy && !G.over && G.current === 1) {
+        if (!G.busy && !G.over && G.current > 0) {
           performAIRoll();
         }
       }, 1500);
