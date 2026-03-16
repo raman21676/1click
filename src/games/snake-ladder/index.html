@@ -419,16 +419,33 @@
       border: none; border-radius: 6px; color: #000;
       font-size: 10px; font-weight: 800; padding: 4px 10px;
       cursor: pointer; box-shadow: 0 2px 8px rgba(255,111,0,.4);
-      transition: all .2s;
+      transition: transform 0.2s, filter 0.2s;
     }
     .corner-roll-btn:disabled { opacity: 0.35; cursor: not-allowed; filter: grayscale(1); }
-    .corner-dice.active .corner-roll-btn { animation: pulseBtn 1.5s infinite; }
+    .corner-dice.active .corner-roll-btn { animation: pulseBtn 1.5s infinite; filter: brightness(1.1); }
     @keyframes pulseBtn {
-      0%, 100% { transform: scale(1); box-shadow: 0 2px 8px rgba(255,111,0,.4); }
-      50% { transform: scale(1.1); box-shadow: 0 4px 12px rgba(255,111,0,.8); }
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.1); }
     }
 
-    /* Hide center dice in Pass & Play mode */
+    /* Colorize inner dice dots to match players */
+    /* P0 / Red */
+    .corner-dice.p0-dice .corner-roll-btn { background: #E53935; color: #fff; box-shadow: 0 2px 8px rgba(229,57,53,0.4); }
+    .corner-dice.p0-dice .dot { background: radial-gradient(circle at 35% 30%, #ff7a7a, #E53935); }
+    
+    /* P1 / Blue */
+    .corner-dice.p1-dice .corner-roll-btn { background: #1E88E5; color: #fff; box-shadow: 0 2px 8px rgba(30,136,229,0.4); }
+    .corner-dice.p1-dice .dot { background: radial-gradient(circle at 35% 30%, #66aaff, #1E88E5); }
+    
+    /* P2 / Green */
+    .corner-dice.p2-dice .corner-roll-btn { background: #43A047; color: #fff; box-shadow: 0 2px 8px rgba(67,160,71,0.4); }
+    .corner-dice.p2-dice .dot { background: radial-gradient(circle at 35% 30%, #5a5, #43A047); }
+    
+    /* P3 / Yellow */
+    .corner-dice.p3-dice .corner-roll-btn { background: #FDD835; color: #000; box-shadow: 0 2px 8px rgba(253,216,53,0.4); }
+    .corner-dice.p3-dice .dot { background: radial-gradient(circle at 35% 30%, #ffdd44, #FDD835); }
+
+    /* Hide center dice in Pass & Play mode strictly */
     body.local-mode .dice-area { display: none !important; }
     body.local-mode .corner-dice { display: flex; }
 
@@ -1537,6 +1554,13 @@ function initGame() {
 
   document.getElementById('setupScreen').style.display = 'none';
   document.getElementById('gameScreen').style.display = 'flex';
+  
+  // Set body class for local vs AI/Online mode display
+  if (G.mode === 'local') {
+    document.body.classList.add('local-mode');
+  } else {
+    document.body.classList.remove('local-mode');
+  }
 
   // In online mode, only current player can roll
   // In AI mode, only human (player 0) can roll, AI is player 1
