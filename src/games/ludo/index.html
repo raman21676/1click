@@ -706,11 +706,9 @@ html,body{height:100%;font-family:'Segoe UI',Arial,sans-serif;
 .corner-dice.active .corner-roll-btn{animation:pulseBtn 1.5s infinite}
 @keyframes pulseBtn{0%,100%{transform:scale(1)}50%{transform:scale(1.05)}}
 
-/* Hide center dice in local mode, show corner dice */
-.game-wrapper.local-mode .dice-area{display:none}
-.game-wrapper.local-mode .corner-dice{display:flex !important}
-.game-wrapper.online-mode .dice-area{display:none}
-.game-wrapper.online-mode .corner-dice{display:flex !important}
+/* Hide center dice in all modes, show corner dice always */
+.dice-area{display:none !important}
+.corner-dice{display:flex !important}
 
 .dice-scene.rolling {
   animation: diceThrow 0.85s cubic-bezier(0.22, 0.61, 0.36, 1) forwards;
@@ -2670,24 +2668,45 @@ function updateDiceUI() {
   const diceScene = document.getElementById('diceScene');
   const rollBtn = document.getElementById('rollBtn');
   
-  // Update corner dice for Pass & Play mode
-  if (G.gameMode === 'local') {
-    const colors = ['red', 'green', 'yellow', 'blue'];
-    const currentPlayer = curPlayer();
-    colors.forEach(color => {
-      const cornerDice = document.getElementById(color + 'Dice');
-      if (cornerDice) {
-        const cornerBtn = cornerDice.querySelector('.corner-roll-btn');
-        const isCurrentPlayer = (currentPlayer === color);
-        const isActivePlayer = G.active.includes(color);
-        const canRoll = G.phase === 'roll' && isCurrentPlayer && isActivePlayer && !G.finished.has(color) && !G.eliminated.has(color);
-        
-        if (cornerBtn) cornerBtn.disabled = !canRoll;
-        cornerDice.classList.toggle('active', canRoll);
-        cornerDice.style.display = isActivePlayer ? 'flex' : 'none';
+  // Update corner dice for all modes
+  const colors = ['red', 'green', 'yellow', 'blue'];
+  const currentPlayer = curPlayer();
+  colors.forEach(color => {
+    const cornerDice = document.getElementById(color + 'Dice');
+    if (cornerDice) {
+      const cornerBtn = cornerDice.querySelector('.corner-roll-btn');
+      const isCurrentPlayer = (currentPlayer === color);
+      const isActivePlayer = G.active.includes(color);
+      
+      // Determine if this dice can be rolled
+      let canRoll = G.phase === 'roll' && isCurrentPlayer && isActivePlayer && !G.finished.has(color) && !G.eliminated.has(color);
+      
+      // AI or opponent should not have an enabled roll button
+      if (canRoll) {
+        if (G.ptypes && G.ptypes[color] === 'ai') canRoll = false;
+        if (G.isOnline && color !== G.humanColor) canRoll = false;
       }
-    });
-  }
+      
+      if (cornerBtn) {
+        cornerBtn.disabled = !canRoll;
+        // Don't show the button text if it's an AI's turn
+        if (G.ptypes && G.ptypes[color] === 'ai') {
+           cornerBtn.style.display = 'none';
+        } else {
+           cornerBtn.style.display = 'block';
+        }
+      }
+      
+      cornerDice.classList.toggle('active', canRoll);
+      cornerDice.style.display = isActivePlayer ? 'flex' : 'none';
+      
+      // Always keep the dice cube visible for active players
+      const diceCube = cornerDice.querySelector('.dice-cube');
+      if (diceCube) {
+         diceCube.style.display = 'block';
+      }
+    }
+  });
   
   // Check if dice should be enabled
   let enabled = G.phase==='roll' && !isAI();
@@ -4356,13 +4375,15 @@ function startGame() {
   }
   document.body.classList.add('game-active');
   
-  // Add mode classes for showing corner dice (both local and online)
+  // Set classes for specific modes if needed for other UI elements
   const gameWrapper = document.getElementById('gameScreen');
-  gameWrapper.classList.remove('local-mode', 'online-mode');
+  gameWrapper.classList.remove('local-mode', 'online-mode', 'ai-mode');
   if (G.gameMode === 'local') {
     gameWrapper.classList.add('local-mode');
   } else if (G.gameMode === 'online') {
     gameWrapper.classList.add('online-mode');
+  } else if (G.gameMode === 'ai') {
+    gameWrapper.classList.add('ai-mode');
   }
 
   updateUI();
