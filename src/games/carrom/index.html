@@ -197,63 +197,57 @@ canvas{
   color:#22c55e;
 }
 
-/* Bottom Slider Bar - Mobile Style */
+/* Slider Bar - Ultra-thin line with draggable ball */
 .slider-container{
   position:relative;
   width:100%;
   max-width:min(95vmin, 700px);
-  margin:8px auto 0;
-  padding:12px 20px;
-  background:linear-gradient(180deg,rgba(139,69,19,0.4),rgba(101,67,33,0.5));
-  border-radius:30px;
-  border:2px solid rgba(210,180,140,0.3);
-  box-shadow:0 4px 15px rgba(0,0,0,0.4),inset 0 2px 4px rgba(255,255,255,0.1);
-  transition:order 0.3s ease;
+  margin:4px auto;
+  padding:8px 16px;
+  background: transparent;
   flex-shrink:0;
 }
 
 .slider-container.top{
   order:-1;
-  margin:0 auto 8px;
+  margin:0 auto;
 }
 
 .slider-container.slider-top{
   order:-1;
-  margin:0 auto 8px;
+  margin:0 auto;
 }
 
 /* Inactive slider: dimmed, not interactive */
 .slider-container.inactive{
-  opacity: 0.3;
+  opacity: 0.2;
   pointer-events: none;
-  filter: grayscale(0.7);
 }
 
 .slider-track{
   position:relative;
-  height:12px;
-  background:rgba(0,0,0,0.4);
-  border-radius:6px;
-  box-shadow:inset 0 2px 4px rgba(0,0,0,0.5);
+  height:3px;
+  background:rgba(255,255,255,0.25);
+  border-radius:2px;
 }
 
 .slider-striker{
   position:absolute;
   top:50%;
   transform:translate(-50%,-50%);
-  width:32px;
-  height:32px;
+  width:22px;
+  height:22px;
   border-radius:50%;
-  background:linear-gradient(135deg,#f5f5f5,#e0e0e0);
-  border:2px solid #fff;
+  background:linear-gradient(135deg,#f5f5f5,#d0d0d0);
+  border:2px solid rgba(255,255,255,0.8);
   cursor:grab;
-  transition:transform 0.1s;
   z-index:10;
+  box-shadow:0 2px 8px rgba(0,0,0,0.4);
 }
 
 .slider-striker:active{
   cursor:grabbing;
-  transform:translate(-50%,-50%)scale(1.1);
+  transform:translate(-50%,-50%)scale(1.15);
 }
 
 .slider-striker::after{
@@ -262,11 +256,10 @@ canvas{
   top:50%;
   left:50%;
   transform:translate(-50%,-50%);
-  width:12px;
-  height:12px;
+  width:8px;
+  height:8px;
   border-radius:50%;
-  background:#ccc;
-  border:1px solid #999;
+  background:#999;
 }
 
 /* Instructions */
