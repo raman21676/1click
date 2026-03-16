@@ -1829,3 +1829,5 @@ Fixed critical UI/UX issues in Sudoku and completely rebuilt Baagchal according 
 - [x] Fixed Snake & Ladder dice visual mismatch (DICE_FINAL mappings were incorrect and displayed wrong faces for given numbers)
 
 - [x] Fixed 'With AI' mode to correctly allow 3 or 4 players (1 Human + N AIs instead of strictly 1v1)
+
+- [x] Implement multi-dice 4-corner layout in Snake & Ladder similar to Ludo
