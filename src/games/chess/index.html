@@ -552,9 +552,9 @@ body {
   /* Prevent any layout shift */
   flex-shrink: 0;
   flex-grow: 0;
-  /* Normalize emoji sizes across platforms */
-  font-family: 'Segoe UI Emoji', 'Apple Color Emoji', 'Noto Color Emoji', sans-serif;
-  font-variant-emoji: emoji;
+  /* Prevent emoji rendering to keep piece sizes and styles consistent */
+  font-family: 'Arial Unicode MS', 'Lucida Sans Unicode', DejaVu Sans, sans-serif;
+  font-variant-emoji: text;
   /* Ensure consistent sizing */
   width: 100%;
   height: 100%;
@@ -581,9 +581,6 @@ body {
 .piece.black {
   color: #222;
   text-shadow: -1px -1px 0 #555, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000;
-  /* Normalize black piece size to match white pieces */
-  transform: scale(0.9);
-  transform-origin: center;
 }
 
 /* Captured pieces */
