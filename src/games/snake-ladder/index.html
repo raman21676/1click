@@ -448,6 +448,9 @@
     /* Hide center dice in Pass & Play mode strictly */
     body.local-mode .dice-area { display: none !important; }
     body.local-mode .corner-dice { display: flex; }
+    
+    /* Give clearance so corner dice don't overlap the UI */
+    body.local-mode .board-container { margin-top: 40px; margin-bottom: 40px; }
 
     /* ── PLAYER PANELS ── */
     .player-panels {
