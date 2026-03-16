@@ -287,9 +287,9 @@ canvas{
       </div>
     </button>
     <button class="mode-btn" data-mode="ai">
-      <span style="font-size:1.5rem">🤖</span>
+      <img src="assets/AI-Bot.png" alt="AI" style="width:40px;height:40px;border-radius:50%;object-fit:cover;">
       <div>
-        <b>vs Computer</b><br>
+        <b>vs AI</b><br>
         <small style="color:#94a3b8">Play against AI</small>
       </div>
     </button>
@@ -370,7 +370,7 @@ const BOARD_MARGIN=45
 const PLAY_MIN=BOARD_MARGIN
 const PLAY_MAX=W-PLAY_MIN
 
-const FRICTION=0.992  // Less friction - faster, smoother sliding
+const FRICTION=0.975  // Increased friction - coins stop faster
 const WALL_BOUNCE=0.85  // Good bounce
 
 // Sizes
