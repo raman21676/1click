@@ -341,29 +341,33 @@ canvas{
   </div>
 
   <!-- Top Slider Bar (Player 2) - Always Visible -->
-  <div class="slider-container slider-top inactive" id="sliderContainer2">
-    <div class="slider-track" id="sliderTrack2">
-      <div class="slider-striker" id="sliderStriker2" style="left:50%"></div>
+  <!-- Board Group: top slider + board + bottom slider always together -->
+  <div style="display:flex;flex-direction:column;align-items:center;width:100%;flex:1;min-height:0;justify-content:center;">
+    <div class="slider-container slider-top inactive" id="sliderContainer2" style="margin:0 auto 4px;">
+      <div class="slider-track" id="sliderTrack2">
+        <div class="slider-striker" id="sliderStriker2" style="left:50%"></div>
+      </div>
     </div>
-  </div>
 
-  <div class="canvas-wrap">
-    <canvas id="cv" width="700" height="700"></canvas>
+    <div class="canvas-wrap">
+      <canvas id="cv" width="700" height="700"></canvas>
+    </div>
+
+    <!-- Bottom Slider Bar (Player 1) - Always Visible -->
+    <div class="slider-container" id="sliderContainer" style="margin:4px auto 0;">
+      <div class="slider-track" id="sliderTrack">
+        <div class="slider-striker" id="sliderStriker" style="left:50%"></div>
+      </div>
+    </div>
   </div>
 
   <div id="turn-display">Turn: <b id="turnName">Player 1</b></div>
-  
-  <!-- Bottom Slider Bar (Player 1) - Always Visible -->
-  <div class="slider-container" id="sliderContainer">
-    <div class="slider-track" id="sliderTrack">
-      <div class="slider-striker" id="sliderStriker" style="left:50%"></div>
-    </div>
-  </div>
   
   <div class="slider-instruction">
     <span>👆 Drag slider</span> to position striker • <span>👆 Drag on board striker</span> to aim &amp; shoot
   </div>
 </div>
+
 
 <script>
 // ============================================
