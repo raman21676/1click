@@ -2312,15 +2312,17 @@ initOfflineDetection();
         });
       });
 
-      // Exit confirmation modal
-      const _exitModal = document.getElementById('exitModal');
-      const _backBtn = document.getElementById('backBtn');
-      const _exitYesBtn = document.getElementById('exitYesBtn');
-      const _exitNoBtn = document.getElementById('exitNoBtn');
-      if (_backBtn) _backBtn.addEventListener('click', (e) => { e.preventDefault(); _exitModal.classList.add('active'); });
-      if (_exitYesBtn) _exitYesBtn.addEventListener('click', () => { window.location.href = '../../../index.html'; });
-      if (_exitNoBtn) _exitNoBtn.addEventListener('click', () => { _exitModal.classList.remove('active'); });
-      if (_exitModal) _exitModal.addEventListener('click', (e) => { if (e.target === _exitModal) _exitModal.classList.remove('active'); });
+      // Exit confirmation modal - wrapped so modal HTML is fully parsed
+      window.addEventListener('load', () => {
+        const _exitModal = document.getElementById('exitModal');
+        const _backBtn = document.getElementById('backBtn');
+        const _exitYesBtn = document.getElementById('exitYesBtn');
+        const _exitNoBtn = document.getElementById('exitNoBtn');
+        if (_backBtn) _backBtn.addEventListener('click', (e) => { e.preventDefault(); _exitModal.classList.add('active'); });
+        if (_exitYesBtn) _exitYesBtn.addEventListener('click', () => { window.location.href = '../../../index.html'; });
+        if (_exitNoBtn) _exitNoBtn.addEventListener('click', () => { _exitModal.classList.remove('active'); });
+        if (_exitModal) _exitModal.addEventListener('click', (e) => { if (e.target === _exitModal) _exitModal.classList.remove('active'); });
+      });
     </script>
 
     <!-- EXIT CONFIRMATION MODAL -->
