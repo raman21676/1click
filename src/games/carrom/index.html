@@ -217,6 +217,18 @@ canvas{
   margin:0 auto 8px;
 }
 
+.slider-container.slider-top{
+  order:-1;
+  margin:0 auto 8px;
+}
+
+/* Inactive slider: dimmed, not interactive */
+.slider-container.inactive{
+  opacity: 0.3;
+  pointer-events: none;
+  filter: grayscale(0.7);
+}
+
 .slider-track{
   position:relative;
   height:12px;
@@ -334,14 +346,21 @@ canvas{
       <div class="player-score" id="s2">0</div>
     </div>
   </div>
-  
+
+  <!-- Top Slider Bar (Player 2) - Always Visible -->
+  <div class="slider-container slider-top inactive" id="sliderContainer2">
+    <div class="slider-track" id="sliderTrack2">
+      <div class="slider-striker" id="sliderStriker2" style="left:50%"></div>
+    </div>
+  </div>
+
   <div class="canvas-wrap">
     <canvas id="cv" width="700" height="700"></canvas>
   </div>
-  
+
   <div id="turn-display">Turn: <b id="turnName">Player 1</b></div>
   
-  <!-- Bottom Slider Bar -->
+  <!-- Bottom Slider Bar (Player 1) - Always Visible -->
   <div class="slider-container" id="sliderContainer">
     <div class="slider-track" id="sliderTrack">
       <div class="slider-striker" id="sliderStriker" style="left:50%"></div>
@@ -349,7 +368,7 @@ canvas{
   </div>
   
   <div class="slider-instruction">
-    <span>👆 Drag striker below</span> to position • <span>👆 Drag on board striker</span> to aim & shoot
+    <span>👆 Drag slider</span> to position striker • <span>👆 Drag on board striker</span> to aim &amp; shoot
   </div>
 </div>
 
@@ -1251,18 +1270,27 @@ let dragCurrentPos=null
 let aimAngle=0
 let aimPower=0
 
-// Slider elements
+// Slider elements - bottom (player 1) and top (player 2)
 let sliderContainer,sliderTrack,sliderStriker
+let sliderContainer2,sliderTrack2,sliderStriker2
+
+// Which slider is currently active (1=bottom, 2=top)
+let activeSliderNum = 1
 
 // Initialize controls
 function initControls(){
   sliderContainer=document.getElementById("sliderContainer")
   sliderTrack=document.getElementById("sliderTrack")
   sliderStriker=document.getElementById("sliderStriker")
+  sliderContainer2=document.getElementById("sliderContainer2")
+  sliderTrack2=document.getElementById("sliderTrack2")
+  sliderStriker2=document.getElementById("sliderStriker2")
   
-  // Slider touch/mouse events for positioning
+  // Wire up both slider tracks
   sliderTrack.addEventListener("mousedown",handleSliderStart)
   sliderTrack.addEventListener("touchstart",handleSliderStart,{passive:false})
+  sliderTrack2.addEventListener("mousedown",handleSliderStart)
+  sliderTrack2.addEventListener("touchstart",handleSliderStart,{passive:false})
   
   document.addEventListener("mousemove",handleSliderMove)
   document.addEventListener("touchmove",handleSliderMove,{passive:false})
@@ -1271,7 +1299,6 @@ function initControls(){
   document.addEventListener("touchend",handleSliderEnd)
   
   // Board touch events for aiming
-  // Use document for move/end events so dragging works even outside canvas
   canvas.addEventListener("mousedown",handleBoardStart)
   canvas.addEventListener("touchstart",handleBoardStart,{passive:false})
   
@@ -1357,8 +1384,10 @@ function handleSliderEnd(e){
 }
 
 function updateSliderFromEvent(e){
-  const pos=getEventPos(e,sliderTrack)
-  const rect=sliderTrack.getBoundingClientRect()
+  // Use the active slider's track for measurement
+  const activeTrack = (activeSliderNum===2 && sliderTrack2) ? sliderTrack2 : sliderTrack
+  const pos=getEventPos(e,activeTrack)
+  const rect=activeTrack.getBoundingClientRect()
   let percent=(pos.x/rect.width)*100
   percent=Math.max(0,Math.min(100,percent))
   
@@ -1368,44 +1397,48 @@ function updateSliderFromEvent(e){
   const newY=turn===1?STRIKER_Y_BOTTOM:STRIKER_Y_TOP
   
   // Check if this position overlaps with any coin on the baseline
-  // If so, find the nearest valid position
   newX=findValidStrikerPosition(newX,newY)
   
   // Recalculate percent from the valid X position
   percent=((newX-BASELINE_X_MIN)/boardRange)*100
   
-  // Update slider visual and striker position
-  sliderStriker.style.left=percent+"%"
+  // Sync both slider knobs and update striker position
+  if(sliderStriker) sliderStriker.style.left=percent+"%"
+  if(sliderStriker2) sliderStriker2.style.left=percent+"%"
   striker.x=newX
 }
 
+
+// Sync both slider knob positions to the striker X
 function updateSliderPosition(){
   if(!striker)return
-  // Striker center moves from BASELINE_X_MIN to BASELINE_X_MAX (full red circle to red circle)
   const boardRange=BASELINE_X_MAX-BASELINE_X_MIN
   const percent=((striker.x-BASELINE_X_MIN)/boardRange)*100
-  if(sliderStriker)sliderStriker.style.left=Math.max(0,Math.min(100,percent))+"%"
+  const clamped=Math.max(0,Math.min(100,percent))+"%"
+  if(sliderStriker) sliderStriker.style.left=clamped
+  if(sliderStriker2) sliderStriker2.style.left=clamped
 }
 
-// Move slider to top or bottom based on turn and flip mode
+
+// Enable/disable sliders based on whose turn it is and flip mode
 function updateSliderPositionForTurn(){
-  const sliderContainer=document.getElementById("sliderContainer")
-  if(!sliderContainer)return
-  
-  // In flip mode, slider always stays at bottom (board rotates instead)
+  if(!sliderContainer||!sliderContainer2)return
+
+  // In flip mode: board rotates, player always uses bottom slider
+  // In table mode (flip off): player 1 uses bottom, player 2 uses top
+  let bottomActive, topActive
   if(flipMode){
-    sliderContainer.classList.remove("top")
-    return
+    // Both turns use the bottom slider
+    bottomActive = true
+    topActive = false
+  } else {
+    bottomActive = (turn===1)
+    topActive = (turn===2)
   }
-  
-  // When flip mode is OFF:
-  // Player 1 (bottom baseline) -> slider at bottom
-  // Player 2 (top baseline) -> slider at top
-  if(turn===2){
-    sliderContainer.classList.add("top")
-  }else{
-    sliderContainer.classList.remove("top")
-  }
+
+  sliderContainer.classList.toggle('inactive', !bottomActive)
+  sliderContainer2.classList.toggle('inactive', !topActive)
+  activeSliderNum = bottomActive ? 1 : 2
 }
 
 // BOARD HANDLERS (Aiming)
