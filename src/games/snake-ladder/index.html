@@ -394,6 +394,7 @@
       position: absolute; top: 2px; left: 2px;
       transform-style: preserve-3d;
       transform: rotateX(-25deg) rotateY(25deg);
+      cursor: pointer;
     }
     .corner-dice-scene .face {
       width: 32px; height: 32px; border-radius: 6px;
@@ -450,7 +451,7 @@
     body.local-mode .corner-dice { display: flex; }
     
     /* Give clearance so corner dice don't overlap the UI */
-    body.local-mode .board-container { margin-top: 40px; margin-bottom: 40px; }
+    body.local-mode .board-container { margin-top: 50px; margin-bottom: 50px; }
 
     /* ── PLAYER PANELS ── */
     .player-panels {
@@ -738,7 +739,7 @@
       
       <!-- Corner Dice for Pass & Play Mode -->
       <div class="corner-dice p0-dice" id="p0Dice">
-        <div class="corner-dice-scene" id="p0DiceScene" data-player="0">
+        <div class="corner-dice-scene" id="p0DiceScene" data-player="0" onclick="if(document.getElementById('p0RollBtn').disabled === false) onRoll()">
           <div class="dice-cube" id="p0DiceCube">
             <div class="face face-1"><div class="dots"><div class="dot"></div></div></div>
             <div class="face face-2"><div class="dots"><div class="dot"></div><div class="dot"></div></div></div>
@@ -752,7 +753,7 @@
       </div>
 
       <div class="corner-dice p1-dice" id="p1Dice">
-        <div class="corner-dice-scene" id="p1DiceScene" data-player="1">
+        <div class="corner-dice-scene" id="p1DiceScene" data-player="1" onclick="if(document.getElementById('p1RollBtn').disabled === false) onRoll()">
           <div class="dice-cube" id="p1DiceCube">
             <div class="face face-1"><div class="dots"><div class="dot"></div></div></div>
             <div class="face face-2"><div class="dots"><div class="dot"></div><div class="dot"></div></div></div>
@@ -766,7 +767,7 @@
       </div>
 
       <div class="corner-dice p2-dice" id="p2Dice">
-        <div class="corner-dice-scene" id="p2DiceScene" data-player="2">
+        <div class="corner-dice-scene" id="p2DiceScene" data-player="2" onclick="if(document.getElementById('p2RollBtn').disabled === false) onRoll()">
           <div class="dice-cube" id="p2DiceCube">
             <div class="face face-1"><div class="dots"><div class="dot"></div></div></div>
             <div class="face face-2"><div class="dots"><div class="dot"></div><div class="dot"></div></div></div>
@@ -780,7 +781,7 @@
       </div>
 
       <div class="corner-dice p3-dice" id="p3Dice">
-        <div class="corner-dice-scene" id="p3DiceScene" data-player="3">
+        <div class="corner-dice-scene" id="p3DiceScene" data-player="3" onclick="if(document.getElementById('p3RollBtn').disabled === false) onRoll()">
           <div class="dice-cube" id="p3DiceCube">
             <div class="face face-1"><div class="dots"><div class="dot"></div></div></div>
             <div class="face face-2"><div class="dots"><div class="dot"></div><div class="dot"></div></div></div>
