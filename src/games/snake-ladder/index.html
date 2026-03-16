@@ -343,9 +343,15 @@
     .roll-btn:disabled { opacity:.35; cursor:not-allowed; }
 
     /* ── BOARD ── */
+    .board-container {
+      position: relative;
+      width: 100%;
+      max-width: 520px;
+      margin: 0 auto;
+    }
     .board-wrap {
       display:grid; /* Ensures bulletproof Safari bounding box match for SVG */
-      width:100%; max-width:520px;
+      width:100%;
       aspect-ratio:1;
       border-radius:8px;
       overflow:hidden;
@@ -364,6 +370,67 @@
       pointer-events:none;
       z-index:20;
     }
+
+    /* ── CORNER DICE ── */
+    .corner-dice {
+      position: absolute;
+      z-index: 1000;
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+    }
+    .corner-dice.p0-dice { top: -45px; left: -10px; }
+    .corner-dice.p1-dice { top: -45px; right: -10px; }
+    .corner-dice.p2-dice { bottom: -45px; right: -10px; }
+    .corner-dice.p3-dice { bottom: -45px; left: -10px; }
+
+    .corner-dice-scene {
+      width: 36px; height: 36px;
+      perspective: 300px; position: relative;
+    }
+    .corner-dice-scene .dice-cube {
+      width: 32px; height: 32px;
+      position: absolute; top: 2px; left: 2px;
+      transform-style: preserve-3d;
+      transform: rotateX(-25deg) rotateY(25deg);
+    }
+    .corner-dice-scene .face {
+      width: 32px; height: 32px; border-radius: 6px;
+      background: linear-gradient(145deg, #fffef8, #f5f5f0);
+      box-shadow: inset 0 2px 4px rgba(255,255,255,0.9),
+                  inset 0 -2px 3px rgba(0,0,0,0.06),
+                  0 0 0 1px rgba(0,0,0,0.08);
+      backface-visibility: hidden;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .corner-dice-scene .face-1 { transform: rotateY(0deg) translateZ(16px); }
+    .corner-dice-scene .face-2 { transform: rotateY(180deg) translateZ(16px); }
+    .corner-dice-scene .face-3 { transform: rotateY(90deg) translateZ(16px); }
+    .corner-dice-scene .face-4 { transform: rotateY(-90deg) translateZ(16px); }
+    .corner-dice-scene .face-5 { transform: rotateX(90deg) translateZ(16px); }
+    .corner-dice-scene .face-6 { transform: rotateX(-90deg) translateZ(16px); }
+    
+    .corner-dice-scene .dots { padding: 4px; gap: 2px; display: grid; grid-template-columns: repeat(2, 1fr); }
+    .corner-dice-scene .dot { width: 6px; height: 6px; border-radius: 50%; background: #333; }
+
+    .corner-roll-btn {
+      background: linear-gradient(135deg, #FF6F00, #FFD600);
+      border: none; border-radius: 6px; color: #000;
+      font-size: 10px; font-weight: 800; padding: 4px 10px;
+      cursor: pointer; box-shadow: 0 2px 8px rgba(255,111,0,.4);
+      transition: all .2s;
+    }
+    .corner-roll-btn:disabled { opacity: 0.35; cursor: not-allowed; filter: grayscale(1); }
+    .corner-dice.active .corner-roll-btn { animation: pulseBtn 1.5s infinite; }
+    @keyframes pulseBtn {
+      0%, 100% { transform: scale(1); box-shadow: 0 2px 8px rgba(255,111,0,.4); }
+      50% { transform: scale(1.1); box-shadow: 0 4px 12px rgba(255,111,0,.8); }
+    }
+
+    /* Hide center dice in Pass & Play mode */
+    body.local-mode .dice-area { display: none !important; }
+    body.local-mode .corner-dice { display: flex; }
 
     /* ── PLAYER PANELS ── */
     .player-panels {
@@ -643,9 +710,68 @@
       </div>
     </div>
 
-    <div class="board-wrap">
-      <img class="board-img" src="assets/board.webp" alt="Snake and Ladder Board" loading="eager">
-      <svg id="tokensSvg" viewBox="0 0 100 100" preserveAspectRatio="xMidYMid meet"></svg>
+    <div class="board-container">
+      <div class="board-wrap">
+        <img class="board-img" src="assets/board.webp" alt="Snake and Ladder Board" loading="eager">
+        <svg id="tokensSvg" viewBox="0 0 100 100" preserveAspectRatio="xMidYMid meet"></svg>
+      </div>
+      
+      <!-- Corner Dice for Pass & Play Mode -->
+      <div class="corner-dice p0-dice" id="p0Dice">
+        <div class="corner-dice-scene" id="p0DiceScene" data-player="0">
+          <div class="dice-cube" id="p0DiceCube">
+            <div class="face face-1"><div class="dots"><div class="dot"></div></div></div>
+            <div class="face face-2"><div class="dots"><div class="dot"></div><div class="dot"></div></div></div>
+            <div class="face face-3"><div class="dots"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div></div>
+            <div class="face face-4"><div class="dots"><div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div></div></div>
+            <div class="face face-5"><div class="dots"><div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div></div></div>
+            <div class="face face-6"><div class="dots"><div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div></div></div>
+          </div>
+        </div>
+        <button class="corner-roll-btn" id="p0RollBtn" onclick="onRoll()" disabled>Roll!</button>
+      </div>
+
+      <div class="corner-dice p1-dice" id="p1Dice">
+        <div class="corner-dice-scene" id="p1DiceScene" data-player="1">
+          <div class="dice-cube" id="p1DiceCube">
+            <div class="face face-1"><div class="dots"><div class="dot"></div></div></div>
+            <div class="face face-2"><div class="dots"><div class="dot"></div><div class="dot"></div></div></div>
+            <div class="face face-3"><div class="dots"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div></div>
+            <div class="face face-4"><div class="dots"><div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div></div></div>
+            <div class="face face-5"><div class="dots"><div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div></div></div>
+            <div class="face face-6"><div class="dots"><div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div></div></div>
+          </div>
+        </div>
+        <button class="corner-roll-btn" id="p1RollBtn" onclick="onRoll()" disabled>Roll!</button>
+      </div>
+
+      <div class="corner-dice p2-dice" id="p2Dice">
+        <div class="corner-dice-scene" id="p2DiceScene" data-player="2">
+          <div class="dice-cube" id="p2DiceCube">
+            <div class="face face-1"><div class="dots"><div class="dot"></div></div></div>
+            <div class="face face-2"><div class="dots"><div class="dot"></div><div class="dot"></div></div></div>
+            <div class="face face-3"><div class="dots"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div></div>
+            <div class="face face-4"><div class="dots"><div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div></div></div>
+            <div class="face face-5"><div class="dots"><div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div></div></div>
+            <div class="face face-6"><div class="dots"><div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div></div></div>
+          </div>
+        </div>
+        <button class="corner-roll-btn" id="p2RollBtn" onclick="onRoll()" disabled>Roll!</button>
+      </div>
+
+      <div class="corner-dice p3-dice" id="p3Dice">
+        <div class="corner-dice-scene" id="p3DiceScene" data-player="3">
+          <div class="dice-cube" id="p3DiceCube">
+            <div class="face face-1"><div class="dots"><div class="dot"></div></div></div>
+            <div class="face face-2"><div class="dots"><div class="dot"></div><div class="dot"></div></div></div>
+            <div class="face face-3"><div class="dots"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div></div>
+            <div class="face face-4"><div class="dots"><div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div></div></div>
+            <div class="face face-5"><div class="dots"><div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div></div></div>
+            <div class="face face-6"><div class="dots"><div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div></div></div>
+          </div>
+        </div>
+        <button class="corner-roll-btn" id="p3RollBtn" onclick="onRoll()" disabled>Roll!</button>
+      </div>
     </div>
 
     <div class="controls-row">
@@ -1415,7 +1541,8 @@ function initGame() {
   // In online mode, only current player can roll
   // In AI mode, only human (player 0) can roll, AI is player 1
   if (G.isOnline) {
-    document.getElementById('rollBtn').disabled = (G.current !== G.myPlayerIndex);
+    const canRoll = (G.current === G.myPlayerIndex);
+    document.getElementById('rollBtn').disabled = !canRoll;
   } else if (G.mode === 'ai') {
     // Human (player 0) starts, AI is player 1
     document.getElementById('rollBtn').disabled = false;
@@ -1446,6 +1573,12 @@ function onRoll() {
   
   G.busy = true;
   document.getElementById('rollBtn').disabled = true;
+  
+  // Disable all corner buttons
+  for (let i = 0; i < 4; i++) {
+    const btn = document.getElementById(`p${i}RollBtn`);
+    if (btn) btn.disabled = true;
+  }
 
   const val = Math.floor(Math.random() * 6) + 1;
   G.lastRoll = val;  // Store the roll value
@@ -1459,8 +1592,19 @@ function onRoll() {
 }
 
 function performRollAnimation(val, shouldProcess) {
-  const cube = document.getElementById('diceCube');
-  const scene = document.getElementById('diceScene');
+  let cube, scene;
+  
+  if (G.mode === 'local') {
+    // Pass & Play mode: Use corner dice
+    cube = document.getElementById(`p${G.current}DiceCube`);
+    scene = document.getElementById(`p${G.current}DiceScene`);
+  } else {
+    // AI/Online mode: Use central dice
+    cube = document.getElementById('diceCube');
+    scene = document.getElementById('diceScene');
+  }
+
+  if (!cube || !scene) return;
 
   cube.className = 'dice-cube';
   cube.style.transform = '';
@@ -1647,6 +1791,27 @@ function renderUI() {
     }
   } else {
     setMsg('Roll the dice!');
+  }
+  
+  // Update corner dice UI if in local Pass & Play mode
+  if (G.mode === 'local') {
+    // Hide all corners first
+    for (let i = 0; i < 4; i++) {
+        const diceEl = document.getElementById(`p${i}Dice`);
+        const btnEl = document.getElementById(`p${i}RollBtn`);
+        if (diceEl) {
+            diceEl.classList.remove('active');
+            diceEl.style.display = (i < G.count) ? 'flex' : 'none';
+        }
+        if (btnEl) btnEl.disabled = true;
+    }
+    // Enable active player's corner
+    const activeDice = document.getElementById(`p${G.current}Dice`);
+    const activeBtn = document.getElementById(`p${G.current}RollBtn`);
+    if (activeDice && !G.busy && !G.over) {
+        activeDice.classList.add('active');
+        activeBtn.disabled = false;
+    }
   }
   
   renderPanels();
