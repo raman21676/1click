@@ -320,6 +320,22 @@ canvas{
     <input type="text" id="p1name" placeholder="Player 1" value="Player 1">
     <input type="text" id="p2name" placeholder="Player 2" value="Player 2">
     
+    <!-- Difficulty Selection (Hidden by default) -->
+    <div id="aiDifficultySettings" style="display:none;margin:15px 0;padding:12px;background:rgba(255,255,255,0.05);border-radius:10px;border:1px solid rgba(255,255,255,0.1);">
+      <div style="font-size:0.8rem;color:#94a3b8;margin-bottom:8px;">🤖 AI Difficulty</div>
+      <div style="display:flex;gap:10px;">
+        <button type="button" class="diff-btn" data-diff="easy" style="flex:1;padding:10px;border:2px solid rgba(255,255,255,0.2);background:rgba(255,255,255,0.05);color:#fff;border-radius:8px;cursor:pointer;font-family:inherit;font-size:0.85rem;">
+          Easy
+        </button>
+        <button type="button" class="diff-btn sel" data-diff="medium" style="flex:1;padding:10px;border:2px solid #22c55e;background:rgba(34,197,94,0.15);color:#fff;border-radius:8px;cursor:pointer;font-family:inherit;font-size:0.85rem;">
+          Medium
+        </button>
+        <button type="button" class="diff-btn" data-diff="hard" style="flex:1;padding:10px;border:2px solid rgba(255,255,255,0.2);background:rgba(255,255,255,0.05);color:#fff;border-radius:8px;cursor:pointer;font-family:inherit;font-size:0.85rem;">
+          Hard
+        </button>
+      </div>
+    </div>
+    
     <!-- Flip Mode Selection -->
     <div style="margin:15px 0;padding:12px;background:rgba(255,255,255,0.05);border-radius:10px;border:1px solid rgba(255,255,255,0.1);">
       <div style="font-size:0.8rem;color:#94a3b8;margin-bottom:8px;">📱 Phone Position</div>
@@ -415,6 +431,7 @@ const POCKET_R=26    // Pocket radius (slightly smaller)
 
 // Game state
 let mode="pass"
+let aiDifficulty="medium"
 let turn=1
 let turnCount=1
 let score1=0,score2=0
@@ -1242,36 +1259,232 @@ function nextTurn(){
 // ============================================
 
 function aiPlay(){
-  // Find a target coin
-  const targets=coins.filter(c=>c.active&&c.type==="black")
-  if(targets.length===0)return
+  // 1. Identify valid targets (Black coins, plus Queen if eligible)
+  let validTargets = coins.filter(c => c.active && c.type === "black")
+  const queen = coins.find(c => c.type === "queen")
   
-  const target=targets[Math.floor(Math.random()*targets.length)]
+  if(queen && queen.active && firstCoinPocketed) {
+    validTargets.push(queen)
+  }
   
-  // Calculate shot direction
-  const dx=target.x-striker.x
-  const dy=target.y-striker.y
+  if(validTargets.length === 0) return
   
-  // Set aim directly toward target
-  aimAngle=Math.atan2(dy,dx)
-  aimPower=100+Math.random()*100  // Random power (using new max 250)
+  // 2. Evaluate possible shots
+  let bestShot = null
+  let bestScore = -9999
   
-  // Small delay then shoot
-  setTimeout(()=>{
-    const maxPower=35  // Much stronger shots
-    const power=(aimPower/250)*maxPower
+  // Helper: check if a path from A to B intersects any other coin
+  const isPathClear = (startX, startY, endX, endY, radiusTolerance, ignoreCoin) => {
+    const dx = endX - startX
+    const dy = endY - startY
+    const dist = Math.sqrt(dx*dx + dy*dy)
+    const nx = dx / dist
+    const ny = dy / dist
     
-    // Shoot in OPPOSITE direction of drag (pull back to shoot forward)
-    striker.vx=Math.cos(aimAngle+Math.PI)*power
-    striker.vy=Math.sin(aimAngle+Math.PI)*power
+    for (const c of coins) {
+      if (!c.active || c === ignoreCoin) continue
+      // Vector from start to coin
+      const cx = c.x - startX
+      const cy = c.y - startY
+      // Projection of coin onto path line
+      const proj = cx * nx + cy * ny
+      // If coin is between start and end
+      if (proj > 0 && proj < dist) {
+        // Perpendicular distance to line
+        const perpX = cx - proj * nx
+        const perpY = cy - proj * ny
+        const perpDist = Math.sqrt(perpX*perpX + perpY*perpY)
+        if (perpDist < radiusTolerance + c.r) return false // Blocked
+      }
+    }
+    return true
+  }
+
+  // Iterate over multiple striker positions to find the best angle
+  const steps = 20
+  const stepSize = (BASELINE_X_MAX - BASELINE_X_MIN) / steps
+  
+  for (let i = 0; i <= steps; i++) {
+    const testStrikeX = BASELINE_X_MIN + (i * stepSize)
+    const testStrikeY = STRIKER_Y_TOP
     
-    // Reset turn state for this shot
-    keepTurn=false
-    coinsPocketedThisTurn=[]
+    // Check if striker position is valid (no coins blocking the baseline)
+    let isPosValid = true
+    for(const c of coins) {
+      if(!c.active || c.inPocket) continue
+      if(Math.abs(c.y - testStrikeY) < STRIKER_R + c.r + 5 && Math.abs(c.x - testStrikeX) < STRIKER_R + c.r + 2) {
+        isPosValid = false; break
+      }
+    }
+    if(!isPosValid) continue
+
+    for (const target of validTargets) {
+      for (const pocket of POCKETS) {
+        // Cut shot physics calculation
+        const dxPocket = pocket.x - target.x
+        const dyPocket = pocket.y - target.y
+        const distPocket = Math.sqrt(dxPocket*dxPocket + dyPocket*dyPocket)
+        
+        // Where the striker needs to hit the target coin to send it to the pocket
+        const hitNormX = dxPocket / distPocket
+        const hitNormY = dyPocket / distPocket
+        const ghostTargetX = target.x - hitNormX * (COIN_R * 2)
+        const ghostTargetY = target.y - hitNormY * (COIN_R * 2)
+        
+        // Vector from striker to ghost target
+        const dxStrike = ghostTargetX - testStrikeX
+        const dyStrike = ghostTargetY - testStrikeY
+        const distStrike = Math.sqrt(dxStrike*dxStrike + dyStrike*dyStrike)
+        
+        // Check cut angle (can't cut backward)
+        const dotProd = (dxStrike/distStrike)*(hitNormX) + (dyStrike/distStrike)*(hitNormY)
+        if(dotProd <= 0.1) continue // Angle too steep
+        
+        // Check clear path: striker to target, and target to pocket
+        const path1Clear = isPathClear(testStrikeX, testStrikeY, ghostTargetX, ghostTargetY, STRIKER_R - 2, target)
+        const path2Clear = isPathClear(target.x, target.y, pocket.x, pocket.y, COIN_R - 2, target)
+        
+        if (path1Clear && Math.random() < 0.9) { // High chance to consider if at least striker->target is clear
+           let score = 0
+           if(target.type === "queen") score += 50
+           if(path2Clear) score += 100 // Huge bonus for perfect clear path to pocket
+           
+           // Prefer shorter distances means more accuracy
+           score -= distPocket * 0.1 
+           score -= distStrike * 0.05
+           
+           // Prefer straighter shots
+           score += dotProd * 20
+           
+           if(score > bestScore) {
+             bestScore = score
+             bestShot = {
+               target: target,
+               strikerX: testStrikeX,
+               aimX: ghostTargetX,
+               aimY: ghostTargetY,
+               power: Math.min(250, 100 + distPocket + distStrike)
+             }
+           }
+        }
+      }
+    }
+  }
+
+  // 3. Fallback if no ideal shot (rare)
+  if (!bestShot) {
+    const target = validTargets[Math.floor(Math.random() * validTargets.length)]
+    bestShot = {
+      target: target,
+      strikerX: Math.max(BASELINE_X_MIN, Math.min(BASELINE_X_MAX, target.x)),
+      aimX: target.x,
+      aimY: target.y,
+      power: 150
+    }
+  }
+
+  // 4. Apply Difficulty Modifiers
+  let finalStrikerX = bestShot.strikerX
+  let blurX = 0, blurY = 0
+
+  if (aiDifficulty === "easy") {
+    // Easy: Striker placement is sloppy, aim is very blurry
+    finalStrikerX += (Math.random() - 0.5) * 40
+    blurX = (Math.random() - 0.5) * 30
+    blurY = (Math.random() - 0.5) * 30
+    bestShot.power *= (0.7 + Math.random() * 0.6)
+  } else if (aiDifficulty === "medium") {
+    // Medium: Decent placement, slight aim error
+    finalStrikerX += (Math.random() - 0.5) * 10
+    blurX = (Math.random() - 0.5) * 10
+    blurY = (Math.random() - 0.5) * 10
+    bestShot.power *= (0.9 + Math.random() * 0.2)
+  }
+  // Hard uses exact math (blur = 0)
+
+  // Ensure striker stays in bounds after blur
+  finalStrikerX = Math.max(BASELINE_X_MIN, Math.min(BASELINE_X_MAX, finalStrikerX))
+  // Find EXACT valid spot near the chosen X to prevent overlap
+  finalStrikerX = findValidStrikerPosition(finalStrikerX, STRIKER_Y_TOP)
+
+  // 5. Animate the AI turn sequence
+  
+  // Step A: Slide Striker
+  let slideTime = 800
+  let startTime = Date.now()
+  let startX = striker.x
+  
+  function animateSlide() {
+    let elapsed = Date.now() - startTime
+    let progress = Math.min(elapsed / slideTime, 1)
     
-    turnInProgress=true
+    // Easing function for smooth slide
+    let ease = 1 - Math.pow(1 - progress, 3) 
+    striker.x = startX + (finalStrikerX - startX) * ease
+    updateSliderPosition()
+    
+    if(progress < 1) {
+      requestAnimationFrame(animateSlide)
+    } else {
+      // Step B: Set aim and power, trigger pull-back visuals
+      setTimeout(startAIAiming, 300)
+    }
+  }
+  
+  animateSlide()
+
+  // Step B handler
+  function startAIAiming() {
+    isAimingOnBoard = true
+    
+    // Calculate final aim vector
+    const dx = (bestShot.aimX + blurX) - striker.x
+    const dy = (bestShot.aimY + blurY) - striker.y
+    aimAngle = Math.atan2(dy, dx)
+    
+    // Simulate drawing the striker back
+    let aimTime = 600
+    let startAimTime = Date.now()
+    
+    function animateAim() {
+        let elapsed = Date.now() - startAimTime
+        let progress = Math.min(elapsed / aimTime, 1)
+        
+        aimPower = bestShot.power * progress
+        
+        // Mock dragCurrentPos so drawing function shows the pull line
+        const reverseDir = aimAngle + Math.PI
+        dragCurrentPos = {
+            x: striker.x + Math.cos(reverseDir) * aimPower,
+            y: striker.y + Math.sin(reverseDir) * aimPower
+        }
+        
+        if (progress < 1) {
+            requestAnimationFrame(animateAim)
+        } else {
+            // Step C: Hold for a fraction, then flick
+            setTimeout(executeShot, 200)
+        }
+    }
+    
+    animateAim()
+  }
+
+  // Step C handler
+  function executeShot() {
+    const maxPower = 35 
+    const power = (aimPower / 250) * maxPower
+    
+    // Shoot in OPPOSITE direction of the pull (which matches our calculated aimAngle)
+    striker.vx = Math.cos(aimAngle) * power
+    striker.vy = Math.sin(aimAngle) * power
+    
+    keepTurn = false
+    coinsPocketedThisTurn = []
+    
+    turnInProgress = true
     cancelAiming()
-  },800)
+  }
 }
 
 // ============================================
@@ -1839,6 +2052,32 @@ document.querySelectorAll(".mode-btn").forEach(btn=>{
   btn.addEventListener("click",()=>{
     document.querySelectorAll(".mode-btn").forEach(b=>b.classList.remove("sel"))
     btn.classList.add("sel")
+    
+    // Show/hide AI difficulty and Player 2 name
+    const diffSettings = document.getElementById("aiDifficultySettings")
+    const p2Input = document.getElementById("p2name")
+    if(btn.dataset.mode === "ai"){
+      diffSettings.style.display = "block"
+      p2Input.style.display = "none"
+    } else {
+      diffSettings.style.display = "none"
+      p2Input.style.display = "block"
+    }
+  })
+})
+
+// Difficulty selection
+document.querySelectorAll(".diff-btn").forEach(btn=>{
+  btn.addEventListener("click",()=>{
+    document.querySelectorAll(".diff-btn").forEach(b=>{
+      b.classList.remove("sel")
+      b.style.borderColor = "rgba(255,255,255,0.2)"
+      b.style.background = "rgba(255,255,255,0.05)"
+    })
+    btn.classList.add("sel")
+    btn.style.borderColor = "#22c55e"
+    btn.style.background = "rgba(34,197,94,0.15)"
+    aiDifficulty = btn.dataset.diff
   })
 })
 
