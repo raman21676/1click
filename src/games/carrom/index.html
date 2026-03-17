@@ -1440,7 +1440,10 @@ function aiPlay(){
     // Calculate final aim vector
     const dx = (bestShot.aimX + blurX) - striker.x
     const dy = (bestShot.aimY + blurY) - striker.y
-    aimAngle = Math.atan2(dy, dx)
+    const targetAngle = Math.atan2(dy, dx)
+    
+    // The "aimAngle" globally is treated as the direction the finger is PULLED (opposite of the target)
+    aimAngle = targetAngle + Math.PI
     
     // Simulate drawing the striker back
     let aimTime = 600
@@ -1452,11 +1455,10 @@ function aiPlay(){
         
         aimPower = bestShot.power * progress
         
-        // Mock dragCurrentPos so drawing function shows the pull line
-        const reverseDir = aimAngle + Math.PI
+        // Mock dragCurrentPos so drawing function shows the pull line in aimAngle direction
         dragCurrentPos = {
-            x: striker.x + Math.cos(reverseDir) * aimPower,
-            y: striker.y + Math.sin(reverseDir) * aimPower
+            x: striker.x + Math.cos(aimAngle) * aimPower,
+            y: striker.y + Math.sin(aimAngle) * aimPower
         }
         
         if (progress < 1) {
@@ -1475,9 +1477,9 @@ function aiPlay(){
     const maxPower = 35 
     const power = (aimPower / 250) * maxPower
     
-    // Shoot in OPPOSITE direction of the pull (which matches our calculated aimAngle)
-    striker.vx = Math.cos(aimAngle) * power
-    striker.vy = Math.sin(aimAngle) * power
+    // Shoot in OPPOSITE direction of the pull (which matches our targetAngle)
+    striker.vx = Math.cos(aimAngle + Math.PI) * power
+    striker.vy = Math.sin(aimAngle + Math.PI) * power
     
     keepTurn = false
     coinsPocketedThisTurn = []
