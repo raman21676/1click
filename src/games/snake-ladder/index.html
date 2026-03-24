@@ -1735,13 +1735,16 @@ function handleMove(pi, steps) {
   // Debug: Log the movement
   console.log(`[Move] Player ${pi}: ${cur} + ${steps} = ${raw}`);
 
+  // Standard Snake & Ladder rule: Must roll EXACTLY to reach 100
+  // If roll is too high, turn passes without moving
   if (raw > 100) {
-    const bounce = 100 - (raw - 100);
-    setMsg(`Need exactly ${100 - cur} to win!`);
-    animSteps(pi, cur, bounce, () => {
-      // Overshoot: no extra turn, switch to next player
+    const needed = 100 - cur;
+    setMsg(`Need exactly ${needed} to win! You rolled ${steps}.`);
+    trySound(() => SoundManager.playError?.() || SoundManager.playLose?.());
+    // No movement, pass turn to next player
+    setTimeout(() => {
       endTurnWithSync(pi, false);
-    });
+    }, 1500);
     return;
   }
 
