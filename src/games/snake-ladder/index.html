@@ -928,6 +928,33 @@ const SNAKE_PATHS = {
   99: [99, 'middle-82-83', 'middle-82-79', 'middle-79-80', 'middle-79-62', 'middle-62-63', 'middle-58-59', 42]
 };
 
+// Ladder climbing paths - visual path following the actual ladder curves on the board
+const LADDER_PATHS = {
+  // Ladder 2: 2 → middle(18,19) → 23
+  2: [2, 'middle-18-19', 23],
+  
+  // Ladder 10: 10 → middle(11,12) → 29
+  10: [10, 'middle-11-12', 29],
+  
+  // Ladder 14: 14 → middle(26,27) → 35
+  14: [14, 'middle-26-27', 35],
+  
+  // Ladder 24: 24 → middle(36,37) → 45
+  24: [24, 'middle-36-37', 45],
+  
+  // Ladder 33: 33 → middle(48,49) → 52
+  33: [33, 'middle-48-49', 52],
+  
+  // Ladder 42: 42 → middle(59,60) → 61
+  42: [42, 'middle-59-60', 61],
+  
+  // Ladder 53: 53 → middle(67,68) → 74
+  53: [53, 'middle-67-68', 74],
+  
+  // Ladder 64: 64 → middle(76,77) → 85
+  64: [64, 'middle-76-77', 85]
+};
+
 const DICE_FINAL = {
   1:'rotateX(0deg) rotateY(0deg)',
   2:'rotateX(0deg) rotateY(180deg)',
@@ -1768,14 +1795,17 @@ function handleMove(pi, steps) {
         });
       }, 400);
     } else if (LADDERS[raw] !== undefined) {
-      // Ladder: get extra turn!
+      // Ladder: animate climbing up the ladder
       setMsg('🪜 Ladder! Extra turn!');
       trySound(() => SoundManager.playLevelUp());
+      const ladderTop = LADDERS[raw];
+      const path = LADDER_PATHS[raw] || [raw, ladderTop];
+      // Small delay before starting the climb
       setTimeout(() => {
-        G.positions[pi] = LADDERS[raw];
-        renderTokens();
-        setTimeout(() => endTurnWithSync(pi, true), 500);
-      }, 700);
+        animLadderClimb(pi, path, () => {
+          setTimeout(() => endTurnWithSync(pi, true), 400);
+        });
+      }, 400);
     } else if (raw === 100) {
       // Win!
       trySound(() => SoundManager.playWin());
@@ -2065,6 +2095,144 @@ function applySnakeFallEffect(pi, progress) {
       circle.style.transformOrigin = 'center';
       circle.style.transition = 'transform 0.15s ease-out';
       circle.style.transform = `rotate(${rotation}deg) scale(${scale})`;
+      
+      // Reset after animation
+      setTimeout(() => {
+        circle.style.transform = '';
+        circle.style.transition = '';
+      }, 200);
+    }
+  });
+}
+
+// Animate token climbing up a ladder with smooth path following
+function animLadderClimb(pi, path, done) {
+  if (!path || path.length < 2) { done(); return; }
+  
+  let stepIndex = 0;
+  const totalSteps = path.length;
+  
+  // Climb animation with steady speed
+  function climbTick() {
+    stepIndex++;
+    
+    if (stepIndex >= totalSteps) {
+      // Reached the top
+      const finalPoint = path[totalSteps - 1];
+      G.positions[pi] = typeof finalPoint === 'number' ? finalPoint : parseInt(finalPoint);
+      renderTokens();
+      done();
+      return;
+    }
+    
+    // Get the current path point
+    const currentPoint = path[stepIndex];
+    
+    // Update position
+    if (typeof currentPoint === 'number') {
+      G.positions[pi] = currentPoint;
+    }
+    
+    // Render with ladder path handling
+    renderTokensWithLadderPath(pi, path, stepIndex);
+    
+    // Steady delay for ladder climb
+    const delay = 250;
+    
+    // Apply climbing visual effect
+    applyLadderClimbEffect(pi, stepIndex / (totalSteps - 1));
+    
+    setTimeout(climbTick, delay);
+  }
+  
+  // Start the climb
+  climbTick();
+}
+
+// Render tokens with ladder path intermediate positions
+function renderTokensWithLadderPath(activePi, path, currentStep) {
+  const svg = document.getElementById('tokensSvg');
+  svg.innerHTML = '';
+
+  const groups = {};
+  G.players.forEach((p, i) => {
+    const pos = G.positions[i];
+    if (pos <= 0) return;
+    
+    // For the active player on ladder path, use the intermediate coordinate
+    let coord;
+    if (i === activePi && currentStep < path.length) {
+      coord = getSnakePathCoord(path[currentStep]);
+    } else {
+      coord = cellCenter(pos);
+    }
+    
+    if (!groups[pos]) groups[pos] = [];
+    groups[pos].push({ pi: i, coord });
+  });
+
+  Object.entries(groups).forEach(([pos, players]) => {
+    const n = players.length;
+
+    players.forEach((item, k) => {
+      const { pi, coord } = item;
+      const p = G.players[pi];
+      const r = n > 2 ? 2.0 : 2.5;
+
+      let ox = 0, oy = 0;
+      if (n === 2) { ox = (k === 0 ? -2.2 : 2.2); }
+      else if (n === 3) { ox = (k - 1) * 2.2; oy = k === 1 ? -1.2 : 1.2; }
+      else if (n === 4) { ox = (k % 2 === 0 ? -2.2 : 2.2); oy = k < 2 ? -1.8 : 1.8; }
+
+      const cx = coord.x + ox;
+      const cy = coord.y + oy;
+
+      const sh = svgEl('circle');
+      sh.setAttribute('cx', cx + .5); sh.setAttribute('cy', cy + .7);
+      sh.setAttribute('r', r); sh.setAttribute('fill', 'rgba(0,0,0,.4)');
+      svg.appendChild(sh);
+
+      const circ = svgEl('circle');
+      circ.setAttribute('cx', cx); circ.setAttribute('cy', cy);
+      circ.setAttribute('r', r);
+      circ.setAttribute('fill', p.color);
+      circ.setAttribute('stroke', 'white');
+      circ.setAttribute('stroke-width', '1.2');
+      svg.appendChild(circ);
+
+      const txt = svgEl('text');
+      txt.setAttribute('x', cx); txt.setAttribute('y', cy + r * 0.4);
+      txt.setAttribute('text-anchor', 'middle');
+      txt.setAttribute('font-size', r * 1.0);
+      txt.setAttribute('font-weight', '800');
+      txt.setAttribute('font-family', 'Poppins,sans-serif');
+      txt.setAttribute('fill', p.text);
+      txt.textContent = pi + 1;
+      svg.appendChild(txt);
+    });
+  });
+
+  renderPanels();
+}
+
+// Apply visual effect to token during ladder climb
+function applyLadderClimbEffect(pi, progress) {
+  // Find the token element for this player
+  const svg = document.getElementById('tokensSvg');
+  const circles = svg.querySelectorAll('circle');
+  
+  // Find the player's token
+  const playerColor = G.players[pi].color;
+  
+  circles.forEach(circle => {
+    if (circle.getAttribute('fill') === playerColor && !circle.getAttribute('fill').includes('rgba')) {
+      // Apply climbing bounce effect
+      const bounce = Math.sin(progress * Math.PI) * 0.2;
+      const scale = 1 + bounce;
+      circle.style.transformBox = 'fill-box';
+      circle.style.transformOrigin = 'center';
+      circle.style.transition = 'transform 0.15s ease-out';
+      circle.style.transform = `scale(${scale})`;
       
       // Reset after animation
       setTimeout(() => {
