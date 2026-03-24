@@ -1762,22 +1762,17 @@ function handleMove(pi, steps) {
   // Debug: Log the movement
   console.log(`[Move] Player ${pi}: ${cur} + ${steps} = ${raw}`);
 
-  // Overshoot rule: If roll exceeds 100, bounce back from 100
-  // Example: 98 + 3 = 101 -> overshoot by 1 -> bounce to 99
-  // Example: 97 + 5 = 102 -> overshoot by 2 -> bounce to 98
+  // Invalid roll: If roll exceeds 100, token stays in place
+  // Example: 98 + 3 = 101 -> invalid, stay at 98
+  // Example: 97 + 5 = 102 -> invalid, stay at 97
   if (raw > 100) {
-    const overshoot = raw - 100;
-    const bouncePos = 100 - overshoot;
     const needed = 100 - cur;
-    setMsg(`Need exactly ${needed}! Bounced back to ${bouncePos}.`);
-    animSteps(pi, cur, 100, () => {
-      // After reaching 100, bounce back the overshoot amount
-      setTimeout(() => {
-        animSteps(pi, 100, bouncePos, () => {
-          endTurnWithSync(pi, false);
-        });
-      }, 300);
-    });
+    setMsg(`Need exactly ${needed}! You rolled ${steps}. Turn passes.`);
+    trySound(() => SoundManager.playError?.() || SoundManager.playLose?.());
+    // No movement - just pass turn after delay
+    setTimeout(() => {
+      endTurnWithSync(pi, false);
+    }, 1500);
     return;
   }
 
