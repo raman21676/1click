@@ -521,6 +521,15 @@
     .connection-status.connecting { background: rgba(255, 152, 0, 0.2); color: #FF9800; }
     .conn-dot { width: 8px; height: 8px; border-radius: 50%; animation: pulse-dot 2s ease-in-out infinite; }
     @keyframes pulse-dot { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
+    
+    /* Snake fall bounce animation */
+    @keyframes snakeBounce {
+      0% { transform: scale(1); }
+      30% { transform: scale(0.85) translateY(2px); }
+      50% { transform: scale(1.1) translateY(-3px); }
+      70% { transform: scale(0.95) translateY(1px); }
+      100% { transform: scale(1) translateY(0); }
+    }
 
     /* Loading Overlay */
     .loading-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.9); display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 10000; opacity: 0; visibility: hidden; transition: opacity 0.3s; }
@@ -893,6 +902,18 @@ function getLocalCornerPos(playerIdx) {
 
 const SNAKES = { 99:42, 92:73, 83:63, 66:47, 36:15, 32:11, 23:17 };
 const LADDERS = { 2:23, 10:29, 14:35, 24:45, 33:52, 42:61, 53:74, 64:85 };
+
+// Snake falling paths - intermediate waypoints for realistic fall animation
+// Each snake has an array of cells the token passes through from head to tail
+const SNAKE_PATHS = {
+  99: [99, 91, 81, 71, 61, 51, 42],           // Long snake from top-left
+  92: [92, 84, 75, 73],                       // Medium snake
+  83: [83, 74, 64, 63],                       // Medium snake  
+  66: [66, 56, 47],                           // Short snake
+  36: [36, 26, 16, 15],                       // Medium-long snake
+  32: [32, 22, 12, 11],                       // Medium snake
+  23: [23, 18, 17]                            // Short snake
+};
 
 const DICE_FINAL = {
   1:'rotateX(0deg) rotateY(0deg)',
@@ -1707,14 +1728,17 @@ function handleMove(pi, steps) {
 
   animSteps(pi, cur, raw, () => {
     if (SNAKES[raw] !== undefined) {
-      // Snake bite: lose turn, no extra roll
+      // Snake bite: animate falling down the snake
       setMsg('🐍 Oh no! Snake bite!');
       trySound(() => SoundManager.playLose());
+      const snakeTail = SNAKES[raw];
+      const path = SNAKE_PATHS[raw] || [raw, snakeTail];
+      // Small delay before starting the fall
       setTimeout(() => {
-        G.positions[pi] = SNAKES[raw];
-        renderTokens();
-        setTimeout(() => endTurnWithSync(pi, false), 500);
-      }, 700);
+        animSnakeFall(pi, path, () => {
+          setTimeout(() => endTurnWithSync(pi, false), 400);
+        });
+      }, 400);
     } else if (LADDERS[raw] !== undefined) {
       // Ladder: get extra turn!
       setMsg('🪜 Ladder! Extra turn!');
@@ -1825,6 +1849,83 @@ function animSteps(pi, from, to, done) {
     else done();
   }
   tick();
+}
+
+// Animate token falling down a snake with smooth path following
+function animSnakeFall(pi, path, done) {
+  if (!path || path.length < 2) { done(); return; }
+  
+  let stepIndex = 0;
+  const totalSteps = path.length;
+  
+  // Fall animation with accelerating speed and visual effects
+  function fallTick() {
+    stepIndex++;
+    
+    if (stepIndex >= totalSteps) {
+      // Reached the tail - bounce effect
+      G.positions[pi] = path[totalSteps - 1];
+      renderTokens();
+      // Add a small bounce at the end
+      const svg = document.getElementById('tokensSvg');
+      const tokenGroup = svg.querySelector(`[data-player="${pi}"]`);
+      if (tokenGroup) {
+        tokenGroup.style.animation = 'snakeBounce 0.3s ease-out';
+        setTimeout(() => {
+          if (tokenGroup) tokenGroup.style.animation = '';
+        }, 300);
+      }
+      done();
+      return;
+    }
+    
+    // Update position
+    G.positions[pi] = path[stepIndex];
+    renderTokens();
+    
+    // Calculate delay - gets faster as we fall (acceleration effect)
+    // Start slow, then speed up
+    const progress = stepIndex / (totalSteps - 1);
+    const baseDelay = 200;
+    const minDelay = 60;
+    const delay = Math.max(minDelay, baseDelay - (progress * 140));
+    
+    // Apply falling visual effect to the token
+    applySnakeFallEffect(pi, progress);
+    
+    setTimeout(fallTick, delay);
+  }
+  
+  // Start the fall
+  fallTick();
+}
+
+// Apply visual effect to token during snake fall
+function applySnakeFallEffect(pi, progress) {
+  // Find the token element for this player
+  const svg = document.getElementById('tokensSvg');
+  const circles = svg.querySelectorAll('circle');
+  
+  // Find the player's token (it will be the one with the player's color)
+  const playerColor = G.players[pi].color;
+  
+  circles.forEach(circle => {
+    if (circle.getAttribute('fill') === playerColor && !circle.getAttribute('fill').includes('rgba')) {
+      // Apply falling rotation and slight squash effect
+      const rotation = progress * 360; // Rotate while falling
+      const scale = 1 - (progress * 0.15); // Slightly shrink
+      circle.style.transformBox = 'fill-box';
+      circle.style.transformOrigin = 'center';
+      circle.style.transition = 'transform 0.15s ease-out';
+      circle.style.transform = `rotate(${rotation}deg) scale(${scale})`;
+      
+      // Reset after animation
+      setTimeout(() => {
+        circle.style.transform = '';
+        circle.style.transition = '';
+      }, 200);
+    }
+  });
 }
 
 function showWin(pi) {
