@@ -1679,6 +1679,9 @@ function onRoll() {
   const val = Math.floor(Math.random() * 6) + 1;
   G.lastRoll = val;  // Store the roll value
   
+  // Show roll value immediately for clarity
+  setMsg(`🎲 Rolled ${val}!`);
+  
   // Broadcast to peer in online mode
   if (G.isOnline) {
     sendToPeer({ type: 'roll', playerIndex: G.myPlayerIndex, value: val });
@@ -1728,6 +1731,9 @@ function performRollAnimation(val, shouldProcess) {
 function handleMove(pi, steps) {
   const cur = G.positions[pi];
   const raw = cur + steps;
+  
+  // Debug: Log the movement
+  console.log(`[Move] Player ${pi}: ${cur} + ${steps} = ${raw}`);
 
   if (raw > 100) {
     const bounce = 100 - (raw - 100);
@@ -1852,15 +1858,40 @@ function endTurn() {
 
 function animSteps(pi, from, to, done) {
   if (from === to) { done(); return; }
-  let cur = from;
+  
+  const totalSteps = Math.abs(to - from);
+  let currentStep = 0;
   const dir = from < to ? 1 : -1;
+  
+  // Store starting position
+  let cur = from;
+  
+  // Calculate adaptive delay based on number of steps
+  // More steps = slightly faster per step to keep total time reasonable
+  const baseDelay = totalSteps > 4 ? 140 : 180;
+  
   function tick() {
+    currentStep++;
     cur += dir;
+    
+    // Ensure we don't overshoot
+    if ((dir === 1 && cur > to) || (dir === -1 && cur < to)) {
+      cur = to;
+    }
+    
     G.positions[pi] = cur;
     renderTokens();
-    if (cur !== to) setTimeout(tick, 180);
-    else done();
+    
+    // Continue if we haven't reached the target
+    if (cur !== to) {
+      setTimeout(tick, baseDelay);
+    } else {
+      // Small pause at the end before callback
+      setTimeout(done, 100);
+    }
   }
+  
+  // Start the animation
   tick();
 }
 
