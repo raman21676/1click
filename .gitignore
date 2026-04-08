@@ -54,6 +54,9 @@ Thumbs.db
 *.keystore
 *.jks
 android/keystore/
+android/*-keystore.jks
+android/*.keystore
+android/*.jks
 
 # Admin panel credentials (CRITICAL - NEVER COMMIT!)
 admin/config.js

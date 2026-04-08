@@ -372,15 +372,13 @@
         // Session management
         const SESSION_KEY = 'admin_session';
         
-        // Fallback credentials (used if config.js is not present)
-        // These are only used as fallback - config.js takes precedence
-        const FALLBACK_CONFIG = {
-            username: 'raman0309',
-            password: '*1678#@hellO'
-        };
+        // Check if config.js loaded properly
+        if (typeof ADMIN_CONFIG === 'undefined') {
+            alert('Error: Config file not found. Please create admin/config.js with your credentials.');
+            return;
+        }
         
-        // Use config.js if available, otherwise fallback
-        const CONFIG = typeof ADMIN_CONFIG !== 'undefined' ? ADMIN_CONFIG : FALLBACK_CONFIG;
+        const CONFIG = ADMIN_CONFIG;
         
         // Check if already logged in
         window.addEventListener('load', () => {
