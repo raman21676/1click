@@ -11,6 +11,7 @@ lighthouse-report.json
 
 # Logs
 *.log
+logs/
 
 # IDE
 .vscode/
@@ -21,3 +22,35 @@ lighthouse-report.json
 # Temporary files
 *.tmp
 *.temp
+
+# Internal documentation (keep local, don't publish)
+AGENTS.md
+ARCHITECTURE.md
+docs/
+android/BUILD_INSTRUCTIONS.md
+
+# Android build artifacts
+android/.gradle/
+android/app/build/
+android/build/
+android/captures/
+android/local.properties
+android/*.iml
+
+# Python cache
+__pycache__/
+*.pyc
+*.pyo
+
+# OS files
+Thumbs.db
+
+# Large image files (keep only optimized versions)
+*.psd
+*.ai
+*.sketch
+
+# Keystore files (SECURITY - never commit!)
+*.keystore
+*.jks
+android/keystore/
