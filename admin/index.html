@@ -372,6 +372,16 @@
         // Session management
         const SESSION_KEY = 'admin_session';
         
+        // Fallback credentials (used if config.js is not present)
+        // These are only used as fallback - config.js takes precedence
+        const FALLBACK_CONFIG = {
+            username: 'raman0309',
+            password: '*1678#@hellO'
+        };
+        
+        // Use config.js if available, otherwise fallback
+        const CONFIG = typeof ADMIN_CONFIG !== 'undefined' ? ADMIN_CONFIG : FALLBACK_CONFIG;
+        
         // Check if already logged in
         window.addEventListener('load', () => {
             const session = localStorage.getItem(SESSION_KEY);
@@ -387,8 +397,8 @@
             const username = document.getElementById('username').value;
             const password = document.getElementById('password').value;
             
-            // Validate against config (loaded from config.js)
-            if (username === ADMIN_CONFIG.username && password === ADMIN_CONFIG.password) {
+            // Validate against config
+            if (username === CONFIG.username && password === CONFIG.password) {
                 // Create session
                 const sessionData = {
                     timestamp: Date.now(),
